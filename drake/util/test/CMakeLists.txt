@@ -32,6 +32,10 @@ target_link_libraries(testTrigPoly drakePolynomial)
 add_test(NAME testTrigPoly COMMAND testTrigPoly)
 
 if (GTEST_FOUND)
+  add_executable(drake_app_util_test drake_app_util_test.cc)
+  target_link_libraries(drake_app_util_test ${GTEST_BOTH_LIBRARIES})
+  add_test(NAME drake_app_util_test COMMAND drake_app_util_test)
+
   add_executable(testDrakeGeometryUtil testDrakeGeometryUtil.cpp)
   target_link_libraries(testDrakeGeometryUtil drakeGeometryUtil ${GTEST_BOTH_LIBRARIES})
   add_test(NAME testDrakeGeometryUtil COMMAND testDrakeGeometryUtil)

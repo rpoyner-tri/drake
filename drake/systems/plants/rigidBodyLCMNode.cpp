@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
   // todo: consider moving this logic into the RigidBodySystem class so it can
   // be reused
   DrakeJoint::FloatingBaseType floating_base_type = DrakeJoint::QUATERNION;
-  char* floating_base_option =
+  const char* floating_base_option =
       getCommandLineOption(argv, argc + argv, "--base");
   if (floating_base_option) {
     if (strcmp(floating_base_option, "FIXED") == 0) {

@@ -8,16 +8,17 @@
  *(getopt is not available on msvc)
  *
  * Example usage:
- * char * filename = getCommandLineOption(argv, argv + argc, "-f");
+ * const char * filename = getCommandLineOption(argv, argv + argc, "-f");
  * if (filename) { ... }
  *
  * See also commandLineOptionExists
  */
-char* getCommandLineOption(char** begin, char** end,
-                           const std::string& option) {
-  char** itr = std::find(begin, end, option);
-  if (itr != end && ++itr != end) {
-    return *itr;
+const char* const getCommandLineOption(const char* const * begin,
+                                       const char* const * end,
+                                       const std::string& option) {
+  const char* const * itr = std::find(begin, end, option);
+  if (itr != end && itr + 1 != end) {
+    return *(itr + 1);
   }
   return 0;
 }
@@ -32,7 +33,8 @@ char* getCommandLineOption(char** begin, char** end,
  * See also getCommandLineOption
  */
 
-bool commandLineOptionExists(char** begin, char** end,
+bool commandLineOptionExists(const char* const * begin,
+                             const char* const * end,
                              const std::string& option) {
   return std::find(begin, end, option) != end;
 }
