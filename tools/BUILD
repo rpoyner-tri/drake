@@ -8,9 +8,9 @@ sh_binary(
     data = ["valgrind.supp"],
 )
 
-sh_binary(
+py_binary(
     name = "kcov",
-    srcs = ["kcov.sh"],
+    srcs = ["kcov.py"],
 )
 
 py_binary(
