@@ -1,0 +1,41 @@
+# -*- yaml -*-
+---
+# distances are meters; angles are degrees.
+maliput_monolane_builder:
+  id: mobius
+  lane_bounds: [-3, 3]
+  driveable_bounds: [-8, 8]
+  position_precision: .01
+  orientation_precision: 0.5
+  points:
+    start:
+      xypoint: [50, 0, 0]  # x,y, heading
+      zpoint: [0, 0, 0, 0]  # z, zdot, theta (superelevation), thetadot
+  connections:
+    0:
+      start: "points.start"
+      arc: [50, 180]
+      z_end: [0, 0, 0, 0]
+    1:
+      start: "connections.0.end"
+      arc: [50, 90]
+      z_end: [0, 0, 90, 0]
+    2:
+      start: "connections.1.end"
+      arc: [50, 90]
+      z_end: [-.02, 0, 180, 0]  # Tweak z to avoid snapping to points.start.
+    3:
+      start: "connections.2.end"
+      arc: [50, 180]
+      z_end: [-.02, 0, 180, 0]
+    4:
+      start: "connections.3.end"
+      arc: [49.98, 90]  # Tweak radius to avoid snapping to connections.1.end.
+
+      # TODO(rpoyner-tri): apparently there is a bug that prevents us from
+      # banking another 90deg right; instead we bank (corkscrew) 270deg left.
+      z_end: [0, 0, -90, 0]
+    5:
+      start: "connections.4.end"
+      arc: [50, 90]
+      z_end: [0, 0, 0, 0]
