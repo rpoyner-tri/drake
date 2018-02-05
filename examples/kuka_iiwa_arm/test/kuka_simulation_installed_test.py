@@ -10,11 +10,7 @@ import install_test_helper
 class TestKukaSimulation(unittest.TestCase):
     def test(self):
         # Install into the tmpdir that Bazel has created for us.
-        tmpdir = os.environ["TEST_TMPDIR"]
-        self.assertTrue(os.path.exists(tmpdir))
-        install_dir = os.path.join(tmpdir, "install")
-        result = install_test_helper.install(install_dir, rmdir_cwd=False)
-        self.assertEqual(None, result)
+        install_dir = install_test_helper.install()
 
         # Make sure the simulation can run without error.  We set cwd="/" to
         # defeat the "search in parent folders" heuristic, so that the "use

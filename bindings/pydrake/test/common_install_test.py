@@ -11,9 +11,7 @@ class TestCommonInstall(unittest.TestCase):
     def testDrakeFindResourceOrThrowInInstall(self):
         # Install into a temporary directory. The temporary directory does not
         # need to be removed as bazel tests are run in a scratch space.
-        tmp_folder = "tmp"
-        result = install_test_helper.install(tmp_folder, ['lib', 'share'])
-        self.assertEqual(None, result)
+        tmp_folder = install_test_helper.install(['lib', 'share'])
         # Override PYTHONPATH to only use the installed `pydrake` module.
         env_python_path = "PYTHONPATH"
         tool_env = dict(os.environ)

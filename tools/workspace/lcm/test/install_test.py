@@ -7,11 +7,9 @@ import install_test_helper
 
 
 class TestCommonInstall(unittest.TestCase):
+    # stuff
     def testInstall(self):
-        tmp_folder = "tmp"
-        result = install_test_helper.install(tmp_folder,
-                                             ['bin', 'lib', 'share'])
-        self.assertEqual(None, result)
+        tmp_folder = install_test_helper.install(['bin', 'lib', 'share'])
         executable_folder = os.path.join(tmp_folder, "bin")
         subprocess.check_call([os.path.join(executable_folder, "lcm-gen")])
 
