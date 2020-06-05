@@ -114,7 +114,7 @@ GTEST_TEST(ManipulationStationTest, CheckPlantBasics) {
 
   // Check that the additional output ports exist and are spelled correctly.
   DRAKE_EXPECT_NO_THROW(station.GetOutputPort("contact_results"));
-  DRAKE_EXPECT_NO_THROW(station.GetOutputPort("plant_continuous_state"));
+  DRAKE_EXPECT_NO_THROW(station.GetOutputPort("plant_state"));
 }
 
 // Partially check M(q)vdot ≈ Mₑ(q)vdot_desired + τ_feedforward + τ_external

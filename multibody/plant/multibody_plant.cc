@@ -2266,10 +2266,8 @@ void MultibodyPlant<T>::DeclareStateCacheAndPorts() {
         Value<std::vector<ExternallyAppliedSpatialForce<T>>>()).get_index();
 
   // Declare one output port for the entire state vector.
-  // TODO(sherm1) Rename this port to just "state" when #12214 is resolved so
-  //              we can deprecate the old port name.
   state_output_port_ =
-      this->DeclareVectorOutputPort("continuous_state",
+      this->DeclareVectorOutputPort("state",
                                     BasicVector<T>(num_multibody_states()),
                                     &MultibodyPlant::CopyMultibodyStateOut,
                                     {this->all_state_ticket()})
@@ -2332,11 +2330,9 @@ void MultibodyPlant<T>::DeclareStateCacheAndPorts() {
 
     const int instance_num_states =  // Might be zero.
         num_multibody_states(model_instance_index);
-    // TODO(sherm1) Rename these ports to just "_state" when #12214 is resolved
-    //              so we can deprecate the old port names.
     instance_state_output_ports_[model_instance_index] =
         this->DeclareVectorOutputPort(
-                instance_name + "_continuous_state",
+                instance_name + "_state",
                 BasicVector<T>(instance_num_states),
                 [this, model_instance_index](
                     const systems::Context<T>& context,

@@ -94,8 +94,6 @@ enum class ContactModel {
 #define DRAKE_MBP_THROW_IF_NOT_FINALIZED() ThrowIfNotFinalized(__func__)
 /// @endcond
 
-// TODO(sherm1) Rename "continuous_state" output ports to just "state" since
-//              they can be discrete. However see issue #12214.
 /// %MultibodyPlant is a Drake system framework representation (see
 /// systems::System) for the model of a physical system consisting of a
 /// collection of interconnected bodies.  See @ref multibody for an overview of
@@ -107,7 +105,7 @@ enum class ContactModel {
 ///   @input_port{<em style="color:gray">
 ///     model_instance_name[i]</em>_actuation}
 ///   @input_port{<span style="color:green">geometry_query</span>},
-///   @output_port{continuous_state}
+///   @output_port{state}
 ///   @output_port{body_poses}
 ///   @output_port{body_spatial_velocities}
 ///   @output_port{body_spatial_accelerations}
@@ -115,7 +113,7 @@ enum class ContactModel {
 ///   @output_port{reaction_forces}
 ///   @output_port{contact_results}
 ///   @output_port{<em style="color:gray">
-///     model_instance_name[i]</em>_continuous_state}
+///     model_instance_name[i]</em>_state}
 ///   @output_port{<em style="color:gray">
 ///     model_instance_name[i]</em>_generalized_acceleration}
 ///   @output_port{<em style="color:gray">
