@@ -705,7 +705,7 @@ void ManipulationStation<T>::Finalize(
   builder.ExportOutput(plant_->get_contact_results_output_port(),
                        "contact_results");
   builder.ExportOutput(plant_->get_state_output_port(),
-                       "plant_continuous_state");
+                       "plant_state");
   builder.ExportOutput(plant_->get_geometry_poses_output_port(),
                        "geometry_poses");
 
