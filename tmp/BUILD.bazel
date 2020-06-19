@@ -2,6 +2,7 @@ load(
     "//tools/skylark:drake_py.bzl",
     "drake_py_binary",
 )
+load("@drake//tools/skylark:drake_cc.bzl", "drake_cc_binary")
 
 filegroup(
     name = "models",
@@ -14,5 +15,33 @@ drake_py_binary(
     data = [":models"],
     deps = [
         "@drake//bindings/pydrake",
+    ],
+)
+
+cc_library(
+    name = "difflib",
+    srcs = ["third-party/difflib/src/difflib.h"],
+    hdrs = ["third-party/difflib/src/difflib.h"],
+)
+
+drake_cc_binary(
+    name =  "repro_contact_nondet",
+    srcs = ["repro_contact_nondet.cc"],
+    data = [
+        ":models",
+        "//manipulation/models/iiwa_description:models",
+    ],
+    deps = [
+        ":difflib",
+        "//geometry:geometry_visualization",
+        "//multibody/parsing:parser",
+        "//multibody/plant:contact_results_to_lcm",
+        "//multibody/plant:plant",
+        "//systems/analysis:simulator",
+        "//systems/analysis:simulator_flags",
+        "//systems/framework:diagram",
+        "//systems/framework:diagram_builder",
+        "//systems/primitives:constant_vector_source",
+        "@fmt",
     ],
 )
