@@ -72,6 +72,23 @@ from pydrake.systems.primitives import ConstantVectorSource
 VISUALIZE = False
 
 
+def traced(func, ignoredirs=None):
+    """Decorates func such that its execution is traced, but filters out any
+     Python code outside of the system prefix."""
+    import functools
+    import sys
+    import trace
+    if ignoredirs is None:
+        ignoredirs = ["/usr", sys.prefix]
+    tracer = trace.Trace(trace=1, count=0, ignoredirs=ignoredirs)
+
+    @functools.wraps(func)
+    def wrapped(*args, **kwargs):
+        return tracer.runfunc(func, *args, **kwargs)
+
+    return wrapped
+
+
 def rpy_deg(rpy_deg):
     return RollPitchYaw(np.deg2rad(rpy_deg))
 
@@ -134,33 +151,34 @@ class ResimulateStyle(Enum):
 
 class SetupEnum(Enum):
     """Different setups."""
-    Continuous_NoGeometry = Setup(
-        plant_time_step=0., has_geometry=False, gripper=None)
+    # Continuous_NoGeometry = Setup(
+    #     plant_time_step=0., has_geometry=False, gripper=None)
     Discrete_NoGeometry = Setup(
         plant_time_step=0.001, has_geometry=False, gripper=None)
-    Continuous_WithGeometry_NoGripper = Setup(
-        plant_time_step=0., has_geometry=True, gripper=None)
-    Discrete_WithGeometry_NoGripper = Setup(
-        plant_time_step=0.001, has_geometry=True, gripper=None)
-    # Grippers.
-    Discrete_WithGeometry_AnzuWsg = Setup(
-        plant_time_step=0., has_geometry=True,
-        gripper="drake/tmp/schunk_wsg_50_anzu.sdf")
-    Discrete_WithGeometry_AnzuWsgWelded = Setup(
-        plant_time_step=0.001, has_geometry=True,
-        gripper="drake/tmp/schunk_wsg_50_anzu_welded.sdf")
-    Discrete_WithGeometry_DrakeWsg = Setup(
-        plant_time_step=0.001, has_geometry=True,
-        gripper=(
-            "drake/manipulation/models/wsg_50_description/sdf/schunk_wsg_50.sdf"))
-    Discrete_WithGeometry_DrakeWsgWelded = Setup(
-        plant_time_step=0.001, has_geometry=True,
-        gripper="drake/tmp/schunk_wsg_50_drake_welded.sdf")
+    # Continuous_WithGeometry_NoGripper = Setup(
+    #     plant_time_step=0., has_geometry=True, gripper=None)
+    # Discrete_WithGeometry_NoGripper = Setup(
+    #     plant_time_step=0.001, has_geometry=True, gripper=None)
+    # # Grippers.
+    # Discrete_WithGeometry_AnzuWsg = Setup(
+    #     plant_time_step=0., has_geometry=True,
+    #     gripper="drake/tmp/schunk_wsg_50_anzu.sdf")
+    # Discrete_WithGeometry_AnzuWsgWelded = Setup(
+    #     plant_time_step=0.001, has_geometry=True,
+    #     gripper="drake/tmp/schunk_wsg_50_anzu_welded.sdf")
+    # Discrete_WithGeometry_DrakeWsg = Setup(
+    #     plant_time_step=0.001, has_geometry=True,
+    #     gripper=(
+    #         "drake/manipulation/models/wsg_50_description/sdf/schunk_wsg_50.sdf"))
+    # Discrete_WithGeometry_DrakeWsgWelded = Setup(
+    #     plant_time_step=0.001, has_geometry=True,
+    #     gripper="drake/tmp/schunk_wsg_50_drake_welded.sdf")
 
     def __repr__(self):
         return self.name
 
 
+@traced
 def make_simulator(setup):
     setup = setup.value
     max_step_size = 0.01
@@ -380,6 +398,7 @@ class SimulationChecker:
             return f"BAD  (num_unique = {count})"
 
 
+@traced
 def simulate_trials(resimulate_style, num_sim_trials, setup):
     print(f"{resimulate_style}")
 
@@ -422,8 +441,9 @@ def simulate_trials(resimulate_style, num_sim_trials, setup):
 def run_simulations(num_sim_trials, setup):
     summaries = [
         simulate_trials(ResimulateStyle.Reuse, num_sim_trials, setup),
-        simulate_trials(ResimulateStyle.ReuseNewContext, num_sim_trials, setup),
-        simulate_trials(ResimulateStyle.Recreate, num_sim_trials, setup),
+        # simulate_trials(ResimulateStyle.ReuseNewContext, num_sim_trials, setup),
+        # simulate_trials(ResimulateStyle.Recreate, num_sim_trials, setup),
+
     ]
     max_len = max([len(str(x)) for x in ResimulateStyle])
     return "\n".join([
@@ -452,8 +472,8 @@ def reexecute_if_unbuffered():
 def main():
     # To see if our determinism check is repeatable... (or whatever the right
     # wording is ;)
-    num_meta_trials = 2
-    num_sim_trials = 4
+    num_meta_trials = 1  # 2
+    num_sim_trials = 2  # 4
     tally = []
     for setup in SetupEnum:
         da_printer.redirect(f"{base_file}.{setup}.txt")
