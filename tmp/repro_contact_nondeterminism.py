@@ -178,7 +178,7 @@ class SetupEnum(Enum):
         return self.name
 
 
-@traced
+# @traced
 def make_simulator(setup):
     setup = setup.value
     max_step_size = 0.01
@@ -369,6 +369,8 @@ class SimulationChecker:
         d_context = simulator.get_context()
 
         frames = Frames()
+        output = calc_output(d_context)
+        frames.add(d_context.get_time(), output)
         while d_context.get_time() + dt / 2 < end_time:
             simulator.AdvanceTo(d_context.get_time() + dt)
             output = calc_output(d_context)
@@ -398,7 +400,7 @@ class SimulationChecker:
             return f"BAD  (num_unique = {count})"
 
 
-@traced
+# @traced
 def simulate_trials(resimulate_style, num_sim_trials, setup):
     print(f"{resimulate_style}")
 

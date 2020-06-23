@@ -21,6 +21,199 @@
 
 namespace drake {
 namespace tmp {
+std::string float_fmt(double x) {
+    return fmt::format("{:.4g}", x);
+}
+
+template <typename T>
+std::string vec_fmt(const T& v) {
+  std::string result(fmt::format("[{:.4g}", v(0)));
+  for (int k = 1; k < v.size(); k++) {
+    result += fmt::format(" {:.4g}", v(k));
+  }
+  result += "]";
+  return result;
+}
+
+template <typename T>
+void append(std::vector<T>* dst, const std::vector<T>& src) {
+  dst->reserve(dst->size() + src.size());
+  for (const auto& x : src) { dst->push_back(x); }
+};
+
+
+// Replacement for parts of difflib.
+class Diff {
+ public:
+  Diff() {}
+  std::vector<std::string> compare(
+      const std::vector<std::string>& a, const std::vector<std::string>& b) {
+    auto cruncher = difflib::MakeSequenceMatcher(a, b);
+    std::vector<std::string> results;
+    for (const auto& opcode : cruncher.get_opcodes()) {
+      auto [tag, alo, ahi, blo, bhi] = opcode;
+      if (tag == "replace") {
+        append(&results, fancy_replace(a, alo, ahi, b, blo, bhi));
+      } else if (tag == "delete") {
+        append(&results, dump("-", a, alo, ahi));
+      } else if (tag == "insert") {
+        append(&results, dump("+", b, blo, bhi));
+      } else if (tag == "equal") {
+        append(&results, dump(" ", a, alo, ahi));
+      } else {
+        throw std::runtime_error("unknown compare opcode tag");
+      }
+    }
+    return results;
+  }
+ private:
+  std::vector<std::string> dump(
+      const std::string& tag,
+      const std::vector<std::string>& lines,
+      size_t lo, size_t hi) {
+    std::vector<std::string> results;
+    for (size_t k = lo;  k < hi; k++) {
+      results.push_back(fmt::format("{} {}", tag, lines[k]));
+    }
+    return results;
+  }
+
+  std::vector<std::string> plain_replace(
+      const std::vector<std::string>& a, size_t alo, size_t ahi,
+      const std::vector<std::string>& b, size_t blo, size_t bhi) {
+    DRAKE_ASSERT(alo < ahi && blo < bhi);
+    std::vector<std::string> results;
+    if (bhi - blo < ahi - alo) {
+      append(&results, dump("+", b, blo, bhi));
+      append(&results, dump("-", a, alo, ahi));
+    } else {
+      append(&results, dump("-", a, alo, ahi));
+      append(&results, dump("+", b, blo, bhi));
+    }
+    return results;
+  }
+
+  std::vector<std::string> fancy_replace(
+      const std::vector<std::string>& a, size_t alo, size_t ahi,
+      const std::vector<std::string>& b, size_t blo, size_t bhi) {
+    std::vector<std::string> results;
+    double best_ratio = 0.74;
+    double cutoff = 0.75;
+    auto cruncher = difflib::MakeSequenceMatcher(std::string(), std::string());
+    std::optional<size_t> eqi, eqj;
+    size_t best_i{}, best_j{};
+    for (size_t j = blo; j < bhi; j++ ) {
+      const auto& bj = b[j];
+      cruncher.set_seq2(bj);
+      for (size_t i = alo; i < ahi; i++) {
+        const auto& ai = a[i];
+        if (ai == bj) {
+          if (!eqi) {
+            eqi = i;
+            eqj = j;
+          }
+          continue;
+        }
+        cruncher.set_seq1(ai);
+        if (cruncher.ratio() > best_ratio) {
+          best_ratio = cruncher.ratio();
+          best_i = i;
+          best_j = j;
+        }
+      }
+    }
+    if (best_ratio < cutoff) {
+      if (eqi) {
+        return plain_replace(a, alo, ahi, b, blo, bhi);
+      }
+      best_i = *eqi;
+      best_j = *eqj;
+      best_ratio = 1.0;
+    } else {
+      eqi = std::nullopt;
+    }
+    append(&results, fancy_helper(a, alo, best_i, b, blo, best_j));
+    auto aelt = a[best_i];
+    auto belt = b[best_j];
+    if (!eqi) {
+      // # pump out a '-', '?', '+', '?' quad for the synched lines
+      std::string atags, btags;
+      cruncher.set_seq(aelt, belt);
+      for (const auto& opcode : cruncher.get_opcodes()) {
+        auto [tag, ai1, ai2, bj1, bj2] = opcode;
+        size_t la = ai2 - ai1;
+        size_t lb = bj2 - bj1;
+        if (tag == "replace") {
+          atags += std::string(la, '^');
+          btags += std::string(lb, '^');
+        } else if (tag == "delete") {
+          atags += std::string(la, '-');
+        } else if (tag == "insert") {
+          btags += std::string(lb, '+');
+        } else if (tag == "equal") {
+          atags += std::string(la, ' ');
+          btags += std::string(lb, ' ');
+        } else {
+          throw std::runtime_error("unknown tag in fancy_replace");
+        }
+      }
+      append(&results, qformat(aelt, belt, atags, btags));
+    } else {
+      results.push_back(std::string("  ") + aelt);
+    }
+    append(&results, fancy_helper(a, best_i + 1, ahi, b, best_j + 1, bhi));
+    return results;
+  }
+
+  std::vector<std::string> fancy_helper(
+      const std::vector<std::string>& a, size_t alo, size_t ahi,
+      const std::vector<std::string>& b, size_t blo, size_t bhi) {
+    std::vector<std::string> results;
+    if (alo < ahi) {
+      if (blo < bhi) {
+        append(&results, fancy_replace(a, alo, ahi, b, blo, bhi));
+      } else {
+        append(&results, dump("-", a, alo, ahi));
+      }
+    } else if (blo < bhi) {
+      append(&results, dump("+", b, blo, bhi));
+    }
+    return results;
+  }
+
+  std::vector<std::string> qformat(std::string aline, std::string bline,
+                                   std::string atags, std::string btags) {
+    std::vector<std::string> results;
+    auto count_leading = [](const std::string& line, char c) {
+      size_t i = 0;
+      size_t n = line.size();
+      while (i < n && line[i] == c) {
+        i++;
+      }
+      return i;
+    };
+    auto rtrim = [](const std::string& s) {
+      size_t last = s.find_last_not_of(" \t");
+      return s.substr(0, (last + 1));
+    };
+    size_t common = std::min(count_leading(aline, '\t'),
+                             count_leading(bline, '\t'));
+    common = std::min(common, count_leading(atags.substr(0, common), ' '));
+    common = std::min(common, count_leading(btags.substr(0, common), ' '));
+    atags = rtrim(atags.substr(common));
+    btags = rtrim(btags.substr(common));
+    results.push_back(std::string("- ") + aline);
+    if (!atags.empty()) {
+      results.push_back(fmt::format("? {}{}\n", std::string(common, '\t'), atags));
+    }
+    results.push_back(std::string("- ") + bline);
+    if (!btags.empty()) {
+      results.push_back(fmt::format("? {}{}\n", std::string(common, '\t'), btags));
+    }
+    return results;
+  }
+};
+
 // Replacement for python textwrap.indent, sorta..
 std::string indent(const std::string& text, const std::string& prefix) {
   std::stringstream ss(text);
@@ -28,7 +221,7 @@ std::string indent(const std::string& text, const std::string& prefix) {
   std::string result;
 
   while (std::getline(ss, to,'\n')) {
-    result += prefix + to;
+    result += prefix + to + "\n";
   }
   return result;
 }
@@ -37,6 +230,7 @@ std::string text_diff(const std::string& a, const std::string& b) {
   auto to_lines = [](const std::string& text) {
     std::vector<std::string> result;
     std::stringstream ss(text);
+    std::string to;
     while (std::getline(ss, to,'\n')) {
       result.push_back(to);
     }
@@ -44,14 +238,18 @@ std::string text_diff(const std::string& a, const std::string& b) {
   };
   auto a_lines = to_lines(a);
   auto b_lines = to_lines(b);
+  Diff diff;
+  std::string result;
   if (a_lines.size() == b_lines.size()) {
-    std::string out;
-    for (int k = 0; k < a_lines.size(); k++) {
-      out += diff.compare(a_lines[k], b_lines[k]);
+    for (int k = 0; k < static_cast<int>(a_lines.size()); k++) {
+      auto cmp_lines = diff.compare({a_lines[k]}, {b_lines[k]});
+      for (const auto& line : cmp_lines) { result += line + "\n"; }
     }
   } else {
+    auto cmp_lines = diff.compare(a_lines, b_lines);
+    for (const auto& line : cmp_lines) { result += line + "\n"; }
   }
-  return {};
+  return result;
 }
 
 template <class T>
@@ -118,7 +316,7 @@ class Frames {
       auto [t, value] = get(index_actual);
       auto [_, value_other] = other.get(index_actual);
       _ = {}; // ignore.
-      ss << fmt::format("diff[{}], t: {}\n", index_label, t)
+      ss << fmt::format("diff[{}], t: {}\n", index_label, float_fmt(t))
          << indent(tmp::text_diff(value, value_other), "  ") << "\n";
     };
     fmt_diff(*index, 0);
@@ -158,16 +356,14 @@ U find_dammit(const std::map<T, U>& map, const T& key, const std::string& messag
   throw std::runtime_error(message);
 }
 
+template <typename T> const std::string to_string(const T&);
 
 // Enum ResimulateStyle.
 enum class ResimulateStyle {
   kReuse = 0, kReuseNewContext = 1, kRecreate = 2,
 };
-using ResimulateStyleToString = std::map<ResimulateStyle, std::string>;
-
-template <typename T> const std::string to_string(const T&);
 template <> const std::string to_string(const ResimulateStyle& value) {
-  static const ResimulateStyleToString map = {
+  static const std::map<ResimulateStyle, std::string> map = {
     {ResimulateStyle::kReuse, "kReuse"},
     {ResimulateStyle::kReuseNewContext, "kReuseNewContext"},
     {ResimulateStyle::kRecreate, "kRecreate"},
@@ -176,30 +372,54 @@ template <> const std::string to_string(const ResimulateStyle& value) {
 }
 
 // Enum Setup.
+enum class SetupEnum {
+  Continuous_NoGeometry,
+  Discrete_NoGeometry,
+  Continuous_WithGeometry_NoGripper,
+  Discrete_WithGeometry_NoGripper,
+  Discrete_WithGeometry_AnzuWsg,
+  Discrete_WithGeometry_AnzuWsgWelded,
+  Discrete_WithGeometry_DrakeWsg,
+  Discrete_WithGeometry_DrakeWsgWelded,
+};
+template <> const std::string to_string(const SetupEnum& value) {
+  static const std::map<SetupEnum, std::string> map = {
+    {SetupEnum::Continuous_NoGeometry, "Continuous_NoGeometry"},
+    {SetupEnum::Discrete_NoGeometry, "Discrete_NoGeometry"},
+    {SetupEnum::Continuous_WithGeometry_NoGripper, "Continuous_WithGeometry_NoGripper"},
+    {SetupEnum::Discrete_WithGeometry_NoGripper, "Discrete_WithGeometry_NoGripper"},
+    {SetupEnum::Discrete_WithGeometry_AnzuWsg, "Discrete_WithGeometry_AnzuWsg"},
+    {SetupEnum::Discrete_WithGeometry_AnzuWsgWelded, "Discrete_WithGeometry_AnzuWsgWelded"},
+    {SetupEnum::Discrete_WithGeometry_DrakeWsg, "Discrete_WithGeometry_DrakeWsg"},
+    {SetupEnum::Discrete_WithGeometry_DrakeWsgWelded, "Discrete_WithGeometry_DrakeWsgWelded"},
+  };
+  return find_dammit(map, value, "unknown SetupEnum");
+}
+
 struct Setup {
-  std::string name;
+  SetupEnum tag;
   double plant_time_step{};
   bool has_geometry{};
   std::string gripper;
 };
-using SetupMap = std::map<std::string, Setup>;
+using SetupMap = std::map<SetupEnum, Setup>;
 
 const SetupMap& setup_map() {
   static const SetupMap map = {
-    {"Continuous_NoGeometry", {"Continuous_NoGeometry", 0., false, ""}},
-    {"Discrete_NoGeometry", {"Discrete_NoGeometry", 0.001, false, ""}},
-    {"Continuous_WithGeometry_NoGripper", {"Continuous_WithGeometry_NoGripper", 0., true, ""}},
-    {"Discrete_WithGeometry_NoGripper", {"Discrete_WithGeometry_NoGripper", 0.001, true, ""}},
-    // Grippers.
-    {"Discrete_WithGeometry_AnzuWsg",
-     {"Discrete_WithGeometry_AnzuWsg", 0., true, "drake/tmp/schunk_wsg_50_anzu.sdf"}},
-    {"Discrete_WithGeometry_AnzuWsgWelded",
-     {"Discrete_WithGeometry_AnzuWsgWelded", 0.001, true, "drake/tmp/schunk_wsg_50_anzu_welded.sdf"}},
-    {"Discrete_WithGeometry_DrakeWsg",
-     {"Discrete_WithGeometry_DrakeWsg", 0.001, true,
-      "drake/manipulation/models/wsg_50_description/sdf/schunk_wsg_50.sdf"}},
-    {"Discrete_WithGeometry_DrakeWsgWelded",
-     {"Discrete_WithGeometry_DrakeWsgWelded", 0.001, true, "drake/tmp/schunk_wsg_50_drake_welded.sdf"}},
+    // {SetupEnum::Continuous_NoGeometry, {SetupEnum::Continuous_NoGeometry, 0., false, ""}},
+    {SetupEnum::Discrete_NoGeometry, {SetupEnum::Discrete_NoGeometry, 0.001, false, ""}},
+    // {SetupEnum::Continuous_WithGeometry_NoGripper, {SetupEnum::Continuous_WithGeometry_NoGripper, 0., true, ""}},
+    // {SetupEnum::Discrete_WithGeometry_NoGripper, {SetupEnum::Discrete_WithGeometry_NoGripper, 0.001, true, ""}},
+    // // Grippers.
+    // {SetupEnum::Discrete_WithGeometry_AnzuWsg,
+    //  {SetupEnum::Discrete_WithGeometry_AnzuWsg, 0., true, "drake/tmp/schunk_wsg_50_anzu.sdf"}},
+    // {SetupEnum::Discrete_WithGeometry_AnzuWsgWelded,
+    //  {SetupEnum::Discrete_WithGeometry_AnzuWsgWelded, 0.001, true, "drake/tmp/schunk_wsg_50_anzu_welded.sdf"}},
+    // {SetupEnum::Discrete_WithGeometry_DrakeWsg,
+    //  {SetupEnum::Discrete_WithGeometry_DrakeWsg, 0.001, true,
+    //   "drake/manipulation/models/wsg_50_description/sdf/schunk_wsg_50.sdf"}},
+    // {SetupEnum::Discrete_WithGeometry_DrakeWsgWelded,
+    //  {SetupEnum::Discrete_WithGeometry_DrakeWsgWelded, 0.001, true, "drake/tmp/schunk_wsg_50_drake_welded.sdf"}},
   };
   return map;
 }
@@ -332,9 +552,9 @@ std::tuple<std::unique_ptr<Simulator>, CalcOutput> make_simulator(const Setup& s
   auto calc_output = [setup, plant, &contact_results_port](const systems::Context<double>& def_context) {
     auto& my_context = plant->GetMyContextFromRoot(def_context);
     auto q = plant->GetPositions(my_context);
-    if (setup.
-        name == "Discrete_NoGeometry") {
-      return fmt::format("q: {}", q);
+    if (setup.tag == SetupEnum::Discrete_NoGeometry) {
+      // fmt::print("q: {}", vec_fmt(q)); //XXX
+      return fmt::format("q: {}", vec_fmt(q));
     } else {
       const auto& contact_results = contact_results_port.Eval<multibody::ContactResults<double>>(my_context);
       auto contact_results_text = contact_results_to_str(*plant, contact_results);
@@ -353,7 +573,7 @@ std::tuple<std::unique_ptr<Simulator>, CalcOutput> make_simulator(const Setup& s
 
   // sanity check.
   plant->GetMyContextFromRoot(simulator->get_context());
-  fmt::print("{}\n", simulator->get_system().GetGraphvizString());
+  // fmt::print("{}\n", simulator->get_system().GetGraphvizString());
   return {std::move(simulator), calc_output};
 }
 
@@ -368,9 +588,11 @@ class SimulationChecker {
 
     Frames frames;
 
+    auto output = calc_output(d_context);
+    frames.add(d_context.get_time(), output);
     while (d_context.get_time() + dt / 2 < end_time) {
       simulator->AdvanceTo(d_context.get_time() + dt);
-      auto output = calc_output(d_context);
+      output = calc_output(d_context);
       frames.add(d_context.get_time(), output);
     }
     int prev_count = static_cast<int>(frames_set_.size());
@@ -427,9 +649,40 @@ std::tuple<ResimulateStyle, std::string> simulate_trials(
 }
 
 
+std::string run_simulations(int num_sim_trials, const Setup& setup) {
+  const auto summaries = {
+    simulate_trials(ResimulateStyle::kReuse, num_sim_trials, setup),
+    // simulate_trials(ResimulateStyle::kReuseNewContext, num_sim_trials, setup),
+    // simulate_trials(ResimulateStyle::kRecreate, num_sim_trials, setup),
+  };
+  // TODO: column alignment with max_len
+  std::string result;
+  for (const auto& s : summaries) {
+    auto [style, summary] = s;
+    result += fmt::format("{}: {}\n", style, summary);
+  }
+  return result;
+}
+
+
+
 int do_main() {
-  auto setup = find_dammit(setup_map(), std::string("Discrete_NoGeometry"), "unknown setup");
-  simulate_trials(ResimulateStyle::kReuse, 2, setup);
+  int num_meta_trials = 1;  // 2
+  int num_sim_trials = 2;  // 4
+  std::stringstream tally;
+  // auto setup = find_dammit(
+  //     setup_map(), SetupEnum::Discrete_NoGeometry, "unknown setup");
+      // simulate_trials(ResimulateStyle::kReuse, 2, setup);
+  for (const auto& setup_pair : setup_map()) {
+    const auto setup = setup_pair.second;
+    for (int meta_trial = 0; meta_trial < num_meta_trials; meta_trial++) {
+      fmt::print(
+          "\n\n[ meta_trial = {}, "
+          "num_sim_trials = {}, setup = {} ]\n\n",
+          meta_trial, num_sim_trials, to_string(setup_pair.first));
+      auto summary = run_simulations(num_sim_trials, setup);
+    }
+  }
   return 0;
 }
 
