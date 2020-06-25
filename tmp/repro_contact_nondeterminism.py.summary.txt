@@ -1,3 +1,5 @@
-* setup = SetupEnum.Discrete_NoGeometry
+* setup = SetupEnum.Continuous_WithGeometry_NoGripper
   * meta_trial = 0, num_sim_trials = 2
-      ResimulateStyle.Reuse          : BAD  (num_unique = 2)
+      ResimulateStyle.Reuse          : good (num_unique = 1)
+      ResimulateStyle.ReuseNewContext: good (num_unique = 1)
+      ResimulateStyle.Recreate       : good (num_unique = 1)
