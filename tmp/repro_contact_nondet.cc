@@ -407,8 +407,8 @@ using SetupMap = std::map<SetupEnum, Setup>;
 const SetupMap& setup_map() {
   static const SetupMap map = {
     // {SetupEnum::Continuous_NoGeometry, {SetupEnum::Continuous_NoGeometry, 0., false, ""}},
-    {SetupEnum::Discrete_NoGeometry, {SetupEnum::Discrete_NoGeometry, 0.001, false, ""}},
-    // {SetupEnum::Continuous_WithGeometry_NoGripper, {SetupEnum::Continuous_WithGeometry_NoGripper, 0., true, ""}},
+    // {SetupEnum::Discrete_NoGeometry, {SetupEnum::Discrete_NoGeometry, 0.001, false, ""}},
+    {SetupEnum::Continuous_WithGeometry_NoGripper, {SetupEnum::Continuous_WithGeometry_NoGripper, 0., true, ""}},
     // {SetupEnum::Discrete_WithGeometry_NoGripper, {SetupEnum::Discrete_WithGeometry_NoGripper, 0.001, true, ""}},
     // // Grippers.
     // {SetupEnum::Discrete_WithGeometry_AnzuWsg,
@@ -582,8 +582,9 @@ class SimulationChecker {
  public:
   void run(Simulator* simulator, CalcOutput calc_output) {
     double dt = 0.001;
-    double end_time = 1.;
+    double end_time = 0.5;  // 1.;
     const std::string prefix("    ");
+    simulator->Initialize();  // Proposed patch for Reuse.
     auto& d_context = simulator->get_context();
 
     Frames frames;
@@ -612,7 +613,15 @@ class SimulationChecker {
     }
   }
 
-  std::string summary() const { return {}; };  // TODO
+  std::string summary() const {
+    int count = static_cast<int>(frames_set_.size());
+    DRAKE_ASSERT(count > 0);
+    if (count == 1) {
+      return "good (num_unique = 1)";
+    } else {
+      return fmt::format("BAD  (num_unique = {})", count);
+    }
+  };
 
  private:
   std::optional<Frames> frames_baseline_;
@@ -641,25 +650,42 @@ std::tuple<ResimulateStyle, std::string> simulate_trials(
       }
       break;
     }
+    case ResimulateStyle::kReuseNewContext: {
+      auto [simulator, calc_output] = make_simulator(setup);
+      for (int k = 0; k < num_sim_trials; k++) {
+        fmt::print("  index: {}\n", k);
+        simulator->reset_context(simulator->get_system().CreateDefaultContext());
+        checker.run(simulator.get(), calc_output);
+      }
+      break;
+    }
+    case ResimulateStyle::kRecreate: {
+      for (int k = 0; k < num_sim_trials; k++) {
+        fmt::print("  index: {}\n", k);
+        auto [simulator, calc_output] = make_simulator(setup);
+        checker.run(simulator.get(), calc_output);
+      }
+      break;
+    }
     default:
       throw std::runtime_error("style not implemented!");
   };
 
-  return {style,fmt::format("{} {}", num_sim_trials, setup.plant_time_step)};
+  return {style, checker.summary()};
 }
 
 
 std::string run_simulations(int num_sim_trials, const Setup& setup) {
   const auto summaries = {
     simulate_trials(ResimulateStyle::kReuse, num_sim_trials, setup),
-    // simulate_trials(ResimulateStyle::kReuseNewContext, num_sim_trials, setup),
-    // simulate_trials(ResimulateStyle::kRecreate, num_sim_trials, setup),
+    simulate_trials(ResimulateStyle::kReuseNewContext, num_sim_trials, setup),
+    simulate_trials(ResimulateStyle::kRecreate, num_sim_trials, setup),
   };
-  // TODO: column alignment with max_len
+  // TODO: column alignment calculated from style string sizes
   std::string result;
   for (const auto& s : summaries) {
     auto [style, summary] = s;
-    result += fmt::format("{}: {}\n", style, summary);
+    result += fmt::format("{:<20}: {}\n", to_string(style), summary);
   }
   return result;
 }
@@ -667,13 +693,13 @@ std::string run_simulations(int num_sim_trials, const Setup& setup) {
 
 
 int do_main() {
-  int num_meta_trials = 1;  // 2
-  int num_sim_trials = 2;  // 4
+  logging::set_log_level("err");
+  int num_meta_trials = 1;  // 2;
+  int num_sim_trials = 2;  // 4;
   std::stringstream tally;
-  // auto setup = find_dammit(
-  //     setup_map(), SetupEnum::Discrete_NoGeometry, "unknown setup");
-      // simulate_trials(ResimulateStyle::kReuse, 2, setup);
+  tally << "\n";
   for (const auto& setup_pair : setup_map()) {
+    tally << fmt::format("* setup = {}\n", to_string(setup_pair.first));
     const auto setup = setup_pair.second;
     for (int meta_trial = 0; meta_trial < num_meta_trials; meta_trial++) {
       fmt::print(
@@ -681,13 +707,18 @@ int do_main() {
           "num_sim_trials = {}, setup = {} ]\n\n",
           meta_trial, num_sim_trials, to_string(setup_pair.first));
       auto summary = run_simulations(num_sim_trials, setup);
+      tally << fmt::format("  * meta_trial = {}, num_sim_trials = {}\n",
+                           meta_trial, num_sim_trials);
+      tally << indent(summary, "      ");
     }
+    tally << "\n";
   }
+  fmt::print(tally.str());
   return 0;
 }
 
 }
-  }
+}
 
 int main(int, const char* []) {
   return drake::tmp::do_main();

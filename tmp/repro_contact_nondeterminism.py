@@ -151,28 +151,28 @@ class ResimulateStyle(Enum):
 
 class SetupEnum(Enum):
     """Different setups."""
-    Continuous_NoGeometry = Setup(
-        plant_time_step=0., has_geometry=False, gripper=None)
-    Discrete_NoGeometry = Setup(
-        plant_time_step=0.001, has_geometry=False, gripper=None)
+    # Continuous_NoGeometry = Setup(
+    #     plant_time_step=0., has_geometry=False, gripper=None)
+    # Discrete_NoGeometry = Setup(
+    #     plant_time_step=0.001, has_geometry=False, gripper=None)
     Continuous_WithGeometry_NoGripper = Setup(
         plant_time_step=0., has_geometry=True, gripper=None)
-    Discrete_WithGeometry_NoGripper = Setup(
-        plant_time_step=0.001, has_geometry=True, gripper=None)
-    # Grippers.
-    Discrete_WithGeometry_AnzuWsg = Setup(
-        plant_time_step=0., has_geometry=True,
-        gripper="drake/tmp/schunk_wsg_50_anzu.sdf")
-    Discrete_WithGeometry_AnzuWsgWelded = Setup(
-        plant_time_step=0.001, has_geometry=True,
-        gripper="drake/tmp/schunk_wsg_50_anzu_welded.sdf")
-    Discrete_WithGeometry_DrakeWsg = Setup(
-        plant_time_step=0.001, has_geometry=True,
-        gripper=(
-            "drake/manipulation/models/wsg_50_description/sdf/schunk_wsg_50.sdf"))
-    Discrete_WithGeometry_DrakeWsgWelded = Setup(
-        plant_time_step=0.001, has_geometry=True,
-        gripper="drake/tmp/schunk_wsg_50_drake_welded.sdf")
+    # Discrete_WithGeometry_NoGripper = Setup(
+    #     plant_time_step=0.001, has_geometry=True, gripper=None)
+    # # Grippers.
+    # Discrete_WithGeometry_AnzuWsg = Setup(
+    #     plant_time_step=0., has_geometry=True,
+    #     gripper="drake/tmp/schunk_wsg_50_anzu.sdf")
+    # Discrete_WithGeometry_AnzuWsgWelded = Setup(
+    #     plant_time_step=0.001, has_geometry=True,
+    #     gripper="drake/tmp/schunk_wsg_50_anzu_welded.sdf")
+    # Discrete_WithGeometry_DrakeWsg = Setup(
+    #     plant_time_step=0.001, has_geometry=True,
+    #     gripper=(
+    #         "drake/manipulation/models/wsg_50_description/sdf/schunk_wsg_50.sdf"))
+    # Discrete_WithGeometry_DrakeWsgWelded = Setup(
+    #     plant_time_step=0.001, has_geometry=True,
+    #     gripper="drake/tmp/schunk_wsg_50_drake_welded.sdf")
 
     def __repr__(self):
         return self.name
@@ -248,7 +248,7 @@ def make_simulator(setup):
     def calc_output(d_context):
         context = plant.GetMyContextFromRoot(d_context)
         q = plant.GetPositions(context)
-        if setup == SetupEnum.Discrete_NoGeometry:
+        if hasattr(SetupEnum, "Discrete_NoGeometry") and setup == SetupEnum.Discrete_NoGeometry:
             return f"q: {q}"
         else:
             contact_results = contact_results_to_str(
@@ -362,7 +362,7 @@ class SimulationChecker:
 
     def run(self, simulator, calc_output):
         dt = 0.001
-        end_time = 1.
+        end_time = 0.5  # 1.
 
         prefix = '    '
         # TODO(eric.cousineau): Use monitor... somehow?
@@ -475,8 +475,8 @@ def reexecute_if_unbuffered():
 def main():
     # To see if our determinism check is repeatable... (or whatever the right
     # wording is ;)
-    num_meta_trials = 2
-    num_sim_trials = 4
+    num_meta_trials = 1  # 2
+    num_sim_trials = 2  # 4
     tally = []
     for setup in SetupEnum:
         da_printer.redirect(f"{base_file}.{setup}.txt")
