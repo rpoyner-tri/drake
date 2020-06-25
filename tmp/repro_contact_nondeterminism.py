@@ -348,6 +348,7 @@ class SimulationChecker:
 
         prefix = '    '
         # TODO(eric.cousineau): Use monitor... somehow?
+        simulator.Initialize()
         d_context = simulator.get_context()
 
         frames = Frames()

@@ -24,20 +24,21 @@ ResimulateStyle.Recreate
   index: 0
     good (first)
   index: 1
-    good (not unique)
-  index: 2
     BAD
       diff[0], t: 0.264
           q: [0.09293 0.01475 -0.3351 2.298 0.7111 -0.2371 -0.3787 -0.09409 -0.09405]
           contact_results:   point_pair_contact_info(0):
               bodyA: left_finger
               bodyB: right_finger
-              contact_force: [-2.316e+05 -2.449e+06 2.052e+05]
-        -     contact_point: [0.163 -0.02155 0.3787]
-        ?                        ^^      - ^   ^^ ^
-        +     contact_point: [0.1174 -0.02549 0.2801]
-        ?                        ^^^       ^^   ^ ^^
-              slip_speed: [1.38e-12]
+        -     contact_force: [-2.316e+05 -2.449e+06 2.052e+05]
+        +     contact_force: [-5.589e+04 -5.91e+05 4.951e+04]
+        -     contact_point: [0.1174 -0.02549 0.2801]
+        ?                         ^^      - ^     ^^
+        +     contact_point: [0.1122 -0.02402 0.287]
+        ?                         ^^       ^^     ^
+        -     slip_speed: [1.37e-12]
+        +     slip_speed: [1.376e-12]
+        ?                      +
               separation_speed: [3783]
             point_pair_contact_info(1):
               bodyA: left_finger
@@ -47,7 +48,70 @@ ResimulateStyle.Recreate
         ?                        ---       --    ^^
         +     contact_point: [0.09771 -0.02164 0.299]
         ?                       ++++       ++     ^^
-              slip_speed: [1.38e-12]
+              slip_speed: [1.376e-12]
+              separation_speed: [3783]
+            point_pair_contact_info(2):
+              bodyA: left_finger
+              bodyB: right_finger
+        -     contact_force: [-5.589e+04 -5.91e+05 4.951e+04]
+        +     contact_force: [-2.316e+05 -2.449e+06 2.052e+05]
+        -     contact_point: [0.09771 -0.02164 0.299]
+        ?                       ^^ ^^      ^^     ^^
+        +     contact_point: [0.1174 -0.02549 0.2801]
+        ?                       ^^ ^      ^ +    ^^^
+        -     slip_speed: [1.376e-12]
+        ?                      -
+        +     slip_speed: [1.37e-12]
+              separation_speed: [3783]
+
+      diff[-1], t: 1
+        - q: [0.2464 -0.05946 -0.4793 2.425 0.75 -0.1945 -0.408 2.557e+04 -2.561e+04]
+        ?                  ^^       ^
+        + q: [0.2464 -0.0595 -0.4792 2.425 0.75 -0.1945 -0.408 2.557e+04 -2.561e+04]
+        ?                  ^       ^
+          contact_results:   point_pair_contact_info(0):
+              bodyA: gripper
+              bodyB: fake_table
+        -     contact_force: [-55.66 14.66 -57.56]
+        ?                         ^^  ^ ^^      ^
+        +     contact_force: [-55.91 13.71 -57.57]
+        ?                         ^^  ^ ^^      ^
+              contact_point: [0.2639 0.1296 0.2695]
+        -     slip_speed: [0.008354]
+        ?                        ^^
+        +     slip_speed: [0.008368]
+        ?                        ^^
+        -     separation_speed: [-0.002502]
+        ?                                ^
+        +     separation_speed: [-0.002507]
+        ?                                ^
+
+  index: 2
+    BAD
+      diff[0], t: 0.264
+          q: [0.09293 0.01475 -0.3351 2.298 0.7111 -0.2371 -0.3787 -0.09409 -0.09405]
+          contact_results:   point_pair_contact_info(0):
+              bodyA: left_finger
+              bodyB: right_finger
+              contact_force: [-2.316e+05 -2.449e+06 2.052e+05]
+              contact_point: [0.1174 -0.02549 0.2801]
+        -     slip_speed: [1.37e-12]
+        ?                     ^
+        +     slip_speed: [1.38e-12]
+        ?                     ^
+              separation_speed: [3783]
+            point_pair_contact_info(1):
+              bodyA: left_finger
+              bodyB: right_finger
+              contact_force: [-5.589e+04 -5.91e+05 4.951e+04]
+        -     contact_point: [0.1122 -0.02402 0.287]
+        ?                        ---       --    ^^
+        +     contact_point: [0.09771 -0.02164 0.299]
+        ?                       ++++       ++     ^^
+        -     slip_speed: [1.376e-12]
+        ?                     ^^
+        +     slip_speed: [1.38e-12]
+        ?                     ^
               separation_speed: [3783]
             point_pair_contact_info(2):
               bodyA: left_finger
@@ -57,30 +121,33 @@ ResimulateStyle.Recreate
         ?                       ----       --     ^^
         +     contact_point: [0.1122 -0.02402 0.287]
         ?                        +++       ++    ^^
-              slip_speed: [1.38e-12]
+        -     slip_speed: [1.376e-12]
+        ?                     ^^
+        +     slip_speed: [1.38e-12]
+        ?                     ^
               separation_speed: [3783]
 
       diff[-1], t: 1
-        - q: [0.2464 -0.05945 -0.4793 2.425 0.75 -0.1945 -0.4081 2.557e+04 -2.561e+04]
+        - q: [0.2464 -0.05946 -0.4793 2.425 0.75 -0.1945 -0.408 2.557e+04 -2.561e+04]
         ?                   ^
-        + q: [0.2464 -0.05948 -0.4793 2.425 0.75 -0.1945 -0.4081 2.557e+04 -2.561e+04]
+        + q: [0.2464 -0.05945 -0.4793 2.425 0.75 -0.1945 -0.408 2.557e+04 -2.561e+04]
         ?                   ^
           contact_results:   point_pair_contact_info(0):
               bodyA: gripper
               bodyB: fake_table
-        -     contact_force: [-55.67 15.2 -57.71]
-        ?                         ^   ^ ^      -
-        +     contact_force: [-55.77 14.68 -57.67]
-        ?                         ^   ^ ^^     +
+        -     contact_force: [-55.66 14.66 -57.56]
+        ?                         ^^  ^ ^^     ^^
+        +     contact_force: [-55.5 16.13 -57.8]
+        ?                         ^  ^ ^^     ^
               contact_point: [0.2639 0.1296 0.2695]
-        -     slip_speed: [0.007886]
-        ?                      - ^^
-        +     slip_speed: [0.008054]
-        ?                       ^^^
-        -     separation_speed: [-0.002228]
-        ?                               ^^
-        +     separation_speed: [-0.002324]
-        ?                              + ^
+        -     slip_speed: [0.008354]
+        ?                      ^^^^
+        +     slip_speed: [0.007611]
+        ?                      ^^^^
+        -     separation_speed: [-0.002502]
+        ?                              ^ ^
+        +     separation_speed: [-0.002101]
+        ?                              ^ ^
 
   index: 3
     BAD
@@ -90,48 +157,63 @@ ResimulateStyle.Recreate
               bodyA: left_finger
               bodyB: right_finger
               contact_force: [-2.316e+05 -2.449e+06 2.052e+05]
-        -     contact_point: [0.163 -0.02155 0.3787]
-        ?                        ^^      - ^   ^^ ^
-        +     contact_point: [0.1174 -0.02549 0.2801]
+        -     contact_point: [0.1174 -0.02549 0.2801]
         ?                        ^^^       ^^   ^ ^^
-              slip_speed: [1.38e-12]
+        +     contact_point: [0.163 -0.02155 0.3787]
+        ?                        ^^      + ^   ^^ ^
+        -     slip_speed: [1.37e-12]
+        ?                     ^
+        +     slip_speed: [1.38e-12]
+        ?                     ^
               separation_speed: [3783]
             point_pair_contact_info(1):
               bodyA: left_finger
               bodyB: right_finger
               contact_force: [-5.589e+04 -5.91e+05 4.951e+04]
-              contact_point: [0.1122 -0.02402 0.287]
-              slip_speed: [1.38e-12]
+        -     contact_point: [0.1122 -0.02402 0.287]
+        ?                        ---       --    ^^
+        +     contact_point: [0.09771 -0.02164 0.299]
+        ?                       ++++       ++     ^^
+        -     slip_speed: [1.376e-12]
+        ?                     ^^
+        +     slip_speed: [1.38e-12]
+        ?                     ^
               separation_speed: [3783]
             point_pair_contact_info(2):
               bodyA: left_finger
               bodyB: right_finger
               contact_force: [-5.589e+04 -5.91e+05 4.951e+04]
-              contact_point: [0.09771 -0.02164 0.299]
-              slip_speed: [1.38e-12]
+        -     contact_point: [0.09771 -0.02164 0.299]
+        ?                       ----       --     ^^
+        +     contact_point: [0.1122 -0.02402 0.287]
+        ?                        +++       ++    ^^
+        -     slip_speed: [1.376e-12]
+        ?                     ^^
+        +     slip_speed: [1.38e-12]
+        ?                     ^
               separation_speed: [3783]
 
       diff[-1], t: 1
-        - q: [0.2464 -0.05945 -0.4793 2.425 0.75 -0.1945 -0.4081 2.557e+04 -2.561e+04]
-        ?                   ^
-        + q: [0.2464 -0.05946 -0.4793 2.425 0.75 -0.1945 -0.4081 2.557e+04 -2.561e+04]
-        ?                   ^
+        - q: [0.2464 -0.05946 -0.4793 2.425 0.75 -0.1945 -0.408 2.557e+04 -2.561e+04]
+        ?                  ^^       ^
+        + q: [0.2464 -0.05952 -0.4792 2.425 0.75 -0.1945 -0.408 2.557e+04 -2.561e+04]
+        ?                  ^^       ^
           contact_results:   point_pair_contact_info(0):
               bodyA: gripper
               bodyB: fake_table
-        -     contact_force: [-55.67 15.2 -57.71]
-        ?                       ^ ^^  ^        ^
-        +     contact_force: [-56.28 12.82 -57.72]
-        ?                       ^ ^^  ^ +       ^
+        -     contact_force: [-55.66 14.66 -57.56]
+        ?                         ^^    ^^      ^
+        +     contact_force: [-55.81 14.17 -57.58]
+        ?                         ^^    ^^      ^
               contact_point: [0.2639 0.1296 0.2695]
-        -     slip_speed: [0.007886]
-        ?                       ^^
-        +     slip_speed: [0.007962]
-        ?                       ^ +
-        -     separation_speed: [-0.002228]
-        ?                               ^^
-        +     separation_speed: [-0.002259]
-        ?                               ^^
+        -     slip_speed: [0.008354]
+        ?                         ^
+        +     slip_speed: [0.008353]
+        ?                         ^
+        -     separation_speed: [-0.002502]
+        ?                              ^^^
+        +     separation_speed: [-0.002496]
+        ?                              ^^^
 
 
 
@@ -165,16 +247,12 @@ ResimulateStyle.Recreate
           contact_results:   point_pair_contact_info(0):
               bodyA: left_finger
               bodyB: right_finger
-        -     contact_force: [-5.589e+04 -5.91e+05 4.951e+04]
-        +     contact_force: [-2.316e+05 -2.449e+06 2.052e+05]
-        -     contact_point: [0.1122 -0.02402 0.287]
-        ?                         ^^       ^^     ^
-        +     contact_point: [0.1174 -0.02549 0.2801]
-        ?                         ^^      + ^     ^^
-        -     slip_speed: [1.376e-12]
-        ?                     ^^
-        +     slip_speed: [1.38e-12]
+              contact_force: [-5.589e+04 -5.91e+05 4.951e+04]
+              contact_point: [0.09771 -0.02164 0.299]
+        -     slip_speed: [1.38e-12]
         ?                     ^
+        +     slip_speed: [1.376e-12]
+        ?                     ^^
               separation_speed: [3783]
             point_pair_contact_info(1):
               bodyA: left_finger
@@ -185,43 +263,50 @@ ResimulateStyle.Recreate
         ?                         ^^      - ^     ^^
         +     contact_point: [0.1122 -0.02402 0.287]
         ?                         ^^       ^^     ^
-        -     slip_speed: [1.37e-12]
+        -     slip_speed: [1.38e-12]
         ?                     ^
-        +     slip_speed: [1.38e-12]
-        ?                     ^
+        +     slip_speed: [1.376e-12]
+        ?                     ^^
               separation_speed: [3783]
             point_pair_contact_info(2):
               bodyA: left_finger
               bodyB: right_finger
-              contact_force: [-5.589e+04 -5.91e+05 4.951e+04]
-              contact_point: [0.09771 -0.02164 0.299]
-        -     slip_speed: [1.376e-12]
-        ?                     ^^
-        +     slip_speed: [1.38e-12]
+        -     contact_force: [-5.589e+04 -5.91e+05 4.951e+04]
+        +     contact_force: [-2.316e+05 -2.449e+06 2.052e+05]
+        -     contact_point: [0.1122 -0.02402 0.287]
+        ?                        ^^^      ^^^   ^
+        +     contact_point: [0.163 -0.02155 0.3787]
+        ?                        ^^      ^^^   ^^
+        -     slip_speed: [1.38e-12]
+        ?                     ^
+        +     slip_speed: [1.37e-12]
         ?                     ^
               separation_speed: [3783]
 
       diff[-1], t: 1
         - q: [0.2464 -0.05945 -0.4793 2.425 0.75 -0.1945 -0.4081 2.557e+04 -2.561e+04]
-        ?          ^        ^                                  -
-        + q: [0.2465 -0.05944 -0.4793 2.425 0.75 -0.1945 -0.408 2.557e+04 -2.561e+04]
-        ?          ^        ^
+        ?                  ^^       ^                         ^^
+        + q: [0.2464 -0.05963 -0.4791 2.425 0.7501 -0.1945 -0.4079 2.557e+04 -2.561e+04]
+        ?                  ^^       ^           ++              ^^
           contact_results:   point_pair_contact_info(0):
               bodyA: gripper
               bodyB: fake_table
-        -     contact_force: [-55.51 15.18 -57.55]
-        ?                         ^^  ^ ^^     ^^
-        +     contact_force: [-55.76 14.79 -57.69]
-        ?                         ^^  ^ ^^     ^^
-              contact_point: [0.2639 0.1296 0.2695]
-        -     slip_speed: [0.008363]
+        -     contact_force: [-56.15 13.3 -57.71]
+        ?                         ^^    ^      -
+        +     contact_force: [-56.02 13.69 -57.67]
+        ?                         ^^    ^^     +
+        -     contact_point: [0.2639 0.1296 0.2695]
+        ?                          ^
+        +     contact_point: [0.2638 0.1296 0.2695]
+        ?                          ^
+        -     slip_speed: [0.007971]
         ?                      ^^^
-        +     slip_speed: [0.007993]
-        ?                      ^^^
-        -     separation_speed: [-0.002505]
-        ?                              ^ ^
-        +     separation_speed: [-0.002302]
-        ?                              ^ ^
+        +     slip_speed: [0.008114]
+        ?                      ^ ++
+        -     separation_speed: [-0.002286]
+        ?                              ^^^
+        +     separation_speed: [-0.002339]
+        ?                              ^^^
 
   index: 2
     BAD
@@ -231,14 +316,11 @@ ResimulateStyle.Recreate
               bodyA: left_finger
               bodyB: right_finger
               contact_force: [-5.589e+04 -5.91e+05 4.951e+04]
-        -     contact_point: [0.1122 -0.02402 0.287]
-        ?                        ---       --    ^^
-        +     contact_point: [0.09771 -0.02164 0.299]
-        ?                       ++++       ++     ^^
-        -     slip_speed: [1.376e-12]
-        ?                     ^^
-        +     slip_speed: [1.38e-12]
-        ?                     ^
+        -     contact_point: [0.09771 -0.02164 0.299]
+        ?                       ----       --     ^^
+        +     contact_point: [0.1122 -0.02402 0.287]
+        ?                        +++       ++    ^^
+              slip_speed: [1.38e-12]
               separation_speed: [3783]
             point_pair_contact_info(1):
               bodyA: left_finger
@@ -246,49 +328,43 @@ ResimulateStyle.Recreate
         -     contact_force: [-2.316e+05 -2.449e+06 2.052e+05]
         +     contact_force: [-5.589e+04 -5.91e+05 4.951e+04]
         -     contact_point: [0.1174 -0.02549 0.2801]
-        ?                         ^^      - ^     ^^
-        +     contact_point: [0.1122 -0.02402 0.287]
-        ?                         ^^       ^^     ^
-        -     slip_speed: [1.37e-12]
-        ?                     ^
-        +     slip_speed: [1.38e-12]
-        ?                     ^
+        ?                        ---      ^ -    ^^^
+        +     contact_point: [0.09771 -0.02164 0.299]
+        ?                       ++++       ^^     ^^
+              slip_speed: [1.38e-12]
               separation_speed: [3783]
             point_pair_contact_info(2):
               bodyA: left_finger
               bodyB: right_finger
         -     contact_force: [-5.589e+04 -5.91e+05 4.951e+04]
         +     contact_force: [-2.316e+05 -2.449e+06 2.052e+05]
-        -     contact_point: [0.09771 -0.02164 0.299]
-        ?                       ----        ^^   ^^^
+        -     contact_point: [0.1122 -0.02402 0.287]
+        ?                        ^^^      ^^^   ^
         +     contact_point: [0.163 -0.02155 0.3787]
-        ?                        ++       ^^   ^^^^
-        -     slip_speed: [1.376e-12]
-        ?                     ^^
-        +     slip_speed: [1.38e-12]
-        ?                     ^
+        ?                        ^^      ^^^   ^^
+              slip_speed: [1.38e-12]
               separation_speed: [3783]
 
       diff[-1], t: 1
         - q: [0.2464 -0.05945 -0.4793 2.425 0.75 -0.1945 -0.4081 2.557e+04 -2.561e+04]
-        ?                   ^                                  -
-        + q: [0.2464 -0.05949 -0.4793 2.425 0.75 -0.1945 -0.408 2.557e+04 -2.561e+04]
-        ?                   ^
+        ?                   ^       ^                          -
+        + q: [0.2464 -0.05948 -0.4792 2.425 0.75 -0.1945 -0.408 2.557e+04 -2.561e+04]
+        ?                   ^       ^
           contact_results:   point_pair_contact_info(0):
               bodyA: gripper
               bodyB: fake_table
-        -     contact_force: [-55.51 15.18 -57.55]
-        ?                          -  ^ ^^     ^^
-        +     contact_force: [-55.95 13.74 -57.61]
-        ?                         +   ^ ^^     ^^
+        -     contact_force: [-56.15 13.3 -57.71]
+        ?                         ^^  ^ ^     ^
+        +     contact_force: [-56.24 12.5 -57.61]
+        ?                         ^^  ^ ^     ^
               contact_point: [0.2639 0.1296 0.2695]
-        -     slip_speed: [0.008363]
-        ?                       ^^
-        +     slip_speed: [0.008223]
-        ?                       ^^
-        -     separation_speed: [-0.002505]
+        -     slip_speed: [0.007971]
+        ?                      ^^^
+        +     slip_speed: [0.008314]
+        ?                      ^^ +
+        -     separation_speed: [-0.002286]
         ?                              ^^^
-        +     separation_speed: [-0.002398]
+        +     separation_speed: [-0.002471]
         ?                              ^^^
 
   index: 3
@@ -300,14 +376,11 @@ ResimulateStyle.Recreate
               bodyB: right_finger
         -     contact_force: [-5.589e+04 -5.91e+05 4.951e+04]
         +     contact_force: [-2.316e+05 -2.449e+06 2.052e+05]
-        -     contact_point: [0.1122 -0.02402 0.287]
-        ?                         ^^       ^^     ^
-        +     contact_point: [0.1174 -0.02549 0.2801]
-        ?                         ^^      + ^     ^^
-        -     slip_speed: [1.376e-12]
-        ?                     ^^
-        +     slip_speed: [1.38e-12]
-        ?                     ^
+        -     contact_point: [0.09771 -0.02164 0.299]
+        ?                       ----        ^^   ^^^
+        +     contact_point: [0.163 -0.02155 0.3787]
+        ?                        ++       ^^   ^^^^
+              slip_speed: [1.38e-12]
               separation_speed: [3783]
             point_pair_contact_info(1):
               bodyA: left_finger
@@ -318,43 +391,35 @@ ResimulateStyle.Recreate
         ?                        ---      ^ -    ^^^
         +     contact_point: [0.09771 -0.02164 0.299]
         ?                       ++++       ^^     ^^
-        -     slip_speed: [1.37e-12]
-        ?                     ^
-        +     slip_speed: [1.38e-12]
-        ?                     ^
+              slip_speed: [1.38e-12]
               separation_speed: [3783]
             point_pair_contact_info(2):
               bodyA: left_finger
               bodyB: right_finger
               contact_force: [-5.589e+04 -5.91e+05 4.951e+04]
-        -     contact_point: [0.09771 -0.02164 0.299]
-        ?                       ----       --     ^^
-        +     contact_point: [0.1122 -0.02402 0.287]
-        ?                        +++       ++    ^^
-        -     slip_speed: [1.376e-12]
-        ?                     ^^
-        +     slip_speed: [1.38e-12]
-        ?                     ^
+              contact_point: [0.1122 -0.02402 0.287]
+              slip_speed: [1.38e-12]
               separation_speed: [3783]
 
       diff[-1], t: 1
         - q: [0.2464 -0.05945 -0.4793 2.425 0.75 -0.1945 -0.4081 2.557e+04 -2.561e+04]
-        ?                                                      -
-        + q: [0.2464 -0.05945 -0.4793 2.425 0.75 -0.1945 -0.408 2.557e+04 -2.561e+04]
+        ?                   ^
+        + q: [0.2464 -0.05946 -0.4793 2.425 0.75 -0.1945 -0.4081 2.557e+04 -2.561e+04]
+        ?                   ^
           contact_results:   point_pair_contact_info(0):
               bodyA: gripper
               bodyB: fake_table
-        -     contact_force: [-55.51 15.18 -57.55]
-        ?                          -  ^  ^     ^^
-        +     contact_force: [-55.5 16.13 -57.8]
-        ?                            ^  ^     ^
+        -     contact_force: [-56.15 13.3 -57.71]
+        ?                          ^    ^     ^^
+        +     contact_force: [-56.17 13.11 -57.68]
+        ?                          ^    ^^     ^^
               contact_point: [0.2639 0.1296 0.2695]
-        -     slip_speed: [0.008363]
-        ?                      ^^ ^
-        +     slip_speed: [0.007611]
-        ?                      ^ ^^
-        -     separation_speed: [-0.002505]
-        ?                              ^ ^
-        +     separation_speed: [-0.002101]
-        ?                              ^ ^
+        -     slip_speed: [0.007971]
+        ?                       ^^^
+        +     slip_speed: [0.008076]
+        ?                      ++ ^
+        -     separation_speed: [-0.002286]
+        ?                               ^^
+        +     separation_speed: [-0.002327]
+        ?                              + ^
 
