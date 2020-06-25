@@ -1,0 +1,20 @@
+
+
+[ meta_trial = 0, num_sim_trials = 2, setup = SetupEnum.Continuous_WithGeometry_NoGripper ]
+
+ResimulateStyle.Reuse
+  index: 0
+    good (first)
+  index: 1
+    good (not unique)
+ResimulateStyle.ReuseNewContext
+  index: 0
+    good (first)
+  index: 1
+    good (not unique)
+ResimulateStyle.Recreate
+  index: 0
+    good (first)
+  index: 1
+    good (not unique)
+
