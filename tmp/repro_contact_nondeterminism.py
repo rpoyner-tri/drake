@@ -362,7 +362,7 @@ class SimulationChecker:
 
     def run(self, simulator, calc_output):
         dt = 0.001
-        end_time = 0.5  # 1.
+        end_time = 0.52  # 1.
 
         prefix = '    '
         # TODO(eric.cousineau): Use monitor... somehow?
