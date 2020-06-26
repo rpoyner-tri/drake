@@ -44,5 +44,6 @@ drake_cc_binary(
         "//systems/framework:diagram_builder",
         "//systems/primitives:constant_vector_source",
         "@fmt",
+        "@gflags",
     ],
 )
