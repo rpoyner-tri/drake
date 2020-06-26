@@ -6,6 +6,8 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <gflags/gflags.h>
+
 #include "third-party/difflib/src/difflib.h"
 
 #include "drake/common/find_resource.h"
@@ -21,6 +23,13 @@
 
 namespace drake {
 namespace tmp {
+
+DEFINE_double(end_time, 1.0, "Length of simulation (seconds).");
+DEFINE_int64(meta_trials, 2, "Number of meta trials.");
+DEFINE_int64(sim_trials, 4, "Number of sim trials within a meta trial.");
+DEFINE_string(styles, "", "Styles to run, comma-separated list.");
+DEFINE_string(setups, "", "Setups to run, comma-separated list.");
+
 std::string float_fmt(double x) {
     return fmt::format("{:.4g}", x);
 }
@@ -214,7 +223,17 @@ class Diff {
   }
 };
 
-// Replacement for python textwrap.indent, sorta..
+// Replacement for python textwrap.indent, sorta.
+std::vector<std::string> split( const std::string& text, char delim='\n') {
+    std::vector<std::string> result;
+    std::stringstream ss(text);
+    std::string to;
+    while (std::getline(ss, to, delim)) {
+      result.push_back(to);
+    }
+    return result;
+}
+
 std::string indent(const std::string& text, const std::string& prefix) {
   std::stringstream ss(text);
   std::string to;
@@ -227,17 +246,8 @@ std::string indent(const std::string& text, const std::string& prefix) {
 }
 
 std::string text_diff(const std::string& a, const std::string& b) {
-  auto to_lines = [](const std::string& text) {
-    std::vector<std::string> result;
-    std::stringstream ss(text);
-    std::string to;
-    while (std::getline(ss, to,'\n')) {
-      result.push_back(to);
-    }
-    return result;
-  };
-  auto a_lines = to_lines(a);
-  auto b_lines = to_lines(b);
+  auto a_lines = split(a);
+  auto b_lines = split(b);
   Diff diff;
   std::string result;
   if (a_lines.size() == b_lines.size()) {
@@ -356,17 +366,17 @@ U find_dammit(const std::map<T, U>& map, const T& key, const std::string& messag
   throw std::runtime_error(message);
 }
 
-template <typename T> const std::string to_string(const T&);
+template <typename T> std::string to_string(const T&);
 
 // Enum ResimulateStyle.
 enum class ResimulateStyle {
-  kReuse = 0, kReuseNewContext = 1, kRecreate = 2,
+  Reuse = 0, ReuseNewContext = 1, Recreate = 2,
 };
-template <> const std::string to_string(const ResimulateStyle& value) {
+template <> std::string to_string(const ResimulateStyle& value) {
   static const std::map<ResimulateStyle, std::string> map = {
-    {ResimulateStyle::kReuse, "kReuse"},
-    {ResimulateStyle::kReuseNewContext, "kReuseNewContext"},
-    {ResimulateStyle::kRecreate, "kRecreate"},
+    {ResimulateStyle::Reuse, "Reuse"},
+    {ResimulateStyle::ReuseNewContext, "ReuseNewContext"},
+    {ResimulateStyle::Recreate, "Recreate"},
   };
   return find_dammit(map, value, "unknown ResimulateStyle");
 }
@@ -382,7 +392,7 @@ enum class SetupEnum {
   Discrete_WithGeometry_DrakeWsg,
   Discrete_WithGeometry_DrakeWsgWelded,
 };
-template <> const std::string to_string(const SetupEnum& value) {
+template <> std::string to_string(const SetupEnum& value) {
   static const std::map<SetupEnum, std::string> map = {
     {SetupEnum::Continuous_NoGeometry, "Continuous_NoGeometry"},
     {SetupEnum::Discrete_NoGeometry, "Discrete_NoGeometry"},
@@ -406,20 +416,20 @@ using SetupMap = std::map<SetupEnum, Setup>;
 
 const SetupMap& setup_map() {
   static const SetupMap map = {
-    // {SetupEnum::Continuous_NoGeometry, {SetupEnum::Continuous_NoGeometry, 0., false, ""}},
-    // {SetupEnum::Discrete_NoGeometry, {SetupEnum::Discrete_NoGeometry, 0.001, false, ""}},
+    {SetupEnum::Continuous_NoGeometry, {SetupEnum::Continuous_NoGeometry, 0., false, ""}},
+    {SetupEnum::Discrete_NoGeometry, {SetupEnum::Discrete_NoGeometry, 0.001, false, ""}},
     {SetupEnum::Continuous_WithGeometry_NoGripper, {SetupEnum::Continuous_WithGeometry_NoGripper, 0., true, ""}},
-    // {SetupEnum::Discrete_WithGeometry_NoGripper, {SetupEnum::Discrete_WithGeometry_NoGripper, 0.001, true, ""}},
-    // // Grippers.
-    // {SetupEnum::Discrete_WithGeometry_AnzuWsg,
-    //  {SetupEnum::Discrete_WithGeometry_AnzuWsg, 0., true, "drake/tmp/schunk_wsg_50_anzu.sdf"}},
-    // {SetupEnum::Discrete_WithGeometry_AnzuWsgWelded,
-    //  {SetupEnum::Discrete_WithGeometry_AnzuWsgWelded, 0.001, true, "drake/tmp/schunk_wsg_50_anzu_welded.sdf"}},
-    // {SetupEnum::Discrete_WithGeometry_DrakeWsg,
-    //  {SetupEnum::Discrete_WithGeometry_DrakeWsg, 0.001, true,
-    //   "drake/manipulation/models/wsg_50_description/sdf/schunk_wsg_50.sdf"}},
-    // {SetupEnum::Discrete_WithGeometry_DrakeWsgWelded,
-    //  {SetupEnum::Discrete_WithGeometry_DrakeWsgWelded, 0.001, true, "drake/tmp/schunk_wsg_50_drake_welded.sdf"}},
+    {SetupEnum::Discrete_WithGeometry_NoGripper, {SetupEnum::Discrete_WithGeometry_NoGripper, 0.001, true, ""}},
+    // Grippers.
+    {SetupEnum::Discrete_WithGeometry_AnzuWsg,
+     {SetupEnum::Discrete_WithGeometry_AnzuWsg, 0., true, "drake/tmp/schunk_wsg_50_anzu.sdf"}},
+    {SetupEnum::Discrete_WithGeometry_AnzuWsgWelded,
+     {SetupEnum::Discrete_WithGeometry_AnzuWsgWelded, 0.001, true, "drake/tmp/schunk_wsg_50_anzu_welded.sdf"}},
+    {SetupEnum::Discrete_WithGeometry_DrakeWsg,
+     {SetupEnum::Discrete_WithGeometry_DrakeWsg, 0.001, true,
+      "drake/manipulation/models/wsg_50_description/sdf/schunk_wsg_50.sdf"}},
+    {SetupEnum::Discrete_WithGeometry_DrakeWsgWelded,
+     {SetupEnum::Discrete_WithGeometry_DrakeWsgWelded, 0.001, true, "drake/tmp/schunk_wsg_50_drake_welded.sdf"}},
   };
   return map;
 }
@@ -473,8 +483,11 @@ std::string contact_results_to_str(
     auto& bodyB = plant.get_body(multibody::BodyIndex(info->bodyB_index()));
     // N.B. Use np.array() always to ensure we use the same formatting for
     // floating-point numbers.
-    out += fmt::format(contact_results_format, i, bodyA.name(), bodyB.name(), info->contact_force(),
-                       info->contact_point(), info->slip_speed(), info->separation_speed());
+    out += fmt::format(contact_results_format, i, bodyA.name(), bodyB.name(),
+                       vec_fmt(info->contact_force()),
+                       vec_fmt(info->contact_point()),
+                       float_fmt(info->slip_speed()),
+                       float_fmt(info->separation_speed()));
   }
   return out;  // .rstrip();
 }
@@ -558,7 +571,7 @@ std::tuple<std::unique_ptr<Simulator>, CalcOutput> make_simulator(const Setup& s
     } else {
       const auto& contact_results = contact_results_port.Eval<multibody::ContactResults<double>>(my_context);
       auto contact_results_text = contact_results_to_str(*plant, contact_results);
-      return fmt::format("q: {}\ncontact_results: {}", q, indent(contact_results_text, "  "));
+      return fmt::format("q: {}\ncontact_results: {}", vec_fmt(q), indent(contact_results_text, "  "));
     }
   };
 
@@ -582,7 +595,7 @@ class SimulationChecker {
  public:
   void run(Simulator* simulator, CalcOutput calc_output) {
     double dt = 0.001;
-    double end_time = 0.5;  // 1.;
+    double end_time = FLAGS_end_time;
     const std::string prefix("    ");
     simulator->Initialize();  // Proposed patch for Reuse.
     auto& d_context = simulator->get_context();
@@ -638,7 +651,7 @@ std::tuple<ResimulateStyle, std::string> simulate_trials(
   SimulationChecker checker;
 
   switch (style) {
-    case ResimulateStyle::kReuse: {
+    case ResimulateStyle::Reuse: {
       auto [simulator, calc_output] = make_simulator(setup);
       auto& d_context = simulator->get_mutable_context();
       simulator->Initialize();
@@ -650,7 +663,7 @@ std::tuple<ResimulateStyle, std::string> simulate_trials(
       }
       break;
     }
-    case ResimulateStyle::kReuseNewContext: {
+    case ResimulateStyle::ReuseNewContext: {
       auto [simulator, calc_output] = make_simulator(setup);
       for (int k = 0; k < num_sim_trials; k++) {
         fmt::print("  index: {}\n", k);
@@ -659,7 +672,7 @@ std::tuple<ResimulateStyle, std::string> simulate_trials(
       }
       break;
     }
-    case ResimulateStyle::kRecreate: {
+    case ResimulateStyle::Recreate: {
       for (int k = 0; k < num_sim_trials; k++) {
         fmt::print("  index: {}\n", k);
         auto [simulator, calc_output] = make_simulator(setup);
@@ -676,16 +689,23 @@ std::tuple<ResimulateStyle, std::string> simulate_trials(
 
 
 std::string run_simulations(int num_sim_trials, const Setup& setup) {
-  const auto summaries = {
-    simulate_trials(ResimulateStyle::kReuse, num_sim_trials, setup),
-    simulate_trials(ResimulateStyle::kReuseNewContext, num_sim_trials, setup),
-    simulate_trials(ResimulateStyle::kRecreate, num_sim_trials, setup),
+  const auto known_styles = {
+    ResimulateStyle::Reuse,
+    ResimulateStyle::ReuseNewContext,
+    ResimulateStyle::Recreate,
   };
+  auto styles_vec = split(FLAGS_styles, ',');
+  std::set<std::string> styles(styles_vec.begin(), styles_vec.end());
   // TODO: column alignment calculated from style string sizes
   std::string result;
-  for (const auto& s : summaries) {
-    auto [style, summary] = s;
-    result += fmt::format("{:<20}: {}\n", to_string(style), summary);
+  for (const auto& style : known_styles) {
+    const auto style_name = to_string(style);
+    if (!styles.empty() && !styles.count(style_name)) {
+      continue;
+    }
+    auto [got_style, summary] = simulate_trials(style, num_sim_trials, setup);
+    DRAKE_ASSERT(got_style == style);
+    result += fmt::format("{:<20}: {}\n", style_name, summary);
   }
   return result;
 }
@@ -694,18 +714,24 @@ std::string run_simulations(int num_sim_trials, const Setup& setup) {
 
 int do_main() {
   logging::set_log_level("err");
-  int num_meta_trials = 1;  // 2;
-  int num_sim_trials = 2;  // 4;
+  int num_meta_trials = FLAGS_meta_trials;
+  int num_sim_trials = FLAGS_sim_trials;
+  auto setups_vec = split(FLAGS_setups, ',');
+  std::set<std::string> setups(setups_vec.begin(), setups_vec.end());
   std::stringstream tally;
   tally << "\n";
   for (const auto& setup_pair : setup_map()) {
-    tally << fmt::format("* setup = {}\n", to_string(setup_pair.first));
+    const auto setup_name = to_string(setup_pair.first);
+    if (!setups.empty() && !setups.count(setup_name)) {
+      continue;
+    }
+    tally << fmt::format("* setup = {}\n", setup_name);
     const auto setup = setup_pair.second;
     for (int meta_trial = 0; meta_trial < num_meta_trials; meta_trial++) {
       fmt::print(
           "\n\n[ meta_trial = {}, "
           "num_sim_trials = {}, setup = {} ]\n\n",
-          meta_trial, num_sim_trials, to_string(setup_pair.first));
+          meta_trial, num_sim_trials, setup_name);
       auto summary = run_simulations(num_sim_trials, setup);
       tally << fmt::format("  * meta_trial = {}, num_sim_trials = {}\n",
                            meta_trial, num_sim_trials);
@@ -720,6 +746,7 @@ int do_main() {
 }
 }
 
-int main(int, const char* []) {
+int main(int argc, char* argv[]) {
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
   return drake::tmp::do_main();
 }
