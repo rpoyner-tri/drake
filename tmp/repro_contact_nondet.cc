@@ -29,16 +29,21 @@ DEFINE_int64(meta_trials, 2, "Number of meta trials.");
 DEFINE_int64(sim_trials, 4, "Number of sim trials within a meta trial.");
 DEFINE_string(styles, "", "Styles to run, comma-separated list.");
 DEFINE_string(setups, "", "Setups to run, comma-separated list.");
+DEFINE_int64(float_precision, 4,
+             "Precision to use when string formatting doubles for comparision");
+
+
+#define FLOAT_FMT "{:.{}g}"
 
 std::string float_fmt(double x) {
-    return fmt::format("{:.4g}", x);
+  return fmt::format(FLOAT_FMT, x, FLAGS_float_precision);
 }
 
 template <typename T>
 std::string vec_fmt(const T& v) {
-  std::string result(fmt::format("[{:.4g}", v(0)));
+  std::string result(fmt::format("[" FLOAT_FMT, v(0), FLAGS_float_precision));
   for (int k = 1; k < v.size(); k++) {
-    result += fmt::format(" {:.4g}", v(k));
+    result += fmt::format(" " FLOAT_FMT, v(k), FLAGS_float_precision);
   }
   result += "]";
   return result;
@@ -714,6 +719,7 @@ std::string run_simulations(int num_sim_trials, const Setup& setup) {
 
 int do_main() {
   logging::set_log_level("err");
+  DRAKE_ASSERT(1 <= FLAGS_float_precision && FLAGS_float_precision <= 17);
   int num_meta_trials = FLAGS_meta_trials;
   int num_sim_trials = FLAGS_sim_trials;
   auto setups_vec = split(FLAGS_setups, ',');
