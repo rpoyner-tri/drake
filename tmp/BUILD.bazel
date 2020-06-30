@@ -2,7 +2,7 @@ load(
     "//tools/skylark:drake_py.bzl",
     "drake_py_binary",
 )
-load("@drake//tools/skylark:drake_cc.bzl", "drake_cc_binary")
+load("@drake//tools/skylark:drake_cc.bzl", "drake_cc_binary", "drake_cc_library")
 
 filegroup(
     name = "models",
@@ -18,10 +18,49 @@ drake_py_binary(
     ],
 )
 
-cc_library(
+drake_cc_library(
     name = "difflib",
     srcs = ["third-party/difflib/src/difflib.h"],
     hdrs = ["third-party/difflib/src/difflib.h"],
+)
+
+drake_cc_library(
+    name = "differ",
+    srcs = ["differ.cc"],
+    hdrs = ["differ.h"],
+    deps = [
+        ":difflib",
+        "//common:essential",
+        "@fmt",
+    ],
+)
+
+drake_cc_library(
+    name = "text",
+    srcs = ["text.cc"],
+    hdrs = ["text.h"],
+)
+
+drake_cc_library(
+    name = "float_fmt",
+    srcs = ["float_fmt.cc"],
+    hdrs = ["float_fmt.h"],
+    deps = [
+        "@fmt",
+        "@gflags",
+    ],
+)
+
+drake_cc_library(
+    name = "frames",
+    srcs = ["frames.cc"],
+    hdrs = ["frames.h"],
+    deps = [
+        ":differ",
+        ":text",
+        "//common:essential",
+        "@fmt",
+    ],
 )
 
 drake_cc_binary(
@@ -33,7 +72,9 @@ drake_cc_binary(
         "//manipulation/models/wsg_50_description:models",
     ],
     deps = [
-        ":difflib",
+        ":differ",
+        ":float_fmt",
+        ":text",
         "//geometry:geometry_visualization",
         "//multibody/parsing:parser",
         "//multibody/plant:contact_results_to_lcm",
