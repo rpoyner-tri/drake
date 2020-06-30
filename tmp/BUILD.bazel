@@ -56,6 +56,7 @@ drake_cc_library(
     srcs = ["frames.cc"],
     hdrs = ["frames.h"],
     deps = [
+        ":float_fmt",
         ":differ",
         ":text",
         "//common:essential",
@@ -74,6 +75,7 @@ drake_cc_binary(
     deps = [
         ":differ",
         ":float_fmt",
+        ":frames",
         ":text",
         "//geometry:geometry_visualization",
         "//multibody/parsing:parser",
