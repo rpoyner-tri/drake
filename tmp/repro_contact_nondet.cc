@@ -2,6 +2,10 @@
 #include <string>
 #include <tuple>
 
+#include <sys/personality.h>
+
+#include <fcl/math/rng.h>
+
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
@@ -24,6 +28,7 @@
 namespace drake {
 namespace tmp {
 
+DEFINE_string(log_level, "err", "Drake log level.");
 DEFINE_double(end_time, 1.0, "Length of simulation (seconds).");
 DEFINE_int64(meta_trials, 2, "Number of meta trials.");
 DEFINE_int64(sim_trials, 4, "Number of sim trials within a meta trial.");
@@ -278,14 +283,18 @@ class SimulationChecker {
     auto& d_context = simulator->get_context();
 
     Frames frames;
+    {
+      Frames::Current current(&frames);
 
-    auto output = calc_output(d_context);
-    frames.add(d_context.get_time(), output);
-    while (d_context.get_time() + dt / 2 < end_time) {
-      simulator->AdvanceTo(d_context.get_time() + dt);
-      output = calc_output(d_context);
+      auto output = calc_output(d_context);
       frames.add(d_context.get_time(), output);
+      while (d_context.get_time() + dt / 2 < end_time) {
+        simulator->AdvanceTo(d_context.get_time() + dt);
+        output = calc_output(d_context);
+        frames.add(d_context.get_time(), output);
+      }
     }
+
     int prev_count = static_cast<int>(frames_set_.size());
     frames_set_.insert(frames);
     int count = static_cast<int>(frames_set_.size());
@@ -391,7 +400,8 @@ std::string run_simulations(int num_sim_trials, const Setup& setup) {
 
 
 int do_main() {
-  logging::set_log_level("err");
+  personality(ADDR_NO_RANDOMIZE);
+  logging::set_log_level(FLAGS_log_level);
   DRAKE_ASSERT(1 <= FLAGS_float_precision && FLAGS_float_precision <= 17);
   int num_meta_trials = FLAGS_meta_trials;
   int num_sim_trials = FLAGS_sim_trials;

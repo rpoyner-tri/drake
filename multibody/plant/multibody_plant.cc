@@ -24,6 +24,9 @@
 #include "drake/multibody/tree/prismatic_joint.h"
 #include "drake/multibody/tree/revolute_joint.h"
 
+#include "drake/tmp/float_fmt.h"
+#include "drake/tmp/frames.h"
+
 namespace drake {
 namespace multibody {
 
@@ -1270,6 +1273,16 @@ void MultibodyPlant<T>::CalcContactResultsContinuousPointPair(
 
     // Contact point C.
     const Vector3<T> p_WC = 0.5 * (p_WCa + p_WCb);
+    if constexpr (std::is_same<T, double>::value) {
+        tmp::Frames::Current::the()->add(
+            context.get_time(),
+            fmt::format("context: {}\ncontact_point {}\n"
+                        "contact A {}\ncontact B {}\n",
+                        context.to_string(),
+                        tmp::vec_fmt(p_WC),
+                        tmp::vec_fmt(p_WCa),
+                        tmp::vec_fmt(p_WCb)));
+    }
 
     // Contact point position on body A.
     const Vector3<T>& p_WAo = pc.get_X_WB(bodyA_node_index).translation();
