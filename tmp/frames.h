@@ -3,6 +3,8 @@
 #include <string>
 #include <tuple>
 
+#include "drake/common/drake_assert.h"
+
 namespace drake {
 namespace tmp {
 
@@ -15,6 +17,27 @@ class Frames {
   bool operator==(const Frames& other) const { return !first_diff(other); }
   size_t hash() const;
   std::string text_diff(const Frames& other) const;
+
+  class Current {
+   public:
+    Current(Frames* current) {
+      DRAKE_ASSERT(instance_ == nullptr);
+      instance_ = current;
+    }
+
+    ~Current() {
+      DRAKE_ASSERT(instance_ != nullptr);
+      instance_ = nullptr;
+    }
+
+    static Frames* the() {
+      DRAKE_ASSERT(instance_ != nullptr);
+      return instance_;
+    }
+
+   private:
+    static Frames* instance_;
+  };
 
  private:
   std::deque<double> times_;

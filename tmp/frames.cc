@@ -14,6 +14,8 @@
 namespace drake {
 namespace tmp {
 
+Frames* Frames::Current::instance_{};
+
 namespace {
 std::string text_diff(const std::string& a, const std::string& b) {
   auto a_lines = split(a);
