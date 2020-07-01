@@ -275,7 +275,6 @@ class SimulationChecker {
     double dt = 0.001;
     double end_time = FLAGS_end_time;
     const std::string prefix("    ");
-    simulator->Initialize();  // Proposed patch for Reuse.
     auto& d_context = simulator->get_context();
 
     Frames frames;
@@ -332,11 +331,12 @@ std::tuple<ResimulateStyle, std::string> simulate_trials(
     case ResimulateStyle::Reuse: {
       auto [simulator, calc_output] = make_simulator(setup);
       auto& d_context = simulator->get_mutable_context();
-      simulator->Initialize();
       auto d_context_initial = d_context.Clone();
       for (int k = 0; k < num_sim_trials; k++) {
         fmt::print("  index: {}\n", k);
         d_context.SetTimeStateAndParametersFrom(*d_context_initial);
+        // Temporary workaround while simulator/context API is being discussed.
+        simulator->Initialize();
         checker.run(simulator.get(), calc_output);
       }
       break;
