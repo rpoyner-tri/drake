@@ -50,6 +50,7 @@ drake_cc_library(
     srcs = ["float_fmt.cc"],
     hdrs = ["float_fmt.h"],
     deps = [
+        "//systems/framework:vector",
         "@fmt",
         "@gflags",
     ],

@@ -1318,9 +1318,11 @@ void MultibodyPlant<T>::CalcContactResultsContinuousPointPair(
     if constexpr (std::is_same<T, double>::value) {
         tmp::Frames::Current::the()->add(
             context.get_time(),
-            fmt::format("context: {}\ncontact_point {}\n"
+            fmt::format("context: {}\ncontinuous {}\n"
+                        "contact_point {}\n"
                         "contact A {}\ncontact B {}\n",
                         context.to_string(),
+                        tmp::vec_fmt(context.get_continuous_state_vector()),
                         tmp::vec_fmt(p_WC),
                         tmp::vec_fmt(p_WCa),
                         tmp::vec_fmt(p_WCb)));
