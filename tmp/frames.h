@@ -11,6 +11,7 @@ namespace tmp {
 class Frames {
  public:
   int add(double t, const std::string& value);
+  int add(const std::string& value);
   int size() const { return static_cast<int>(times_.size()); }
   std::tuple<double, std::string> get(int i) const;
   std::optional<int> first_diff(const Frames& other) const;

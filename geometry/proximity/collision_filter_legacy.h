@@ -99,6 +99,18 @@ class CollisionFilterLegacy {
    next_clique_id().  */
   int peek_next_clique() const { return next_available_clique_; }
 
+  std::string to_string() const {
+    std::stringstream ss;
+    for (const auto& pair : collision_cliques_) {
+      ss << pair.first << ": ";
+      for (const auto& thing : pair.second) {
+        ss << thing << " ";
+      }
+      ss << "\n";
+    }
+    return ss.str();
+  }
+
  private:
   // A map between the EncodedData::encoding() value for a geometry and
   // its set of cliques.

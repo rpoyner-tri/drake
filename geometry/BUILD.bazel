@@ -57,6 +57,7 @@ drake_cc_library(
         "//geometry/proximity",
         "//geometry/query_results",
         "//math",
+        "//tmp:frames",
         "@fcl",
         "@fmt",
         "@tinyobjloader",

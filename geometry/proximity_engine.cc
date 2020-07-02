@@ -26,6 +26,7 @@
 #include "drake/geometry/proximity/obj_to_surface_mesh.h"
 #include "drake/geometry/proximity/penetration_as_point_pair_callback.h"
 #include "drake/geometry/utilities.h"
+#include "drake/tmp/frames.h"
 
 static_assert(std::is_same<tinyobj::real_t, double>::value,
               "tinyobjloader must be compiled in double-precision mode");
@@ -747,6 +748,16 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
 
   std::vector<PenetrationAsPointPair<double>> ComputePointPairPenetration()
       const {
+
+    // XXX TODO rico
+    // Inputs to this step are collision_filter_, dynamic_tree_, anchored_tree_.
+
+    // Collision filters will likely differ because the new copies of geometry
+    // will have new and different IDs. Eyeballing the outputs, looks like the
+    // cliques will always match if we sorted them and ignored the IDs.
+    // tmp::Frames::Current::the()->add(collision_filter_.to_string());
+
+
     std::vector<PenetrationAsPointPair<double>> contacts;
     penetration_as_point_pair::CallbackData data{&collision_filter_, &contacts};
 
