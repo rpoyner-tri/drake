@@ -49,6 +49,11 @@ template<typename It> void hash_range(std::size_t& seed, It first, It last) {
 }
 }
 
+int Frames::add(const std::string& value) {
+  const double time = times_.empty() ? 0.0 : times_.back();
+  return add(time, value);
+}
+
 int Frames::add(double t, const std::string& value) {
   auto index = size();
   times_.push_back(t);
