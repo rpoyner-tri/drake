@@ -1,3 +1,4 @@
+#define DRAKE_ENABLE_ASSERTS 1
 #include "drake/geometry/proximity_engine.h"
 
 #include <algorithm>
@@ -1148,24 +1149,32 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
 };
 
 template <typename T>
-ProximityEngine<T>::ProximityEngine() : impl_(new Impl()) {}
+ProximityEngine<T>::ProximityEngine() : impl_(new Impl()) {
+  // xxx no data DRAKE_ASSERT(false);
+}
 
 template <typename T>
 ProximityEngine<T>::~ProximityEngine() {
+  // xxx no data DRAKE_ASSERT(false);
   delete impl_;
 }
 
 template <typename T>
 ProximityEngine<T>::ProximityEngine(ProximityEngine<T>::Impl* impl)
-    : impl_(impl) {}
+    : impl_(impl) {
+  DRAKE_ASSERT(false);
+}
 
 template <typename T>
 ProximityEngine<T>::ProximityEngine(const ProximityEngine<T>& other)
-    : impl_(new ProximityEngine<T>::Impl(*other.impl_)) {}
+    : impl_(new ProximityEngine<T>::Impl(*other.impl_)) {
+  // xxx skip for now DRAKE_ASSERT(false);
+}
 
 template <typename T>
 ProximityEngine<T>& ProximityEngine<T>::operator=(
     const ProximityEngine<T>& other) {
+  DRAKE_ASSERT(false);
   if (this == &other) return *this;
   if (impl_) delete impl_;
   impl_ = new ProximityEngine<T>::Impl(*other.impl_);
@@ -1175,12 +1184,14 @@ ProximityEngine<T>& ProximityEngine<T>::operator=(
 template <typename T>
 ProximityEngine<T>::ProximityEngine(ProximityEngine<T>&& other) noexcept
     : impl_(std::move(other.impl_)) {
+  DRAKE_ASSERT(false);
   other.impl_ = new ProximityEngine<T>::Impl();
 }
 
 template <typename T>
 ProximityEngine<T>& ProximityEngine<T>::operator=(
     ProximityEngine<T>&& other) noexcept {
+  DRAKE_ASSERT(false);
   if (this == &other) return *this;
   if (impl_) delete impl_;
   impl_ = std::move(other.impl_);
@@ -1191,6 +1202,7 @@ ProximityEngine<T>& ProximityEngine<T>::operator=(
 template <typename T>
 void ProximityEngine<T>::AddDynamicGeometry(const Shape& shape, GeometryId id,
                                             const ProximityProperties& props) {
+  // xxx no current frame DRAKE_ASSERT(false);
   impl_->AddDynamicGeometry(shape, id, props);
 }
 
@@ -1198,6 +1210,7 @@ template <typename T>
 void ProximityEngine<T>::AddAnchoredGeometry(
     const Shape& shape, const RigidTransformd& X_WG, GeometryId id,
     const ProximityProperties& props) {
+  DRAKE_ASSERT(false);
   impl_->AddAnchoredGeometry(shape, X_WG, id, props);
 }
 
@@ -1205,42 +1218,50 @@ template <typename T>
 void ProximityEngine<T>::UpdateRepresentationForNewProperties(
     const InternalGeometry& geometry,
     const ProximityProperties& new_properties) {
+  DRAKE_ASSERT(false);
   impl_->UpdateRepresentationForNewProperties(geometry, new_properties);
 }
 
 template <typename T>
 void ProximityEngine<T>::RemoveGeometry(GeometryId id, bool is_dynamic) {
+  DRAKE_ASSERT(false);
   impl_->RemoveGeometry(id, is_dynamic);
 }
 
 template <typename T>
 int ProximityEngine<T>::num_geometries() const {
+  DRAKE_ASSERT(false);
   return impl_->num_geometries();
 }
 
 template <typename T>
 int ProximityEngine<T>::num_dynamic() const {
+  DRAKE_ASSERT(false);
   return impl_->num_dynamic();
 }
 
 template <typename T>
 int ProximityEngine<T>::num_anchored() const {
+  DRAKE_ASSERT(false);
   return impl_->num_anchored();
 }
 
 template <typename T>
 void ProximityEngine<T>::set_distance_tolerance(double tol) {
+  DRAKE_ASSERT(false);
   impl_->set_distance_tolerance(tol);
 }
 
 template <typename T>
 double ProximityEngine<T>::distance_tolerance() const {
+  DRAKE_ASSERT(false);
   return impl_->distance_tolerance();
 }
 
 template <typename T>
 std::unique_ptr<ProximityEngine<AutoDiffXd>> ProximityEngine<T>::ToAutoDiffXd()
     const {
+  DRAKE_ASSERT(false);
   return unique_ptr<ProximityEngine<AutoDiffXd>>(
       new ProximityEngine<AutoDiffXd>(impl_->ToAutoDiff().release()));
 }
@@ -1248,6 +1269,19 @@ std::unique_ptr<ProximityEngine<AutoDiffXd>> ProximityEngine<T>::ToAutoDiffXd()
 template <typename T>
 void ProximityEngine<T>::UpdateWorldPoses(
     const unordered_map<GeometryId, RigidTransform<T>>& X_WGs) {
+  // xxx DRAKE_ASSERT(false);
+  DRAKE_ASSERT(tmp::Frames::Current::the());
+  if constexpr (std::is_same<T, double>::value) {
+      std::stringstream ss;
+      for (const auto& pair : X_WGs) {
+        ss << fmt::format(
+            "(id XXX, (r {} t {}))\n",
+            //pair.first,
+            tmp::vec_fmt(pair.second.rotation().ToQuaternionAsVector4()),
+            tmp::vec_fmt(pair.second.translation()));
+      }
+      tmp::Frames::Current::the()->add(ss.str());
+  }
   impl_->UpdateWorldPoses(X_WGs);
 }
 
@@ -1256,6 +1290,7 @@ std::vector<SignedDistancePair<T>>
 ProximityEngine<T>::ComputeSignedDistancePairwiseClosestPoints(
     const std::unordered_map<GeometryId, RigidTransform<T>>& X_WGs,
     const double max_distance) const {
+  DRAKE_ASSERT(false);
   return impl_->ComputeSignedDistancePairwiseClosestPoints(X_WGs, max_distance);
 }
 
@@ -1265,6 +1300,7 @@ ProximityEngine<T>::ComputeSignedDistancePairClosestPoints(
     GeometryId id_A, GeometryId id_B,
     const std::unordered_map<GeometryId, math::RigidTransform<T>>& X_WGs)
     const {
+  DRAKE_ASSERT(false);
   return impl_->ComputeSignedDistancePairClosestPoints(id_A, id_B, X_WGs);
 }
 
@@ -1274,23 +1310,28 @@ ProximityEngine<T>::ComputeSignedDistanceToPoint(
     const Vector3<T>& query,
     const std::unordered_map<GeometryId, RigidTransform<T>>& X_WGs,
     const double threshold) const {
+  DRAKE_ASSERT(false);
   return impl_->ComputeSignedDistanceToPoint(query, X_WGs, threshold);
 }
 
 template <typename T>
 bool ProximityEngine<T>::HasCollisions() const {
+  DRAKE_ASSERT(false);
   return impl_->HasCollisions();
 }
 
 template <typename T>
 std::vector<PenetrationAsPointPair<double>>
 ProximityEngine<T>::ComputePointPairPenetration() const {
+  // xxx DRAKE_ASSERT(false);
+  DRAKE_ASSERT(tmp::Frames::Current::the());
   return impl_->ComputePointPairPenetration();
 }
 
 template <typename T>
 std::vector<ContactSurface<T>> ProximityEngine<T>::ComputeContactSurfaces(
     const std::unordered_map<GeometryId, RigidTransform<T>>& X_WGs) const {
+  DRAKE_ASSERT(false);
   return impl_->ComputeContactSurfaces(X_WGs);
 }
 
@@ -1299,6 +1340,7 @@ void ProximityEngine<T>::ComputeContactSurfacesWithFallback(
     const std::unordered_map<GeometryId, RigidTransform<T>>& X_WGs,
     std::vector<ContactSurface<T>>* surfaces,
     std::vector<PenetrationAsPointPair<double>>* point_pairs) const {
+  DRAKE_ASSERT(false);
   return impl_->ComputeContactSurfacesWithFallback(X_WGs, surfaces,
                                                    point_pairs);
 }
@@ -1306,6 +1348,7 @@ void ProximityEngine<T>::ComputeContactSurfacesWithFallback(
 template <typename T>
 std::vector<SortedPair<GeometryId>>
 ProximityEngine<T>::FindCollisionCandidates() const {
+  DRAKE_ASSERT(false);
   return impl_->FindCollisionCandidates();
 }
 
@@ -1313,6 +1356,8 @@ template <typename T>
 void ProximityEngine<T>::ExcludeCollisionsWithin(
     const std::unordered_set<GeometryId>& dynamic,
     const std::unordered_set<GeometryId>& anchored) {
+  // xxx no current frame DRAKE_ASSERT(false);
+  // DRAKE_ASSERT(tmp::Frames::Current::the());
   impl_->ExcludeCollisionsWithin(dynamic, anchored);
 }
 
@@ -1322,6 +1367,7 @@ void ProximityEngine<T>::ExcludeCollisionsBetween(
     const std::unordered_set<GeometryId>& anchored1,
     const std::unordered_set<GeometryId>& dynamic2,
     const std::unordered_set<GeometryId>& anchored2) {
+  // xxx no current frame DRAKE_ASSERT(false);
   impl_->ExcludeCollisionsBetween(dynamic1, anchored1, dynamic2, anchored2);
 }
 
@@ -1329,6 +1375,7 @@ template <typename T>
 bool ProximityEngine<T>::CollisionFiltered(
     GeometryId id1, bool is_dynamic_1,
     GeometryId id2, bool is_dynamic_2) const {
+  DRAKE_ASSERT(false);
   return impl_->CollisionFiltered(id1, is_dynamic_1, id2, is_dynamic_2);
 }
 
@@ -1348,23 +1395,27 @@ void ProximityEngine<T>::set_clique(GeometryId id, int clique) {
 
 template <typename T>
 bool ProximityEngine<T>::IsDeepCopy(const ProximityEngine<T>& other) const {
+  DRAKE_ASSERT(false);
   return impl_->IsDeepCopy(*other.impl_);
 }
 
 template <typename T>
 int ProximityEngine<T>::peek_next_clique() const {
+  DRAKE_ASSERT(false);
   return impl_->peek_next_clique();
 }
 
 template <typename T>
 const RigidTransformd ProximityEngine<T>::GetX_WG(GeometryId id,
                                                   bool is_dynamic) const {
+  DRAKE_ASSERT(false);
   return impl_->GetX_WG(id, is_dynamic);
 }
 
 template <typename T>
 const hydroelastic::Geometries& ProximityEngine<T>::hydroelastic_geometries()
     const {
+  DRAKE_ASSERT(false);
   return impl_->hydroelastic_geometries();
 }
 

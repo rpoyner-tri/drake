@@ -178,7 +178,7 @@ std::vector<std::string> Diff::qformat(std::string aline, std::string bline,
   if (!atags.empty()) {
     results.push_back(fmt::format("? {}{}\n", std::string(common, '\t'), atags));
   }
-  results.push_back(std::string("- ") + bline);
+  results.push_back(std::string("+ ") + bline);
   if (!btags.empty()) {
     results.push_back(fmt::format("? {}{}\n", std::string(common, '\t'), btags));
   }
