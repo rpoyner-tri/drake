@@ -34,11 +34,10 @@ DEFINE_int64(meta_trials, 2, "Number of meta trials.");
 DEFINE_int64(sim_trials, 4, "Number of sim trials within a meta trial.");
 DEFINE_string(styles, "", "Styles to run, comma-separated list.");
 DEFINE_string(setups, "", "Setups to run, comma-separated list.");
+DEFINE_bool(visualize, false, "Emit data to drake visualizer.");
 
 using Simulator = systems::Simulator<double>;
 using CalcOutput = std::function<std::string (const systems::Context<double>&)>;
-
-static constexpr bool VISUALIZE = false;
 
 template <typename T, typename U>
 U find_dammit(const std::map<T, U>& map, const T& key, const std::string& message) {
@@ -226,7 +225,7 @@ std::tuple<std::unique_ptr<Simulator>, CalcOutput> make_simulator(const Setup& s
     no_control(&builder, *plant, *wsg);
   }
 
-  if (VISUALIZE and scene_graph) {
+  if (FLAGS_visualize and scene_graph) {
     auto role = geometry::Role::kProximity;
     ConnectDrakeVisualizer(&builder, *scene_graph, nullptr, role);
     ConnectContactResultsToDrakeVisualizer(&builder, *plant);
@@ -262,7 +261,7 @@ std::tuple<std::unique_ptr<Simulator>, CalcOutput> make_simulator(const Setup& s
   plant->GetMyContextFromRoot(*d_context);
 
   auto simulator = std::make_unique<systems::Simulator<double>>(std::move(diagram), std::move(d_context));
-  if (VISUALIZE and scene_graph) {
+  if (FLAGS_visualize and scene_graph) {
     simulator->set_target_realtime_rate(1.);
   }
   systems::ResetIntegratorFromFlags<double>(simulator.get(), "runge_kutta2", max_step_size);
