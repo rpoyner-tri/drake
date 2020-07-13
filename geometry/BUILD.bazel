@@ -256,6 +256,7 @@ drake_cc_library(
     deps = [
         "//common:essential",
         "//math:geometric_transform",
+        "//tmp:float_fmt",
     ],
 )
 

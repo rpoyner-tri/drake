@@ -10,6 +10,7 @@
 #include "drake/common/drake_deprecated.h"
 #include "drake/common/eigen_types.h"
 #include "drake/math/rigid_transform.h"
+#include "drake/tmp/float_fmt.h"
 
 /** @file
  Provides the classes through which geometric shapes are introduced into
@@ -61,6 +62,7 @@ class Shape {
   /** Creates a unique copy of this shape. Invokes the protected DoClone(). */
   std::unique_ptr<Shape> Clone() const;
 
+  virtual std::string to_string() const = 0;
  protected:
   // This is *not* in the public section. However, this allows the children to
   // also use this macro, but precludes the possibility of external users
@@ -112,6 +114,9 @@ class Sphere final : public Shape {
 
   double radius() const { return radius_; }
 
+  std::string to_string() const override {
+    return fmt::format("sphere r {}", tmp::float_fmt(radius()));
+  }
  private:
   double radius_{};
 };
@@ -130,6 +135,10 @@ class Cylinder final : public Shape {
   double radius() const { return radius_; }
   double length() const { return length_; }
 
+  std::string to_string() const override {
+    return fmt::format("cylinder r {} l {}",
+                       tmp::float_fmt(radius()), tmp::float_fmt(length()));
+  }
  private:
   double radius_{};
   double length_{};
@@ -165,7 +174,10 @@ class Box final : public Shape {
   /** Returns the box's dimensions. */
   const Vector3<double>& size() const { return size_; }
 
- private:
+  std::string to_string() const override {
+    return fmt::format("box s {}", tmp::vec_fmt(size()));
+  }
+private:
   Vector3<double> size_;
 };
 
@@ -183,6 +195,10 @@ class Capsule final : public Shape {
   double radius() const { return radius_; }
   double length() const { return length_; }
 
+  std::string to_string() const override {
+    return fmt::format("capsule r {} l {}",
+                       tmp::float_fmt(radius()), tmp::float_fmt(length()));
+  }
  private:
   double radius_{};
   double length_{};
@@ -210,6 +226,9 @@ class Ellipsoid final : public Shape {
   double b() const { return radii_(1); }
   double c() const { return radii_(2); }
 
+  std::string to_string() const override {
+    return fmt::format("ellipsoid rr {}", tmp::vec_fmt(radii_));
+  }
  private:
   Vector3<double> radii_;
 };
@@ -242,6 +261,7 @@ class HalfSpace final : public Shape {
                             ‖normal_F‖₂ < ε). */
   static math::RigidTransform<double> MakePose(const Vector3<double>& Hz_dir_F,
                                                const Vector3<double>& p_FB);
+  std::string to_string() const override { return "halfspace"; }
 };
 
 // TODO(DamrongGuoy): Update documentation when the level of support for
@@ -265,6 +285,9 @@ class Mesh final : public Shape {
   const std::string& filename() const { return filename_; }
   double scale() const { return scale_; }
 
+  std::string to_string() const override {
+    return fmt::format("mesh f {} s {}", filename_, tmp::float_fmt(scale_));
+  }
  private:
   // NOTE: Cannot be const to support default copy/move semantics.
   std::string filename_;
@@ -300,6 +323,9 @@ class Convex final : public Shape {
   const std::string& filename() const { return filename_; }
   double scale() const { return scale_; }
 
+  std::string to_string() const override {
+    return fmt::format("convex f {} s {}", filename_, tmp::float_fmt(scale_));
+  }
  private:
   std::string filename_;
   double scale_;
