@@ -1,0 +1,24 @@
+# -*- python -*-
+load(
+    "//tools/skylark:drake_py.bzl",
+    "drake_py_binary",
+)
+load("@drake//tools/skylark:drake_cc.bzl", "drake_cc_binary", "drake_cc_library")
+
+package(
+    default_visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "models",
+    srcs = glob(["models/*.sdf", "models/*.urdf"]),
+)
+
+drake_py_binary(
+    name = "hopper_timestep0",
+    srcs = ["hopper_timestep0.py"],
+    data = [":models"],
+    deps = [
+        "@drake//bindings/pydrake",
+    ],
+)
