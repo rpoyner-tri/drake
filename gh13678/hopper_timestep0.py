@@ -28,7 +28,7 @@ diagram = builder.Build()
 
 context = diagram.CreateDefaultContext()
 
-# print(context.get_discrete_state_vector())
+print(context.get_discrete_state_vector())
 print(context)
 print(f"groups {context.num_discrete_state_groups()}")
 print(f"discrete state {context.get_discrete_state()}, len {context.get_discrete_state().num_groups()}")
