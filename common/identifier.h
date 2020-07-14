@@ -185,8 +185,11 @@ class Identifier {
     // Note that id 0 is reserved for uninitialized variable which is created
     // by the default constructor. As a result, we have an invariant that
     // get_new_id() > 0.
-    static never_destroyed<std::atomic<int64_t>> next_index(1);
     return Identifier(next_index.access()++);
+  }
+
+  static void reset_id() {
+    next_index.access() = 1;
   }
 
   /** Implements the @ref hash_append concept. And invalid id will successfully
@@ -206,7 +209,11 @@ class Identifier {
  private:
   // The underlying value.
   int64_t value_{};
+
+  static never_destroyed<std::atomic<int64_t>> next_index;
 };
+template <typename Tag>
+never_destroyed<std::atomic<int64_t>>Identifier<Tag>::next_index{1};
 
 /** Streaming output operator.   This is considered invalid for invalid ids and
  is strictly enforced in Debug builds.

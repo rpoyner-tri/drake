@@ -12,6 +12,7 @@
 #include <gflags/gflags.h>
 
 #include "drake/common/find_resource.h"
+#include "drake/geometry/geometry_ids.h"
 #include "drake/geometry/geometry_visualization.h"
 #include "drake/multibody/parsing/parser.h"
 #include "drake/multibody/plant/contact_results_to_lcm.h"
@@ -361,6 +362,7 @@ std::tuple<ResimulateStyle, std::string> simulate_trials(
     case ResimulateStyle::Recreate: {
       for (int k = 0; k < num_sim_trials; k++) {
         fmt::print("  index: {}\n", k);
+        geometry::GeometryId::reset_id();
         auto [simulator, calc_output] = make_simulator(setup);
         checker.run(simulator.get(), calc_output);
       }
