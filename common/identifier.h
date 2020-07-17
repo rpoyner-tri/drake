@@ -188,8 +188,8 @@ class Identifier {
     return Identifier(next_index.access()++);
   }
 
-  static void reset_id() {
-    next_index.access() = 1;
+  static void reset_id(int64_t new_base = 1) {
+    next_index.access() = new_base;
   }
 
   /** Implements the @ref hash_append concept. And invalid id will successfully

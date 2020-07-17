@@ -1321,15 +1321,12 @@ void MultibodyPlant<T>::CalcContactResultsContinuousPointPair(
             fmt::format("context: {}\ncontinuous {}\n"
                         "contact_point {}\n"
                         "contact A {}\ncontact B {}\n"
-                        "gid A {}\ngid B {}\n"
                         "bni A {}\nbni B {}\n",
                         context.to_string(),
                         tmp::vec_fmt(context.get_continuous_state_vector()),
                         tmp::vec_fmt(p_WC),
                         tmp::vec_fmt(p_WCa),
                         tmp::vec_fmt(p_WCb),
-                        geometryA_id,
-                        geometryB_id,
                         static_cast<int>(bodyA_node_index),
                         static_cast<int>(bodyB_node_index)
                         ));

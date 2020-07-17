@@ -364,9 +364,10 @@ std::tuple<ResimulateStyle, std::string> simulate_trials(
         fmt::print("  index: {}\n", k);
 
         // xxx there's a clue here for FrameId.
-        geometry::FrameId::reset_id();
-        geometry::GeometryId::reset_id();
-        geometry::SourceId::reset_id();
+        // geometry::FrameId::reset_id(
+        //     geometry::SceneGraph<double>::world_frame_id().get_value() + 1);
+        // geometry::GeometryId::reset_id();
+        // geometry::SourceId::reset_id();
         auto [simulator, calc_output] = make_simulator(setup);
         checker.run(simulator.get(), calc_output);
       }
