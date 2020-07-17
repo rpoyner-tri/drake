@@ -2,7 +2,7 @@
 
 #include <functional>
 #include <ostream>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include "drake/common/drake_assert.h"
@@ -189,7 +189,7 @@ class ColorPalette {
   const ColorI kTerrainColor{255, 229, 204};
   const ColorI kSkyColor{204, 229, 255};
   std::vector<ColorI> colors_;
-  std::unordered_map<ColorI, IdType> color_id_map_;
+  std::map<ColorI, IdType> color_id_map_;
   IdType terrain_id_{};
   IdType empty_id_{};
 };

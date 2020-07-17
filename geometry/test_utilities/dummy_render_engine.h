@@ -4,7 +4,7 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <unordered_set>
+#include <set>
 
 #include "drake/common/drake_copyable.h"
 #include "drake/geometry/render/render_engine.h"
@@ -194,7 +194,7 @@ class DummyRenderEngine : public render::RenderEngine {
   // If true, the engine will accept all geometries.
   bool force_accept_{};
 
-  std::unordered_set<GeometryId> registered_geometries_;
+  std::set<GeometryId> registered_geometries_;
 
   // Track each id that gets updated and what it has been updated to.
   std::map<GeometryId, math::RigidTransformd> updated_ids_;

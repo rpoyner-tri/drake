@@ -29,11 +29,11 @@
 #include <iterator>
 #include <type_traits>
 #include <iostream>
-#include <unordered_map>
+#include <map>
 #include <map>
 #include <list>
 #include <algorithm>
-#include <unordered_set>
+#include <set>
 #include <set>
 #include <tuple>
 #include <algorithm>
@@ -360,8 +360,8 @@ template <class T = std::string> class SequenceMatcher {
   std::unique_ptr<chunk_list_t> opcodes_;
 
  private:
-  using b2j_t = std::unordered_map<hashable_type, std::vector<size_t>>;
-  using junk_set_t = std::unordered_set<hashable_type>;
+  using b2j_t = std::map<hashable_type, std::vector<size_t>>;
+  using junk_set_t = std::set<hashable_type>;
 
   void chain_b() {
     size_t index=0;

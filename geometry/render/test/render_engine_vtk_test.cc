@@ -5,7 +5,7 @@
 #include <optional>
 #include <string>
 #include <tuple>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include <Eigen/Dense>
@@ -40,7 +40,7 @@ using math::RigidTransformd;
 using math::RotationMatrixd;
 using std::make_unique;
 using std::unique_ptr;
-using std::unordered_map;
+using std::map;
 using std::vector;
 using systems::sensors::CameraInfo;
 using systems::sensors::Color;
@@ -413,7 +413,7 @@ class RenderEngineVtkTest : public ::testing::Test {
         X_WC_.translation()(2) - length / 2 - expected_object_depth_;
     RigidTransformd X_WV{Vector3d{0, 0, p_WVo_z}};
     renderer->UpdatePoses(
-        unordered_map<GeometryId, RigidTransformd>{{id, X_WV}});
+        map<GeometryId, RigidTransformd>{{id, X_WV}});
     expected_color_ = default_color_;
   }
 
@@ -473,7 +473,7 @@ class RenderEngineVtkTest : public ::testing::Test {
   GeometryId geometry_id_;
 
   // The pose of the sphere created in PopulateSphereTest().
-  unordered_map<GeometryId, RigidTransformd> X_WV_;
+  map<GeometryId, RigidTransformd> X_WV_;
 
   unique_ptr<RenderEngineVtk> renderer_;
 };
@@ -643,7 +643,7 @@ TEST_F(RenderEngineVtkTest, BoxTest) {
                            Vector3d{(-box.width() + pixel_size) * 0.5,
                                     (-box.depth() + pixel_size) * 0.5, 0.625}};
       renderer_->UpdatePoses(
-          unordered_map<GeometryId, RigidTransformd>{{id, X_WV}});
+          map<GeometryId, RigidTransformd>{{id, X_WV}});
 
       if (texture_scaled) {
         // If we've scaled the texture:
@@ -747,7 +747,7 @@ TEST_F(RenderEngineVtkTest, CapsuleTest) {
   // 0.75. To reach a total of 1, we need to offset it by an additional 0.25.
   RigidTransformd X_WV{Vector3d{0, 0, 0.25}};
   renderer_->UpdatePoses(
-      unordered_map<GeometryId, RigidTransformd>{{id, X_WV}});
+      map<GeometryId, RigidTransformd>{{id, X_WV}});
 
   PerformCenterShapeTest(renderer_.get(), "Capsule test");
 }
@@ -784,7 +784,7 @@ TEST_F(RenderEngineVtkTest, CapsuleRotatedTest) {
   RigidTransformd X_WV{RotationMatrixd{AngleAxisd(M_PI / 2, Vector3d::UnitY())},
                        Vector3d{0, 0, 0.85}};
   renderer_->UpdatePoses(
-      unordered_map<GeometryId, RigidTransformd>{{id, X_WV}});
+      map<GeometryId, RigidTransformd>{{id, X_WV}});
 
   Render(renderer_.get());
 
@@ -825,7 +825,7 @@ TEST_F(RenderEngineVtkTest, CylinderTest) {
     // Position the top of the cylinder to be 1 m above the terrain.
     RigidTransformd X_WV{Vector3d{0, 0, 0.4}};
     renderer_->UpdatePoses(
-        unordered_map<GeometryId, RigidTransformd>{{id, X_WV}});
+        map<GeometryId, RigidTransformd>{{id, X_WV}});
 
     expected_color_ =
         use_texture ? RgbaColor(kTextureColor, 255) : default_color_;
@@ -857,7 +857,7 @@ TEST_F(RenderEngineVtkTest, EllipsoidTest) {
   // along the z-axis.
   RigidTransformd X_WV{Vector3d{0, 0, target_z - c}};
   renderer_->UpdatePoses(
-      unordered_map<GeometryId, RigidTransformd>{{id, X_WV}});
+      map<GeometryId, RigidTransformd>{{id, X_WV}});
   PerformCenterShapeTest(renderer_.get(), "Ellipsoid test: c extent");
 
   // Rotate the ellipsoid so that the 'b' extent is aligned with the z-axis of
@@ -866,7 +866,7 @@ TEST_F(RenderEngineVtkTest, EllipsoidTest) {
       RigidTransformd{RotationMatrixd{AngleAxisd(-M_PI / 2, Vector3d::UnitX())},
                       Vector3d{0, 0, target_z - b}};
   renderer_->UpdatePoses(
-      unordered_map<GeometryId, RigidTransformd>{{id, X_WV}});
+      map<GeometryId, RigidTransformd>{{id, X_WV}});
   PerformCenterShapeTest(renderer_.get(), "Ellipsoid test: b extent");
 
   // Rotate the ellipsoid so that the 'a' extent is aligned with the z-axis of
@@ -875,7 +875,7 @@ TEST_F(RenderEngineVtkTest, EllipsoidTest) {
       RigidTransformd{RotationMatrixd{AngleAxisd(M_PI / 2, Vector3d::UnitY())},
                       Vector3d{0, 0, target_z - a}};
   renderer_->UpdatePoses(
-      unordered_map<GeometryId, RigidTransformd>{{id, X_WV}});
+      map<GeometryId, RigidTransformd>{{id, X_WV}});
   PerformCenterShapeTest(renderer_.get(), "Ellipsoid test: a extent");
 }
 
@@ -895,7 +895,7 @@ TEST_F(RenderEngineVtkTest, MeshTest) {
   const GeometryId id = GeometryId::get_new_id();
   renderer_->RegisterVisual(id, mesh, material, RigidTransformd::Identity(),
                             true /* needs update */);
-  renderer_->UpdatePoses(unordered_map<GeometryId, RigidTransformd>{
+  renderer_->UpdatePoses(map<GeometryId, RigidTransformd>{
       {id, RigidTransformd::Identity()}});
 
   PerformCenterShapeTest(renderer_.get(), "Mesh test");
@@ -917,7 +917,7 @@ TEST_F(RenderEngineVtkTest, TextureMeshTest) {
   const GeometryId id = GeometryId::get_new_id();
   renderer_->RegisterVisual(id, mesh, material, RigidTransformd::Identity(),
                             true /* needs update */);
-  renderer_->UpdatePoses(unordered_map<GeometryId, RigidTransformd>{
+  renderer_->UpdatePoses(map<GeometryId, RigidTransformd>{
       {id, RigidTransformd::Identity()}});
 
   expected_color_ = RgbaColor(kTextureColor, 255);
@@ -945,7 +945,7 @@ TEST_F(RenderEngineVtkTest, ImpliedTextureMeshTest) {
   const GeometryId id = GeometryId::get_new_id();
   renderer_->RegisterVisual(id, mesh, material, RigidTransformd::Identity(),
                             true /* needs update */);
-  renderer_->UpdatePoses(unordered_map<GeometryId, RigidTransformd>{
+  renderer_->UpdatePoses(map<GeometryId, RigidTransformd>{
       {id, RigidTransformd::Identity()}});
 
   expected_color_ = RgbaColor(kTextureColor, 255);
@@ -1100,7 +1100,7 @@ TEST_F(RenderEngineVtkTest, CloneIndependence) {
   // Move the terrain *up* 10 units in the z.
   RigidTransformd X_WT_new{Vector3d{0, 0, 10}};
   renderer_->UpdatePoses(
-      unordered_map<GeometryId, RigidTransformd>{{geometry_id_, X_WT_new}});
+      map<GeometryId, RigidTransformd>{{geometry_id_, X_WT_new}});
   PerformCenterShapeTest(static_cast<RenderEngineVtk*>(clone.get()),
                          "Clone independence");
 }
@@ -1177,7 +1177,7 @@ TEST_F(RenderEngineVtkTest, DefaultProperties_RenderLabel) {
                            RigidTransformd::Identity(),
                            true /* needs update */);
     RigidTransformd X_WV{Vector3d{0, 0, 0.5}};
-    engine->UpdatePoses(unordered_map<GeometryId, RigidTransformd>{{id, X_WV}});
+    engine->UpdatePoses(map<GeometryId, RigidTransformd>{{id, X_WV}});
   };
 
   // Case: No change to render engine's default must throw.

@@ -1,8 +1,8 @@
 #include "drake/solvers/create_cost.h"
 
 #include <algorithm>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <vector>
 
 #include "drake/common/polynomial.h"
@@ -19,7 +19,7 @@ using std::ostringstream;
 using std::runtime_error;
 using std::set;
 using std::shared_ptr;
-using std::unordered_map;
+using std::map;
 using std::vector;
 
 using symbolic::Expression;
@@ -36,7 +36,7 @@ namespace {
 
 Binding<QuadraticCost> DoParseQuadraticCost(
     const symbolic::Polynomial& poly, const VectorXDecisionVariable& vars_vec,
-    const unordered_map<Variable::Id, int>& map_var_to_index) {
+    const map<Variable::Id, int>& map_var_to_index) {
   // We want to write the expression e in the form 0.5 * x' * Q * x + b' * x + c
   // TODO(hongkai.dai): use a sparse matrix to represent Q and b.
   Eigen::MatrixXd Q(vars_vec.size(), vars_vec.size());
@@ -50,7 +50,7 @@ Binding<QuadraticCost> DoParseQuadraticCost(
 Binding<LinearCost> DoParseLinearCost(
     const Expression &e,
     const VectorXDecisionVariable& vars_vec,
-    const unordered_map<Variable::Id, int>& map_var_to_index) {
+    const map<Variable::Id, int>& map_var_to_index) {
   Eigen::RowVectorXd c(vars_vec.size());
   double constant_term{};
   DecomposeLinearExpression(e, map_var_to_index, c, &constant_term);

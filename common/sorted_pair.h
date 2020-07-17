@@ -164,7 +164,7 @@ template <class T>
 struct hash<drake::SortedPair<T>>
     : public drake::DefaultHash {};
 #if defined(__GLIBCXX__)
-// https://gcc.gnu.org/onlinedocs/libstdc++/manual/unordered_associative.html
+// https://gcc.gnu.org/onlinedocs/libstdc++/manual/associative.html
 template <class T>
 struct __is_fast_hash<hash<drake::SortedPair<T>>> : std::false_type {};
 #endif

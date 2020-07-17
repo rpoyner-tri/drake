@@ -542,7 +542,7 @@ void SetScsProblemData(int A_row_count, int num_vars,
 bool ScsSolver::is_available() { return true; }
 
 namespace {
-void SetScsSettings(std::unordered_map<std::string, int>* solver_options_int,
+void SetScsSettings(std::map<std::string, int>* solver_options_int,
                     SCS_SETTINGS* scs_settings) {
   auto it = solver_options_int->find("max_iters");
   if (it != solver_options_int->end()) {
@@ -575,7 +575,7 @@ void SetScsSettings(std::unordered_map<std::string, int>* solver_options_int,
 }
 
 void SetScsSettings(
-    std::unordered_map<std::string, double>* solver_options_double,
+    std::map<std::string, double>* solver_options_double,
     SCS_SETTINGS* scs_settings) {
   auto it = solver_options_double->find("scale");
   if (it != solver_options_double->end()) {
@@ -722,9 +722,9 @@ void ScsSolver::DoSolve(
   ScsData* scs_problem_data =
       static_cast<ScsData*>(scs_calloc(1, sizeof(ScsData)));
   SetScsProblemData(A_row_count, num_x, A, b, c, scs_problem_data);
-  std::unordered_map<std::string, int> input_solver_options_int =
+  std::map<std::string, int> input_solver_options_int =
       merged_options.GetOptionsInt(id());
-  std::unordered_map<std::string, double> input_solver_options_double =
+  std::map<std::string, double> input_solver_options_double =
       merged_options.GetOptionsDouble(id());
   SetScsSettings(&input_solver_options_int, scs_problem_data->stgs);
   SetScsSettings(&input_solver_options_double, scs_problem_data->stgs);

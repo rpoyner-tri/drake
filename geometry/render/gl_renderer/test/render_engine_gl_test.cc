@@ -2,7 +2,7 @@
 
 #include <array>
 #include <cstring>
-#include <unordered_map>
+#include <map>
 
 #include <gtest/gtest.h>
 
@@ -48,7 +48,7 @@ using Eigen::Vector4d;
 using math::RigidTransformd;
 using std::make_unique;
 using std::unique_ptr;
-using std::unordered_map;
+using std::map;
 using systems::sensors::ColorI;
 using systems::sensors::ImageDepth32F;
 using systems::sensors::ImageLabel16I;
@@ -324,7 +324,7 @@ class RenderEngineGlTest : public ::testing::Test {
   GeometryId geometry_id_;
 
   // The pose of the sphere created in PopulateSphereTest().
-  unordered_map<GeometryId, RigidTransformd> X_WV_;
+  map<GeometryId, RigidTransformd> X_WV_;
 
   unique_ptr<RenderEngineGl> renderer_;
 };
@@ -392,7 +392,7 @@ TEST_F(RenderEngineGlTest, BoxTest) {
                             true /* needs update */);
   RigidTransformd X_WV{Translation3d(0, 0, 0.5)};
   renderer_->UpdatePoses(
-      unordered_map<GeometryId, RigidTransformd>{{id, X_WV}});
+      map<GeometryId, RigidTransformd>{{id, X_WV}});
 
   SCOPED_TRACE("Box test");
   PerformCenterShapeTest(renderer_.get());
@@ -422,7 +422,7 @@ TEST_F(RenderEngineGlTest, CylinderTest) {
   // Position the top of the cylinder to be 1 m above the terrain.
   RigidTransformd X_WV{Translation3d(0, 0, 0.4)};
   renderer_->UpdatePoses(
-      unordered_map<GeometryId, RigidTransformd>{{id, X_WV}});
+      map<GeometryId, RigidTransformd>{{id, X_WV}});
 
   SCOPED_TRACE("Cylinder test");
   PerformCenterShapeTest(renderer_.get());
@@ -447,7 +447,7 @@ TEST_F(RenderEngineGlTest, MeshTest) {
   const GeometryId id = GeometryId::get_new_id();
   renderer_->RegisterVisual(id, mesh, material, RigidTransformd::Identity(),
                             true /* needs update */);
-  renderer_->UpdatePoses(unordered_map<GeometryId, RigidTransformd>{
+  renderer_->UpdatePoses(map<GeometryId, RigidTransformd>{
       {id, RigidTransformd::Identity()}});
 
   SCOPED_TRACE("Mesh test");
@@ -473,7 +473,7 @@ TEST_F(RenderEngineGlTest, ConvexTest) {
   const GeometryId id = GeometryId::get_new_id();
   renderer_->RegisterVisual(id, convex, material, RigidTransformd::Identity(),
                             true /* needs update */);
-  renderer_->UpdatePoses(unordered_map<GeometryId, RigidTransformd>{
+  renderer_->UpdatePoses(map<GeometryId, RigidTransformd>{
       {id, RigidTransformd::Identity()}});
 
   SCOPED_TRACE("Mesh test");
@@ -634,7 +634,7 @@ TEST_F(RenderEngineGlTest, CloneIndependence) {
   RigidTransformd X_WT_new{Translation3d{0, 0, 10}};
   // This assumes that the terrain is zero-indexed.
   renderer_->UpdatePoses(
-      unordered_map<GeometryId, RigidTransformd>{{geometry_id_, X_WT_new}});
+      map<GeometryId, RigidTransformd>{{geometry_id_, X_WT_new}});
   SCOPED_TRACE("Clone independence");
   PerformCenterShapeTest(dynamic_cast<RenderEngineGl*>(clone.get()));
 }
@@ -754,7 +754,7 @@ TEST_F(RenderEngineGlTest, DefaultProperties) {
                             true);
   RigidTransformd X_WV{Translation3d(0, 0, 0.5)};
   renderer_->UpdatePoses(
-      unordered_map<GeometryId, RigidTransformd>{{id, X_WV}});
+      map<GeometryId, RigidTransformd>{{id, X_WV}});
 
   EXPECT_NO_THROW(Render());
 }
@@ -823,7 +823,7 @@ TEST_F(RenderEngineGlTest, RendererIndependence) {
                          RigidTransformd::Identity(), true);
   RigidTransformd X_WV{Translation3d(0.2, 0.2, 0.5)};
   engine2.UpdatePoses(
-      unordered_map<GeometryId, RigidTransformd>{{box_id, X_WV}});
+      map<GeometryId, RigidTransformd>{{box_id, X_WV}});
   Render(&engine2);
   ASSERT_FALSE(ImagesExactlyEqual(reference_1, depth_));
   ASSERT_FALSE(ImagesExactlyEqual(empty_2, depth_));

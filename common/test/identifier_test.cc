@@ -2,8 +2,8 @@
 
 #include <set>
 #include <sstream>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <utility>
 
 #include <gtest/gtest.h>
@@ -19,8 +19,8 @@ namespace {
 // Creates various dummy index types to test.
 using std::set;
 using std::stringstream;
-using std::unordered_set;
-using std::unordered_map;
+using std::set;
+using std::map;
 using AId = Identifier<class ATag>;
 using BId = Identifier<class BTag>;
 
@@ -75,7 +75,7 @@ TEST_F(IdentifierTests, AssignmentAndComparison) {
 // Confirms that ids are configured to serve as unique keys in
 // STL containers.
 TEST_F(IdentifierTests, ServeAsMapKey) {
-  unordered_set<AId> ids;
+  set<AId> ids;
 
   // This is a *different* id with the *same* value as a1. It should *not*
   // introduce a new value to the set.
@@ -101,7 +101,7 @@ TEST_F(IdentifierTests, ServeAsMapKey) {
 // it is compatible with the Drake hash mechanism (because it assumes that the
 // SortedPair is compatible).
 TEST_F(IdentifierTests, SortedPairAsKey) {
-  unordered_set<SortedPair<AId>> ids;
+  set<SortedPair<AId>> ids;
 
   EXPECT_EQ(ids.size(), 0u);
   ids.insert({a1_, a2_});
@@ -114,7 +114,7 @@ TEST_F(IdentifierTests, SortedPairAsKey) {
 
 // Confirms that ids are configured to serve as values in STL containers.
 TEST_F(IdentifierTests, ServeAsMapValue) {
-  unordered_map<BId, AId> ids;
+  map<BId, AId> ids;
 
   BId b1 = BId::get_new_id();
   BId b2 = BId::get_new_id();
@@ -243,7 +243,7 @@ TEST_F(IdentifierTests, InvalidHash) {
   if (kDrakeAssertIsDisarmed) {
     return;
   }
-  std::unordered_set<AId> ids;
+  std::set<AId> ids;
   AId invalid;
   DRAKE_EXPECT_NO_THROW(ids.insert(invalid));
 }

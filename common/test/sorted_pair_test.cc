@@ -1,7 +1,7 @@
 #include "drake/common/sorted_pair.h"
 
 #include <sstream>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -99,7 +99,7 @@ GTEST_TEST(SortedPair, Swap) {
 // Checks hash keys.
 GTEST_TEST(SortedPair, Hash) {
   SortedPair<int> x(1, 2), y(2, 4);
-  std::unordered_map<SortedPair<int>, int> hash;
+  std::map<SortedPair<int>, int> hash;
   hash[x] = 11;
   hash[y] = 13;
   EXPECT_EQ(hash[x], 11);

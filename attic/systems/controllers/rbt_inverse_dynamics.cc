@@ -61,7 +61,7 @@ void InverseDynamics<T>::CalcOutputForce(const Context<T>& context,
     cache.initialize(x.head(q_dim_), x.tail(v_dim_));
     rigid_body_tree_->doKinematics(cache, true);
 
-    eigen_aligned_std_unordered_map<RigidBody<T> const*, drake::TwistVector<T>>
+    eigen_aligned_std_map<RigidBody<T> const*, drake::TwistVector<T>>
         f_ext;
 
     VectorX<T> force = rigid_body_tree_->inverseDynamics(

@@ -1,6 +1,6 @@
 #include "drake/geometry/render/gl_renderer/buffer_dim.h"
 
-#include <unordered_set>
+#include <set>
 
 #include <gtest/gtest.h>
 
@@ -42,7 +42,7 @@ GTEST_TEST(BufferDimTest, HashableKey) {
   const BufferDim buffer(w, h);
   const BufferDim same(w, h);
 
-  std::unordered_set<BufferDim> buffers;
+  std::set<BufferDim> buffers;
 
   EXPECT_EQ(buffers.count(buffer), 0);
   buffers.insert(buffer);

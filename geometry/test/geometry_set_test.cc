@@ -1,7 +1,7 @@
 #include "drake/geometry/geometry_set.h"
 
 #include <set>
-#include <unordered_set>
+#include <set>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -52,7 +52,7 @@ GTEST_TEST(GeometrySetTests, ConversionConstructor) {
   std::set<GeometryId> geometry_set{GeometryId::get_new_id(),
                                     GeometryId::get_new_id(),
                                     GeometryId::get_new_id()};
-  std::unordered_set<GeometryId> geometry_hash{
+  std::set<GeometryId> geometry_hash{
       GeometryId::get_new_id(), GeometryId::get_new_id(),
       GeometryId::get_new_id(), GeometryId::get_new_id()};
   auto frame_list = {FrameId::get_new_id(), FrameId::get_new_id()};
@@ -178,7 +178,7 @@ GTEST_TEST(GeometrySetTests, IterableFrameAdd) {
                                      FrameId::get_new_id()};
   std::set<FrameId> frames_set{FrameId::get_new_id(), FrameId::get_new_id(),
                                FrameId::get_new_id()};
-  std::unordered_set<FrameId> frames_hash{
+  std::set<FrameId> frames_hash{
       FrameId::get_new_id(), FrameId::get_new_id(), FrameId::get_new_id(),
       FrameId::get_new_id()};
 
@@ -219,7 +219,7 @@ GTEST_TEST(GeometrySetTests, IterableGeometryAdd) {
   std::set<GeometryId> geometry_id_set{GeometryId::get_new_id(),
                                        GeometryId::get_new_id(),
                                        GeometryId::get_new_id()};
-  std::unordered_set<GeometryId> geometry_id_hash{
+  std::set<GeometryId> geometry_id_hash{
       GeometryId::get_new_id(), GeometryId::get_new_id(),
       GeometryId::get_new_id(), GeometryId::get_new_id()};
 

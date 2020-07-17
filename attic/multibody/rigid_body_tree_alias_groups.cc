@@ -9,11 +9,11 @@ namespace {
 template <typename Type>
 void InsertOrMergeVectorWithoutDuplicates(
     const std::string& key, const std::vector<Type>& vec,
-    std::unordered_map<std::string, std::vector<Type>>* mapping) {
+    std::map<std::string, std::vector<Type>>* mapping) {
   DRAKE_DEMAND(mapping);
   std::set<Type> inserted;
 
-  typename std::unordered_map<std::string, std::vector<Type>>::iterator it =
+  typename std::map<std::string, std::vector<Type>>::iterator it =
       mapping->find(key);
   if (it != mapping->end()) {
     inserted = std::set<Type>(it->second.begin(), it->second.end());

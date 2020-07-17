@@ -6,7 +6,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -927,7 +927,7 @@ class ExpressionConstraint : public Constraint {
 
   // map_var_to_index_[vars_(i).get_id()] = i.
   VectorXDecisionVariable vars_{0};
-  std::unordered_map<symbolic::Variable::Id, int> map_var_to_index_;
+  std::map<symbolic::Variable::Id, int> map_var_to_index_;
 
   // Only for caching, does not carrying hidden state.
   mutable symbolic::Environment environment_;

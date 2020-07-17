@@ -1120,7 +1120,7 @@ namespace std {
 template <>
 struct hash<drake::symbolic::Formula> : public drake::DefaultHash {};
 #if defined(__GLIBCXX__)
-// https://gcc.gnu.org/onlinedocs/libstdc++/manual/unordered_associative.html
+// https://gcc.gnu.org/onlinedocs/libstdc++/manual/associative.html
 template <>
 struct __is_fast_hash<hash<drake::symbolic::Formula>> : std::false_type {};
 #endif

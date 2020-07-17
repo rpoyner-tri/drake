@@ -2905,7 +2905,7 @@ GTEST_TEST(StateSelection, FloatingBodies) {
   EXPECT_FALSE(plant.GetBodyByName("iiwa_link_0").is_floating());
   EXPECT_FALSE(plant.GetBodyByName("link", objects_table_model).is_floating());
 
-  std::unordered_set<BodyIndex> expected_floating_bodies({mug.index()});
+  std::set<BodyIndex> expected_floating_bodies({mug.index()});
   auto floating_bodies = plant.GetFloatingBaseBodies();
   EXPECT_EQ(expected_floating_bodies, floating_bodies);
 

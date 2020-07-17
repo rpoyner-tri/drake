@@ -2,7 +2,7 @@
 
 #include <bitset>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -66,7 +66,7 @@ class CollisionFilterGroup {
   DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(CollisionFilterGroup)
 
   /**
-   Default constructor required by use in std::unordered_map.
+   Default constructor required by use in std::map.
    */
   CollisionFilterGroup();
 
@@ -226,7 +226,7 @@ class CollisionFilterGroupManager {
    */
   void Clear();
 
-  const std::unordered_map<const RigidBody<T>*, std::pair<bitmask, bitmask>>&
+  const std::map<const RigidBody<T>*, std::pair<bitmask, bitmask>>&
   body_groups() const { return body_groups_; }
 
   /**
@@ -245,14 +245,14 @@ class CollisionFilterGroupManager {
   int next_id_{1};
 
   // Map between group names and its collision filter group specification.
-  std::unordered_map<std::string,
+  std::map<std::string,
                      drake::multibody::collision::CollisionFilterGroup<T>>
       collision_filter_groups_{};
 
   // Mappings between a RigidBody and the bitmasks that define its group
   // membership and the groups it ignores.  This is populated during
   // CompileGroups. The pair is: (group mask, ignore mask).
-  std::unordered_map<const RigidBody<T>*, std::pair<bitmask, bitmask>>
+  std::map<const RigidBody<T>*, std::pair<bitmask, bitmask>>
       body_groups_;
 };
 }  // namespace collision

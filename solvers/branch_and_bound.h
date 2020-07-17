@@ -3,7 +3,7 @@
 #include <list>
 #include <map>
 #include <memory>
-#include <unordered_map>
+#include <map>
 #include <utility>
 
 #include "drake/solvers/mathematical_program.h"
@@ -66,7 +66,7 @@ class MixedIntegerBranchAndBoundNode {
    */
   static std::pair<
       std::unique_ptr<MixedIntegerBranchAndBoundNode>,
-      std::unordered_map<symbolic::Variable::Id, symbolic::Variable>>
+      std::map<symbolic::Variable::Id, symbolic::Variable>>
   ConstructRootNode(const MathematicalProgram& prog, const SolverId& solver_id);
 
   /**
@@ -644,7 +644,7 @@ class MixedIntegerBranchAndBound {
   // (the one passed in the constructor of MixedIntegerBranchAndBound). This map
   // is used to find the corresponding new variable from the old variable in the
   // mixed-integer program.
-  std::unordered_map<symbolic::Variable::Id, symbolic::Variable>
+  std::map<symbolic::Variable::Id, symbolic::Variable>
       map_old_vars_to_new_vars_;
 
   // The best upper bound of the mixed-integer optimization optimal cost. An

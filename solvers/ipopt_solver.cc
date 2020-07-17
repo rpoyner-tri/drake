@@ -5,7 +5,7 @@
 #include <limits>
 #include <memory>
 #include <optional>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -45,7 +45,7 @@ int GetConstraintBounds(const Constraint& c, Number* lb, Number* ub) {
 template <typename C>
 void SetConstraintDualVariableIndex(
     const Binding<C>& binding, int constraint_index,
-    std::unordered_map<Binding<Constraint>, int>* constraint_dual_start_index) {
+    std::map<Binding<Constraint>, int>* constraint_dual_start_index) {
   const Binding<Constraint> binding_cast =
       internal::BindingDynamicCast<Constraint>(binding);
   constraint_dual_start_index->emplace(binding_cast, constraint_index);
@@ -54,7 +54,7 @@ void SetConstraintDualVariableIndex(
 void SetBoundingBoxConstraintDualSolution(
     const MathematicalProgram& prog, const Number* const z_L,
     const Number* const z_U,
-    const std::unordered_map<Binding<BoundingBoxConstraint>,
+    const std::map<Binding<BoundingBoxConstraint>,
                              std::pair<std::vector<int>, std::vector<int>>>&
         bb_con_dual_variable_indices,
     MathematicalProgramResult* result) {
@@ -93,7 +93,7 @@ void SetBoundingBoxConstraintDualSolution(
 template <typename C>
 void SetConstraintDualSolution(
     const Binding<C>& binding, const Eigen::VectorXd& lambda,
-    const std::unordered_map<Binding<Constraint>, int>&
+    const std::map<Binding<Constraint>, int>&
         constraint_dual_start_index,
     MathematicalProgramResult* result) {
   const Binding<Constraint> binding_cast =
@@ -108,7 +108,7 @@ void SetConstraintDualSolution(
 
 void SetAllConstraintDualSolution(
     const MathematicalProgram& prog, const Eigen::VectorXd& lambda,
-    const std::unordered_map<Binding<Constraint>, int>&
+    const std::map<Binding<Constraint>, int>&
         constraint_dual_start_index,
     MathematicalProgramResult* result) {
   for (const auto& binding : prog.generic_constraints()) {
@@ -670,12 +670,12 @@ class IpoptSolver_NLP : public Ipopt::TNLP {
   // bound). If this constraint doesn't have a dual variable (because the bound
   // is looser than some other bounding box constraint, hence this constraint
   // can never be active), then the index is set to -1.
-  std::unordered_map<Binding<BoundingBoxConstraint>,
+  std::map<Binding<BoundingBoxConstraint>,
                      std::pair<std::vector<int>, std::vector<int>>>
       bb_con_dual_variable_indices_;
   // constraint_dual_start_index_[constraint] stores the starting index of the
   // corresponding dual variables.
-  std::unordered_map<Binding<Constraint>, int> constraint_dual_start_index_;
+  std::map<Binding<Constraint>, int> constraint_dual_start_index_;
 };
 
 template <typename T>

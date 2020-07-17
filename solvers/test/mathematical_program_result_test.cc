@@ -24,7 +24,7 @@ class MathematicalProgramResultTest : public ::testing::Test {
  protected:
   symbolic::Variable x0_;
   symbolic::Variable x1_;
-  std::unordered_map<symbolic::Variable::Id, int> decision_variable_index_;
+  std::map<symbolic::Variable::Id, int> decision_variable_index_;
 };
 
 TEST_F(MathematicalProgramResultTest, DefaultConstructor) {
@@ -235,7 +235,7 @@ GTEST_TEST(TestMathematicalProgramResult, GetInfeasibleConstraintBindings) {
     EXPECT_FALSE(result.is_success());
     const std::vector<Binding<Constraint>> infeasible_bindings =
         result.GetInfeasibleConstraints(prog);
-    const std::unordered_set<Binding<Constraint>> infeasible_bindings_set(
+    const std::set<Binding<Constraint>> infeasible_bindings_set(
         infeasible_bindings.begin(), infeasible_bindings.end());
     const double x_val = result.GetSolution(x)(0);
     EXPECT_TRUE(infeasible_bindings_set.size() == 1 ||

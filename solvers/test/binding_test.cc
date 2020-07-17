@@ -122,8 +122,8 @@ TEST_F(TestBinding, TestHash) {
   EXPECT_NE(binding4, binding1);
   EXPECT_NE(binding4, binding2);
 
-  // Test using Binding as unordered_map key.
-  std::unordered_map<Binding<BoundingBoxConstraint>, int> map;
+  // Test using Binding as map key.
+  std::map<Binding<BoundingBoxConstraint>, int> map;
   map.emplace(binding1, 1);
   EXPECT_EQ(map.at(binding1), 1);
   EXPECT_EQ(map.at(binding2), 1);

@@ -92,7 +92,7 @@ void ParseLinearConstraints(
     const std::vector<Binding<C>>& linear_constraints,
     std::vector<Eigen::Triplet<c_float>>* A_triplets, std::vector<c_float>* l,
     std::vector<c_float>* u, int* num_A_rows,
-    std::unordered_map<Binding<Constraint>, int>* constraint_start_row) {
+    std::map<Binding<Constraint>, int>* constraint_start_row) {
   // Loop over the linear constraints, stack them to get l, u and A.
   for (const auto& constraint : linear_constraints) {
     const std::vector<int> x_indices =
@@ -123,7 +123,7 @@ void ParseBoundingBoxConstraints(
     const MathematicalProgram& prog,
     std::vector<Eigen::Triplet<c_float>>* A_triplets, std::vector<c_float>* l,
     std::vector<c_float>* u, int* num_A_rows,
-    std::unordered_map<Binding<Constraint>, int>* constraint_start_row) {
+    std::map<Binding<Constraint>, int>* constraint_start_row) {
   // Loop over the linear constraints, stack them to get l, u and A.
   for (const auto& constraint : prog.bounding_box_constraints()) {
     const Binding<Constraint> constraint_cast =
@@ -150,7 +150,7 @@ void ParseBoundingBoxConstraints(
 void ParseAllLinearConstraints(
     const MathematicalProgram& prog, Eigen::SparseMatrix<c_float>* A,
     std::vector<c_float>* l, std::vector<c_float>* u,
-    std::unordered_map<Binding<Constraint>, int>* constraint_start_row) {
+    std::map<Binding<Constraint>, int>* constraint_start_row) {
   std::vector<Eigen::Triplet<c_float>> A_triplets;
   l->clear();
   u->clear();
@@ -190,7 +190,7 @@ csc* EigenSparseToCSC(const Eigen::SparseMatrix<c_float>& mat) {
 }
 
 template <typename T1, typename T2>
-void SetOsqpSolverSetting(const std::unordered_map<std::string, T1>& options,
+void SetOsqpSolverSetting(const std::map<std::string, T1>& options,
                           const std::string& option_name,
                           T2* osqp_setting_field) {
   const auto it = options.find(option_name);
@@ -201,7 +201,7 @@ void SetOsqpSolverSetting(const std::unordered_map<std::string, T1>& options,
 
 template <typename T1, typename T2>
 void SetOsqpSolverSettingWithDefaultValue(
-    const std::unordered_map<std::string, T1>& options,
+    const std::map<std::string, T1>& options,
     const std::string& option_name, T2* osqp_setting_field,
     const T1& default_field_value) {
   const auto it = options.find(option_name);
@@ -214,9 +214,9 @@ void SetOsqpSolverSettingWithDefaultValue(
 
 void SetOsqpSolverSettings(const SolverOptions& solver_options,
                            OSQPSettings* settings) {
-  const std::unordered_map<std::string, double>& options_double =
+  const std::map<std::string, double>& options_double =
       solver_options.GetOptionsDouble(OsqpSolver::id());
-  const std::unordered_map<std::string, int>& options_int =
+  const std::map<std::string, int>& options_int =
       solver_options.GetOptionsInt(OsqpSolver::id());
   // TODO(hongkai.dai): Fill in all the fields defined in OSQPSettings.
   SetOsqpSolverSetting(options_double, "rho", &(settings->rho));
@@ -236,7 +236,7 @@ template <typename C>
 void SetDualSolution(
     const std::vector<Binding<C>>& constraints,
     const Eigen::VectorXd& all_dual_solution,
-    const std::unordered_map<Binding<Constraint>, int>& constraint_start_row,
+    const std::map<Binding<Constraint>, int>& constraint_start_row,
     MathematicalProgramResult* result) {
   for (const auto& constraint : constraints) {
     // OSQP uses the dual variable `y` as the negation of the shadow price, so
@@ -285,7 +285,7 @@ void OsqpSolver::DoSolve(
 
   // linear_constraint_start_row[binding] stores the starting row index in A
   // corresponding to the linear constraint `binding`.
-  std::unordered_map<Binding<Constraint>, int> constraint_start_row;
+  std::map<Binding<Constraint>, int> constraint_start_row;
 
   // Parse the linear constraints.
   Eigen::SparseMatrix<c_float> A_sparse;

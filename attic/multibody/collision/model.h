@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -283,7 +283,7 @@ class Model {
   // Protected member variables are forbidden by the style guide.
   // Please do not add new references to this member.  Instead, use
   // the accessors.
-  std::unordered_map<ElementId, std::unique_ptr<Element>> elements;
+  std::map<ElementId, std::unique_ptr<Element>> elements;
 };
 
 }  // namespace collision

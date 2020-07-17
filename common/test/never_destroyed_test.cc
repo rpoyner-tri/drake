@@ -1,6 +1,6 @@
 #include "drake/common/never_destroyed.h"
 
-#include <unordered_map>
+#include <map>
 
 #include <gtest/gtest.h>
 
@@ -57,7 +57,7 @@ GTEST_TEST(NeverDestroyedExampleTest, Singleton) {
 // ensure it remains valid.
 enum class Foo { kBar, kBaz };
 Foo ParseFoo(const std::string& foo_string) {
-  using Dict = std::unordered_map<std::string, Foo>;
+  using Dict = std::map<std::string, Foo>;
   static const drake::never_destroyed<Dict> string_to_enum{
     std::initializer_list<Dict::value_type>{
       {"bar", Foo::kBar},

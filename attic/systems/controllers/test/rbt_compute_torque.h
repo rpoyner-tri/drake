@@ -17,7 +17,7 @@ VectorX<double> ComputeTorque(const RigidBodyTree<double>& tree,
                               const VectorX<double>& vd_d) {
   // Compute the expected torque.
   KinematicsCache<double> cache = tree.doKinematics(q, v);
-  eigen_aligned_std_unordered_map<RigidBody<double> const*,
+  eigen_aligned_std_map<RigidBody<double> const*,
                                   drake::TwistVector<double>> f_ext;
 
   return tree.massMatrix(cache) * vd_d + tree.dynamicsBiasTerm(cache, f_ext);

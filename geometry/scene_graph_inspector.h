@@ -3,7 +3,7 @@
 #include <memory>
 #include <set>
 #include <string>
-#include <unordered_set>
+#include <set>
 #include <utility>
 #include <vector>
 
@@ -174,7 +174,7 @@ class SceneGraphInspector {
   /** Reports the ids of all of the frames registered to the source with the
    given source `id`.
    @throws std::logic_error if `id` does not map to a registered source.  */
-  const std::unordered_set<FrameId>& FramesForSource(SourceId id) const {
+  const std::set<FrameId>& FramesForSource(SourceId id) const {
     DRAKE_DEMAND(state_ != nullptr);
     return state_->FramesForSource(id);
   }

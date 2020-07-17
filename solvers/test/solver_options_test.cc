@@ -34,7 +34,7 @@ GTEST_TEST(SolverOptionsTest, SetGetOption) {
             " id2:some_int=3,"
             " id2:some_string=foo}");
 
-  const std::unordered_map<CommonSolverOption,
+  const std::map<CommonSolverOption,
                            std::variant<double, int, std::string>>
       common_options_expected(
           {{CommonSolverOption::kPrintToConsole, 0},
@@ -44,7 +44,7 @@ GTEST_TEST(SolverOptionsTest, SetGetOption) {
 }
 
 GTEST_TEST(SolverOptionsTest, Ids) {
-  using Set = std::unordered_set<SolverId>;
+  using Set = std::set<SolverId>;
 
   SolverOptions dut;
   EXPECT_EQ(dut.GetSolverIds(), Set{});

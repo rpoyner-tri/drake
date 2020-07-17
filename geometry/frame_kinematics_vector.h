@@ -2,7 +2,7 @@
 
 #include <initializer_list>
 #include <optional>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -146,10 +146,10 @@ class FrameKinematicsVector {
   // order to avoid reallocating map nodes as we repeatedly clear() and then
   // re-set_value() the same IDs over and over again.
   // TODO(jwnimmer-tri) A better way to avoid map node allocations would be to
-  // replace this unordered_map with a flat_hash_map (where the entire storage
+  // replace this map with a flat_hash_map (where the entire storage
   // is a single heap slab); in that case, the complicated implementation in
   // the cc file would become simplified.
-  std::unordered_map<FrameId, std::optional<KinematicsValue>> values_;
+  std::map<FrameId, std::optional<KinematicsValue>> values_;
 
   // The count of non-nullopt items in values_.  We could recompute this from
   // values_, but we store it separately so that size() is still constant-time.

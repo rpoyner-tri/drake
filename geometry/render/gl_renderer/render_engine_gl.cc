@@ -19,7 +19,7 @@ using math::RigidTransformd;
 using std::make_shared;
 using std::string;
 using std::unique_ptr;
-using std::unordered_map;
+using std::map;
 using systems::sensors::ColorD;
 using systems::sensors::ColorI;
 using systems::sensors::ImageDepth32F;
@@ -526,7 +526,7 @@ RenderTarget RenderEngineGl::SetCameraProperties(const CameraProperties& camera,
   SetGlProjectionMatrix(program, camera, clip_near, clip_far);
   const BufferDim dim{camera.width, camera.height};
   RenderTarget target;
-  std::unordered_map<BufferDim, RenderTarget>& frame_buffers =
+  std::map<BufferDim, RenderTarget>& frame_buffers =
       frame_buffers_[image_type];
   auto iter = frame_buffers.find(dim);
   if (iter == frame_buffers.end()) {

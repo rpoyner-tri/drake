@@ -155,7 +155,7 @@ class RigidBodyPlantBridge : public systems::LeafSystem<T> {
 
   // Maps from a generated render label to the index of the rigid body assigned
   // that label.
-  std::unordered_map<geometry::render::RenderLabel, int> label_to_index_;
+  std::map<geometry::render::RenderLabel, int> label_to_index_;
 
   // Registered frames. In this incarnation, body i's frame_id is stored in
   // element i. This is because *all* frames are currently being registered

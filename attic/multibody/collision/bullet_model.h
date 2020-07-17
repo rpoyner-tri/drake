@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
@@ -21,7 +21,7 @@ namespace collision {
 
 class BulletModel;  // forward declaration
 
-typedef std::unordered_map<ElementId, std::unique_ptr<btCollisionObject>>
+typedef std::map<ElementId, std::unique_ptr<btCollisionObject>>
     ElementToBtObjMap;
 
 struct OverlapFilterCallback : public btOverlapFilterCallback {

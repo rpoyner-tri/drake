@@ -2,7 +2,7 @@
 
 #include <ostream>
 #include <string>
-#include <unordered_set>
+#include <set>
 
 #include "drake/common/hash.h"
 
@@ -36,7 +36,7 @@ enum class ProgramAttribute {
   kCallback,  /// support callback during solving the problem.
 };
 
-using ProgramAttributes = std::unordered_set<ProgramAttribute, DefaultHash>;
+using ProgramAttributes = std::set<ProgramAttribute, DefaultHash>;
 
 /**
  * Returns true if @p required is a subset of @p supported.

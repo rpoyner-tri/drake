@@ -2,7 +2,7 @@
 
 #include <sstream>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include <Eigen/Core>
@@ -18,7 +18,7 @@ namespace symbolic {
 class CodeGenVisitor {
  public:
   using IdToIndexMap =
-      std::unordered_map<Variable::Id, std::vector<Variable>::size_type>;
+      std::map<Variable::Id, std::vector<Variable>::size_type>;
 
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(CodeGenVisitor)
 

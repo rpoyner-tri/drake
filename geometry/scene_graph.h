@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include "drake/geometry/geometry_set.h"
@@ -877,7 +877,7 @@ class SceneGraph final : public systems::LeafSystem<T> {
 
   // A mapping from added source identifier to the port indices associated with
   // that id.
-  std::unordered_map<SourceId, SourcePorts> input_source_ids_;
+  std::map<SourceId, SourcePorts> input_source_ids_;
 
   // The index of the output port with the PoseBundle abstract value.
   int bundle_port_index_{-1};

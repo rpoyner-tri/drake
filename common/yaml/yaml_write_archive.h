@@ -5,7 +5,7 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -59,11 +59,11 @@ namespace yaml {
 ///
 /// Structures can be arbitrarily nested, as long as each `struct` has a
 /// `Serialize` method.  Many common built-in types (int, double, std::string,
-/// std::vector, std::array, std::map, std::unordered_map, std::optional,
+/// std::vector, std::array, std::map, std::map, std::optional,
 /// std::variant, Eigen::Matrix) may also be used.
 ///
 /// The EmitString output is always deterministic, even for unordered datatypes
-/// like std::unordered_map.
+/// like std::map.
 ///
 /// For inspiration and background, see:
 /// https://www.boost.org/doc/libs/release/libs/serialization/doc/tutorial.html
@@ -182,9 +182,9 @@ class YamlWriteArchive final {
     this->VisitMap<K, V>(nvp);
   }
 
-  // For std::unordered_map.
+  // For std::map.
   template <typename NVP, typename K, typename V, typename C>
-  void DoVisit(const NVP& nvp, const std::unordered_map<K, V, C>&, int32_t) {
+  void DoVisit(const NVP& nvp, const std::map<K, V, C>&, int32_t) {
     this->VisitMap<K, V>(nvp);
   }
 
@@ -332,7 +332,7 @@ class YamlWriteArchive final {
     static_assert(std::is_same<Key, std::string>::value,
                   "Map keys must be strings");
     YAML::Node sub_node(YAML::NodeType::Map);
-    // N.B. For std::unordered_map, this iteration order is non-deterministic,
+    // N.B. For std::map, this iteration order is non-deterministic,
     // but because YamlDumpWithSortedMaps sorts the keys anyway, it doesn't
     // matter what order we insert them here.
     for (auto& map_key_value_pair : *nvp.value()) {

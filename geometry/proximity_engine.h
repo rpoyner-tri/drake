@@ -3,8 +3,8 @@
 #include <limits>
 #include <memory>
 #include <optional>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <vector>
 
 #include "drake/common/autodiff.h"
@@ -165,7 +165,7 @@ class ProximityEngine {
   //  2. I could simply have a method that returns a mutable reference to such
   //    a vector and the caller sets values there directly.
   void UpdateWorldPoses(
-      const std::unordered_map<GeometryId, math::RigidTransform<T>>& X_WGs);
+      const std::map<GeometryId, math::RigidTransform<T>>& X_WGs);
 
   // ----------------------------------------------------------------------
   /* @name              Signed Distance Queries
@@ -179,7 +179,7 @@ class ProximityEngine {
    current scalar type, keyed on each geometry's GeometryId.  */
   std::vector<SignedDistancePair<T>>
   ComputeSignedDistancePairwiseClosestPoints(
-      const std::unordered_map<GeometryId, math::RigidTransform<T>>& X_WGs,
+      const std::map<GeometryId, math::RigidTransform<T>>& X_WGs,
       const double max_distance) const;
 
   /* Implementation of
@@ -188,7 +188,7 @@ class ProximityEngine {
    current scalar type, keyed on each geometry's GeometryId.  */
   SignedDistancePair<T> ComputeSignedDistancePairClosestPoints(
       GeometryId id_A, GeometryId id_B,
-      const std::unordered_map<GeometryId, math::RigidTransform<T>>& X_WGs)
+      const std::map<GeometryId, math::RigidTransform<T>>& X_WGs)
       const;
 
   /* Implementation of GeometryState::ComputeSignedDistanceToPoint().
@@ -197,7 +197,7 @@ class ProximityEngine {
   std::vector<SignedDistanceToPoint<T>>
   ComputeSignedDistanceToPoint(
       const Vector3<T>& p_WQ,
-      const std::unordered_map<GeometryId, math::RigidTransform<T>>& X_WGs,
+      const std::map<GeometryId, math::RigidTransform<T>>& X_WGs,
       const double threshold = std::numeric_limits<double>::infinity()) const;
   //@}
 
@@ -222,14 +222,14 @@ class ProximityEngine {
    This includes `X_WGs`, the current poses of all geometries in World in the
    current scalar type, keyed on each geometry's GeometryId.  */
   std::vector<ContactSurface<T>> ComputeContactSurfaces(
-      const std::unordered_map<GeometryId, math::RigidTransform<T>>& X_WGs)
+      const std::map<GeometryId, math::RigidTransform<T>>& X_WGs)
       const;
 
   /* Implementation of GeometryState::ComputeContactSurfacesWithFallback().
    This includes `X_WGs`, the current poses of all geometries in World in the
    current scalar type, keyed on each geometry's GeometryId.  */
   void ComputeContactSurfacesWithFallback(
-      const std::unordered_map<GeometryId, math::RigidTransform<T>>& X_WGs,
+      const std::map<GeometryId, math::RigidTransform<T>>& X_WGs,
       std::vector<ContactSurface<T>>* surfaces,
       std::vector<PenetrationAsPointPair<double>>* point_pairs) const;
 
@@ -260,8 +260,8 @@ class ProximityEngine {
                             geometries for which no collisions can be reported.
   */
   void ExcludeCollisionsWithin(
-      const std::unordered_set<GeometryId>& dynamic,
-      const std::unordered_set<GeometryId>& anchored);
+      const std::set<GeometryId>& dynamic,
+      const std::set<GeometryId>& anchored);
 
   /* Excludes geometry pairs from collision evaluation by updating the
    candidate pair set `C = C - P`, where `P = {(a, b)}, ∀ a ∈ A, b ∈ B` and
@@ -269,10 +269,10 @@ class ProximityEngine {
    `B = dynamic2 ⋃ anchored2 = {b₀, b₁, ..., bₙ}`. This does _not_
    preclude collisions between members of the _same_ set.   */
   void ExcludeCollisionsBetween(
-      const std::unordered_set<GeometryId>& dynamic1,
-      const std::unordered_set<GeometryId>& anchored1,
-      const std::unordered_set<GeometryId>& dynamic2,
-      const std::unordered_set<GeometryId>& anchored2);
+      const std::set<GeometryId>& dynamic1,
+      const std::set<GeometryId>& anchored1,
+      const std::set<GeometryId>& dynamic2,
+      const std::set<GeometryId>& anchored2);
 
   /* Reports true if the geometry pair (id1, id2) has been filtered from
    collision.  */

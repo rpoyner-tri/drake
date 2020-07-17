@@ -4,8 +4,8 @@
 #include <optional>
 #include <set>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <utility>
 #include <vector>
 
@@ -45,7 +45,7 @@ class SceneGraph;
 //@{
 
 /** Collection of unique frame ids.  */
-using FrameIdSet = std::unordered_set<FrameId>;
+using FrameIdSet = std::set<FrameId>;
 
 //@}
 
@@ -576,8 +576,8 @@ class GeometryState {
     convert_pose_vector(source.X_WF_, &X_WF_);
 
     // Now convert the id -> pose map.
-    std::unordered_map<GeometryId, math::RigidTransform<T>>& dest = X_WGs_;
-    const std::unordered_map<GeometryId, math::RigidTransform<U>>& s =
+    std::map<GeometryId, math::RigidTransform<T>>& dest = X_WGs_;
+    const std::map<GeometryId, math::RigidTransform<U>>& s =
         source.X_WGs_;
     for (const auto& id_pose_pair : s) {
       const GeometryId id = id_pose_pair.first;
@@ -621,8 +621,8 @@ class GeometryState {
   // now, we accept the *slightly* dissatisfying artifact of having the same
   // id type in both sets.
   void CollectIds(const GeometrySet& geometry_set,
-                  std::unordered_set<GeometryId>* dynamic,
-                  std::unordered_set<GeometryId>* anchored);
+                  std::set<GeometryId>* dynamic,
+                  std::set<GeometryId>* anchored);
 
   // Sets the kinematic poses for the frames indicated by the given ids.
   // @param poses The frame id and pose values.
@@ -766,29 +766,29 @@ class GeometryState {
 
   // The registered geometry sources and the frame ids that have been registered
   // on them.
-  std::unordered_map<SourceId, FrameIdSet> source_frame_id_map_;
+  std::map<SourceId, FrameIdSet> source_frame_id_map_;
 
   // The registered geometry sources and the frame ids that have the world frame
   // as the parent frame. For a completely flat hierarchy, this contains the
   // same values as the corresponding entry in source_frame_id_map_.
-  std::unordered_map<SourceId, FrameIdSet> source_root_frame_map_;
+  std::map<SourceId, FrameIdSet> source_root_frame_map_;
 
   // The registered geometry source names. Each name is unique and the keys in
   // this map should be identical to those in source_frame_id_map_ and
   // source_root_frame_map_.
-  std::unordered_map<SourceId, std::string> source_names_;
+  std::map<SourceId, std::string> source_names_;
 
   // The registered geometry sources and the _anchored_ geometries that have
   // been registered on them. These don't fit in the frame hierarchy because
   // they do not belong to dynamic frames.
-  std::unordered_map<SourceId, std::unordered_set<GeometryId>>
+  std::map<SourceId, std::set<GeometryId>>
       source_anchored_geometry_map_;
 
   // The frame data, keyed on unique frame identifier.
-  std::unordered_map<FrameId, internal::InternalFrame> frames_;
+  std::map<FrameId, internal::InternalFrame> frames_;
 
   // The geometry data, keyed on unique geometry identifiers.
-  std::unordered_map<GeometryId, internal::InternalGeometry> geometries_;
+  std::map<GeometryId, internal::InternalGeometry> geometries_;
 
   // This provides the look up from the internal index of a frame to its frame
   // id. It is constructed so that the index value of any position in the vector
@@ -822,7 +822,7 @@ class GeometryState {
   // frame Fₖ, and the world frame W is the parent of frame Fₙ.
   // In other words, it is the full evaluation of the kinematic chain from the
   // geometry to the world frame.
-  std::unordered_map<GeometryId, math::RigidTransform<T>> X_WGs_;
+  std::map<GeometryId, math::RigidTransform<T>> X_WGs_;
 
   // The pose of each frame relative to the _world_ frame.
   // frames_.size() == X_WF_.size() is an invariant. Furthermore, after a
@@ -845,7 +845,7 @@ class GeometryState {
   copyable_unique_ptr<internal::ProximityEngine<T>> geometry_engine_;
 
   // The collection of all registered renderers.
-  std::unordered_map<std::string, copyable_unique_ptr<render::RenderEngine>>
+  std::map<std::string, copyable_unique_ptr<render::RenderEngine>>
       render_engines_;
 };
 }  // namespace geometry

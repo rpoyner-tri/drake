@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -114,7 +114,7 @@ class CollisionFilterLegacy {
  private:
   // A map between the EncodedData::encoding() value for a geometry and
   // its set of cliques.
-  std::unordered_map<uintptr_t, std::vector<int>> collision_cliques_;
+  std::map<uintptr_t, std::vector<int>> collision_cliques_;
 
   int next_available_clique_{0};
 };

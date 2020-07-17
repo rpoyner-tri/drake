@@ -643,7 +643,7 @@ Polynomial& Polynomial::operator*=(const Variable& v) {
 namespace {
 bool PolynomialEqual(const Polynomial& p1, const Polynomial& p2,
                      bool do_expansion) {
-  // We do not use unordered_map<Monomial, Expression>::operator== as it uses
+  // We do not use map<Monomial, Expression>::operator== as it uses
   // Expression::operator== (which returns a symbolic formula) instead of
   // Expression::EqualTo(which returns a bool), when the coefficient is a
   // symbolic expression.

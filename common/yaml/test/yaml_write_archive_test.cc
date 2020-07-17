@@ -95,7 +95,7 @@ struct UnorderedMapStruct {
     a->Visit(DRAKE_NVP(value));
   }
 
-  std::unordered_map<std::string, double> value;
+  std::map<std::string, double> value;
 };
 
 struct OptionalStruct {
@@ -320,7 +320,7 @@ TEST_F(YamlWriteArchiveTest, StdMap) {
 
 
 TEST_F(YamlWriteArchiveTest, StdUnorderedMap) {
-  const auto test = [](const std::unordered_map<std::string, double>& value,
+  const auto test = [](const std::map<std::string, double>& value,
                        const std::string& expected) {
     const UnorderedMapStruct x{value};
     EXPECT_EQ(Save(x), expected);

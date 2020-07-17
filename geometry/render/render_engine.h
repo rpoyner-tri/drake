@@ -3,8 +3,8 @@
 
 #include <memory>
 #include <optional>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <vector>
 
 #include <Eigen/Dense>
@@ -155,7 +155,7 @@ class RenderEngine : public ShapeReifier {
                  accessed by that geometry's id.  */
   template <typename T>
   void UpdatePoses(
-      const std::unordered_map<GeometryId, math::RigidTransform<T>>& X_WGs) {
+      const std::map<GeometryId, math::RigidTransform<T>>& X_WGs) {
     for (const GeometryId id : update_ids_) {
       const math::RigidTransformd X_WG =
           geometry::internal::convert_to_double(X_WGs.at(id));
@@ -444,10 +444,10 @@ class RenderEngine : public ShapeReifier {
 
   // The set of geometry ids whose pose needs to be updated.
   // See UpdateVisualPose().
-  std::unordered_set<GeometryId> update_ids_;
+  std::set<GeometryId> update_ids_;
 
   // The set of geometry ids whose pose is fixed at registration time.
-  std::unordered_set<GeometryId> anchored_ids_;
+  std::set<GeometryId> anchored_ids_;
 
   // The default render label to apply to geometries that don't otherwise
   // provide one. Default constructor is RenderLabel::kUnspecified via the

@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <optional>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <variant>
 
@@ -347,13 +347,13 @@ class Geometries final : public ShapeReifier {
 
   // The ids of all geometries that have a hydroelastic representation and
   // the type of representation.
-  std::unordered_map<GeometryId, HydroelasticType> supported_geometries_;
+  std::map<GeometryId, HydroelasticType> supported_geometries_;
 
   // The representations of all soft geometries.
-  std::unordered_map<GeometryId, SoftGeometry> soft_geometries_;
+  std::map<GeometryId, SoftGeometry> soft_geometries_;
 
   // The representations of all rigid geometries.
-  std::unordered_map<GeometryId, RigidGeometry> rigid_geometries_;
+  std::map<GeometryId, RigidGeometry> rigid_geometries_;
 };
 
 /* @name Creating hydroelastic representations of shapes

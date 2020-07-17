@@ -5,7 +5,7 @@
 #include <list>
 #include <set>
 #include <stdexcept>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include <nlopt.hpp>
@@ -324,7 +324,7 @@ bool IsVectorOfConstraintsSatisfiedAtSolution(
 }
 
 template <typename T>
-T GetOptionValueWithDefault(const std::unordered_map<std::string, T>& options,
+T GetOptionValueWithDefault(const std::map<std::string, T>& options,
                             const std::string& key, const T& default_value) {
   auto it = options.find(key);
   if (it == options.end()) {

@@ -1,7 +1,7 @@
 #include "drake/systems/framework/diagram_builder.h"
 
 #include <tuple>
-#include <unordered_map>
+#include <map>
 #include <variant>
 
 namespace drake {
@@ -80,7 +80,7 @@ void DiagramBuilderImpl::ThrowIfAlgebraicLoopsExist(
   std::map<PortIdentifier, std::set<PortIdentifier>> edges;
 
   // Create a lookup table from system pointer to subsystem index.
-  std::unordered_map<const SystemBase*, SubsystemIndex> system_to_index;
+  std::map<const SystemBase*, SubsystemIndex> system_to_index;
   for (SubsystemIndex i{0}; i < systems.size(); ++i) {
     system_to_index.emplace(systems[i], i);
   }

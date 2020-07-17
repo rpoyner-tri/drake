@@ -627,7 +627,7 @@ class CallbackScalarSupport : public ::testing::Test {
 
  protected:
   CollisionFilterLegacy collision_filter_;
-  std::unordered_map<GeometryId, RigidTransform<T>> X_WGs_;
+  std::map<GeometryId, RigidTransform<T>> X_WGs_;
   std::vector<SignedDistancePair<T>> results_;
   CallbackData<T> data_;
   std::vector<CollisionObjectd> spheres_;
@@ -716,7 +716,7 @@ GTEST_TEST(Callback, ScalarSupportWithFilters) {
   // Filter the pair (A, B) by adding them to the same clique.
   collision_filter.AddToCollisionClique(data_A.encoding(), 1);
   collision_filter.AddToCollisionClique(data_B.encoding(), 1);
-  const std::unordered_map<GeometryId, RigidTransform<T>> X_WGs{
+  const std::map<GeometryId, RigidTransform<T>> X_WGs{
       {id_A, RigidTransform<T>::Identity()},
       {id_B, RigidTransform<T>::Identity()}};
 
@@ -741,7 +741,7 @@ GTEST_TEST(Callback, RespectCollisionFiltering) {
   EncodedData data_B(id_B, true);
   data_A.write_to(&sphere_A);
   data_B.write_to(&sphere_B);
-  const std::unordered_map<GeometryId, RigidTransformd> X_WGs{
+  const std::map<GeometryId, RigidTransformd> X_WGs{
       {id_A, RigidTransformd{Vector3d{10, 11, 12}}},
       {id_B, RigidTransformd::Identity()}};
 
@@ -777,7 +777,7 @@ GTEST_TEST(Callback, ABOrdering) {
   EncodedData data_B(id_B, true);
   data_A.write_to(&sphere_A);
   data_B.write_to(&sphere_B);
-  const std::unordered_map<GeometryId, RigidTransformd> X_WGs{
+  const std::map<GeometryId, RigidTransformd> X_WGs{
       {id_A, RigidTransformd{Vector3d{10, 11, 12}}},
       {id_B, RigidTransformd::Identity()}};
   CollisionFilterLegacy collision_filter;
@@ -841,7 +841,7 @@ TYPED_TEST(CallbackMaxDistanceTest, MaxDistanceThreshold) {
   data_B.write_to(&sphere_B);
   const Vector3<T> p_WB = Vector3<T>(2, 3, 4).normalized() *
       (kMaxDistance + radius_A + radius_B - kEps);
-  std::unordered_map<GeometryId, RigidTransform<T>> X_WGs{
+  std::map<GeometryId, RigidTransform<T>> X_WGs{
       {id_A, RigidTransform<T>::Identity()},
       {id_B, RigidTransform<T>{Translation3<T>{p_WB}}}};
 

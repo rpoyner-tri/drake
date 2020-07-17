@@ -56,7 +56,7 @@ namespace {
 template <typename Constraint>
 Binding<Constraint> ReplaceBoundVariables(
     const Binding<Constraint>& binding,
-    const std::unordered_map<symbolic::Variable::Id, symbolic::Variable>&
+    const std::map<symbolic::Variable::Id, symbolic::Variable>&
         map_old_vars_to_new_vars) {
   const auto& old_bound_vars = binding.variables();
   VectorXDecisionVariable new_bound_vars(old_bound_vars.rows());
@@ -70,7 +70,7 @@ Binding<Constraint> ReplaceBoundVariables(
 template <typename Cost>
 void AddVectorOfCostsToProgram(
     const std::vector<Binding<Cost>>& costs,
-    const std::unordered_map<symbolic::Variable::Id, symbolic::Variable>&
+    const std::map<symbolic::Variable::Id, symbolic::Variable>&
         map_old_vars_to_new_vars,
     MathematicalProgram* prog) {
   for (const auto& cost : costs) {
@@ -82,7 +82,7 @@ void AddVectorOfCostsToProgram(
 template <typename Constraint>
 void AddVectorOfConstraintsToProgram(
     const std::vector<Binding<Constraint>>& constraints,
-    const std::unordered_map<symbolic::Variable::Id, symbolic::Variable>&
+    const std::map<symbolic::Variable::Id, symbolic::Variable>&
         map_old_vars_to_new_vars,
     MathematicalProgram* prog) {
   for (const auto& constraint : constraints) {
@@ -102,7 +102,7 @@ SolutionResult SolveProgramWithSolver(const MathematicalProgram& prog,
 }  // namespace
 
 std::pair<std::unique_ptr<MixedIntegerBranchAndBoundNode>,
-          std::unordered_map<symbolic::Variable::Id, symbolic::Variable>>
+          std::map<symbolic::Variable::Id, symbolic::Variable>>
 MixedIntegerBranchAndBoundNode::ConstructRootNode(
     const MathematicalProgram& prog, const SolverId& solver_id) {
   // Construct a new optimization program, same as prog, but relaxing the binary
@@ -112,7 +112,7 @@ MixedIntegerBranchAndBoundNode::ConstructRootNode(
   // variables with the same names as those in prog, but with different IDs.
   const auto& prog_vars = prog.decision_variables();
   VectorXDecisionVariable new_vars(prog_vars.rows());
-  std::unordered_map<symbolic::Variable::Id, symbolic::Variable>
+  std::map<symbolic::Variable::Id, symbolic::Variable>
       map_old_vars_to_new_vars;
   std::vector<int> binary_variable_indices{};
   for (int i = 0; i < prog_vars.rows(); ++i) {

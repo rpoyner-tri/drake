@@ -1,6 +1,6 @@
 #include "drake/systems/optimization/system_constraint_adapter.h"
 
-#include <unordered_map>
+#include <map>
 #include <utility>
 
 #include "drake/solvers/create_constraint.h"
@@ -131,7 +131,7 @@ class UpdateContextForSymbolicSystemConstraint {
 // false.
 bool ParseSymbolicVariableOrConstant(
     const symbolic::Expression& expr,
-    std::unordered_map<symbolic::Variable::Id, int>* map_var_to_index,
+    std::map<symbolic::Variable::Id, int>* map_var_to_index,
     VectorX<symbolic::Variable>* bound_variables,
     std::optional<int>* variable_index, std::optional<double>* constant_val) {
   variable_index->reset();
@@ -168,7 +168,7 @@ SystemConstraintAdapter::MaybeCreateGenericConstraintSymbolically(
   // variables shown up in @p context would be the decision variables. Picking
   // the variables in SystemConstraint.Calc(context) result would give us a
   // more sparse constraint (with less number of bounded variables).
-  std::unordered_map<symbolic::Variable::Id, int> map_var_to_index;
+  std::map<symbolic::Variable::Id, int> map_var_to_index;
   VectorX<symbolic::Variable> bound_variables;
   // context_fixed stores the constant values in @p context
   auto context_fixed = system_double_->CreateDefaultContext();

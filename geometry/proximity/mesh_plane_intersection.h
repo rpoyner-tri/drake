@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include "drake/common/sorted_pair.h"
@@ -78,7 +78,7 @@ void SliceTetWithPlane(VolumeElementIndex tet_index,
                        std::vector<SurfaceFace>* faces,
                        std::vector<SurfaceVertex<T>>* vertices_W,
                        std::vector<T>* surface_e,
-                       std::unordered_map<SortedPair<VolumeVertexIndex>,
+                       std::map<SortedPair<VolumeVertexIndex>,
                                           SurfaceVertexIndex>* cut_edges);
 
 /* Computes a ContactSurface by intersecting a plane with a set of tetrahedra

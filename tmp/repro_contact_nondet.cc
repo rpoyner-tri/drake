@@ -324,7 +324,7 @@ class SimulationChecker {
 
  private:
   std::optional<Frames> frames_baseline_;
-  std::unordered_set<Frames> frames_set_;
+  std::set<Frames> frames_set_;
 };
 
 

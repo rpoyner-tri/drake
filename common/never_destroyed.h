@@ -46,7 +46,7 @@ namespace drake {
 /// @code
 /// enum class Foo { kBar, kBaz };
 /// Foo ParseFoo(const std::string& foo_string) {
-///   using Dict = std::unordered_map<std::string, Foo>;
+///   using Dict = std::map<std::string, Foo>;
 ///   static const drake::never_destroyed<Dict> string_to_enum{
 ///     std::initializer_list<Dict::value_type>{
 ///       {"bar", Foo::kBar},

@@ -35,7 +35,7 @@ SurfaceVertexIndex GetVertexAddIfNeeded(
     SurfaceVertexIndex a, SurfaceVertexIndex b, const T& s_a, const T& s_b,
     const std::vector<SurfaceVertex<double>>& vertices_F,
     const math::RigidTransform<T>& X_WF,
-    std::unordered_map<SortedPair<SurfaceVertexIndex>, SurfaceVertexIndex>*
+    std::map<SortedPair<SurfaceVertexIndex>, SurfaceVertexIndex>*
         edges_to_newly_created_vertices,
     std::vector<SurfaceVertex<T>>* new_vertices_W) {
   DRAKE_DEMAND(sgn(s_a) != sgn(s_b));
@@ -74,7 +74,7 @@ template <typename T>
 SurfaceVertexIndex GetVertexAddIfNeeded(
     const std::vector<SurfaceVertex<double>>& vertices_F,
     SurfaceVertexIndex index, const math::RigidTransform<T>& X_WF,
-    std::unordered_map<SurfaceVertexIndex, SurfaceVertexIndex>*
+    std::map<SurfaceVertexIndex, SurfaceVertexIndex>*
         vertices_to_newly_created_vertices,
     std::vector<SurfaceVertex<T>>* new_vertices_W) {
   auto v_to_new_v_iter = vertices_to_newly_created_vertices->find(index);
@@ -99,9 +99,9 @@ void ConstructTriangleHalfspaceIntersectionPolygon(
     const PosedHalfSpace<T>& half_space_F, const math::RigidTransform<T>& X_WF,
     std::vector<SurfaceVertex<T>>* new_vertices_W,
     std::vector<SurfaceFace>* new_faces,
-    std::unordered_map<SurfaceVertexIndex, SurfaceVertexIndex>*
+    std::map<SurfaceVertexIndex, SurfaceVertexIndex>*
         vertices_to_newly_created_vertices,
-    std::unordered_map<SortedPair<SurfaceVertexIndex>, SurfaceVertexIndex>*
+    std::map<SortedPair<SurfaceVertexIndex>, SurfaceVertexIndex>*
         edges_to_newly_created_vertices) {
   // TODO(SeanCurtis-TRI): This needs to support the "backface" culling that is
   //  implemented in mesh-mesh intersection. See the
@@ -309,9 +309,9 @@ ConstructSurfaceMeshFromMeshHalfspaceIntersection(
     const math::RigidTransform<T>& X_WF) {
   std::vector<SurfaceVertex<T>> new_vertices_W;
   std::vector<SurfaceFace> new_faces;
-  std::unordered_map<SurfaceVertexIndex, SurfaceVertexIndex>
+  std::map<SurfaceVertexIndex, SurfaceVertexIndex>
       vertices_to_newly_created_vertices;
-  std::unordered_map<SortedPair<SurfaceVertexIndex>, SurfaceVertexIndex>
+  std::map<SortedPair<SurfaceVertexIndex>, SurfaceVertexIndex>
       edges_to_newly_created_vertices;
 
   for (const auto& tri_index : tri_indices) {
@@ -412,9 +412,9 @@ template void ConstructTriangleHalfspaceIntersectionPolygon(
     const math::RigidTransform<double>& X_WF,
     std::vector<SurfaceVertex<double>>* new_vertices_W,
     std::vector<SurfaceFace>* new_faces,
-    std::unordered_map<SurfaceVertexIndex, SurfaceVertexIndex>*
+    std::map<SurfaceVertexIndex, SurfaceVertexIndex>*
         vertices_to_newly_created_vertices,
-    std::unordered_map<SortedPair<SurfaceVertexIndex>, SurfaceVertexIndex>*
+    std::map<SortedPair<SurfaceVertexIndex>, SurfaceVertexIndex>*
         edges_to_newly_created_vertices);
 
 template void ConstructTriangleHalfspaceIntersectionPolygon(
@@ -423,9 +423,9 @@ template void ConstructTriangleHalfspaceIntersectionPolygon(
     const math::RigidTransform<AutoDiffXd>& X_WF,
     std::vector<SurfaceVertex<AutoDiffXd>>* new_vertices_W,
     std::vector<SurfaceFace>* new_faces,
-    std::unordered_map<SurfaceVertexIndex, SurfaceVertexIndex>*
+    std::map<SurfaceVertexIndex, SurfaceVertexIndex>*
         vertices_to_newly_created_vertices,
-    std::unordered_map<SortedPair<SurfaceVertexIndex>, SurfaceVertexIndex>*
+    std::map<SortedPair<SurfaceVertexIndex>, SurfaceVertexIndex>*
         edges_to_newly_created_vertices);
 
 template std::unique_ptr<SurfaceMesh<double>>

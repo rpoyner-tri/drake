@@ -28,7 +28,7 @@ using std::runtime_error;
 using std::set;
 using std::shared_ptr;
 using std::string;
-using std::unordered_map;
+using std::map;
 using std::vector;
 
 namespace {
@@ -43,7 +43,7 @@ class DrealConverter {
   // expression.
   dreal::Expression Convert(const symbolic::Expression& e);
   // Converts a dReal's box (a mapping from a variable to interval) into
-  // DrealSolver::IntervalBox (unordered_map of drake::symbolic::Variable →
+  // DrealSolver::IntervalBox (map of drake::symbolic::Variable →
   // interval).
   DrealSolver::IntervalBox Convert(const dreal::Box& box) const;
 
@@ -104,12 +104,12 @@ class DrealConverter {
       DrealConverter*, const symbolic::Expression&);
 
   // Mapping: dreal::Variable → drake::symbolic::Variable.
-  unordered_map<dreal::Variable, symbolic::Variable,
+  map<dreal::Variable, symbolic::Variable,
                 dreal::hash_value<dreal::Variable>>
       dreal_to_drake_variable_map_;
 
   // Mapping: drake::symbolic::Variable → dreal::Variable.
-  unordered_map<symbolic::Variable, dreal::Variable>
+  map<symbolic::Variable, dreal::Variable>
       drake_to_dreal_variable_map_;
 };
 

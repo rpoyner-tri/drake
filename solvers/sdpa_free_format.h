@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <variant>
 #include <vector>
 
@@ -287,13 +287,13 @@ class SdpaFreeFormat {
   // entries in X, so that we can impose the equality constraints later.
   void DeclareXforPositiveSemidefiniteConstraints(
       const MathematicalProgram& prog,
-      std::unordered_map<symbolic::Variable::Id, std::vector<EntryInX>>*
+      std::map<symbolic::Variable::Id, std::vector<EntryInX>>*
           entries_in_X_for_same_decision_variable);
 
   // Some entries in X correspond to the same decision variables. We need to add
   // the equality constraint on these entries.
   void AddEqualityConstraintOnXEntriesForSameDecisionVariable(
-      const std::unordered_map<symbolic::Variable::Id, std::vector<EntryInX>>&
+      const std::map<symbolic::Variable::Id, std::vector<EntryInX>>&
           entries_in_X_for_same_decision_variable);
 
   // Adds a linear equality constraint

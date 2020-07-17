@@ -5,7 +5,7 @@
 #include <limits>
 #include <memory>
 #include <optional>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -854,7 +854,7 @@ class Simulator {
   std::unique_ptr<ContinuousState<T>> event_handler_xc_;
 
   // Mapping of witness functions to pre-allocated events.
-  std::unordered_map<const WitnessFunction<T>*, std::unique_ptr<Event<T>>>
+  std::map<const WitnessFunction<T>*, std::unique_ptr<Event<T>>>
       witness_function_events_;
 
   // Optional monitor() method to capture trajectory, terminate, or fail.

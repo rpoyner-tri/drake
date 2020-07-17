@@ -3,8 +3,8 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <utility>
 
 #include "drake/common/copyable_unique_ptr.h"
@@ -128,7 +128,7 @@ class InternalGeometry {
    a parent. In other words, for an internal geometry `g`, `g.index()`
    appears in this list iff `this->is_child_of_geometry(g.index())` returns
    true.  */
-  const std::unordered_set<GeometryId>& child_geometry_ids() const {
+  const std::set<GeometryId>& child_geometry_ids() const {
     return child_geometry_ids_;
   }
 
@@ -276,7 +276,7 @@ class InternalGeometry {
   std::optional<GeometryId> parent_geometry_id_{};
 
   // The identifiers for the geometry hung on this frame.
-  std::unordered_set<GeometryId> child_geometry_ids_;
+  std::set<GeometryId> child_geometry_ids_;
 
   // TODO(SeanCurtis-TRI): Consider introducing a mechanism where these are
   // defined at the frame level, and all child geometries inherit.

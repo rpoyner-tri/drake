@@ -8,7 +8,7 @@
 #include <string>
 #include <tuple>
 #include <type_traits>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -2823,7 +2823,7 @@ class MultibodyTree {
   template <typename ElementIndex>
   static ElementIndex GetElementIndex(
       const std::string& name, const std::string& element_description,
-      const std::unordered_multimap<std::string, ElementIndex>& name_to_index) {
+      const std::multimap<std::string, ElementIndex>& name_to_index) {
     const auto range = name_to_index.equal_range(name);
     if (range.first == range.second) {
       std::string lower = element_description;
@@ -2869,23 +2869,23 @@ class MultibodyTree {
   // %MultibodyTree.
 
   // Map used to find body indexes by their body name.
-  std::unordered_multimap<std::string, BodyIndex> body_name_to_index_;
+  std::multimap<std::string, BodyIndex> body_name_to_index_;
 
   // Map used to find frame indexes by their frame name.
-  std::unordered_multimap<std::string, FrameIndex> frame_name_to_index_;
+  std::multimap<std::string, FrameIndex> frame_name_to_index_;
 
   // Map used to find joint indexes by their joint name.
-  std::unordered_multimap<std::string, JointIndex> joint_name_to_index_;
+  std::multimap<std::string, JointIndex> joint_name_to_index_;
 
   // Map used to find actuator indexes by their actuator name.
-  std::unordered_multimap<std::string,
+  std::multimap<std::string,
                           JointActuatorIndex> actuator_name_to_index_;
 
   // Map used to find a model instance index by its model instance name.
-  std::unordered_map<std::string, ModelInstanceIndex> instance_name_to_index_;
+  std::map<std::string, ModelInstanceIndex> instance_name_to_index_;
 
   // Map used to find a model instance name by its model instance index.
-  std::unordered_map<ModelInstanceIndex, std::string> instance_index_to_name_;
+  std::map<ModelInstanceIndex, std::string> instance_index_to_name_;
 
   // Body node indexes ordered by level (a.k.a depth). Therefore for the
   // i-th level body_node_levels_[i] contains the list of all body node indexes

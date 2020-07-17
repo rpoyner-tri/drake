@@ -1,6 +1,6 @@
 #pragma once
 
-#include <unordered_set>
+#include <set>
 
 #include "drake/geometry/geometry_set.h"
 
@@ -12,13 +12,13 @@ class GeometrySetTester {
  public:
   explicit GeometrySetTester(const GeometrySet* set) : set_(*set) {}
 
-  const std::unordered_set<FrameId> frames() const {
+  const std::set<FrameId> frames() const {
     return set_.frames();
   }
 
   int num_frames() const { return set_.num_frames(); }
 
-  const std::unordered_set<GeometryId> geometries() const {
+  const std::set<GeometryId> geometries() const {
     return set_.geometries();
   }
 

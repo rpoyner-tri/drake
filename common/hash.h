@@ -53,11 +53,11 @@
 ///
 /// Types that implement this pattern may be used in unordered collections:
 /// @code
-/// std::unordered_set<MyValue, drake::DefaultHash> foo;
+/// std::set<MyValue, drake::DefaultHash> foo;
 /// @endcode
 ///
 /// Some Drake types may also choose to specialize `std::hash<MyValue>` to use
-/// `DefaultHash`, so that the second template argument to `std::unordered_set`
+/// `DefaultHash`, so that the second template argument to `std::set`
 /// can be omitted.  For example, Drake's `symbolic::Expression` header says:
 /// @code
 /// namespace std {
@@ -66,7 +66,7 @@
 /// @endcode
 /// so that users are able to simply write:
 /// @code
-/// std::unordered_set<drake::symbolic::Expression> foo;
+/// std::set<drake::symbolic::Expression> foo;
 /// @endcode
 ///
 /// @}
@@ -159,7 +159,7 @@ void hash_append_range(
 
 /// Provides @ref hash_append for std::map.
 ///
-/// Note that there is no `hash_append` overload for `std::unordered_map`, and
+/// Note that there is no `hash_append` overload for `std::map`, and
 /// such an overload must never appear.  See n3980.html#unordered for details.
 template <
   class HashAlgorithm,
@@ -175,7 +175,7 @@ void hash_append(
 
 /// Provides @ref hash_append for std::set.
 ///
-/// Note that there is no `hash_append` overload for `std::unordered_set`, and
+/// Note that there is no `hash_append` overload for `std::set`, and
 /// such an overload must never appear.  See n3980.html#unordered for details.
 template <
   class HashAlgorithm,

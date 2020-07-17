@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <limits>
-#include <unordered_map>
+#include <map>
 
 #include <gtest/gtest.h>
 
@@ -22,9 +22,9 @@ using drake::symbolic::Variable;
 
 using std::numeric_limits;
 using std::string;
-using std::unordered_map;
+using std::map;
 
-using MapVarToIndex = unordered_map<Variable::Id, int>;
+using MapVarToIndex = map<Variable::Id, int>;
 using VectorXe = drake::VectorX<Expression>;
 
 namespace drake {

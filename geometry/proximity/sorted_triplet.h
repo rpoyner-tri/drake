@@ -13,14 +13,14 @@ namespace geometry {
 namespace internal {
 
 // TODO(DamrongGuoy): If we add hash_append, change the documentation below
-//  to say it can be used with std::unordered_map and std::unordered_set.
+//  to say it can be used with std::map and std::set.
 
 // This class is similar to the drake::SortedPair class. However, this class
 // uses a triplet of homogeneous types. Both SortedPair and SortedTriplet
 // sort the values such that one value is less than or equal to the next one.
 // The SortedTriplet class can be used to generate keys for std::map (or
 // std::set) from triplets of objects. However, it cannot be used to
-// generate keys for std::unordered_map (or std::unordered_set).
+// generate keys for std::map (or std::set).
 //
 // @tparam T A template type that provides `operator<` and supports default
 //           construction.

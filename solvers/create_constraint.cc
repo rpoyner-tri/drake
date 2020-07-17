@@ -20,7 +20,7 @@ using std::ostringstream;
 using std::runtime_error;
 using std::set;
 using std::shared_ptr;
-using std::unordered_map;
+using std::map;
 using std::vector;
 
 using symbolic::Expression;
@@ -52,7 +52,7 @@ Binding<Constraint> ParseConstraint(
 
   // Setup map_var_to_index and var_vec.
   // such that map_var_to_index[var(i)] = i
-  unordered_map<Variable::Id, int> map_var_to_index;
+  map<Variable::Id, int> map_var_to_index;
   VectorXDecisionVariable vars(0);
   for (int i = 0; i < v.size(); ++i) {
     ExtractAndAppendVariablesFromExpression(v(i), &vars, &map_var_to_index);
@@ -158,7 +158,7 @@ std::unique_ptr<Binding<Constraint>> MaybeParseLinearConstraint(
         Vector1<symbolic::Variable>(*(p.indeterminates().begin())));
   }
   VectorX<symbolic::Variable> bound_variables(p.indeterminates().size());
-  std::unordered_map<symbolic::Variable::Id, int> map_var_to_index;
+  std::map<symbolic::Variable::Id, int> map_var_to_index;
   int index = 0;
   for (const auto& var : p.indeterminates()) {
     bound_variables(index) = var;
@@ -448,7 +448,7 @@ Binding<LinearEqualityConstraint> DoParseLinearEqualityConstraint(
     const Eigen::Ref<const Eigen::VectorXd>& b) {
   DRAKE_DEMAND(v.rows() == b.rows());
   VectorXDecisionVariable vars(0);
-  unordered_map<Variable::Id, int> map_var_to_index;
+  map<Variable::Id, int> map_var_to_index;
   for (int i = 0; i < v.rows(); ++i) {
     ExtractAndAppendVariablesFromExpression(v(i), &vars, &map_var_to_index);
   }

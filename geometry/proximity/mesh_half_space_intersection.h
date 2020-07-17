@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include "drake/common/eigen_types.h"
@@ -75,9 +75,9 @@ void ConstructTriangleHalfspaceIntersectionPolygon(
     const PosedHalfSpace<T>& half_space_F, const math::RigidTransform<T>& X_WF,
     std::vector<SurfaceVertex<T>>* new_vertices_W,
     std::vector<SurfaceFace>* new_faces,
-    std::unordered_map<SurfaceVertexIndex, SurfaceVertexIndex>*
+    std::map<SurfaceVertexIndex, SurfaceVertexIndex>*
         vertices_to_newly_created_vertices,
-    std::unordered_map<SortedPair<SurfaceVertexIndex>, SurfaceVertexIndex>*
+    std::map<SortedPair<SurfaceVertexIndex>, SurfaceVertexIndex>*
         edges_to_newly_created_vertices);
 
 /*

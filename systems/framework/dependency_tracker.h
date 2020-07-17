@@ -7,7 +7,7 @@ trackers. */
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -136,7 +136,7 @@ class DependencyTracker {
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(DependencyTracker)
 
   /** (Internal use only) */
-  using PointerMap = std::unordered_map<const DependencyTracker*,
+  using PointerMap = std::map<const DependencyTracker*,
                                         const DependencyTracker*>;
 
   /** Returns the human-readable description for this tracker. */

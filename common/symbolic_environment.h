@@ -8,7 +8,7 @@
 #include <initializer_list>
 #include <ostream>
 #include <string>
-#include <unordered_map>
+#include <map>
 
 #include "drake/common/drake_copyable.h"
 #include "drake/common/eigen_types.h"
@@ -61,7 +61,7 @@ class Environment {
 
   typedef Variable key_type;
   typedef double mapped_type;
-  typedef typename std::unordered_map<key_type, mapped_type> map;
+  typedef typename std::map<key_type, mapped_type> map;
   /** std::pair<key_type, mapped_type> */
   typedef typename map::value_type value_type;
   typedef typename map::iterator iterator;
@@ -86,7 +86,7 @@ class Environment {
   Environment(std::initializer_list<key_type> vars);
 
   /** Constructs an environment from @p m (of `map` type, which is
-   * `std::unordered_map`).
+   * `std::map`).
    *
    * @throws std::runtime_error if @p m include a dummy variable or a NaN value.
    */

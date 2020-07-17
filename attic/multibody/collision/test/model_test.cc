@@ -4,7 +4,7 @@
 #include <functional>
 #include <memory>
 #include <ostream>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -39,7 +39,7 @@ struct SurfacePoint {
   Vector3d normal;
 };
 
-// Solutions are accessed by collision element id using an std::unordered_set.
+// Solutions are accessed by collision element id using an std::set.
 // drake::multibody::collision::Model returns the collision detection results
 // as a vector of drake::multibody::collision::PointPair entries. Each entry
 // holds a reference to the pair
@@ -53,10 +53,10 @@ struct SurfacePoint {
 // id's are merely a memory address cast to an integer).
 // The user only has access to collision elements by id.
 // To provide a unique mapping between id's and the analytical solution to the
-// contact point on a specific element here we use an `std::unordered_set` to
+// contact point on a specific element here we use an `std::set` to
 // map id's to a `SurfacePoint` structure holding the analytical solution on
 // both body and world frames.
-typedef std::unordered_map<const drake::multibody::collision::Element*,
+typedef std::map<const drake::multibody::collision::Element*,
                            SurfacePoint>
     ElementToSurfacePointMap;
 

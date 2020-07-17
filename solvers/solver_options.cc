@@ -14,7 +14,7 @@ namespace solvers {
 // A shorthand for our member field type, for options typed as T's, as in
 // MapMap[SolverId][string] => T.
 template <typename T>
-using MapMap = std::unordered_map<SolverId, std::unordered_map<std::string, T>>;
+using MapMap = std::map<SolverId, std::map<std::string, T>>;
 
 void SolverOptions::SetOption(const SolverId& solver_id,
                               const std::string& solver_option,
@@ -68,31 +68,31 @@ namespace {
 // If options has an entry for the given solver_id, returns a reference to the
 // mapped value.  Otherwise, returns a long-lived reference to an empty value.
 template <typename T>
-const std::unordered_map<std::string, T>& GetOptionsHelper(
+const std::map<std::string, T>& GetOptionsHelper(
     const SolverId& solver_id, const MapMap<T>& options) {
-  static never_destroyed<std::unordered_map<std::string, T>> empty;
+  static never_destroyed<std::map<std::string, T>> empty;
   const auto iter = options.find(solver_id);
   return (iter != options.end()) ? iter->second : empty.access();
 }
 }  // namespace
 
-const std::unordered_map<std::string, double>& SolverOptions::GetOptionsDouble(
+const std::map<std::string, double>& SolverOptions::GetOptionsDouble(
     const SolverId& solver_id) const {
   return GetOptionsHelper(solver_id, solver_options_double_);
 }
 
-const std::unordered_map<std::string, int>& SolverOptions::GetOptionsInt(
+const std::map<std::string, int>& SolverOptions::GetOptionsInt(
     const SolverId& solver_id) const {
   return GetOptionsHelper(solver_id, solver_options_int_);
 }
 
-const std::unordered_map<std::string, std::string>&
+const std::map<std::string, std::string>&
 SolverOptions::GetOptionsStr(const SolverId& solver_id) const {
   return GetOptionsHelper(solver_id, solver_options_str_);
 }
 
-std::unordered_set<SolverId> SolverOptions::GetSolverIds() const {
-  std::unordered_set<SolverId> result;
+std::set<SolverId> SolverOptions::GetSolverIds() const {
+  std::set<SolverId> result;
   for (const auto& pair : solver_options_double_) { result.insert(pair.first); }
   for (const auto& pair : solver_options_int_) { result.insert(pair.first); }
   for (const auto& pair : solver_options_str_) { result.insert(pair.first); }
@@ -104,7 +104,7 @@ template <typename T>
 void MergeHelper(const MapMap<T>& other, MapMap<T>* self) {
   for (const auto& other_id_keyvals : other) {
     const SolverId& id = other_id_keyvals.first;
-    std::unordered_map<std::string, T>& self_keyvals = (*self)[id];
+    std::map<std::string, T>& self_keyvals = (*self)[id];
     for (const auto& other_keyval : other_id_keyvals.second) {
       // This is a no-op when the key already exists.
       self_keyvals.insert(other_keyval);
@@ -113,9 +113,9 @@ void MergeHelper(const MapMap<T>& other, MapMap<T>* self) {
 }
 
 void MergeHelper(
-    const std::unordered_map<CommonSolverOption,
+    const std::map<CommonSolverOption,
                              std::variant<double, int, std::string>>& other,
-    std::unordered_map<CommonSolverOption,
+    std::map<CommonSolverOption,
                        std::variant<double, int, std::string>>* self) {
   for (const auto& other_keyval : other) {
     // This is a no-op when the key already exists.
@@ -146,7 +146,7 @@ bool SolverOptions::operator!=(const SolverOptions& other) const {
 namespace {
 template <typename T>
 void Summarize(const SolverId& id,
-           const std::unordered_map<std::string, T>& keyvals,
+           const std::map<std::string, T>& keyvals,
            std::map<std::string, std::string>* pairs) {
   for (const auto& keyval : keyvals) {
     (*pairs)[fmt::format("{}:{}", id.name(), keyval.first)] =
@@ -198,8 +198,8 @@ namespace {
 // allowable_keys, and throw an invalid argument if not.
 template <typename T>
 void CheckOptionKeysForSolverHelper(
-    const std::unordered_map<std::string, T>& key_vals,
-    const std::unordered_set<std::string>& allowable_keys,
+    const std::map<std::string, T>& key_vals,
+    const std::set<std::string>& allowable_keys,
     const std::string& solver_name) {
   for (const auto& key_val : key_vals) {
     if (allowable_keys.count(key_val.first) == 0) {
@@ -213,9 +213,9 @@ void CheckOptionKeysForSolverHelper(
 
 void SolverOptions::CheckOptionKeysForSolver(
     const SolverId& solver_id,
-    const std::unordered_set<std::string>& double_keys,
-    const std::unordered_set<std::string>& int_keys,
-    const std::unordered_set<std::string>& str_keys) const {
+    const std::set<std::string>& double_keys,
+    const std::set<std::string>& int_keys,
+    const std::set<std::string>& str_keys) const {
   CheckOptionKeysForSolverHelper(GetOptionsDouble(solver_id), double_keys,
                                  solver_id.name());
   CheckOptionKeysForSolverHelper(GetOptionsInt(solver_id), int_keys,

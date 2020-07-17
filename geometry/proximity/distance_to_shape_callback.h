@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <limits>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -49,7 +49,7 @@ struct CallbackData {
                                   reported.
    @param nearest_pairs_in[out]   The output results. Aliased.  */
   CallbackData(const CollisionFilterLegacy* collision_filter_in,
-               const std::unordered_map<GeometryId,
+               const std::map<GeometryId,
                math::RigidTransform<T>>* X_WGs_in,
                const double max_distance_in,
                std::vector<SignedDistancePair<T>>* nearest_pairs_in)
@@ -66,7 +66,7 @@ struct CallbackData {
   const CollisionFilterLegacy& collision_filter;
 
   /* The T-valued poses of all geometries.  */
-  const std::unordered_map<GeometryId, math::RigidTransform<T>>& X_WGs;
+  const std::map<GeometryId, math::RigidTransform<T>>& X_WGs;
 
   /* The maximum distance at which a pair's distance will be reported.  */
   const double max_distance;

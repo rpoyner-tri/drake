@@ -3,7 +3,7 @@
 #include <limits>
 #include <memory>
 #include <set>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -29,7 +29,7 @@ using std::make_unique;
 using std::pair;
 using std::set;
 using std::unique_ptr;
-using std::unordered_map;
+using std::map;
 using std::vector;
 
 // TODO(SeanCurtis-TRI): I originally copied this from
@@ -201,11 +201,11 @@ class SliceTetWithPlaneTest : public ::testing::Test {
       const vector<SurfaceFace>& faces) {
     const int num_faces = static_cast<int>(faces.size());
     SurfaceVertexIndex centroid_index;
-    std::unordered_map<SurfaceVertexIndex, int> vertex_references;
+    std::map<SurfaceVertexIndex, int> vertex_references;
     for (const auto& face : faces) {
       for (int i = 0; i < 3; ++i) {
         SurfaceVertexIndex v = face.vertex(i);
-        // This relies on unordered_map's value initialization of the value
+        // This relies on map's value initialization of the value
         // type. In this case, int gets initialized to zero and then
         // incremented.
         ++vertex_references[v];
@@ -502,7 +502,7 @@ class SliceTetWithPlaneTest : public ::testing::Test {
   vector<SurfaceVertex<double>> vertices_W_;
   vector<double> surface_pressure_;
   RigidTransformd X_WF_;
-  unordered_map<SortedPair<VolumeVertexIndex>, SurfaceVertexIndex> cut_edges_;
+  map<SortedPair<VolumeVertexIndex>, SurfaceVertexIndex> cut_edges_;
 };
 
 /* This tests the *boundaries* of intersection. Confirms that a tet lying
@@ -778,7 +778,7 @@ TEST_F(SliceTetWithPlaneTest, DuplicateOutputFromDuplicateInput) {
   vector<SurfaceFace> min_faces;
   vector<SurfaceVertex<double>> min_vertices_F;
   vector<double> min_surface_pressure;
-  unordered_map<SortedPair<VolumeVertexIndex>, SurfaceVertexIndex>
+  map<SortedPair<VolumeVertexIndex>, SurfaceVertexIndex>
       min_cut_edges;
 
   // The infrastructure for the mesh with duplicate vertices.
@@ -789,7 +789,7 @@ TEST_F(SliceTetWithPlaneTest, DuplicateOutputFromDuplicateInput) {
   vector<SurfaceFace> dupe_faces;
   vector<SurfaceVertex<double>> dupe_vertices_F;
   vector<double> dupe_surface_pressure;
-  unordered_map<SortedPair<VolumeVertexIndex>, SurfaceVertexIndex>
+  map<SortedPair<VolumeVertexIndex>, SurfaceVertexIndex>
       dupe_cut_edges;
 
   // The common slicing plane.
@@ -852,7 +852,7 @@ TEST_F(SliceTetWithPlaneTest, NoDoubleCounting) {
     vector<SurfaceFace> faces;
     vector<SurfaceVertex<double>> vertices_W;
     vector<double> surface_pressure;
-    unordered_map<SortedPair<VolumeVertexIndex>, SurfaceVertexIndex> cut_edges;
+    map<SortedPair<VolumeVertexIndex>, SurfaceVertexIndex> cut_edges;
     VolumeElementIndex tet_index{0};
     SliceTetWithPlane(tet_index, field_M, plane_M, I, &faces, &vertices_W,
                       &surface_pressure, &cut_edges);
@@ -864,7 +864,7 @@ TEST_F(SliceTetWithPlaneTest, NoDoubleCounting) {
     vector<SurfaceFace> faces;
     vector<SurfaceVertex<double>> vertices_W;
     vector<double> surface_pressure;
-    unordered_map<SortedPair<VolumeVertexIndex>, SurfaceVertexIndex> cut_edges;
+    map<SortedPair<VolumeVertexIndex>, SurfaceVertexIndex> cut_edges;
     VolumeElementIndex tet_index{1};
     SliceTetWithPlane(tet_index, field_M, plane_M, I, &faces, &vertices_W,
                       &surface_pressure, &cut_edges);

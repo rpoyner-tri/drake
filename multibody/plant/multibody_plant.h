@@ -7,8 +7,8 @@
 #include <string>
 #include <tuple>
 #include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <utility>
 #include <vector>
 
@@ -1970,7 +1970,7 @@ class MultibodyPlant : public internal::MultibodyTreeSystem<T> {
   /// Returns the set of body indexes corresponding to the free (floating)
   /// bodies in the model, in no particular order.
   /// @throws std::exception if called pre-finalize, see Finalize().
-  std::unordered_set<BodyIndex> GetFloatingBaseBodies() const;
+  std::set<BodyIndex> GetFloatingBaseBodies() const;
 
   /// Gets the pose of a given `body` in the world frame W.
   /// @note In general getting the pose of a body in the model would involve
@@ -4264,7 +4264,7 @@ class MultibodyPlant : public internal::MultibodyTreeSystem<T> {
 
   // Map provided at construction that tells how bodies (referenced by name),
   // map to frame ids.
-  std::unordered_map<std::string, geometry::FrameId> body_name_to_frame_id_;
+  std::map<std::string, geometry::FrameId> body_name_to_frame_id_;
 
   // This struct contains the parameters to compute forces to enforce
   // no-interpenetration between bodies by a penalty method.
@@ -4357,18 +4357,18 @@ class MultibodyPlant : public internal::MultibodyTreeSystem<T> {
 
   // Data to get back from a SceneGraph-reported frame id to its associated
   // body.
-  std::unordered_map<geometry::FrameId, BodyIndex> frame_id_to_body_index_;
+  std::map<geometry::FrameId, BodyIndex> frame_id_to_body_index_;
 
   // Map from GeometryId to BodyIndex. During contact queries, it allows to find
   // out to which body a given geometry corresponds to.
-  std::unordered_map<geometry::GeometryId, BodyIndex>
+  std::map<geometry::GeometryId, BodyIndex>
       geometry_id_to_body_index_;
 
   // Maps a GeometryId with a visual index. This allows, for instance, to find
   // out visual properties for a given geometry.
   // TODO(amcastro-tri): verify insertions were correct once visual_index gets
   // used with the landing of visual properties in SceneGraph.
-  std::unordered_map<geometry::GeometryId, int> geometry_id_to_visual_index_;
+  std::map<geometry::GeometryId, int> geometry_id_to_visual_index_;
 
   // Per-body arrays of visual geometries indexed by BodyIndex.
   // That is, visual_geometries_[body_index] corresponds to the array of visual
@@ -4383,7 +4383,7 @@ class MultibodyPlant : public internal::MultibodyTreeSystem<T> {
   // Maps a GeometryId with a collision index. This allows, for instance, to
   // find out collision properties (such as friction coefficient) for a given
   // geometry.
-  std::unordered_map<geometry::GeometryId, int> geometry_id_to_collision_index_;
+  std::map<geometry::GeometryId, int> geometry_id_to_collision_index_;
 
   // Friction coefficients ordered by collision index.
   // See geometry_id_to_collision_index_.

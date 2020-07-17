@@ -1,7 +1,7 @@
 #include "drake/geometry/proximity_engine.h"
 
 #include <cmath>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -84,7 +84,7 @@ using std::make_shared;
 using std::make_unique;
 using std::move;
 using std::shared_ptr;
-using std::unordered_map;
+using std::map;
 
 // Tests for manipulating the population of the proximity engine.
 
@@ -232,10 +232,10 @@ class ProximityEngineMeshes : public ::testing::Test {
   // Populates the world with two shapes with identity pose (assuming that that
   // is a colliding configuration). Each shape can be anchored or dynamic and
   // rigid or soft. Stores the geometry ids of the first and second shapes.
-  unordered_map<GeometryId, RigidTransformd> PopulateEngine(
+  map<GeometryId, RigidTransformd> PopulateEngine(
       ProximityEngine<double>* engine, const Shape& shape1, bool anchored1,
       bool soft1, const Shape& shape2, bool anchored2, bool soft2) {
-    unordered_map<GeometryId, RigidTransformd> X_WGs;
+    map<GeometryId, RigidTransformd> X_WGs;
     RigidTransformd X_WG;
     std::tie(id1_, X_WG) = AddShape(engine, shape1, anchored1, soft1);
     X_WGs.insert({id1_, X_WG});
@@ -515,7 +515,7 @@ GTEST_TEST(ProximityEngineTests, RemoveGeometry) {
     // x = 0, 2, & 4. With radius of 0.5, they should *not* be colliding.
     Sphere sphere{0.5};
     std::vector<GeometryId> ids;
-    std::unordered_map<GeometryId, RigidTransformd> poses;
+    std::map<GeometryId, RigidTransformd> poses;
     for (int i = 0; i < 3; ++i) {
       const GeometryId id = GeometryId::get_new_id();
       ids.push_back(id);
@@ -646,7 +646,7 @@ GTEST_TEST(ProximityEngineTests, MoveSemantics) {
 // A scene with no geometry reports no witness pairs.
 GTEST_TEST(ProximityEngineTests, SignedDistanceClosestPointsOnEmptyScene) {
   ProximityEngine<double> engine;
-  const unordered_map<GeometryId, RigidTransformd> X_WGs;
+  const map<GeometryId, RigidTransformd> X_WGs;
 
   const auto results =
       engine.ComputeSignedDistancePairwiseClosestPoints(X_WGs, kInf);
@@ -659,7 +659,7 @@ GTEST_TEST(ProximityEngineTests, SignedDistanceClosestPointsSingleAnchored) {
 
   Sphere sphere{0.5};
   const GeometryId id = GeometryId::get_new_id();
-  const unordered_map<GeometryId, RigidTransformd> X_WGs{
+  const map<GeometryId, RigidTransformd> X_WGs{
       {id, RigidTransformd::Identity()}};
   engine.AddAnchoredGeometry(sphere, X_WGs.at(id), id);
 
@@ -671,7 +671,7 @@ GTEST_TEST(ProximityEngineTests, SignedDistanceClosestPointsSingleAnchored) {
 // Tests that anchored geometry don't report closest distance with each other.
 GTEST_TEST(ProximityEngineTests, SignedDistanceClosestPointsMultipleAnchored) {
   ProximityEngine<double> engine;
-  unordered_map<GeometryId, RigidTransformd> X_WGs;
+  map<GeometryId, RigidTransformd> X_WGs;
 
   const double radius = 0.5;
   Sphere sphere{radius};
@@ -695,7 +695,7 @@ GTEST_TEST(ProximityEngineTests, SignedDistanceClosestPointsMaxDistance) {
   ProximityEngine<double> engine;
   const GeometryId id_A = GeometryId::get_new_id();
   const GeometryId id_B = GeometryId::get_new_id();
-  unordered_map<GeometryId, RigidTransformd> X_WGs{
+  map<GeometryId, RigidTransformd> X_WGs{
       {id_A, RigidTransformd::Identity()}, {id_B, RigidTransformd::Identity()}};
 
   const double radius = 0.5;
@@ -737,7 +737,7 @@ GTEST_TEST(ProximityEngineTests, SignedDistancePairClosestPoint) {
   const GeometryId id_A = GeometryId::get_new_id();
   const GeometryId id_B = GeometryId::get_new_id();
   const GeometryId bad_id = GeometryId::get_new_id();
-  unordered_map<GeometryId, RigidTransformd> X_WGs{
+  map<GeometryId, RigidTransformd> X_WGs{
       {id_A, RigidTransformd::Identity()}, {id_B, RigidTransformd::Identity()}};
 
   const double radius = 0.5;
@@ -810,7 +810,7 @@ GTEST_TEST(ProximityEngineTests, SignedDistanceToPointNonPositiveThreshold) {
 
   const GeometryId id_A = GeometryId::get_new_id();
   const GeometryId id_B = GeometryId::get_new_id();
-  const unordered_map<GeometryId, RigidTransformd> X_WGs{
+  const map<GeometryId, RigidTransformd> X_WGs{
       {id_A,
        RigidTransformd{Translation3d{-kRadius + 0.5 * kPenetration, 0, 0}}},
       {id_B,
@@ -861,7 +861,7 @@ GTEST_TEST(ProximityEngineTests, SignedDistanceToPointNonPositiveThreshold) {
 //
 GTEST_TEST(SignedDistanceToPointBroadphaseTest, MultipleThreshold) {
   ProximityEngine<double> engine;
-  unordered_map<GeometryId, RigidTransformd> X_WGs;
+  map<GeometryId, RigidTransformd> X_WGs;
   const double radius = 0.1;
   const Vector3d center1(1., 1., 1.);
   const Vector3d center2(-1, -1, -1.);
@@ -1577,7 +1577,7 @@ std::vector<SignedDistanceToPointTestData> GenDistTestDataHalfSpace() {
 struct SignedDistanceToPointTest
     : public testing::TestWithParam<SignedDistanceToPointTestData> {
   ProximityEngine<double> engine;
-  unordered_map<GeometryId, RigidTransformd> X_WGs;
+  map<GeometryId, RigidTransformd> X_WGs;
 
   // The tolerance value for determining equivalency between expected and
   // tested results. The underlying algorithms have an empirically-determined,
@@ -1779,8 +1779,8 @@ class SimplePenetrationTest : public ::testing::Test {
 
   // Poses have been defined as doubles; get them in the required scalar type.
   template <typename T>
-  unordered_map<GeometryId, RigidTransform<T>> GetTypedPoses() const {
-    unordered_map<GeometryId, RigidTransform<T>> typed_X_WG;
+  map<GeometryId, RigidTransform<T>> GetTypedPoses() const {
+    map<GeometryId, RigidTransform<T>> typed_X_WG;
     for (const auto& id_pose_pair : X_WGs_) {
       const GeometryId id = id_pose_pair.first;
       const RigidTransformd& X_WG = id_pose_pair.second;
@@ -1916,7 +1916,7 @@ class SimplePenetrationTest : public ::testing::Test {
   }
 
   ProximityEngine<double> engine_;
-  unordered_map<GeometryId, RigidTransformd> X_WGs_;
+  map<GeometryId, RigidTransformd> X_WGs_;
   const double radius_{0.5};
   const Sphere sphere_{radius_};
   const double free_x_{2.5 * radius_};
@@ -2251,7 +2251,7 @@ GTEST_TEST(ProximityEngineTests, PairwiseSignedDistanceNonPositiveThreshold) {
   const GeometryId id2 = GeometryId::get_new_id();
   const GeometryId id3 = GeometryId::get_new_id();
   const double kRadius = 0.5;
-  const unordered_map<GeometryId, RigidTransformd> X_WGs{
+  const map<GeometryId, RigidTransformd> X_WGs{
       {id1, RigidTransformd{Translation3d{0, 2 * kRadius, 0}}},
       {id2, RigidTransformd{Translation3d{-kRadius * 0.9, 0, 0}}},
       {id3, RigidTransformd{Translation3d{kRadius * 0.9, 0, 0}}}};
@@ -3022,7 +3022,7 @@ class SignedDistancePairTest
 
  protected:
   ProximityEngine<double> engine_;
-  unordered_map<GeometryId, RigidTransformd> X_WGs_;
+  map<GeometryId, RigidTransformd> X_WGs_;
 
  public:
   // The tolerance value for determining equivalency between expected and
@@ -3125,7 +3125,7 @@ GTEST_TEST(SignedDistancePairError, HalfspaceException) {
   ProximityEngine<double> engine;
   // NOTE: It's not necessary to put any poses into X_WGs; they never get
   // evaluated due to the error condition.
-  unordered_map<GeometryId, RigidTransformd> X_WGs;
+  map<GeometryId, RigidTransformd> X_WGs;
 
   // We can't use sphere, because sphere-halfspace is supported.
   Box box{0.5, 0.25, 0.75};
@@ -3386,7 +3386,7 @@ GTEST_TEST(ProximityEngineCollisionTest, SpherePunchThroughBox) {
   const GeometryId sphere_id = GeometryId::get_new_id();
   engine.AddDynamicGeometry(Sphere{radius}, sphere_id);
 
-  unordered_map<GeometryId, RigidTransformd> poses{
+  map<GeometryId, RigidTransformd> poses{
       {box_id, RigidTransformd::Identity()},
       {sphere_id, RigidTransformd::Identity()}};
   // clang-format off
@@ -3592,7 +3592,7 @@ class BoxPenetrationTest : public ::testing::Test {
     ASSERT_EQ(engine_.num_dynamic(), 2);
 
     // Update the poses of the geometry.
-    unordered_map<GeometryId, RigidTransformd> poses{
+    map<GeometryId, RigidTransformd> poses{
         {tangent_id, shape_pose(shape_type)}, {box_id, X_WB}};
     engine_.UpdateWorldPoses(poses);
     std::vector<PenetrationAsPointPair<double>> results =
@@ -3879,7 +3879,7 @@ GTEST_TEST(ProximityEngineTests, Issue10577Regression_Osculation) {
   RigidTransformd X_WA(Eigen::AngleAxisd{M_PI_2, Vector3d::UnitZ()},
                        Vector3d{-0.25, 0, 0});
   RigidTransformd X_WB(Vector3d{0, 0, 0.0085});
-  const unordered_map<GeometryId, RigidTransformd> X_WG{{id_A, X_WA},
+  const map<GeometryId, RigidTransformd> X_WG{{id_A, X_WA},
                                                         {id_B, X_WB}};
   engine.UpdateWorldPoses(X_WG);
   std::vector<GeometryId> geometry_map{id_A, id_B};
@@ -3935,7 +3935,7 @@ GTEST_TEST(ProximityEngineTests, ComputePointSignedDistanceAutoDiffAnchored) {
 
   // An empty world inherently produces no results.
   {
-    const unordered_map<GeometryId, RigidTransform<AutoDiffXd>> X_WGs;
+    const map<GeometryId, RigidTransform<AutoDiffXd>> X_WGs;
     const auto results = engine.ComputeSignedDistanceToPoint(p_WQ_ad, X_WGs);
     EXPECT_EQ(results.size(), 0);
   }
@@ -3946,7 +3946,7 @@ GTEST_TEST(ProximityEngineTests, ComputePointSignedDistanceAutoDiffAnchored) {
     const GeometryId anchored_id = GeometryId::get_new_id();
     engine.AddAnchoredGeometry(Sphere(0.7), X_WS, anchored_id);
     const RigidTransform<AutoDiffXd> X_WS_ad = X_WS.cast<AutoDiffXd>();
-    const unordered_map<GeometryId, RigidTransform<AutoDiffXd>> X_WGs{
+    const map<GeometryId, RigidTransform<AutoDiffXd>> X_WGs{
         {anchored_id, X_WS_ad}};
 
     // Distance is just beyond the threshold.
@@ -3997,7 +3997,7 @@ GTEST_TEST(ProximityEngineTests, ComputePointSignedDistanceAutoDiffDynamic) {
   const GeometryId id = GeometryId::get_new_id();
   engine.AddDynamicGeometry(Sphere(0.7), id);
   const auto X_WS_ad = RigidTransformd(p_WS).cast<AutoDiffXd>();
-  const unordered_map<GeometryId, RigidTransform<AutoDiffXd>> X_WGs{
+  const map<GeometryId, RigidTransform<AutoDiffXd>> X_WGs{
       {id, X_WS_ad}};
   engine.UpdateWorldPoses(X_WGs);
 
@@ -4053,7 +4053,7 @@ GTEST_TEST(ProximityEngineTests, ComputePairwiseSignedDistanceAutoDiff) {
   const auto X_WS2_ad =
       RigidTransformd(p_WS).cast<AutoDiffXd>();
 
-  const unordered_map<GeometryId, RigidTransform<AutoDiffXd>> X_WGs{
+  const map<GeometryId, RigidTransform<AutoDiffXd>> X_WGs{
       {id1, X_WS1_ad}, {id2, X_WS2_ad}};
   engine.UpdateWorldPoses(X_WGs);
 
@@ -4083,7 +4083,7 @@ GTEST_TEST(ProximityEngineTests,
   engine.AddDynamicGeometry(Box(1, 2, 3), id1);
   engine.AddDynamicGeometry(Box(2, 4, 6), id2);
 
-  const unordered_map<GeometryId, RigidTransform<AutoDiffXd>> X_WGs{
+  const map<GeometryId, RigidTransform<AutoDiffXd>> X_WGs{
       {id1, RigidTransform<AutoDiffXd>::Identity()},
       {id2, RigidTransform<AutoDiffXd>::Identity()}};
   DRAKE_EXPECT_THROWS_MESSAGE(

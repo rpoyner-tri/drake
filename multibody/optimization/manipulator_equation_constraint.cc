@@ -1,6 +1,6 @@
 #include "drake/multibody/optimization/manipulator_equation_constraint.h"
 
-#include <unordered_map>
+#include <map>
 
 #include "drake/multibody/inverse_kinematics/kinematic_constraint_utilities.h"
 
@@ -207,7 +207,7 @@ ManipulatorEquationConstraint::MakeBinding(
   // We will aggregate the lambda variables for each contact wrench evaluator
   // into a vector `all_lambda`. map_lambda_id_to_index records the index of
   // a lambda variable in the vector all_lambda.
-  std::unordered_map<symbolic::Variable::Id, int> map_lambda_id_to_index;
+  std::map<symbolic::Variable::Id, int> map_lambda_id_to_index;
   int lambda_count = 0;
   for (const auto& contact_wrench_evaluator_and_lambda :
        contact_wrench_evaluators_and_lambda) {

@@ -3,7 +3,7 @@
 #include <memory>
 #include <optional>
 #include <stdexcept>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include <fmt/format.h>
@@ -214,7 +214,7 @@ class SymbolicVectorSystem final : public LeafSystem<T> {
   symbolic::Environment env_{};
   const double time_period_{0.0};
 
-  std::unordered_map<symbolic::Variable::Id, int> state_var_to_index_;
+  std::map<symbolic::Variable::Id, int> state_var_to_index_;
 
   // Storage for Jacobians (empty unless T == AutoDiffXd).
   MatrixX<symbolic::Expression> dynamics_jacobian_{};
@@ -421,7 +421,7 @@ class SymbolicVectorSystemBuilder {
   VectorX<symbolic::Expression> dynamics_{};
   VectorX<symbolic::Expression> output_{};
   double time_period_{0.0};
-  std::unordered_map<symbolic::Variable::Id, int> state_var_to_index_;
+  std::map<symbolic::Variable::Id, int> state_var_to_index_;
 };
 
 #ifndef DRAKE_DOXYGEN_CXX

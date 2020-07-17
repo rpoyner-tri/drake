@@ -13,7 +13,7 @@
 #include <string>
 #include <tuple>
 #include <type_traits>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -2556,17 +2556,17 @@ class MathematicalProgram {
    */
   const SolverOptions& solver_options() const { return solver_options_; }
 
-  const std::unordered_map<std::string, double>& GetSolverOptionsDouble(
+  const std::map<std::string, double>& GetSolverOptionsDouble(
       const SolverId& solver_id) const {
     return solver_options_.GetOptionsDouble(solver_id);
   }
 
-  const std::unordered_map<std::string, int>& GetSolverOptionsInt(
+  const std::map<std::string, int>& GetSolverOptionsInt(
       const SolverId& solver_id) const {
     return solver_options_.GetOptionsInt(solver_id);
   }
 
-  const std::unordered_map<std::string, std::string>& GetSolverOptionsStr(
+  const std::map<std::string, std::string>& GetSolverOptionsStr(
       const SolverId& solver_id) const {
     return solver_options_.GetOptionsStr(solver_id);
   }
@@ -2902,7 +2902,7 @@ class MathematicalProgram {
    * Returns the mapping from a decision variable ID to its index in the vector
    * containing all the decision variables in the mathematical program.
    */
-  const std::unordered_map<symbolic::Variable::Id, int>&
+  const std::map<symbolic::Variable::Id, int>&
   decision_variable_index() const {
     return decision_variable_index_;
   }
@@ -2911,7 +2911,7 @@ class MathematicalProgram {
    * Returns the mapping from an indeterminate ID to its index in the vector
    * containing all the indeterminates in the mathematical program.
    */
-  const std::unordered_map<symbolic::Variable::Id, int>& indeterminates_index()
+  const std::map<symbolic::Variable::Id, int>& indeterminates_index()
       const {
     return indeterminates_index_;
   }
@@ -2937,7 +2937,7 @@ class MathematicalProgram {
    *
    * See @ref variable_scaling "Variable scaling" for more information.
    */
-  const std::unordered_map<int, double>& GetVariableScaling() const {
+  const std::map<int, double>& GetVariableScaling() const {
     return var_scaling_map_;
   }
 
@@ -2957,11 +2957,11 @@ class MathematicalProgram {
 
   // maps the ID of a symbolic variable to the index of the variable stored in
   // the optimization program.
-  std::unordered_map<symbolic::Variable::Id, int> decision_variable_index_{};
+  std::map<symbolic::Variable::Id, int> decision_variable_index_{};
 
   VectorXDecisionVariable decision_variables_;
 
-  std::unordered_map<symbolic::Variable::Id, int> indeterminates_index_;
+  std::map<symbolic::Variable::Id, int> indeterminates_index_;
   VectorXIndeterminate indeterminates_;
 
   std::vector<Binding<VisualizationCallback>> visualization_callbacks_;
@@ -3211,7 +3211,7 @@ class MathematicalProgram {
       const std::string& coeff_name,
       symbolic::internal::DegreeType degree_type);
 
-  std::unordered_map<int, double> var_scaling_map_{};
+  std::map<int, double> var_scaling_map_{};
 };
 
 }  // namespace solvers

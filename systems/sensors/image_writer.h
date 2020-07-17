@@ -7,7 +7,7 @@
  automatically capture images during simulation at a fixed frequency.  */
 
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -250,8 +250,8 @@ class ImageWriter : public LeafSystem<double> {
   // invariant that port_info_.size() == num_input_ports().
   std::vector<ImagePortInfo> port_info_;
 
-  std::unordered_map<PixelType, std::string> labels_;
-  std::unordered_map<PixelType, std::string> extensions_;
+  std::map<PixelType, std::string> labels_;
+  std::map<PixelType, std::string> extensions_;
 };
 
 }  // namespace sensors

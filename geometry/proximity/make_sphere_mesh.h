@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <array>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -126,7 +126,7 @@ void SplitOctohedron(const std::array<VolumeVertexIndex, 6>& vertex_indices,
   using VIndex = VolumeVertexIndex;
 
   // Pre-computes all squared edge lengths.
-  std::unordered_map<SortedPair<VIndex>, double> square_edge_len;
+  std::map<SortedPair<VIndex>, double> square_edge_len;
   for (int i = 0; i < 6; ++i) {
     for (int j = i + 1; j < 6; ++j) {
       const VIndex a = vertex_indices[i];
@@ -224,7 +224,7 @@ void SplitOctohedron(const std::array<VolumeVertexIndex, 6>& vertex_indices,
 template <typename T>
 std::vector<VolumeElement> SplitTetrahedron(
     const VolumeElement& t,
-    std::unordered_map<SortedPair<VolumeVertexIndex>, VolumeVertexIndex>&
+    std::map<SortedPair<VolumeVertexIndex>, VolumeVertexIndex>&
         edge_map,
     const std::vector<VolumeVertex<T>>& p_MVs) {
   using Key = SortedPair<VolumeVertexIndex>;
@@ -308,7 +308,7 @@ std::pair<VolumeMesh<T>, std::vector<bool>> RefineUnitSphereMesh(
   using VIndex = VolumeVertexIndex;
   // A map from the indices of two vertices on an edge to the index of the
   // new vertex that sits in the middle of that same edge.
-  std::unordered_map<SortedPair<VIndex>, VIndex> edge_vertex_map;
+  std::map<SortedPair<VIndex>, VIndex> edge_vertex_map;
   // An enumeration of all of the edges of a tet.
   const std::vector<std::pair<int, int>> kEdges{{0, 1}, {0, 2}, {0, 3},
                                                 {1, 2}, {1, 3}, {2, 3}};
@@ -384,7 +384,7 @@ std::pair<VolumeMesh<T>, VolumeVertexIndex> RefineUnitSphereMeshOnSurface(
   using VIndex = VolumeVertexIndex;
   // A map from the indices of two vertices on an edge to the index of the
   // new vertex that sits in the middle of that same edge.
-  std::unordered_map<SortedPair<VIndex>, VIndex> edge_vertex_map;
+  std::map<SortedPair<VIndex>, VIndex> edge_vertex_map;
   // An enumeration of the edges of the tets that lie on the surface; we rely on
   // the documented behavior that the level 0 mesh has the origin as the fourth
   // vertex in each tet and preserves this property on all refined tetrahedra.

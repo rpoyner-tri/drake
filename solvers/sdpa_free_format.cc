@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <limits>
 #include <stdexcept>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include <Eigen/Core>
@@ -23,7 +23,7 @@ SdpaFreeFormat::~SdpaFreeFormat() {}
 
 void SdpaFreeFormat::DeclareXforPositiveSemidefiniteConstraints(
     const MathematicalProgram& prog,
-    std::unordered_map<symbolic::Variable::Id, std::vector<EntryInX>>*
+    std::map<symbolic::Variable::Id, std::vector<EntryInX>>*
         entries_in_X_for_same_decision_variable) {
   int num_blocks = 0;
   for (const auto& binding : prog.positive_semidefinite_constraints()) {
@@ -162,7 +162,7 @@ void SdpaFreeFormat::AddLinearEqualityConstraint(
 }
 
 void SdpaFreeFormat::AddEqualityConstraintOnXEntriesForSameDecisionVariable(
-    const std::unordered_map<symbolic::Variable::Id, std::vector<EntryInX>>&
+    const std::map<symbolic::Variable::Id, std::vector<EntryInX>>&
         entries_in_X_for_same_decision_variable) {
   for (const auto& item : entries_in_X_for_same_decision_variable) {
     const auto& Xentries = item.second;
@@ -648,7 +648,7 @@ SdpaFreeFormat::SdpaFreeFormat(const MathematicalProgram& prog) {
   for (int i = 0; i < prog.num_vars(); ++i) {
     prog_var_in_sdpa_.emplace_back(nullptr);
   }
-  std::unordered_map<symbolic::Variable::Id, std::vector<EntryInX>>
+  std::map<symbolic::Variable::Id, std::vector<EntryInX>>
       entries_in_X_for_same_decision_variable;
   DeclareXforPositiveSemidefiniteConstraints(
       prog, &entries_in_X_for_same_decision_variable);

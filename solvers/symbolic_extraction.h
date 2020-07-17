@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <string>
 #include <type_traits>
-#include <unordered_map>
+#include <map>
 #include <utility>
 
 #include "drake/common/eigen_types.h"
@@ -64,7 +64,7 @@ class SymbolicError : public std::runtime_error {
  */
 void ExtractAndAppendVariablesFromExpression(
     const symbolic::Expression& e, VectorXDecisionVariable* vars,
-    std::unordered_map<symbolic::Variable::Id, int>* map_var_to_index);
+    std::map<symbolic::Variable::Id, int>* map_var_to_index);
 
 /*
  * Given an expression `e`, extracts all variables inside `e`.
@@ -74,7 +74,7 @@ void ExtractAndAppendVariablesFromExpression(
  * pair.second[pair.first(i).get_id()] = i
  */
 std::pair<VectorXDecisionVariable,
-          std::unordered_map<symbolic::Variable::Id, int>>
+          std::map<symbolic::Variable::Id, int>>
 ExtractVariablesFromExpression(const symbolic::Expression& e);
 
 /*
@@ -92,7 +92,7 @@ ExtractVariablesFromExpression(const symbolic::Expression& e);
  */
 void DecomposeQuadraticPolynomial(
     const symbolic::Polynomial& poly,
-    const std::unordered_map<symbolic::Variable::Id, int>& map_var_to_index,
+    const std::map<symbolic::Variable::Id, int>& map_var_to_index,
     Eigen::MatrixXd* Q, Eigen::VectorXd* b, double* c);
 
 /*
@@ -137,7 +137,7 @@ typename std::enable_if<std::is_same<typename Derived::Scalar, double>::value,
                         int>::type
 DecomposeLinearExpression(
     const symbolic::Expression& e,
-    const std::unordered_map<symbolic::Variable::Id, int>& map_var_to_index,
+    const std::map<symbolic::Variable::Id, int>& map_var_to_index,
     const Eigen::MatrixBase<Derived>& coeffs, double* constant_term) {
   DRAKE_DEMAND(coeffs.rows() == 1);
   DRAKE_DEMAND(coeffs.cols() == static_cast<int>(map_var_to_index.size()));

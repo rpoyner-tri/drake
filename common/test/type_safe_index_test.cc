@@ -5,8 +5,8 @@
 #include <sstream>
 #include <string>
 #include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <utility>
 #include <vector>
 
@@ -582,9 +582,9 @@ GTEST_TEST(TypeSafeIndex, ConstructorAvailability) {
 }
 
 // Confirms that type safe indexes are configured to serve as key and/or values
-// within std::unordered_map
+// within std::map
 GTEST_TEST(TypeSafeIndex, CompatibleWithUnorderedMap) {
-  std::unordered_map<AIndex, std::string> indexes;
+  std::map<AIndex, std::string> indexes;
   AIndex a1(1), a2(2), a3(3);
   std::string s1("hello"), s2("unordered"), s3("map");
   indexes.emplace(a1, s1);
@@ -597,9 +597,9 @@ GTEST_TEST(TypeSafeIndex, CompatibleWithUnorderedMap) {
 }
 
 // Confirms that type safe indexes are configured to serve as values
-// within std::unordered_set
+// within std::set
 GTEST_TEST(TypeSafeIndex, CompatibleWithUnorderedSet) {
-  std::unordered_set<AIndex> indexes;
+  std::set<AIndex> indexes;
   AIndex a1(1), a2(2), a3(3);
 
   indexes.emplace(a1);
@@ -616,7 +616,7 @@ GTEST_TEST(TypeSafeIndex, CompatibleWithUnorderedSet) {
 GTEST_TEST(TypeSafeIndex, SortedPairIndexHashable) {
   AIndex a1(1);
   AIndex a2(2);
-  std::unordered_set<SortedPair<AIndex>> pairs;
+  std::set<SortedPair<AIndex>> pairs;
   pairs.insert({a2, a1});
   EXPECT_EQ(pairs.count(SortedPair<AIndex>(a1, a2)), 1);
 }

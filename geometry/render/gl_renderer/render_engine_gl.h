@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 #include <tuple>
-#include <unordered_map>
+#include <map>
 
 #include "drake/common/eigen_types.h"
 #include "drake/geometry/geometry_roles.h"
@@ -215,7 +215,7 @@ class RenderEngineGl final : public RenderEngine {
   internal::OpenGlGeometry box_;
 
   // Mapping from obj filename to the mesh loaded into an OpenGlGeometry.
-  std::unordered_map<std::string, internal::OpenGlGeometry> meshes_;
+  std::map<std::string, internal::OpenGlGeometry> meshes_;
 
   // These are caches of reusable RenderTargets. There is a unique render target
   // for each unique render image size (BufferDim) and output image type. They
@@ -229,7 +229,7 @@ class RenderEngineGl final : public RenderEngine {
   // Note: copies of this render engine share the same frame buffer objects.
   // This is *not* threadsafe!
   mutable std::array<
-      std::unordered_map<internal::BufferDim, internal::RenderTarget>,
+      std::map<internal::BufferDim, internal::RenderTarget>,
       kTypeCount>
       frame_buffers_;
 
@@ -238,7 +238,7 @@ class RenderEngineGl final : public RenderEngine {
   // copied render engine access to the same OpenGL objects in the OpenGL
   // context. However, each independent copy is allowed to independently
   // modify their copy of visuals_ (adding and removing geometries).
-  std::unordered_map<GeometryId, internal::OpenGlInstance> visuals_;
+  std::map<GeometryId, internal::OpenGlInstance> visuals_;
 };
 
 }  // namespace render

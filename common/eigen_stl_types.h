@@ -7,7 +7,7 @@
 
 #include <functional>
 #include <map>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -23,11 +23,11 @@ using eigen_aligned_std_map =
     std::map<Key, T, std::less<Key>,
              Eigen::aligned_allocator<std::pair<Key const, T>>>;
 
-/// A std::unordered_map that uses Eigen::aligned_allocator so that the
+/// A std::map that uses Eigen::aligned_allocator so that the
 /// contained types may be fixed-size Eigen values.
 template <typename Key, typename T>
-using eigen_aligned_std_unordered_map =
-    std::unordered_map<Key, T, std::hash<Key>, std::equal_to<Key>,
+using eigen_aligned_std_map =
+    std::map<Key, T, std::hash<Key>, std::equal_to<Key>,
                        Eigen::aligned_allocator<std::pair<Key const, T>>>;
 
 /// A std::vector that uses Eigen::aligned_allocator so that the contained

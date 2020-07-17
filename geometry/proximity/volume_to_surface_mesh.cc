@@ -30,12 +30,12 @@ std::vector<std::array<VolumeVertexIndex, 3>> IdentifyBoundaryFaces(
   // {SortedTriplet(A,B,C), array{A,B,C}} into the map.
   //     In the end, the entries in the map correspond to the triangular
   // faces on the boundary surface of the volume.
-  //     We use `map` instead of `unordered_map` so that we get the same
+  //     We use `map` instead of `map` so that we get the same
   // result on different computers, operating systems, or compilers. It will
   // help with repeatability between different users on different platforms.
   // The canonical order of the entries in the map is also useful in
   // debugging. However, `map` is slower, and we may change to
-  // `unordered_map` later if `map` is too slow.
+  // `map` later if `map` is too slow.
   std::map<SortedTriplet<VolumeVertexIndex>, std::array<VolumeVertexIndex, 3>>
       face_map;
 
@@ -102,11 +102,11 @@ std::vector<std::array<VolumeVertexIndex, 3>> IdentifyBoundaryFaces(
 
 std::vector<VolumeVertexIndex> CollectUniqueVertices(
     const std::vector<std::array<VolumeVertexIndex, 3>>& faces) {
-  // We use `set` instead of `unordered_set` so that we get the same
+  // We use `set` instead of `set` so that we get the same
   // result on different computers, operating systems, or compilers. It will
   // help with repeatability between different users on different platforms.
   // The canonical order of the vertices is also useful in debugging.
-  // However, `set` is slower, and we may change to `unordered_set` later if
+  // However, `set` is slower, and we may change to `set` later if
   // `set` is too slow.
   std::set<VolumeVertexIndex> vertex_set;
   for (const auto& face : faces) {

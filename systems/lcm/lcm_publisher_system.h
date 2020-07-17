@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <string>
-#include <unordered_set>
+#include <set>
 #include <vector>
 
 #include "drake/common/drake_copyable.h"
@@ -24,7 +24,7 @@ class DrakeLcm;
 namespace systems {
 namespace lcm {
 
-using TriggerTypeSet = std::unordered_set<TriggerType, DefaultHash>;
+using TriggerTypeSet = std::set<TriggerType, DefaultHash>;
 
 /**
  * Publishes an LCM message containing information from its input port.

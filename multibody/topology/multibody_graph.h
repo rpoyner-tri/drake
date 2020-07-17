@@ -2,7 +2,7 @@
 
 #include <set>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include "drake/common/drake_copyable.h"
@@ -205,13 +205,13 @@ class MultibodyGraph {
   std::vector<Body> bodies_;
   std::vector<Joint> joints_;
 
-  std::unordered_map<std::string, JointTypeIndex> joint_type_name_to_index_;
+  std::map<std::string, JointTypeIndex> joint_type_name_to_index_;
 
   // The xxx_name_to_index_ structures are multimaps because
   // bodies/joints/actuators/etc may appear with the same name in different
   // model instances. The index values are still unique across the graph.
-  std::unordered_multimap<std::string, BodyIndex> body_name_to_index_;
-  std::unordered_multimap<std::string, JointIndex> joint_name_to_index_;
+  std::multimap<std::string, BodyIndex> body_name_to_index_;
+  std::multimap<std::string, JointIndex> joint_name_to_index_;
 };
 
 class MultibodyGraph::Body {

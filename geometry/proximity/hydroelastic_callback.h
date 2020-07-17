@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -52,7 +52,7 @@ struct CallbackData {
    @param surfaces_in             The output results. Aliased.  */
   CallbackData(
       const CollisionFilterLegacy* collision_filter_in,
-      const std::unordered_map<GeometryId, math::RigidTransform<T>>* X_WGs_in,
+      const std::map<GeometryId, math::RigidTransform<T>>* X_WGs_in,
       const Geometries* geometries_in,
       std::vector<ContactSurface<T>>* surfaces_in)
       : collision_filter(*collision_filter_in),
@@ -69,7 +69,7 @@ struct CallbackData {
   const CollisionFilterLegacy& collision_filter;
 
   /* The T-valued poses of all geometries.  */
-  const std::unordered_map<GeometryId, math::RigidTransform<T>>& X_WGs;
+  const std::map<GeometryId, math::RigidTransform<T>>& X_WGs;
 
   /* The hydroelastic geometric representations.  */
   const Geometries& geometries;

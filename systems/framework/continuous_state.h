@@ -3,7 +3,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <unordered_set>
+#include <set>
 #include <utility>
 
 #include "drake/common/default_scalars.h"
@@ -291,7 +291,7 @@ class ContinuousState {
     DRAKE_DEMAND(state_->size() == num_total);
 
     // The storage addresses of `state_` elements contain no duplicates.
-    std::unordered_set<const T*> state_element_pointers;
+    std::set<const T*> state_element_pointers;
     for (int i = 0; i < num_total; ++i) {
       const T* element = &(state_->GetAtIndex(i));
       state_element_pointers.emplace(element);
@@ -302,7 +302,7 @@ class ContinuousState {
     // are drawn from the set of storage addresses of `state_` elements.
     // Therefore, the `state_` vector and (q, v, z) vectors form views into the
     // same unique underlying data, just with different indexing.
-    std::unordered_set<const T*> qvz_element_pointers;
+    std::set<const T*> qvz_element_pointers;
     for (int i = 0; i < num_q(); ++i) {
       const T* element = &(generalized_position_->GetAtIndex(i));
       qvz_element_pointers.emplace(element);

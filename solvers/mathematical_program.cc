@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <string>
 #include <type_traits>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -41,7 +41,7 @@ using std::set;
 using std::shared_ptr;
 using std::string;
 using std::to_string;
-using std::unordered_map;
+using std::map;
 using std::vector;
 
 using symbolic::Expression;

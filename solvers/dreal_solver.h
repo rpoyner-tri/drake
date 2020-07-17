@@ -2,7 +2,7 @@
 
 #include <optional>
 #include <string>
-#include <unordered_map>
+#include <map>
 
 #include "drake/common/drake_copyable.h"
 #include "drake/common/hash.h"
@@ -44,7 +44,7 @@ class DrealSolver final : public SolverBase {
     double high_{};
   };
 
-  using IntervalBox = std::unordered_map<symbolic::Variable, Interval>;
+  using IntervalBox = std::map<symbolic::Variable, Interval>;
 
   /// Indicates whether to use dReal's --local-optimization option or not.
   enum class LocalOptimization {

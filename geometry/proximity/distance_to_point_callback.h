@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <limits>
 #include <tuple>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include <fcl/fcl.h>
@@ -51,7 +51,7 @@ struct CallbackData {
       fcl::CollisionObjectd* query_in,
       const double threshold_in,
       const Vector3<T>& p_WQ_W_in,
-      const std::unordered_map<GeometryId, math::RigidTransform<T>>* X_WGs_in,
+      const std::map<GeometryId, math::RigidTransform<T>>* X_WGs_in,
       std::vector<SignedDistanceToPoint<T>>* distances_in)
       : query_point(*query_in),
         threshold(threshold_in),
@@ -73,7 +73,7 @@ struct CallbackData {
   const Vector3<T> p_WQ_W;
 
   /* The T-valued pose of every geometry.  */
-  const std::unordered_map<GeometryId, math::RigidTransform<T>>& X_WGs;
+  const std::map<GeometryId, math::RigidTransform<T>>& X_WGs;
 
   /* The accumulator for results.  */
   std::vector<SignedDistanceToPoint<T>>& distances;

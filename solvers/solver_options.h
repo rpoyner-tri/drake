@@ -2,8 +2,8 @@
 
 #include <ostream>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <variant>
 
 #include "drake/common/drake_assert.h"
@@ -65,27 +65,27 @@ class SolverOptions {
   void SetOption(CommonSolverOption key,
                  const std::variant<double, int, std::string>& value);
 
-  const std::unordered_map<std::string, double>& GetOptionsDouble(
+  const std::map<std::string, double>& GetOptionsDouble(
       const SolverId& solver_id) const;
 
-  const std::unordered_map<std::string, int>& GetOptionsInt(
+  const std::map<std::string, int>& GetOptionsInt(
       const SolverId& solver_id) const;
 
-  const std::unordered_map<std::string, std::string>& GetOptionsStr(
+  const std::map<std::string, std::string>& GetOptionsStr(
       const SolverId& solver_id) const;
 
   /**
    * Gets the common options for all solvers. Refer to CommonSolverOption for
    * more details.
    */
-  const std::unordered_map<CommonSolverOption,
+  const std::map<CommonSolverOption,
                            std::variant<double, int, std::string>>&
   common_solver_options() const {
     return common_solver_options_;
   }
 
   template <typename T>
-  const std::unordered_map<std::string, T>& GetOptions(
+  const std::map<std::string, T>& GetOptions(
       const SolverId& solver_id) const {
     if constexpr (std::is_same_v<T, double>) {
       return GetOptionsDouble(solver_id);
@@ -98,7 +98,7 @@ class SolverOptions {
   }
 
   /** Returns the IDs that have any option set. */
-  std::unordered_set<SolverId> GetSolverIds() const;
+  std::set<SolverId> GetSolverIds() const;
 
   /**
    * Merges the other solver options into this. If `other` and `this` option
@@ -131,19 +131,19 @@ class SolverOptions {
    */
   void CheckOptionKeysForSolver(
       const SolverId& solver_id,
-      const std::unordered_set<std::string>& allowable_double_keys,
-      const std::unordered_set<std::string>& allowable_int_keys,
-      const std::unordered_set<std::string>& allowable_str_keys) const;
+      const std::set<std::string>& allowable_double_keys,
+      const std::set<std::string>& allowable_int_keys,
+      const std::set<std::string>& allowable_str_keys) const;
 
  private:
-  std::unordered_map<SolverId, std::unordered_map<std::string, double>>
+  std::map<SolverId, std::map<std::string, double>>
       solver_options_double_{};
-  std::unordered_map<SolverId, std::unordered_map<std::string, int>>
+  std::map<SolverId, std::map<std::string, int>>
       solver_options_int_{};
-  std::unordered_map<SolverId, std::unordered_map<std::string, std::string>>
+  std::map<SolverId, std::map<std::string, std::string>>
       solver_options_str_{};
 
-  std::unordered_map<CommonSolverOption, std::variant<double, int, std::string>>
+  std::map<CommonSolverOption, std::variant<double, int, std::string>>
       common_solver_options_{};
 };
 

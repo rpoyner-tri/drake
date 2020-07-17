@@ -1,7 +1,7 @@
 #pragma once
 
 #include <initializer_list>
-#include <unordered_set>
+#include <set>
 #include <vector>
 
 #include "drake/common/drake_copyable.h"
@@ -83,7 +83,7 @@ class GeometrySet {
    // respectively.
    std::vector<GeometryId> g_vector{g_0, g_1, g_2};
    std::set<GeometryId> g_set{g_3, g_4, g_5};
-   std::unordered_set<FrameId> f_set{f_0, f_1};
+   std::set<FrameId> f_set{f_0, f_1};
    auto f_list = {f_2, f_3, f_4};
 
    GeometrySet(g_0);
@@ -251,14 +251,14 @@ class GeometrySet {
   friend class GeometryState;
 
   // Returns the frame ids in the set.
-  const std::unordered_set<FrameId> frames() const { return frames_; }
+  const std::set<FrameId> frames() const { return frames_; }
 
   // Reports the number of frames in the set.
   int num_frames() const { return static_cast<int>(frames_.size()); }
 
   // Returns the geometry ids in the set -- these are only the geometry ids
   // explicitly added to the set and _not_ those implied by added frames.
-  const std::unordered_set<GeometryId> geometries() const {
+  const std::set<GeometryId> geometries() const {
     return geometries_;
   }
 
@@ -279,8 +279,8 @@ class GeometrySet {
     return geometries_.count(geometry_id) > 0;
   }
 
-  std::unordered_set<FrameId> frames_;
-  std::unordered_set<GeometryId> geometries_;
+  std::set<FrameId> frames_;
+  std::set<GeometryId> geometries_;
 };
 
 }  // namespace geometry

@@ -3,7 +3,7 @@
 #include <functional>
 #include <memory>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include "drake/common/default_scalars.h"
@@ -59,7 +59,7 @@ class ContactResultsToLcmSystem final : public systems::LeafSystem<T> {
   systems::OutputPortIndex message_output_port_index_;
 
   // A mapping from geometry IDs to body indices.
-  std::unordered_map<geometry::GeometryId, std::string>
+  std::map<geometry::GeometryId, std::string>
       geometry_id_to_body_name_map_;
 
   // A mapping from body index values to body names.

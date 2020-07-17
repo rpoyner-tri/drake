@@ -4,7 +4,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <utility>
 
 #include "drake/common/eigen_types.h"
@@ -23,7 +23,7 @@ using std::ostringstream;
 using std::pair;
 using std::runtime_error;
 using std::string;
-using std::unordered_map;
+using std::map;
 
 using symbolic::Expression;
 using symbolic::Formula;
@@ -50,7 +50,7 @@ SymbolicError::SymbolicError(const symbolic::Expression& e, double lb,
 
 void ExtractAndAppendVariablesFromExpression(
     const Expression& e, VectorXDecisionVariable* vars,
-    unordered_map<Variable::Id, int>* map_var_to_index) {
+    map<Variable::Id, int>* map_var_to_index) {
   DRAKE_DEMAND(static_cast<int>(map_var_to_index->size()) == vars->size());
   for (const Variable& var : e.GetVariables()) {
     if (map_var_to_index->find(var.get_id()) == map_var_to_index->end()) {
@@ -64,7 +64,7 @@ void DecomposeLinearExpression(const Eigen::Ref<const VectorX<Expression>>& v,
                                Eigen::MatrixXd* A, Eigen::VectorXd* b,
                                VectorXDecisionVariable* vars) {
   // 0. Setup map_var_to_index and var_vec.
-  unordered_map<Variable::Id, int> map_var_to_index;
+  map<Variable::Id, int> map_var_to_index;
   for (int i = 0; i < v.size(); ++i) {
     ExtractAndAppendVariablesFromExpression(v(i), vars, &map_var_to_index);
   }
@@ -79,12 +79,12 @@ void DecomposeLinearExpression(const Eigen::Ref<const VectorX<Expression>>& v,
   }
 }
 
-pair<VectorXDecisionVariable, unordered_map<Variable::Id, int>>
+pair<VectorXDecisionVariable, map<Variable::Id, int>>
 ExtractVariablesFromExpression(const Expression& e) {
   int var_count = 0;
   const symbolic::Variables var_set = e.GetVariables();
   VectorXDecisionVariable vars(var_set.size());
-  unordered_map<Variable::Id, int> map_var_to_index{};
+  map<Variable::Id, int> map_var_to_index{};
   map_var_to_index.reserve(var_set.size());
   for (const Variable& var : var_set) {
     map_var_to_index.emplace(var.get_id(), var_count);
@@ -95,7 +95,7 @@ ExtractVariablesFromExpression(const Expression& e) {
 
 void DecomposeQuadraticPolynomial(
     const symbolic::Polynomial& poly,
-    const unordered_map<Variable::Id, int>& map_var_to_index,
+    const map<Variable::Id, int>& map_var_to_index,
     Eigen::MatrixXd* Q, Eigen::VectorXd* b, double* c) {
   const int num_variables = map_var_to_index.size();
   DRAKE_DEMAND(Q->rows() == num_variables);

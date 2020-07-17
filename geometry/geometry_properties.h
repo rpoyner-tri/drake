@@ -4,7 +4,7 @@
 #include <memory>
 #include <set>
 #include <string>
-#include <unordered_map>
+#include <map>
 
 #include "fmt/ostream.h"
 #include <Eigen/Dense>
@@ -227,7 +227,7 @@ class GeometryProperties {
 
   /** The properties for a single group as a property name-value map.  */
   using Group =
-      std::unordered_map<std::string, copyable_unique_ptr<AbstractValue>>;
+      std::map<std::string, copyable_unique_ptr<AbstractValue>>;
 
   /** Reports if the given named group is part of this property set.  */
   bool HasGroup(const std::string& group_name) const {
@@ -455,7 +455,7 @@ class GeometryProperties {
       const std::function<void(const Group&)>& throw_if_invalid);
 
   // The collection of property groups.
-  std::unordered_map<std::string, Group> values_;
+  std::map<std::string, Group> values_;
 
   // Return value or nullptr if it does not exist.
   // If `throw_for_bad_group` is true, an error will be thrown if `group_name`

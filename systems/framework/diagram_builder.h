@@ -7,7 +7,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include <unordered_set>
+#include <set>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -351,7 +351,7 @@ class DiagramBuilder {
 
   // A mirror on the systems in the diagram. Should have the same values as
   // registered_systems_. Used for fast membership queries.
-  std::unordered_set<const System<T>*> systems_;
+  std::set<const System<T>*> systems_;
   // The Systems in this DiagramBuilder, in the order they were registered.
   internal::OwnedSystems<T> registered_systems_;
 

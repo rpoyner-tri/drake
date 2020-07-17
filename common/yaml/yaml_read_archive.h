@@ -6,8 +6,8 @@
 #include <optional>
 #include <ostream>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -240,9 +240,9 @@ class YamlReadArchive final {
     this->VisitMap<K, V>(nvp);
   }
 
-  // For std::unordered_map.
+  // For std::map.
   template <typename NVP, typename K, typename V, typename H, typename E>
-  void DoVisit(const NVP& nvp, const std::unordered_map<K, V, H, E>&, int32_t) {
+  void DoVisit(const NVP& nvp, const std::map<K, V, H, E>&, int32_t) {
     this->VisitMap<K, V>(nvp);
   }
 
@@ -547,7 +547,7 @@ class YamlReadArchive final {
 
   // The set of NameValue::name keys that have been Visited by the current
   // Serializable's Accept method so far.
-  std::unordered_set<std::string> visited_names_;
+  std::set<std::string> visited_names_;
 
   // These are only used for error messages.  The two `debug_...` members are
   // non-nullptr only during Visit()'s lifetime.

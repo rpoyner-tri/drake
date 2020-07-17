@@ -523,7 +523,7 @@ void TestScalarShapeSupport() {
   std::vector<SignedDistanceToPoint<T>> distances;
   double threshold = std::numeric_limits<double>::max();
   const GeometryId other_id = GeometryId::get_new_id();
-  std::unordered_map<GeometryId, RigidTransform<T>> X_WGs{
+  std::map<GeometryId, RigidTransform<T>> X_WGs{
       {point_id, X_WQ}, {other_id, RigidTransform<T>::Identity()}};
   CallbackData<T> data{&query_point, threshold, p_WQ, &X_WGs, &distances};
 

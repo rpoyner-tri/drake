@@ -1,7 +1,7 @@
 #include "drake/geometry/proximity/hydroelastic_callback.h"
 
 #include <memory>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -26,7 +26,7 @@ using math::RigidTransform;
 using std::make_shared;
 using std::make_unique;
 using std::unique_ptr;
-using std::unordered_map;
+using std::map;
 using std::vector;
 
 // Creates proximity properties sufficient to create a rigid representation
@@ -74,7 +74,7 @@ GTEST_TEST(HydroelasticCallbackAutodiff, AutoDiffBlanketFailure) {
   CollisionFilterLegacy collision_filter;
   collision_filter.AddGeometry(data_A.encoding());
   collision_filter.AddGeometry(data_B.encoding());
-  unordered_map<GeometryId, RigidTransform<AutoDiffXd>> X_WGs{
+  map<GeometryId, RigidTransform<AutoDiffXd>> X_WGs{
       {id_A, RigidTransform<AutoDiffXd>::Identity()},
       {id_B, RigidTransform<AutoDiffXd>(
                  Vector3<AutoDiffXd>{0, 0, 0.9 * (radius + cube_size / 2)})}};
@@ -261,7 +261,7 @@ class TestScene {
  private:
   Geometries hydroelastic_geometries_;
   CollisionFilterLegacy collision_filter_;
-  unordered_map<GeometryId, RigidTransform<T>> X_WGs_;
+  map<GeometryId, RigidTransform<T>> X_WGs_;
   GeometryId id_A_{};
   GeometryId id_B_{};
   static constexpr double kRadius{0.25};

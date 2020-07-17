@@ -353,7 +353,7 @@ struct hash<drake::symbolic::Polynomial> : public drake::DefaultHash {};
 #if defined(__GLIBCXX__)
 // Inform GCC that this hash function is not so fast (i.e. for-loop inside).
 // This will enforce caching of hash results. See
-// https://gcc.gnu.org/onlinedocs/libstdc++/manual/unordered_associative.html
+// https://gcc.gnu.org/onlinedocs/libstdc++/manual/associative.html
 // for details.
 template <>
 struct __is_fast_hash<hash<drake::symbolic::Polynomial>> : std::false_type {};

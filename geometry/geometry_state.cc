@@ -68,7 +68,7 @@ std::string get_missing_id_message(const Key& key) {
 // The look up and error-throwing method for const values.
 template <class Key, class Value>
 const Value& GetValueOrThrow(const Key& key,
-                             const std::unordered_map<Key, Value>& map) {
+                             const std::map<Key, Value>& map) {
   auto itr = map.find(key);
   if (itr != map.end()) {
     return itr->second;
@@ -79,7 +79,7 @@ const Value& GetValueOrThrow(const Key& key,
 // The look up and error-throwing method for mutable values.
 template <class Key, class Value>
 Value& GetMutableValueOrThrow(const Key& key,
-                              std::unordered_map<Key, Value>* map) {
+                              std::map<Key, Value>* map) {
   auto itr = map->find(key);
   if (itr != map->end()) {
     return itr->second;
@@ -894,8 +894,8 @@ void GeometryState<T>::ExcludeCollisionsWithin(const GeometrySet& set) {
     return;
   }
 
-  std::unordered_set<GeometryId> dynamic;
-  std::unordered_set<GeometryId> anchored;
+  std::set<GeometryId> dynamic;
+  std::set<GeometryId> anchored;
   CollectIds(set, &dynamic, &anchored);
 
   geometry_engine_->ExcludeCollisionsWithin(dynamic, anchored);
@@ -904,11 +904,11 @@ void GeometryState<T>::ExcludeCollisionsWithin(const GeometrySet& set) {
 template <typename T>
 void GeometryState<T>::ExcludeCollisionsBetween(const GeometrySet& setA,
                                                 const GeometrySet& setB) {
-  std::unordered_set<GeometryId> dynamic1;
-  std::unordered_set<GeometryId> anchored1;
+  std::set<GeometryId> dynamic1;
+  std::set<GeometryId> anchored1;
   CollectIds(setA, &dynamic1, &anchored1);
-  std::unordered_set<GeometryId> dynamic2;
-  std::unordered_set<GeometryId> anchored2;
+  std::set<GeometryId> dynamic2;
+  std::set<GeometryId> anchored2;
   CollectIds(setB, &dynamic2, &anchored2);
   geometry_engine_->ExcludeCollisionsBetween(dynamic1, anchored1, dynamic2,
                                              anchored2);
@@ -1036,11 +1036,11 @@ std::unique_ptr<GeometryState<AutoDiffXd>> GeometryState<T>::ToAutoDiffXd()
 
 template <typename T>
 void GeometryState<T>::CollectIds(
-    const GeometrySet& geometry_set, std::unordered_set<GeometryId>* dynamic,
-    std::unordered_set<GeometryId>* anchored) {
+    const GeometrySet& geometry_set, std::set<GeometryId>* dynamic,
+    std::set<GeometryId>* anchored) {
   // TODO(SeanCurtis-TRI): Consider expanding this to include Role if it proves
   // that collecting ids for *other* role-related tasks prove necessary.
-  std::unordered_set<GeometryId>* target;
+  std::set<GeometryId>* target;
   for (auto frame_id : geometry_set.frames()) {
     const auto& frame = GetValueOrThrow(frame_id, frames_);
     target = frame.is_world() ? anchored : dynamic;

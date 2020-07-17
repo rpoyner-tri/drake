@@ -4,7 +4,7 @@
 #include <sstream>
 #include <typeindex>
 #include <typeinfo>
-#include <unordered_map>
+#include <map>
 #include <utility>
 
 #include "drake/common/autodiff.h"
@@ -156,7 +156,7 @@ class SystemScalarConverter {
   // Like ConverterFunc, but with the args and return value decayed into void*.
   using ErasedConverterFunc = std::function<void*(const void*)>;
 
-  // A pair of types {T, U}, usable as an unordered_map key.
+  // A pair of types {T, U}, usable as an map key.
   struct Key : std::pair<std::type_index, std::type_index> {
     Key(const std::type_info&, const std::type_info&);
   };
@@ -179,7 +179,7 @@ class SystemScalarConverter {
       const ErasedConverterFunc&);
 
   // Maps from {T, U} to the function that converts from U into T.
-  std::unordered_map<Key, ErasedConverterFunc, KeyHasher> funcs_;
+  std::map<Key, ErasedConverterFunc, KeyHasher> funcs_;
 };
 
 #if !defined(DRAKE_DOXYGEN_CXX)

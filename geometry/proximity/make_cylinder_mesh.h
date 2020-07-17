@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <limits>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -120,7 +120,7 @@ VolumeVertexIndex CreateNewVertex(
     VolumeVertexIndex a, VolumeVertexIndex b,
     std::vector<VolumeVertex<T>>* split_mesh_vertices_ptr,
     std::vector<CylinderVertexType>* split_vertex_type_ptr,
-    std::unordered_map<SortedPair<VolumeVertexIndex>, VolumeVertexIndex>*
+    std::map<SortedPair<VolumeVertexIndex>, VolumeVertexIndex>*
         vertex_map_ptr,
     const double radius) {
   DRAKE_DEMAND(split_mesh_vertices_ptr != nullptr);
@@ -129,7 +129,7 @@ VolumeVertexIndex CreateNewVertex(
 
   std::vector<VolumeVertex<T>>& split_mesh_vertices = *split_mesh_vertices_ptr;
   std::vector<CylinderVertexType>& split_vertex_type = *split_vertex_type_ptr;
-  std::unordered_map<SortedPair<VolumeVertexIndex>, VolumeVertexIndex>&
+  std::map<SortedPair<VolumeVertexIndex>, VolumeVertexIndex>&
       vertex_map = *vertex_map_ptr;
 
   const CylinderVertexType p_vertex_type =
@@ -170,7 +170,7 @@ void RefineCylinderTetrahdron(
     std::vector<VolumeVertex<T>>* split_mesh_vertices_ptr,
     std::vector<VolumeElement>* split_mesh_tetrahedra_ptr,
     std::vector<CylinderVertexType>* split_vertex_type_ptr,
-    std::unordered_map<SortedPair<VolumeVertexIndex>, VolumeVertexIndex>*
+    std::map<SortedPair<VolumeVertexIndex>, VolumeVertexIndex>*
         vertex_map_ptr,
     const double radius) {
   DRAKE_DEMAND(split_mesh_vertices_ptr != nullptr);
@@ -182,7 +182,7 @@ void RefineCylinderTetrahdron(
   std::vector<CylinderVertexType>& split_vertex_type = *split_vertex_type_ptr;
   std::vector<VolumeElement>& split_mesh_tetrahedra =
       *split_mesh_tetrahedra_ptr;
-  std::unordered_map<SortedPair<VolumeVertexIndex>, VolumeVertexIndex>&
+  std::map<SortedPair<VolumeVertexIndex>, VolumeVertexIndex>&
       vertex_map = *vertex_map_ptr;
 
   // Index a corresponds to vertex A, index b to vertex B, etc.
@@ -196,7 +196,7 @@ void RefineCylinderTetrahdron(
   // vertices a and b. Once one tet generates this vertex, we do not want
   // another tet that shares the common vertices a and b to duplicate the
   // vertex e. Therefore, we store the index of e in split_mesh_vertices
-  // in the unordered_map "vertex_map". The key for a vertex in this map
+  // in the map "vertex_map". The key for a vertex in this map
   // is a std::pair of the indices of its parents. The hash for this map is
   // commutative, that is the key (a,b) hashes to the same index as the key
   // (b,a) and returns true when checking for equivalence of the keys.
@@ -265,7 +265,7 @@ std::pair<VolumeMesh<T>, std::vector<CylinderVertexType>> RefineCylinderMesh(
 
   // A map from two parent vertices in the original mesh to the new vertex in
   // the refined mesh.
-  std::unordered_map<SortedPair<VolumeVertexIndex>, VolumeVertexIndex>
+  std::map<SortedPair<VolumeVertexIndex>, VolumeVertexIndex>
       vertex_map(6 * mesh.num_elements());
 
   for (const auto& t : mesh.tetrahedra()) {

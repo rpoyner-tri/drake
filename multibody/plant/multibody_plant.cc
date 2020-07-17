@@ -510,9 +510,9 @@ std::vector<const Body<T>*> MultibodyPlant<T>::GetBodiesWeldedTo(
 }
 
 template <typename T>
-std::unordered_set<BodyIndex> MultibodyPlant<T>::GetFloatingBaseBodies() const {
+std::set<BodyIndex> MultibodyPlant<T>::GetFloatingBaseBodies() const {
   DRAKE_MBP_THROW_IF_NOT_FINALIZED();
-  std::unordered_set<BodyIndex> floating_bodies;
+  std::set<BodyIndex> floating_bodies;
   for (BodyIndex body_index(0); body_index < num_bodies(); ++body_index) {
     const Body<T>& body = get_body(body_index);
     if (body.is_floating()) floating_bodies.insert(body.index());

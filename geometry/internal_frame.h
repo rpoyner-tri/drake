@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <unordered_set>
+#include <set>
 
 #include "drake/common/drake_copyable.h"
 #include "drake/geometry/geometry_ids.h"
@@ -97,14 +97,14 @@ class InternalFrame {
 
   /* Returns a list of ids of the frames that have *this* frame as a parent
    frame.  */
-  const std::unordered_set<FrameId>& child_frames() const {
+  const std::set<FrameId>& child_frames() const {
     return child_frames_;
   }
 
   /* Returns a list of ids of the geometries that are *directly* attached to
    this frame. It does *not* include geometries that are attached to child
    frames of this frame.  */
-  const std::unordered_set<GeometryId>& child_geometries() const {
+  const std::set<GeometryId>& child_geometries() const {
     return child_geometries_;
   }
 
@@ -199,13 +199,13 @@ class InternalFrame {
   FrameId parent_id_;
 
   // The identifiers of the frames, who have this frame as parent.
-  std::unordered_set<FrameId> child_frames_;
+  std::set<FrameId> child_frames_;
 
   // The identifiers for the geometries that are rigidly affixed to this frame.
   // This includes geometries that were hung directly on the frame and those
   // that were hung on geometries that were already rigidly affixed.
   // It does *not* include geometries hung on child frames.
-  std::unordered_set<GeometryId> child_geometries_;
+  std::set<GeometryId> child_geometries_;
 };
 
 }  // namespace internal

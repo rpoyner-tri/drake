@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include <Eigen/Dense>
@@ -54,7 +54,7 @@ class FclModel : public Model {
 
  private:
   fcl::DynamicAABBTreeCollisionManager<double> broadphase_manager_;
-  std::unordered_map<ElementId, std::unique_ptr<fcl::CollisionObject<double>>>
+  std::map<ElementId, std::unique_ptr<fcl::CollisionObject<double>>>
       fcl_collision_objects_;
 };
 

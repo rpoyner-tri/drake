@@ -3,20 +3,20 @@
 #include <ostream>
 #include <sstream>
 #include <stdexcept>
-#include <unordered_map>
+#include <map>
 
 namespace drake {
 namespace solvers {
 using std::ostringstream;
 using std::runtime_error;
-using std::unordered_map;
+using std::map;
 
 using symbolic::Expression;
 using symbolic::Monomial;
 using symbolic::Variable;
 using symbolic::Variables;
 
-using MapVarToIndex = unordered_map<Variable::Id, int>;
+using MapVarToIndex = map<Variable::Id, int>;
 
 /*
  * Returns the map that maps x(i).get_id() to i.

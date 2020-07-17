@@ -3,7 +3,7 @@
 #include <array>
 #include <memory>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include <vtkActor.h>
@@ -154,7 +154,7 @@ class RenderEngineVtk : public RenderEngine,
   /** Returns all actors registered with the engine, keyed by the SceneGraph
    GeometryId. Each GeometryId maps to a triple of actors: color, depth, and
    label. */
-  const std::unordered_map<GeometryId,
+  const std::map<GeometryId,
                            std::array<vtkSmartPointer<vtkActor>, 3>>&
   actors() const {
     return actors_;
@@ -271,7 +271,7 @@ class RenderEngineVtk : public RenderEngine,
 
   // The collection of per-geometry actors (one actor per pipeline (color,
   // depth, and label) keyed by the geometry's GeometryId.
-  std::unordered_map<GeometryId, std::array<vtkSmartPointer<vtkActor>, 3>>
+  std::map<GeometryId, std::array<vtkSmartPointer<vtkActor>, 3>>
       actors_;
 };
 

@@ -8,8 +8,8 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <utility>
 #include <vector>
 
@@ -30,8 +30,8 @@ using std::pair;
 using std::runtime_error;
 using std::set;
 using std::string;
-using std::unordered_map;
-using std::unordered_set;
+using std::map;
+using std::set;
 using std::vector;
 
 namespace drake {
@@ -821,7 +821,7 @@ TEST_F(SymbolicExpressionTest, HashBinary) {
 
   // e1, ..., e8 share the same sub-expressions, but their hash values should be
   // distinct.
-  unordered_set<size_t> hash_set;
+  set<size_t> hash_set;
   const vector<Expression> exprs{e1, e2, e3, e4, e5, e6, e7, e8};
   for (auto const& e : exprs) {
     hash_set.insert(get_std_hash(e));
@@ -848,7 +848,7 @@ TEST_F(SymbolicExpressionTest, HashUnary) {
 
   // e0, ..., e14 share the same sub-expression, but their hash values should be
   // distinct.
-  unordered_set<size_t> hash_set;
+  set<size_t> hash_set;
   const vector<Expression> exprs{e0, e1, e2,  e3,  e4,  e5,  e6, e7,
                                  e8, e9, e10, e11, e12, e13, e14};
   for (auto const& e : exprs) {
@@ -1193,17 +1193,17 @@ TEST_F(SymbolicExpressionTest, Div4) {
 }
 
 // This test checks whether symbolic::Expression is compatible with
-// std::unordered_set.
+// std::set.
 GTEST_TEST(ExpressionTest, CompatibleWithUnorderedSet) {
-  unordered_set<Expression> uset;
+  set<Expression> uset;
   uset.emplace(Expression{Variable{"a"}});
   uset.emplace(Expression{Variable{"b"}});
 }
 
 // This test checks whether symbolic::Expression is compatible with
-// std::unordered_map.
+// std::map.
 GTEST_TEST(ExpressionTest, CompatibleWithUnorderedMap) {
-  unordered_map<Expression, Expression> umap;
+  map<Expression, Expression> umap;
   umap.emplace(Expression{Variable{"a"}}, Expression{Variable{"b"}});
 }
 

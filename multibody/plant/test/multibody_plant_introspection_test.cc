@@ -90,22 +90,22 @@ GTEST_TEST(MultibodyPlantIntrospection, FloatingBodies) {
   EXPECT_FALSE(plant.GetBodyByName("link", robot_table_model).is_floating());
 
   // Retrieve floating bodies.
-  std::unordered_set<BodyIndex> expected_floating_bodies(
+  std::set<BodyIndex> expected_floating_bodies(
       {pelvis1.index(), pelvis2.index(), mug.index()});
   auto floating_bodies = plant.GetFloatingBaseBodies();
   EXPECT_EQ(expected_floating_bodies, floating_bodies);
 
   // Verify state indexes for free bodies.
-  const std::unordered_set<int> expected_floating_positions_start({0, 7, 14});
-  const std::unordered_set<int> floating_positions_start(
+  const std::set<int> expected_floating_positions_start({0, 7, 14});
+  const std::set<int> floating_positions_start(
       {pelvis1.floating_positions_start(), pelvis2.floating_positions_start(),
        mug.floating_positions_start()});
   EXPECT_EQ(floating_positions_start, expected_floating_positions_start);
 
   const int nq = plant.num_positions();
-  const std::unordered_set<int> expected_floating_velocities_start(
+  const std::set<int> expected_floating_velocities_start(
       {nq, nq + 6, nq + 12});
-  const std::unordered_set<int> floating_velocities_start(
+  const std::set<int> floating_velocities_start(
       {pelvis1.floating_velocities_start(), pelvis2.floating_velocities_start(),
        mug.floating_velocities_start()});
   EXPECT_EQ(floating_velocities_start, expected_floating_velocities_start);

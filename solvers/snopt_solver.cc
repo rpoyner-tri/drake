@@ -11,7 +11,7 @@
 #include <memory>
 #include <optional>
 #include <set>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -592,7 +592,7 @@ template <typename C>
 void UpdateNumNonlinearConstraintsAndGradients(
     const std::vector<Binding<C>>& constraint_list,
     int* num_nonlinear_constraints, int* max_num_gradients,
-    std::unordered_map<Binding<Constraint>, int>* constraint_dual_start_index) {
+    std::map<Binding<Constraint>, int>* constraint_dual_start_index) {
   for (auto const& binding : constraint_list) {
     auto const& c = binding.evaluator();
     int n = c->num_constraints();
@@ -620,7 +620,7 @@ void UpdateNumNonlinearConstraintsAndGradients<LinearComplementarityConstraint>(
     const std::vector<Binding<LinearComplementarityConstraint>>&
         constraint_list,
     int* num_nonlinear_constraints, int* max_num_gradients,
-    std::unordered_map<Binding<Constraint>, int>* constraint_dual_start_index) {
+    std::map<Binding<Constraint>, int>* constraint_dual_start_index) {
   *num_nonlinear_constraints += static_cast<int>(constraint_list.size());
   for (const auto& binding : constraint_list) {
     *max_num_gradients += binding.evaluator()->M().rows();
@@ -748,7 +748,7 @@ LinearConstraintBounds<LinearComplementarityConstraint>(
 
 void UpdateLinearCost(
     const MathematicalProgram& prog,
-    std::unordered_map<int, double>* variable_to_coefficient_map,
+    std::map<int, double>* variable_to_coefficient_map,
     double* linear_cost_constant_term) {
   const auto & scale_map = prog.GetVariableScaling();
   double scale = 1;
@@ -808,7 +808,7 @@ using BoundingBoxDualIndices = std::pair<std::vector<int>, std::vector<int>>;
 void SetVariableBounds(
     const MathematicalProgram& prog, std::vector<double>* xlow,
     std::vector<double>* xupp,
-    std::unordered_map<Binding<BoundingBoxConstraint>, BoundingBoxDualIndices>*
+    std::map<Binding<BoundingBoxConstraint>, BoundingBoxDualIndices>*
         bb_con_dual_variable_indices) {
   // Set up the lower and upper bounds.
   for (auto const& binding : prog.bounding_box_constraints()) {
@@ -860,7 +860,7 @@ void SetVariableBounds(
 
 void SetBoundingBoxConstraintDualSolution(
     const MathematicalProgram& prog, const Eigen::VectorXd& xmul,
-    const std::unordered_map<Binding<BoundingBoxConstraint>,
+    const std::map<Binding<BoundingBoxConstraint>,
                              BoundingBoxDualIndices>&
         bb_con_dual_variable_indices,
     MathematicalProgramResult* result) {
@@ -897,7 +897,7 @@ void SetBoundingBoxConstraintDualSolution(
 template <typename C>
 void SetConstraintDualSolution(
     const std::vector<Binding<C>>& bindings, const Eigen::VectorXd& Fmul,
-    const std::unordered_map<Binding<Constraint>, int>&
+    const std::map<Binding<Constraint>, int>&
         constraint_dual_start_index,
     MathematicalProgramResult* result) {
   for (const auto& binding : bindings) {
@@ -912,7 +912,7 @@ void SetConstraintDualSolution(
 
 void SetConstraintDualSolutions(
     const MathematicalProgram& prog, const Eigen::VectorXd& Fmul,
-    const std::unordered_map<Binding<Constraint>, int>&
+    const std::map<Binding<Constraint>, int>&
         constraint_dual_start_index,
     MathematicalProgramResult* result) {
   SetConstraintDualSolution(prog.generic_constraints(), Fmul,
@@ -953,10 +953,10 @@ SolutionResult MapSnoptInfoToSolutionResult(int snopt_info) {
 void SetMathematicalProgramResult(
     const MathematicalProgram& prog, int snopt_status,
     const Eigen::VectorXd& x_val,
-    const std::unordered_map<Binding<BoundingBoxConstraint>,
+    const std::map<Binding<BoundingBoxConstraint>,
                              BoundingBoxDualIndices>&
         bb_con_dual_variable_indices,
-    const std::unordered_map<Binding<Constraint>, int>&
+    const std::map<Binding<Constraint>, int>&
         constraint_dual_start_index,
     MathematicalProgramResult* result) {
   SnoptSolverDetails& solver_details =
@@ -982,7 +982,7 @@ void UpdateNumConstraintsAndGradients(
     const std::vector<Binding<LinearConstraint>>& linear_constraints,
     int* num_nonlinear_constraints, int* num_linear_constraints,
     int* max_num_gradients,
-    std::unordered_map<Binding<Constraint>, int>* constraint_dual_start_index) {
+    std::map<Binding<Constraint>, int>* constraint_dual_start_index) {
   UpdateNumNonlinearConstraintsAndGradients(
       prog.generic_constraints(), num_nonlinear_constraints, max_num_gradients,
       constraint_dual_start_index);
@@ -1017,9 +1017,9 @@ void UpdateNumConstraintsAndGradients(
 void SolveWithGivenOptions(
     const MathematicalProgram& prog,
     const Eigen::Ref<const Eigen::VectorXd>& x_init,
-    const std::unordered_map<std::string, std::string>& snopt_options_string,
-    const std::unordered_map<std::string, int>& snopt_options_int,
-    const std::unordered_map<std::string, double>& snopt_options_double,
+    const std::map<std::string, std::string>& snopt_options_string,
+    const std::map<std::string, int>& snopt_options_int,
+    const std::map<std::string, double>& snopt_options_double,
     MathematicalProgramResult* result) {
   SnoptSolverDetails& solver_details =
       result->SetSolverDetailsType<SnoptSolverDetails>();
@@ -1068,14 +1068,14 @@ void SolveWithGivenOptions(
   // bound). If this constraint doesn't have a dual variable (because the bound
   // is looser than some other bounding box constraint, hence this constraint
   // can never be active), then the index is set to -1.
-  std::unordered_map<Binding<BoundingBoxConstraint>, BoundingBoxDualIndices>
+  std::map<Binding<BoundingBoxConstraint>, BoundingBoxDualIndices>
       bb_con_dual_variable_indices;
 
   SetVariableBounds(prog, &xlow, &xupp, &bb_con_dual_variable_indices);
 
   // constraint_dual_start_index[constraint] stores the starting index of
   // the dual variables in Fmul.
-  std::unordered_map<Binding<Constraint>, int> constraint_dual_start_index;
+  std::map<Binding<Constraint>, int> constraint_dual_start_index;
 
   // Update nonlinear constraints.
   user_info.nonlinear_cost_gradient_indices() =
@@ -1134,7 +1134,7 @@ void SolveWithGivenOptions(
   // http://eigen.tuxfamily.org/dox/group__TutorialSparse.html
   typedef Eigen::Triplet<double> T;
   double linear_cost_constant_term = 0;
-  std::unordered_map<int, double> variable_to_linear_cost_coefficient;
+  std::map<int, double> variable_to_linear_cost_coefficient;
   UpdateLinearCost(prog, &variable_to_linear_cost_coefficient,
                    &linear_cost_constant_term);
 
@@ -1283,7 +1283,7 @@ void SnoptSolver::DoSolve(
     const SolverOptions& merged_options,
     MathematicalProgramResult* result) const {
   // Call SNOPT.
-  std::unordered_map<std::string, int> int_options =
+  std::map<std::string, int> int_options =
       merged_options.GetOptionsInt(id());
 
   // If "Timing level" is not zero, then snopt periodically calls etime to

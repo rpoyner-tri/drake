@@ -321,7 +321,7 @@ class RenderEngineBenchmark : public benchmark::Fixture {
   ImageLabel16I label_image_;
   const Vector3d bg_rgb_{200 / 255., 0, 250 / 255.};
   const Eigen::Vector4d sphere_rgba_{0, 0.8, 0.5, 1};
-  std::unordered_map<GeometryId, RigidTransformd> poses_;
+  std::map<GeometryId, RigidTransformd> poses_;
 };
 std::set<std::string> RenderEngineBenchmark::saved_image_paths;
 

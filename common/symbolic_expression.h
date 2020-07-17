@@ -15,7 +15,7 @@
 #include <random>
 #include <string>
 #include <type_traits>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -106,7 +106,7 @@ class Expression;
 
 // Substitution is a map from a Variable to a symbolic expression. It is used in
 // Expression::Substitute and Formula::Substitute methods as an argument.
-using Substitution = std::unordered_map<Variable, Expression>;
+using Substitution = std::map<Variable, Expression>;
 
 /** Represents a symbolic form of an expression.
 
@@ -764,7 +764,7 @@ namespace std {
 template <>
 struct hash<drake::symbolic::Expression> : public drake::DefaultHash {};
 #if defined(__GLIBCXX__)
-// https://gcc.gnu.org/onlinedocs/libstdc++/manual/unordered_associative.html
+// https://gcc.gnu.org/onlinedocs/libstdc++/manual/associative.html
 template <>
 struct __is_fast_hash<hash<drake::symbolic::Expression>> : std::false_type {};
 #endif

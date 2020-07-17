@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include "drake/attic_warning.h"
@@ -144,22 +144,22 @@ class RigidBodyTreeAliasGroups {
     return velocity_groups_.at(group_name);
   }
 
-  const std::unordered_map<std::string, std::vector<const RigidBody<T>*>>&
+  const std::map<std::string, std::vector<const RigidBody<T>*>>&
   get_body_groups() const {
     return body_groups_;
   }
 
-  const std::unordered_map<std::string, std::vector<const DrakeJoint*>>&
+  const std::map<std::string, std::vector<const DrakeJoint*>>&
   get_joint_groups() const {
     return joint_groups_;
   }
 
-  const std::unordered_map<std::string, std::vector<int>>&
+  const std::map<std::string, std::vector<int>>&
   get_position_groups() const {
     return position_groups_;
   }
 
-  const std::unordered_map<std::string, std::vector<int>>&
+  const std::map<std::string, std::vector<int>>&
   get_velocity_groups() const {
     return velocity_groups_;
   }
@@ -169,10 +169,10 @@ class RigidBodyTreeAliasGroups {
  private:
   const RigidBodyTree<T>& tree_;
 
-  std::unordered_map<std::string, std::vector<const RigidBody<T>*>>
+  std::map<std::string, std::vector<const RigidBody<T>*>>
       body_groups_;
-  std::unordered_map<std::string, std::vector<const DrakeJoint*>> joint_groups_;
+  std::map<std::string, std::vector<const DrakeJoint*>> joint_groups_;
 
-  std::unordered_map<std::string, std::vector<int>> position_groups_;
-  std::unordered_map<std::string, std::vector<int>> velocity_groups_;
+  std::map<std::string, std::vector<int>> position_groups_;
+  std::map<std::string, std::vector<int>> velocity_groups_;
 };

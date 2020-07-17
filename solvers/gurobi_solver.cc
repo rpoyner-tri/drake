@@ -4,7 +4,7 @@
 #include <cmath>
 #include <limits>
 #include <stdexcept>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -81,7 +81,7 @@ void SetProgramSolutionVector(const std::vector<bool>& is_new_variable,
 void SetBoundingBoxDualSolution(
     const MathematicalProgram& prog,
     const std::vector<double>& gurobi_dual_solutions,
-    const std::unordered_map<Binding<BoundingBoxConstraint>,
+    const std::map<Binding<BoundingBoxConstraint>,
                              std::pair<std::vector<int>, std::vector<int>>>&
         bb_con_dual_indices,
     MathematicalProgramResult* result) {
@@ -118,7 +118,7 @@ void SetBoundingBoxDualSolution(
 void SetLinearConstraintDualSolutions(
     const MathematicalProgram& prog,
     const Eigen::VectorXd& gurobi_dual_solutions,
-    const std::unordered_map<Binding<Constraint>, int>&
+    const std::map<Binding<Constraint>, int>&
         constraint_dual_start_row,
     MathematicalProgramResult* result) {
   for (const auto& binding : prog.linear_equality_constraints()) {
@@ -661,7 +661,7 @@ int AddCosts(GRBmodel* model, double* pconstant_cost,
 int ProcessLinearConstraints(
     GRBmodel* model, const MathematicalProgram& prog,
     double sparseness_threshold, int* num_gurobi_linear_constraints,
-    std::unordered_map<Binding<Constraint>, int>* constraint_dual_start_row) {
+    std::map<Binding<Constraint>, int>* constraint_dual_start_row) {
   for (const auto& binding : prog.linear_equality_constraints()) {
     const auto& constraint = binding.evaluator();
 
@@ -898,7 +898,7 @@ void GurobiSolver::DoSolve(
   // dual variable (because that row in the bounding box constraint can never
   // be active, as there are other bounding box constraint that imposes tighter
   // bounds on that variable).
-  std::unordered_map<Binding<BoundingBoxConstraint>,
+  std::map<Binding<BoundingBoxConstraint>,
                      std::pair<std::vector<int>, std::vector<int>>>
       bb_con_dual_indices;
   // Now loop over all of the bounding box constraints again, if a bounding box
@@ -926,7 +926,7 @@ void GurobiSolver::DoSolve(
 
   // constraint_dual_start_row[constraint] returns the starting index of the
   // dual variable corresponding to this constraint
-  std::unordered_map<Binding<Constraint>, int> constraint_dual_start_row;
+  std::map<Binding<Constraint>, int> constraint_dual_start_row;
 
   // Our second order cone constraints imposes A*x+b lies within the (rotated)
   // Lorentz cone. Unfortunately Gurobi only supports a vector z lying within

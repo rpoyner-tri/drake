@@ -1,7 +1,7 @@
 #include <map>
 #include <sstream>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <utility>
 #include <vector>
 
@@ -22,8 +22,8 @@ namespace {
 using std::map;
 using std::move;
 using std::ostringstream;
-using std::unordered_map;
-using std::unordered_set;
+using std::map;
+using std::set;
 using std::vector;
 using test::VarEqual;
 using test::VarLess;
@@ -138,16 +138,16 @@ TEST_F(VariableTest, ToString) {
   EXPECT_EQ(w_.to_string(), "w");
 }
 
-// This test checks whether Variable is compatible with std::unordered_set.
+// This test checks whether Variable is compatible with std::set.
 TEST_F(VariableTest, CompatibleWithUnorderedSet) {
-  unordered_set<Variable> uset;
+  set<Variable> uset;
   uset.emplace(x_);
   uset.emplace(y_);
 }
 
-// This test checks whether Variable is compatible with std::unordered_map.
+// This test checks whether Variable is compatible with std::map.
 TEST_F(VariableTest, CompatibleWithUnorderedMap) {
-  unordered_map<Variable, Variable> umap;
+  map<Variable, Variable> umap;
   umap.emplace(x_, y_);
 }
 

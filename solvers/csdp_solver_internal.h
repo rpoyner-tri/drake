@@ -3,7 +3,7 @@
 // For external users, please do not include this header file. It only exists so
 // that we can expose the internals to csdp_solver_internal_test.cc
 
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #ifndef DRAKE_DOXYGEN_CXX

@@ -36,7 +36,7 @@ template <typename KinematicsValue>
 FrameKinematicsVector<KinematicsValue>&
 FrameKinematicsVector<KinematicsValue>::operator=(
     std::initializer_list<std::pair<const FrameId, KinematicsValue>> init) {
-  // N.B. We can't use unordered_map::insert in our operator= implementation
+  // N.B. We can't use map::insert in our operator= implementation
   // because it does not overwrite pre-existing keys.  (Our clear() doesn't
   // remove the keys, it only nulls the values.)
   clear();

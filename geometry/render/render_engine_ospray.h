@@ -3,7 +3,7 @@
 #include <array>
 #include <memory>
 #include <string>
-#include <unordered_map>
+#include <map>
 
 #include <vtkActor.h>
 #include <vtkAutoInit.h>
@@ -182,7 +182,7 @@ class RenderEngineOspray final
 
   // The collection of per-geometry actors (one actor per pipeline (color,
   // depth, and label) keyed by the geometry's GeometryId.
-  std::unordered_map<GeometryId,
+  std::map<GeometryId,
                      std::array<vtkSmartPointer<vtkActor>, kNumPipelines>>
       actors_;
 

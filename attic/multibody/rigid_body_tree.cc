@@ -8,7 +8,7 @@
 #include <memory>
 #include <numeric>
 #include <string>
-#include <unordered_map>
+#include <map>
 
 #include "drake/attic_warning.h"
 #include "drake/common/autodiff.h"
@@ -77,7 +77,7 @@ using std::set;
 using std::shared_ptr;
 using std::string;
 using std::unique_ptr;
-using std::unordered_map;
+using std::map;
 using std::vector;
 using std::endl;
 
@@ -488,7 +488,7 @@ void RigidBodyTree<T>::CompileCollisionState() {
   // Process collision filter groups
   collision_group_manager_.CompileGroups();
 
-  std::unordered_set<RigidBody<T>*> needs_recompile;
+  std::set<RigidBody<T>*> needs_recompile;
 
   // Update the collision filter groups for the *compiled* elements and mark
   // those bodies for collision filter notification.
@@ -590,7 +590,7 @@ void RigidBodyTree<T>::CompileCollisionState() {
 
 template <typename T>
 void RigidBodyTree<T>::CreateCollisionCliques(
-    std::unordered_set<RigidBody<T>*>* recompile_set) {
+    std::set<RigidBody<T>*>* recompile_set) {
   using drake::multibody::collision::Element;
   // If a body with collision geometry is adjacent to another such body, their
   // collision geometries will *all* be added to a common clique. That means
@@ -2355,7 +2355,7 @@ template <typename Scalar>
 Matrix<Scalar, Eigen::Dynamic, 1> RigidBodyTree<T>::dynamicsBiasTerm(
     // TODO(#2274) Fix NOLINTNEXTLINE(runtime/references).
     KinematicsCache<Scalar>& cache,
-    const drake::eigen_aligned_std_unordered_map<
+    const drake::eigen_aligned_std_map<
         RigidBody<T> const*, WrenchVector<Scalar>>& external_wrenches,
     bool include_velocity_terms) const {
   CheckCacheValidity(cache);
@@ -2369,7 +2369,7 @@ template <typename Scalar>
 Matrix<Scalar, Eigen::Dynamic, 1> RigidBodyTree<T>::inverseDynamics(
     // TODO(#2274) Fix NOLINTNEXTLINE(runtime/references).
     KinematicsCache<Scalar>& cache,
-    const drake::eigen_aligned_std_unordered_map<
+    const drake::eigen_aligned_std_map<
         RigidBody<T> const*, WrenchVector<Scalar>>& external_wrenches,
     const Matrix<Scalar, Eigen::Dynamic, 1>& vd,
     bool include_velocity_terms) const {
@@ -3633,8 +3633,8 @@ template MatrixX<AutoDiffXd     > RigidBodyTree<double>::GetQDotToVelocityMappin
 template MatrixX<double         > RigidBodyTree<double>::GetQDotToVelocityMapping(const KinematicsCache<double         >&);  // NOLINT
 
 // Explicit template instantiations for dynamicsBiasTerm.
-template VectorX<AutoDiffXd     > RigidBodyTree<double>::dynamicsBiasTerm<AutoDiffXd     >(KinematicsCache<AutoDiffXd     >&, unordered_map<RigidBody<double> const*, WrenchVector<AutoDiffXd     >, hash<RigidBody<double> const*>, equal_to<RigidBody<double> const*>, Eigen::aligned_allocator<pair<RigidBody<double> const* const, WrenchVector<AutoDiffXd     >>>> const&, bool) const;  // NOLINT
-template VectorXd                 RigidBodyTree<double>::dynamicsBiasTerm<double         >(KinematicsCache<double         >&, unordered_map<RigidBody<double> const*, WrenchVector<double         >, hash<RigidBody<double> const*>, equal_to<RigidBody<double> const*>, Eigen::aligned_allocator<pair<RigidBody<double> const* const, WrenchVector<double         >>>> const&, bool) const;  // NOLINT
+template VectorX<AutoDiffXd     > RigidBodyTree<double>::dynamicsBiasTerm<AutoDiffXd     >(KinematicsCache<AutoDiffXd     >&, map<RigidBody<double> const*, WrenchVector<AutoDiffXd     >, hash<RigidBody<double> const*>, equal_to<RigidBody<double> const*>, Eigen::aligned_allocator<pair<RigidBody<double> const* const, WrenchVector<AutoDiffXd     >>>> const&, bool) const;  // NOLINT
+template VectorXd                 RigidBodyTree<double>::dynamicsBiasTerm<double         >(KinematicsCache<double         >&, map<RigidBody<double> const*, WrenchVector<double         >, hash<RigidBody<double> const*>, equal_to<RigidBody<double> const*>, Eigen::aligned_allocator<pair<RigidBody<double> const* const, WrenchVector<double         >>>> const&, bool) const;  // NOLINT
 
 #endif
 #if DRAKE_RBT_SHARD == 1
@@ -3737,8 +3737,8 @@ template VectorX<double         > RigidBodyTree<double>::CalcGeneralizedSpringFo
 template VectorX<AutoDiffXd     > RigidBodyTree<double>::CalcGeneralizedSpringForces(const VectorX<AutoDiffXd>& q) const;  // NOLINT
 
 // Explicit template instantiations for inverseDynamics.
-template VectorX<AutoDiffXd     > RigidBodyTree<double>::inverseDynamics<AutoDiffXd     >(KinematicsCache<AutoDiffXd     >&, unordered_map<RigidBody<double> const*, TwistVector<AutoDiffXd     >, hash<RigidBody<double> const*>, equal_to<RigidBody<double> const*>, Eigen::aligned_allocator<pair<RigidBody<double> const* const, TwistVector<AutoDiffXd     >>>> const&, VectorX<AutoDiffXd     > const&, bool) const;  // NOLINT
-template VectorX<double         > RigidBodyTree<double>::inverseDynamics<double         >(KinematicsCache<double         >&, unordered_map<RigidBody<double> const*, WrenchVector<double        >, hash<RigidBody<double> const*>, equal_to<RigidBody<double> const*>, Eigen::aligned_allocator<pair<RigidBody<double> const* const, WrenchVector<double        >>>> const&, VectorX<double         > const&, bool) const;  // NOLINT
+template VectorX<AutoDiffXd     > RigidBodyTree<double>::inverseDynamics<AutoDiffXd     >(KinematicsCache<AutoDiffXd     >&, map<RigidBody<double> const*, TwistVector<AutoDiffXd     >, hash<RigidBody<double> const*>, equal_to<RigidBody<double> const*>, Eigen::aligned_allocator<pair<RigidBody<double> const* const, TwistVector<AutoDiffXd     >>>> const&, VectorX<AutoDiffXd     > const&, bool) const;  // NOLINT
+template VectorX<double         > RigidBodyTree<double>::inverseDynamics<double         >(KinematicsCache<double         >&, map<RigidBody<double> const*, WrenchVector<double        >, hash<RigidBody<double> const*>, equal_to<RigidBody<double> const*>, Eigen::aligned_allocator<pair<RigidBody<double> const* const, WrenchVector<double        >>>> const&, VectorX<double         > const&, bool) const;  // NOLINT
 
 // Explicit template instantiations for resolveCenterOfPressure.
 template pair<Vector3d, double> RigidBodyTree<double>::resolveCenterOfPressure<Vector3d, Vector3d>(KinematicsCache<double> const&, vector<ForceTorqueMeasurement, allocator<ForceTorqueMeasurement>> const&, Eigen::MatrixBase<Vector3d> const&, Eigen::MatrixBase<Vector3d> const&) const;  // NOLINT

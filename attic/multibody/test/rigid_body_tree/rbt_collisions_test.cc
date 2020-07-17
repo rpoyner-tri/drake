@@ -32,7 +32,7 @@ struct SurfacePoint {
   Vector3d body_frame;
 };
 
-// Solutions are accessed by rigid body pointer using an std::unordered_map.
+// Solutions are accessed by rigid body pointer using an std::map.
 // drake::multibody::collision::Model returns the collision detection results
 // as a vector of drake::multibody::collision::PointPair entries. Each entry
 // holds a reference to the pair of collision elements taking part in the
@@ -40,7 +40,7 @@ struct SurfacePoint {
 // To provide a simple access to the appropriate solution for the collision
 // point on each body, a map is used to allow referencing the corresponding
 // solution by body pointer.
-typedef std::unordered_map<const RigidBody<double>*, SurfacePoint>
+typedef std::map<const RigidBody<double>*, SurfacePoint>
     BodyToSurfacePointMap;
 
 class RBTCollisionTest: public ::testing::Test {

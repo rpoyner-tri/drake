@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <memory>
 #include <set>
-#include <unordered_set>
+#include <set>
 #include <utility>
 #include <vector>
 
@@ -43,12 +43,12 @@ using std::pair;
 using std::set;
 using std::string;
 using std::unique_ptr;
-using std::unordered_map;
-using std::unordered_set;
+using std::map;
+using std::set;
 using std::vector;
 
 template <typename T>
-using IdPoseMap = unordered_map<GeometryId, RigidTransform<T>>;
+using IdPoseMap = map<GeometryId, RigidTransform<T>>;
 
 // Implementation of friend class that allows me to peek into the geometry state
 // to confirm invariants on the state's internal workings as a result of
@@ -65,28 +65,28 @@ class GeometryStateTester {
     return state_->self_source_;
   }
 
-  const unordered_map<SourceId, string>& get_source_name_map() const {
+  const map<SourceId, string>& get_source_name_map() const {
     return state_->source_names_;
   }
 
-  const unordered_map<SourceId, FrameIdSet>& get_source_frame_id_map() const {
+  const map<SourceId, FrameIdSet>& get_source_frame_id_map() const {
     return state_->source_frame_id_map_;
   }
 
-  const unordered_map<SourceId, FrameIdSet>& get_source_root_frame_map() const {
+  const map<SourceId, FrameIdSet>& get_source_root_frame_map() const {
     return state_->source_root_frame_map_;
   }
 
-  const unordered_map<SourceId, unordered_set<GeometryId>>&
+  const map<SourceId, set<GeometryId>>&
   get_source_anchored_geometry_map() const {
     return state_->source_anchored_geometry_map_;
   }
 
-  const unordered_map<FrameId, InternalFrame>& get_frames() const {
+  const map<FrameId, InternalFrame>& get_frames() const {
     return state_->frames_;
   }
 
-  const unordered_map<GeometryId, InternalGeometry>& get_geometries() const {
+  const map<GeometryId, InternalGeometry>& get_geometries() const {
     return state_->geometries_;
   }
 
@@ -137,7 +137,7 @@ class GeometryStateTester {
     return *state_->geometry_engine_;
   }
 
-  const unordered_map<string, copyable_unique_ptr<render::RenderEngine>>&
+  const map<string, copyable_unique_ptr<render::RenderEngine>>&
   render_engines() const {
     return state_->render_engines_;
   }
@@ -1090,7 +1090,7 @@ TEST_F(GeometryStateTest, AddFrameWithDuplicateId) {
 // Tests the frame iterator, confirming that it iterates through all frames.
 TEST_F(GeometryStateTest, FrameIdRange) {
   SetUpSingleSourceTree();
-  unordered_set<FrameId> all_frames(frames_.begin(), frames_.end());
+  set<FrameId> all_frames(frames_.begin(), frames_.end());
   for (FrameId id : geometry_state_.get_frame_ids()) {
     // This should remove exactly one element. The world frame is *not* stored
     // in frames_.

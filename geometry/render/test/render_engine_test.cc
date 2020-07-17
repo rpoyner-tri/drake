@@ -2,7 +2,7 @@
 
 #include <optional>
 #include <set>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -38,7 +38,7 @@ namespace {
 using geometry::internal::DummyRenderEngine;
 using math::RigidTransformd;
 using std::set;
-using std::unordered_map;
+using std::map;
 using systems::sensors::CameraInfo;
 using systems::sensors::ColorD;
 using systems::sensors::ColorI;
@@ -64,7 +64,7 @@ GTEST_TEST(RenderEngine, RegistrationAndUpdate) {
   // to all identity transforms because the values generally don't matter. In
   // the single case where it does matter, a value is explicitly set (see
   // below).
-  unordered_map<GeometryId, RigidTransformd> X_WG_all{
+  map<GeometryId, RigidTransformd> X_WG_all{
       {GeometryId::get_new_id(), X_WG},
       {GeometryId::get_new_id(), X_WG},
       {GeometryId::get_new_id(), X_WG}};

@@ -153,7 +153,7 @@ GTEST_TEST(MonteCarloSimulationTest, BasicTest) {
   EXPECT_EQ(results.size(), num_samples);
 
   // Check that the results were all different.
-  std::unordered_set<double> outputs;
+  std::set<double> outputs;
   for (const auto& result : results) {
     outputs.emplace(result.output);
   }

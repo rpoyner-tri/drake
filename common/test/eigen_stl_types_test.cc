@@ -11,7 +11,7 @@ namespace drake {
 namespace {
 
 template <typename T>
-using UnorderedMapType = eigen_aligned_std_unordered_map<int, T>;
+using UnorderedMapType = eigen_aligned_std_map<int, T>;
 
 // Confirm that nothing asserts nor segfaults.
 GTEST_TEST(EigenStlTypesTest, UnorderedMapTest) {

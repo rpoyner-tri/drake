@@ -1,7 +1,7 @@
 #include <exception>
 #include <sstream>
 #include <stdexcept>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -17,7 +17,7 @@ using std::map;
 using std::ostringstream;
 using std::pair;
 using std::runtime_error;
-using std::unordered_map;
+using std::map;
 using std::vector;
 
 namespace drake {
@@ -593,10 +593,10 @@ TEST_F(MonomialTest, OddDegreeMonomialBasis_x_y_z_34) {
   EXPECT_EQ(basis2, expected);
 }
 
-// This test shows that we can have a std::unordered_map whose key is of
+// This test shows that we can have a std::map whose key is of
 // Monomial.
 TEST_F(MonomialTest, UnorderedMapOfMonomial) {
-  unordered_map<Monomial, double> monomial_to_coeff_map;
+  map<Monomial, double> monomial_to_coeff_map;
   Monomial x_3{var_x_, 3};
   Monomial y_5{var_y_, 5};
   // Add 2 * x^3

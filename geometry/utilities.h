@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
+#include <map>
 
 #include "drake/common/autodiff.h"
 #include "drake/common/autodiff_overloads.h"
@@ -38,22 +38,22 @@ class MapKeyRange {
 
    private:
     explicit ConstIterator(
-        typename std::unordered_map<K, V>::const_iterator itr)
+        typename std::map<K, V>::const_iterator itr)
         : itr_(itr) {}
 
    private:
-    typename std::unordered_map<K, V>::const_iterator itr_;
+    typename std::map<K, V>::const_iterator itr_;
     friend class MapKeyRange;
   };
 
-  explicit MapKeyRange(const std::unordered_map<K, V>* map) : map_(map) {
+  explicit MapKeyRange(const std::map<K, V>* map) : map_(map) {
     DRAKE_DEMAND(map);
   }
   ConstIterator begin() const { return ConstIterator(map_->cbegin()); }
   ConstIterator end() const { return ConstIterator(map_->cend()); }
 
  private:
-  const std::unordered_map<K, V>* map_;
+  const std::map<K, V>* map_;
 };
 
 /* @name Isometry scalar conversion

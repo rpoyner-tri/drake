@@ -68,7 +68,7 @@ void SliceTetWithPlane(VolumeElementIndex tet_index,
                        std::vector<SurfaceFace>* faces,
                        std::vector<SurfaceVertex<T>>* vertices_W,
                        std::vector<T>* surface_e,
-                       std::unordered_map<SortedPair<VolumeVertexIndex>,
+                       std::map<SortedPair<VolumeVertexIndex>,
                                           SurfaceVertexIndex>* cut_edges) {
   const VolumeMesh<double>& mesh_M = field_M.mesh();
 
@@ -158,7 +158,7 @@ std::unique_ptr<ContactSurface<T>> ComputeContactSurface(
   std::vector<SurfaceFace> faces;
   std::vector<SurfaceVertex<T>> vertices_W;
   std::vector<T> surface_e;
-  std::unordered_map<SortedPair<VolumeVertexIndex>, SurfaceVertexIndex>
+  std::map<SortedPair<VolumeVertexIndex>, SurfaceVertexIndex>
       cut_edges;
 
   for (const auto& tet_index : tet_indices) {
@@ -222,7 +222,7 @@ template void SliceTetWithPlane<double>(
     std::vector<SurfaceFace>* faces,
     std::vector<SurfaceVertex<double>>* vertices_W,
     std::vector<double>* surface_e,
-    std::unordered_map<SortedPair<VolumeVertexIndex>, SurfaceVertexIndex>*
+    std::map<SortedPair<VolumeVertexIndex>, SurfaceVertexIndex>*
         cut_edges);
 
 template std::unique_ptr<ContactSurface<double>> ComputeContactSurface(

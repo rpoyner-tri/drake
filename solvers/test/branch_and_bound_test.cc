@@ -192,7 +192,7 @@ GTEST_TEST(MixedIntegerBranchAndBoundNodeTest, TestConstructRoot1) {
   // Test constructing root node for prog 1.
   auto prog = ConstructMathematicalProgram1();
   std::unique_ptr<MixedIntegerBranchAndBoundNode> root;
-  std::unordered_map<symbolic::Variable::Id, symbolic::Variable>
+  std::map<symbolic::Variable::Id, symbolic::Variable>
       map_old_vars_to_new_vars;
   std::tie(root, map_old_vars_to_new_vars) =
       MixedIntegerBranchAndBoundNode::ConstructRootNode(*prog,
@@ -218,7 +218,7 @@ GTEST_TEST(MixedIntegerBranchAndBoundNodeTest, TestConstructRoot2) {
   auto prog = ConstructMathematicalProgram2();
 
   std::unique_ptr<MixedIntegerBranchAndBoundNode> root;
-  std::unordered_map<symbolic::Variable::Id, symbolic::Variable>
+  std::map<symbolic::Variable::Id, symbolic::Variable>
       map_old_vars_to_new_vars;
   std::tie(root, map_old_vars_to_new_vars) =
       MixedIntegerBranchAndBoundNode::ConstructRootNode(*prog,
@@ -244,7 +244,7 @@ GTEST_TEST(MixedIntegerBranchAndBoundNodeTest, TestConstructRoot3) {
   auto prog = ConstructMathematicalProgram3();
 
   std::unique_ptr<MixedIntegerBranchAndBoundNode> root;
-  std::unordered_map<symbolic::Variable::Id, symbolic::Variable>
+  std::map<symbolic::Variable::Id, symbolic::Variable>
       map_old_vars_to_new_vars;
   std::tie(root, map_old_vars_to_new_vars) =
       MixedIntegerBranchAndBoundNode::ConstructRootNode(*prog,
@@ -265,7 +265,7 @@ GTEST_TEST(MixedIntegerBranchAndBoundNodeTest, TestConstructRoot4) {
   auto prog = ConstructMathematicalProgram4();
 
   std::unique_ptr<MixedIntegerBranchAndBoundNode> root;
-  std::unordered_map<symbolic::Variable::Id, symbolic::Variable>
+  std::map<symbolic::Variable::Id, symbolic::Variable>
       map_old_vars_to_new_vars;
   std::tie(root, map_old_vars_to_new_vars) =
       MixedIntegerBranchAndBoundNode::ConstructRootNode(*prog,

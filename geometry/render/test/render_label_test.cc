@@ -1,7 +1,7 @@
 #include "drake/geometry/render/render_label.h"
 
 #include <set>
-#include <unordered_set>
+#include <set>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -100,9 +100,9 @@ TEST_F(RenderLabelTests, AssignmentAndComparison) {
 }
 
 // Confirms that RenderLabels can be used as hashable entries in STL containers
-// (e.g., unordered_set and unordered_map).
+// (e.g., set and map).
 TEST_F(RenderLabelTests, ServeAsMapKey) {
-  std::unordered_set<RenderLabel> label_set;
+  std::set<RenderLabel> label_set;
 
   // This is a *different* label with the *same* value as labels_[0]. It should
   // *not* introduce a new value to the set.

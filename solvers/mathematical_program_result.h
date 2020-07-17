@@ -5,7 +5,7 @@
 #include <optional>
 #include <string>
 #include <typeinfo>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -37,7 +37,7 @@ namespace solvers {
  */
 double GetVariableValue(
     const symbolic::Variable& var,
-    const std::optional<std::unordered_map<symbolic::Variable::Id, int>>&
+    const std::optional<std::map<symbolic::Variable::Id, int>>&
         variable_index,
     const Eigen::Ref<const Eigen::VectorXd>& variable_values);
 
@@ -52,7 +52,7 @@ typename std::enable_if_t<
                   Derived::ColsAtCompileTime>>
 GetVariableValue(
     const Eigen::MatrixBase<Derived>& var,
-    const std::optional<std::unordered_map<symbolic::Variable::Id, int>>&
+    const std::optional<std::map<symbolic::Variable::Id, int>>&
         variable_index,
     const Eigen::Ref<const Eigen::VectorXd>& variable_values) {
   Eigen::Matrix<double, Derived::RowsAtCompileTime, Derived::ColsAtCompileTime>
@@ -95,7 +95,7 @@ class MathematicalProgramResult final {
    * MathematicalProgram. Initialize x_val to NAN.
    */
   void set_decision_variable_index(
-      std::unordered_map<symbolic::Variable::Id, int> decision_variable_index) {
+      std::map<symbolic::Variable::Id, int> decision_variable_index) {
     decision_variable_index_ = std::move(decision_variable_index);
     x_val_ =
         Eigen::VectorXd::Constant(decision_variable_index_->size(),
@@ -460,7 +460,7 @@ class MathematicalProgramResult final {
   // @}
 
  private:
-  std::optional<std::unordered_map<symbolic::Variable::Id, int>>
+  std::optional<std::map<symbolic::Variable::Id, int>>
       decision_variable_index_{};
   SolutionResult solution_result_{};
   Eigen::VectorXd x_val_;
@@ -474,7 +474,7 @@ class MathematicalProgramResult final {
   std::vector<Eigen::VectorXd> suboptimal_x_val_{};
   std::vector<double> suboptimal_objectives_{};
   // Stores the dual variable solutions for each constraint.
-  std::unordered_map<Binding<Constraint>, Eigen::VectorXd> dual_solutions_{};
+  std::map<Binding<Constraint>, Eigen::VectorXd> dual_solutions_{};
 };
 
 }  // namespace solvers

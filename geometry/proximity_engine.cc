@@ -5,7 +5,7 @@
 #include <limits>
 #include <string>
 #include <type_traits>
-#include <unordered_map>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -46,7 +46,7 @@ using std::make_unique;
 using std::move;
 using std::shared_ptr;
 using std::unique_ptr;
-using std::unordered_map;
+using std::map;
 using std::vector;
 
 namespace {
@@ -123,10 +123,10 @@ unique_ptr<CollisionObjectd> CopyFclObjectOrThrow(
 // to facilitate copying broadphase culling data structures (see
 // ProximityEngine::operator=()).
 void CopyFclObjectsOrThrow(
-    const unordered_map<GeometryId, unique_ptr<CollisionObjectd>>&
+    const map<GeometryId, unique_ptr<CollisionObjectd>>&
         source_objects,
-    unordered_map<GeometryId, unique_ptr<CollisionObjectd>>* target_objects,
-    std::unordered_map<const CollisionObjectd*, CollisionObjectd*>* copy_map) {
+    map<GeometryId, unique_ptr<CollisionObjectd>>* target_objects,
+    std::map<const CollisionObjectd*, CollisionObjectd*>* copy_map) {
   DRAKE_ASSERT(target_objects->size() == 0);
   for (const auto& source_id_object_pair : source_objects) {
     const GeometryId source_id = source_id_object_pair.first;
@@ -141,7 +141,7 @@ void CopyFclObjectsOrThrow(
 // collision objects (the map populated by CopyFclObjectsOrThrow()).
 void BuildTreeFromReference(
     const fcl::DynamicAABBTreeCollisionManager<double>& other,
-    const std::unordered_map<const CollisionObjectd*,
+    const std::map<const CollisionObjectd*,
                              CollisionObjectd*>& copy_map,
     fcl::DynamicAABBTreeCollisionManager<double>* target) {
   std::vector<CollisionObjectd*> other_objects;
@@ -227,7 +227,7 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
     X_MeshBs_.clear();
 
     // Copy all of the geometry.
-    std::unordered_map<const CollisionObjectd*, CollisionObjectd*>
+    std::map<const CollisionObjectd*, CollisionObjectd*>
         object_map;
     CopyFclObjectsOrThrow(other.anchored_objects_, &anchored_objects_,
                           &object_map);
@@ -263,7 +263,7 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
     // types, modify this map to the appropriate scalar and modify consuming
     // functions accordingly.
     // Copy all of the geometry.
-    std::unordered_map<const CollisionObjectd*, CollisionObjectd*>
+    std::map<const CollisionObjectd*, CollisionObjectd*>
         object_map;
     CopyFclObjectsOrThrow(anchored_objects_, &engine->anchored_objects_,
                           &object_map);
@@ -410,7 +410,7 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
   //  2. I could simply have a method that returns a mutable reference to such
   //    a vector and the caller sets values there directly.
   void UpdateWorldPoses(
-      const std::unordered_map<GeometryId, RigidTransform<T>>& X_WGs) {
+      const std::map<GeometryId, RigidTransform<T>>& X_WGs) {
     for (const auto& id_object_pair : dynamic_objects_) {
       const GeometryId id = id_object_pair.first;
       const RigidTransform<T>& X_WG = X_WGs.at(id);
@@ -660,7 +660,7 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
   }
 
   std::vector<SignedDistancePair<T>> ComputeSignedDistancePairwiseClosestPoints(
-      const std::unordered_map<GeometryId, RigidTransform<T>>& X_WGs,
+      const std::map<GeometryId, RigidTransform<T>>& X_WGs,
       const double max_distance) const {
     std::vector<SignedDistancePair<T>> witness_pairs;
     // All these quantities are aliased in the callback data.
@@ -683,7 +683,7 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
 
   SignedDistancePair<T> ComputeSignedDistancePairClosestPoints(
       GeometryId id_A, GeometryId id_B,
-      const std::unordered_map<GeometryId, RigidTransform<T>>& X_WGs) const {
+      const std::map<GeometryId, RigidTransform<T>>& X_WGs) const {
     std::vector<SignedDistancePair<T>> witness_pairs;
     double max_distance = std::numeric_limits<double>::infinity();
     // All these quantities are aliased in the callback data.
@@ -722,7 +722,7 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
 
   std::vector<SignedDistanceToPoint<T>> ComputeSignedDistanceToPoint(
       const Vector3<T>& p_WQ,
-      const std::unordered_map<GeometryId, RigidTransform<T>>& X_WGs,
+      const std::map<GeometryId, RigidTransform<T>>& X_WGs,
       const double threshold) const {
     // We create a sphere of zero radius centered at the query point and put
     // it into a CollisionObject.
@@ -802,7 +802,7 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
   }
 
   vector<ContactSurface<T>> ComputeContactSurfaces(
-      const unordered_map<GeometryId, RigidTransform<T>>& X_WGs) const {
+      const map<GeometryId, RigidTransform<T>>& X_WGs) const {
     vector<ContactSurface<T>> surfaces;
     // All these quantities are aliased in the callback data.
     hydroelastic::CallbackData<T> data{&collision_filter_, &X_WGs,
@@ -829,7 +829,7 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
   }
 
   void ComputeContactSurfacesWithFallback(
-      const std::unordered_map<GeometryId, RigidTransform<T>>& X_WGs,
+      const std::map<GeometryId, RigidTransform<T>>& X_WGs,
       std::vector<ContactSurface<T>>* surfaces,
       std::vector<PenetrationAsPointPair<double>>* point_pairs) const {
     DRAKE_DEMAND(surfaces);
@@ -876,8 +876,8 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
 
   // TODO(SeanCurtis-TRI): Update this with the new collision filter method.
   void ExcludeCollisionsWithin(
-      const std::unordered_set<GeometryId>& dynamic,
-      const std::unordered_set<GeometryId>& anchored) {
+      const std::set<GeometryId>& dynamic,
+      const std::set<GeometryId>& anchored) {
     // Preventing collision between members in a single set is simple: assign
     // every geometry to the same clique.
 
@@ -906,10 +906,10 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
   }
 
   void ExcludeCollisionsBetween(
-      const std::unordered_set<GeometryId>& dynamic1,
-      const std::unordered_set<GeometryId>& anchored1,
-      const std::unordered_set<GeometryId>& dynamic2,
-      const std::unordered_set<GeometryId>& anchored2) {
+      const std::set<GeometryId>& dynamic1,
+      const std::set<GeometryId>& anchored1,
+      const std::set<GeometryId>& dynamic2,
+      const std::set<GeometryId>& anchored2) {
     // TODO(SeanCurtis-TRI): Update this with the new collision filter method.
 
     // NOTE: This is a brute-force implementation. It does not claim to be
@@ -985,9 +985,9 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
       //  [dynamic|anchored]_[mesh]_tree_, hydroelastic_geometries_,
       //  collision_filter_, and X_MeshBs_.
       auto are_maps_deep_copy =
-          [](const unordered_map<GeometryId, unique_ptr<CollisionObjectd>>&
+          [](const map<GeometryId, unique_ptr<CollisionObjectd>>&
                  this_map,
-             const unordered_map<GeometryId, unique_ptr<CollisionObjectd>>&
+             const map<GeometryId, unique_ptr<CollisionObjectd>>&
                  other_map) -> bool {
         if (this_map.size() != other_map.size()) {
           return false;
@@ -1040,7 +1040,7 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
   int peek_next_clique() const { return collision_filter_.peek_next_clique(); }
 
   const RigidTransformd GetX_WG(GeometryId id, bool is_dynamic) const {
-    const unordered_map<GeometryId, unique_ptr<CollisionObjectd>>& objects =
+    const map<GeometryId, unique_ptr<CollisionObjectd>>& objects =
         is_dynamic ? (dynamic_objects_.find(id) != dynamic_objects_.end())
                          ? dynamic_objects_
                          : dynamic_mesh_objects_
@@ -1064,8 +1064,8 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
   // Removes the geometry with the given id from the given tree.
   void RemoveGeometry(
       GeometryId id, fcl::DynamicAABBTreeCollisionManager<double>* tree,
-      unordered_map<GeometryId, unique_ptr<CollisionObjectd>>* geometries) {
-    unordered_map<GeometryId, unique_ptr<CollisionObjectd>>& typed_geometries =
+      map<GeometryId, unique_ptr<CollisionObjectd>>* geometries) {
+    map<GeometryId, unique_ptr<CollisionObjectd>>& typed_geometries =
         *geometries;
     CollisionObjectd* fcl_object = typed_geometries.at(id).get();
     const size_t old_size = tree->size();
@@ -1098,13 +1098,13 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
   fcl::DynamicAABBTreeCollisionManager<double> dynamic_tree_;
 
   // All of the *dynamic* collision elements (spanning all sources).
-  unordered_map<GeometryId, unique_ptr<CollisionObjectd>> dynamic_objects_;
+  map<GeometryId, unique_ptr<CollisionObjectd>> dynamic_objects_;
 
   // The tree containing all of the anchored geometry.
   fcl::DynamicAABBTreeCollisionManager<double> anchored_tree_;
 
   // All of the *anchored* collision elements (spanning *all* sources).
-  unordered_map<GeometryId, unique_ptr<CollisionObjectd>> anchored_objects_;
+  map<GeometryId, unique_ptr<CollisionObjectd>> anchored_objects_;
 
   // The mechanism for dictating collision filtering.
   CollisionFilterLegacy collision_filter_;
@@ -1140,11 +1140,11 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
   //  1. We have a direct collision-object representation for Mesh in the
   //     broadphase culling, and
   //  2. We have narrowphase support for Mesh in other proximity queries.
-  unordered_map<GeometryId, RigidTransformd> X_MeshBs_;
+  map<GeometryId, RigidTransformd> X_MeshBs_;
   fcl::DynamicAABBTreeCollisionManager<double> dynamic_mesh_tree_;
-  unordered_map<GeometryId, unique_ptr<CollisionObjectd>> dynamic_mesh_objects_;
+  map<GeometryId, unique_ptr<CollisionObjectd>> dynamic_mesh_objects_;
   fcl::DynamicAABBTreeCollisionManager<double> anchored_mesh_tree_;
-  unordered_map<GeometryId, unique_ptr<CollisionObjectd>>
+  map<GeometryId, unique_ptr<CollisionObjectd>>
       anchored_mesh_objects_;
 };
 
@@ -1268,7 +1268,7 @@ std::unique_ptr<ProximityEngine<AutoDiffXd>> ProximityEngine<T>::ToAutoDiffXd()
 
 template <typename T>
 void ProximityEngine<T>::UpdateWorldPoses(
-    const unordered_map<GeometryId, RigidTransform<T>>& X_WGs) {
+    const map<GeometryId, RigidTransform<T>>& X_WGs) {
   // xxx DRAKE_ASSERT(false);
   DRAKE_ASSERT(tmp::Frames::Current::the());
   if constexpr (std::is_same<T, double>::value) {
@@ -1288,7 +1288,7 @@ void ProximityEngine<T>::UpdateWorldPoses(
 template <typename T>
 std::vector<SignedDistancePair<T>>
 ProximityEngine<T>::ComputeSignedDistancePairwiseClosestPoints(
-    const std::unordered_map<GeometryId, RigidTransform<T>>& X_WGs,
+    const std::map<GeometryId, RigidTransform<T>>& X_WGs,
     const double max_distance) const {
   DRAKE_ASSERT(false);
   return impl_->ComputeSignedDistancePairwiseClosestPoints(X_WGs, max_distance);
@@ -1298,7 +1298,7 @@ template <typename T>
 SignedDistancePair<T>
 ProximityEngine<T>::ComputeSignedDistancePairClosestPoints(
     GeometryId id_A, GeometryId id_B,
-    const std::unordered_map<GeometryId, math::RigidTransform<T>>& X_WGs)
+    const std::map<GeometryId, math::RigidTransform<T>>& X_WGs)
     const {
   DRAKE_ASSERT(false);
   return impl_->ComputeSignedDistancePairClosestPoints(id_A, id_B, X_WGs);
@@ -1308,7 +1308,7 @@ template <typename T>
 std::vector<SignedDistanceToPoint<T>>
 ProximityEngine<T>::ComputeSignedDistanceToPoint(
     const Vector3<T>& query,
-    const std::unordered_map<GeometryId, RigidTransform<T>>& X_WGs,
+    const std::map<GeometryId, RigidTransform<T>>& X_WGs,
     const double threshold) const {
   DRAKE_ASSERT(false);
   return impl_->ComputeSignedDistanceToPoint(query, X_WGs, threshold);
@@ -1330,14 +1330,14 @@ ProximityEngine<T>::ComputePointPairPenetration() const {
 
 template <typename T>
 std::vector<ContactSurface<T>> ProximityEngine<T>::ComputeContactSurfaces(
-    const std::unordered_map<GeometryId, RigidTransform<T>>& X_WGs) const {
+    const std::map<GeometryId, RigidTransform<T>>& X_WGs) const {
   DRAKE_ASSERT(false);
   return impl_->ComputeContactSurfaces(X_WGs);
 }
 
 template <typename T>
 void ProximityEngine<T>::ComputeContactSurfacesWithFallback(
-    const std::unordered_map<GeometryId, RigidTransform<T>>& X_WGs,
+    const std::map<GeometryId, RigidTransform<T>>& X_WGs,
     std::vector<ContactSurface<T>>* surfaces,
     std::vector<PenetrationAsPointPair<double>>* point_pairs) const {
   DRAKE_ASSERT(false);
@@ -1354,8 +1354,8 @@ ProximityEngine<T>::FindCollisionCandidates() const {
 
 template <typename T>
 void ProximityEngine<T>::ExcludeCollisionsWithin(
-    const std::unordered_set<GeometryId>& dynamic,
-    const std::unordered_set<GeometryId>& anchored) {
+    const std::set<GeometryId>& dynamic,
+    const std::set<GeometryId>& anchored) {
   // xxx no current frame DRAKE_ASSERT(false);
   // DRAKE_ASSERT(tmp::Frames::Current::the());
   impl_->ExcludeCollisionsWithin(dynamic, anchored);
@@ -1363,10 +1363,10 @@ void ProximityEngine<T>::ExcludeCollisionsWithin(
 
 template <typename T>
 void ProximityEngine<T>::ExcludeCollisionsBetween(
-    const std::unordered_set<GeometryId>& dynamic1,
-    const std::unordered_set<GeometryId>& anchored1,
-    const std::unordered_set<GeometryId>& dynamic2,
-    const std::unordered_set<GeometryId>& anchored2) {
+    const std::set<GeometryId>& dynamic1,
+    const std::set<GeometryId>& anchored1,
+    const std::set<GeometryId>& dynamic2,
+    const std::set<GeometryId>& anchored2) {
   // xxx no current frame DRAKE_ASSERT(false);
   impl_->ExcludeCollisionsBetween(dynamic1, anchored1, dynamic2, anchored2);
 }

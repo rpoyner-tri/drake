@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <utility>
 
 #include "drake/common/drake_copyable.h"
@@ -104,7 +104,7 @@ class SequentialExpressionManager {
 
  private:
   int num_samples_{};
-  std::unordered_map<std::string, std::pair<VectorX<symbolic::Variable>,
+  std::map<std::string, std::pair<VectorX<symbolic::Variable>,
                                             MatrixX<symbolic::Expression>>>
       name_to_placeholders_and_sequential_expressions_;
 };

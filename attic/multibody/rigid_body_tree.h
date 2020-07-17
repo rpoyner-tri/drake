@@ -4,8 +4,8 @@
 #include <memory>
 #include <set>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <utility>
 #include <vector>
 
@@ -777,7 +777,7 @@ class RigidBodyTree {
 
   /// Convenience alias for rigid body to external wrench map, for use with
   /// inverseDynamics and dynamicsBiasTerm.
-  using BodyToWrenchMap = drake::eigen_aligned_std_unordered_map<
+  using BodyToWrenchMap = drake::eigen_aligned_std_map<
     RigidBody<double> const*, drake::WrenchVector<T>>;
 
   /** \brief Compute the term \f$ C(q, v, f_\text{ext}) \f$ in the manipulator
@@ -794,7 +794,7 @@ class RigidBodyTree {
   Eigen::Matrix<Scalar, Eigen::Dynamic, 1> dynamicsBiasTerm(
       // TODO(#2274) Fix NOLINTNEXTLINE(runtime/references).
       KinematicsCache<Scalar>& cache,
-      const drake::eigen_aligned_std_unordered_map<
+      const drake::eigen_aligned_std_map<
           RigidBody<T> const*, drake::WrenchVector<Scalar>>& external_wrenches,
       bool include_velocity_terms = true) const;
 
@@ -829,7 +829,7 @@ class RigidBodyTree {
   Eigen::Matrix<Scalar, Eigen::Dynamic, 1> inverseDynamics(
       // TODO(#2274) Fix NOLINTNEXTLINE(runtime/references).
       KinematicsCache<Scalar>& cache,
-      const drake::eigen_aligned_std_unordered_map<
+      const drake::eigen_aligned_std_map<
           RigidBody<T> const*, drake::WrenchVector<Scalar>>& external_wrenches,
       const Eigen::Matrix<Scalar, Eigen::Dynamic, 1>& vd,
       bool include_velocity_terms = true) const;
@@ -1704,7 +1704,7 @@ class RigidBodyTree {
   //   false.
   //
   // @see RigidBody::CanCollideWith.
-  void CreateCollisionCliques(std::unordered_set<RigidBody<T>*>* recompile_set);
+  void CreateCollisionCliques(std::set<RigidBody<T>*>* recompile_set);
 
   // collision_model maintains a collection of the collision geometry in the
   // RBM for use in collision detection of different kinds. Small margins are
@@ -1758,7 +1758,7 @@ class RigidBodyTree {
   // RigidBodyTree::compile() at the conclusion of which it is emptied.
   // It has no run-time value.  This is a hacky alternative to having a
   // proper Intermediate Representation (IR).
-  std::unordered_map<RigidBody<T>*, BodyCollisions> body_collision_map_;
+  std::map<RigidBody<T>*, BodyCollisions> body_collision_map_;
 
   // Bullet's collision results are affected by the order in which the collision
   // elements are added. This queues the collision elements in the added order

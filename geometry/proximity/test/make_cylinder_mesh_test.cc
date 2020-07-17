@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <fstream>
 #include <set>
-#include <unordered_set>
+#include <set>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -139,7 +139,7 @@ GTEST_TEST(MakeCylinderVolumeMesh, VolumeConvergence) {
 
 // Counts the unique 1-simplices in the mesh
 int CountEdges(const VolumeMesh<double>& mesh) {
-  std::unordered_set<SortedPair<VolumeVertexIndex>> edges;
+  std::set<SortedPair<VolumeVertexIndex>> edges;
 
   for (auto& t : mesh.tetrahedra()) {
     // 6 edges of a tetrahedron

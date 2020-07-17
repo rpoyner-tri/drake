@@ -153,11 +153,11 @@ class MeshHalfspaceIntersectionTest : public ::testing::Test {
   // Accessors for data structures used repeatedly.
   std::vector<SurfaceVertex<T>>& new_vertices_W() { return new_vertices_W_; }
   std::vector<SurfaceFace>& new_faces() { return new_faces_; }
-  std::unordered_map<SurfaceVertexIndex, SurfaceVertexIndex>&
+  std::map<SurfaceVertexIndex, SurfaceVertexIndex>&
   vertices_to_newly_created_vertices() {
     return vertices_to_newly_created_vertices_;
   }
-  std::unordered_map<SortedPair<SurfaceVertexIndex>, SurfaceVertexIndex>&
+  std::map<SortedPair<SurfaceVertexIndex>, SurfaceVertexIndex>&
   edges_to_newly_created_vertices() {
     return edges_to_newly_created_vertices_;
   }
@@ -274,9 +274,9 @@ class MeshHalfspaceIntersectionTest : public ::testing::Test {
 
   std::vector<SurfaceVertex<T>> new_vertices_W_;
   std::vector<SurfaceFace> new_faces_;
-  std::unordered_map<SurfaceVertexIndex, SurfaceVertexIndex>
+  std::map<SurfaceVertexIndex, SurfaceVertexIndex>
       vertices_to_newly_created_vertices_;
-  std::unordered_map<SortedPair<SurfaceVertexIndex>, SurfaceVertexIndex>
+  std::map<SortedPair<SurfaceVertexIndex>, SurfaceVertexIndex>
       edges_to_newly_created_vertices_;
   // In this test harness, the half space is always simply defined in the
   // mesh's frame F.

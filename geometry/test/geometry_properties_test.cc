@@ -259,7 +259,7 @@ GTEST_TEST(GeometryProperties, GetPropertyFailure) {
 GTEST_TEST(GeometryProperties, PropertyIteration) {
   TestProperties properties;
   const string& default_group = TestProperties::default_group_name();
-  std::unordered_map<string, int> reference{{"prop1", 10}, {"prop2", 20}};
+  std::map<string, int> reference{{"prop1", 10}, {"prop2", 20}};
   for (const auto& pair : reference) {
     properties.AddProperty(default_group, pair.first, pair.second);
   }
@@ -356,7 +356,7 @@ GTEST_TEST(GeometryProperties, CopyMoveSemantics) {
 
   // Strictly speaking, confirming that the move *source* has changed isn't
   // necessary. The move semantics aren't documented. However, given that this
-  // is using default move semantics on unordered_map, we can assume that the
+  // is using default move semantics on map, we can assume that the
   // source is modified by the move. So, we'll go ahead and test that.
 
   // Move construction.

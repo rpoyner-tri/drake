@@ -3,7 +3,7 @@
 #include <limits>
 #include <memory>
 #include <stdexcept>
-#include <unordered_set>
+#include <set>
 #include <utility>
 
 #include "drake/common/drake_assert.h"
@@ -2164,7 +2164,7 @@ MatrixX<double> MultibodyTree<T>::MakeStateSelectorMatrix(
   DRAKE_MBT_THROW_IF_NOT_FINALIZED();
 
   // We create a set in order to verify that joint indexes appear only once.
-  std::unordered_set<JointIndex> already_selected_joints;
+  std::set<JointIndex> already_selected_joints;
   for (const auto& joint_index : user_to_joint_index_map) {
     const bool inserted = already_selected_joints.insert(joint_index).second;
     if (!inserted) {
