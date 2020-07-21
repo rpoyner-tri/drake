@@ -1301,6 +1301,9 @@ void MultibodyPlant<T>::CalcContactResultsContinuousPointPair(
     BodyIndex bodyA_index = geometry_id_to_body_index_.at(geometryA_id);
     BodyIndex bodyB_index = geometry_id_to_body_index_.at(geometryB_id);
 
+    auto& bodyA = get_body(bodyA_index);
+    auto& bodyB = get_body(bodyB_index);
+
     internal::BodyNodeIndex bodyA_node_index =
         get_body(bodyA_index).node_index();
     internal::BodyNodeIndex bodyB_node_index =
@@ -1321,14 +1324,14 @@ void MultibodyPlant<T>::CalcContactResultsContinuousPointPair(
             fmt::format("context: {}\ncontinuous {}\n"
                         "contact_point {}\n"
                         "contact A {}\ncontact B {}\n"
-                        "bni A {}\nbni B {}\n",
+                        "bodyA {}\nbodyB {}\n",
                         context.to_string(),
                         tmp::vec_fmt(context.get_continuous_state_vector()),
                         tmp::vec_fmt(p_WC),
                         tmp::vec_fmt(p_WCa),
                         tmp::vec_fmt(p_WCb),
-                        static_cast<int>(bodyA_node_index),
-                        static_cast<int>(bodyB_node_index)
+                        bodyA.name(),
+                        bodyB.name()
                         ));
     }
 

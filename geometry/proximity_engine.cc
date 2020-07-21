@@ -51,6 +51,111 @@ using std::vector;
 
 namespace {
 
+std::string FormatShape(const fcl::ShapeBased& shape) {
+  std::stringstream ss;
+  switch (shape.getNodeType()) {
+    case fcl::GEOM_SPHERE: {
+      ss << dynamic_cast<const fcl::Sphered&>(shape);
+      break;
+    }
+    case fcl::GEOM_BOX: {
+      ss << dynamic_cast<const fcl::Boxd&>(shape);
+      break;
+    }
+    case fcl::GEOM_CYLINDER: {
+      ss << dynamic_cast<const fcl::Cylinderd&>(shape);
+      break;
+    }
+    case fcl::BV_UNKNOWN: { DRAKE_UNREACHABLE(); }
+    case fcl::BV_AABB: { DRAKE_UNREACHABLE(); }
+    case fcl::BV_OBB: { DRAKE_UNREACHABLE(); }
+    case fcl::BV_RSS: { DRAKE_UNREACHABLE(); }
+    case fcl::BV_kIOS: { DRAKE_UNREACHABLE(); }
+    case fcl::BV_OBBRSS: { DRAKE_UNREACHABLE(); }
+    case fcl::BV_KDOP16: { DRAKE_UNREACHABLE(); }
+    case fcl::BV_KDOP18: { DRAKE_UNREACHABLE(); }
+    case fcl::BV_KDOP24: { DRAKE_UNREACHABLE(); }
+    case fcl::GEOM_ELLIPSOID: { DRAKE_UNREACHABLE(); }
+    case fcl::GEOM_CAPSULE: { DRAKE_UNREACHABLE(); }
+    case fcl::GEOM_CONE: { DRAKE_UNREACHABLE(); }
+    case fcl::GEOM_CONVEX: { DRAKE_UNREACHABLE(); }
+    case fcl::GEOM_PLANE: { DRAKE_UNREACHABLE(); }
+    case fcl::GEOM_HALFSPACE: { DRAKE_UNREACHABLE(); }
+    case fcl::GEOM_TRIANGLE: { DRAKE_UNREACHABLE(); }
+    case fcl::GEOM_OCTREE: { DRAKE_UNREACHABLE(); }
+    case fcl::NODE_COUNT: { DRAKE_UNREACHABLE(); }
+    // default: {
+    //   DRAKE_UNREACHABLE();
+    // }
+  }
+  return ss.str();
+}
+
+std::string FormatGeometry(const fcl::CollisionObjectd* obj) {
+  switch (obj->getObjectType()) {
+    case fcl::OT_GEOM: {
+      return FormatShape(dynamic_cast<const fcl::ShapeBased&>(*obj->collisionGeometry()));
+    }
+    case fcl::OT_UNKNOWN: { DRAKE_UNREACHABLE(); }
+    case fcl::OT_BVH: { DRAKE_UNREACHABLE(); }
+    case fcl::OT_OCTREE: { DRAKE_UNREACHABLE(); }
+    case fcl::OT_COUNT: { DRAKE_UNREACHABLE(); }
+  }
+  DRAKE_UNREACHABLE();
+}
+
+
+
+template <typename Iterator, typename Compare>
+void AssertIrreflexive(Iterator first, Iterator last, Compare cmp) {
+  for (Iterator ii = first; ii != last; ii++) {
+    DRAKE_ASSERT(cmp(*ii, *ii) == false);
+  }
+}
+
+template <typename Iterator, typename Compare>
+void AssertAntisymmetric(Iterator first, Iterator last, Compare cmp) {
+  for (Iterator ii = first; ii != last; ii++) {
+    for (Iterator jj = first; jj != last; jj++) {
+      if (cmp(*ii, *jj)) {
+        DRAKE_ASSERT(cmp(*jj, *ii) == false);
+      }
+    }
+  }
+}
+
+template <typename Iterator, typename Compare>
+void AssertTransitive(Iterator first, Iterator last, Compare cmp) {
+  for (Iterator ii = first; ii != last; ii++) {
+    for (Iterator jj = first; jj != last; jj++) {
+      for (Iterator kk = first; kk != last; kk++) {
+        if (cmp(*ii, *jj) && cmp(*jj, *kk)) {
+          DRAKE_ASSERT(cmp(*ii, *kk) == true);
+        }
+      }
+    }
+  }
+}
+
+template <typename T, typename Compare>
+bool equivalent(const T& a, const T& b, Compare cmp) {
+  return !cmp(a, b) && !cmp(b, a);
+}
+
+template <typename Iterator, typename Compare>
+void AssertEquivalenceIsTransitive(Iterator first, Iterator last, Compare cmp) {
+  for (Iterator ii = first; ii != last; ii++) {
+    for (Iterator jj = first; jj != last; jj++) {
+      for (Iterator kk = first; kk != last; kk++) {
+        if (equivalent(*ii, *jj, cmp) && equivalent(*jj, *kk, cmp)) {
+          DRAKE_ASSERT(equivalent(*ii, *kk, cmp) == true);
+        }
+      }
+    }
+  }
+}
+
+
 // Returns a copy of the given fcl collision geometry; throws an exception for
 // unsupported collision geometry types. This supplements the *missing* cloning
 // functionality in FCL. Issue has been submitted to FCL:
@@ -758,12 +863,68 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
     // cliques will always match if we sorted them and ignored the IDs.
     // tmp::Frames::Current::the()->add(collision_filter_.to_string());
 
+    auto cmp = [](const CollisionObjectd* a, const CollisionObjectd* b) {
+#define FIELD_CMP(a, b) if (a != b) { return a < b; }
+      if (a == b) { return false; }
+      FIELD_CMP(a->getObjectType(), b->getObjectType());
+      FIELD_CMP(a->getNodeType(), b->getNodeType());
+      const auto& atx = a->getTranslation();
+      const auto& btx = b->getTranslation();
+      FIELD_CMP(atx[0], btx[0]);
+      FIELD_CMP(atx[1], btx[1]);
+      FIELD_CMP(atx[2], btx[2]);
+      const auto& arx = a->getQuatRotation().coeffs();
+      const auto& brx = b->getQuatRotation().coeffs();
+      FIELD_CMP(arx[0], brx[0]);
+      FIELD_CMP(arx[1], brx[1]);
+      FIELD_CMP(arx[2], brx[2]);
+      FIELD_CMP(arx[3], brx[3]);
+      DRAKE_UNREACHABLE();
+    };
+
+    auto sort_objs = [&cmp](const auto& tree) {
+      std::vector<CollisionObjectd*> objs;
+      tree.getObjects(objs);
+      // AssertIrreflexive(objs.begin(), objs.end(), cmp);
+      // AssertAntisymmetric(objs.begin(), objs.end(), cmp);
+      // AssertTransitive(objs.begin(), objs.end(), cmp);
+      // AssertEquivalenceIsTransitive(objs.begin(), objs.end(), cmp);
+      std::sort(objs.begin(), objs.end(), cmp);
+      return objs;
+    };
+
+    const auto& dynamic_objs = sort_objs(dynamic_tree_);
+    const auto& anchored_objs = sort_objs(anchored_tree_);
+
+    auto fmt_objs = [](const auto& objs, std::string title) {
+      std::stringstream ss;
+      ss << title << ":\n";
+      for (const auto& obj : objs) {
+        ss << fmt::format(
+            "  ot {} nt {} tx {} rx {}\n"
+            "  geom {}\n",
+            obj->getObjectType(),
+            obj->getNodeType(),
+            tmp::vec_fmt(obj->getTranslation()),
+            tmp::vec_fmt(obj->getQuatRotation().coeffs()),
+            FormatGeometry(obj));
+      }
+      tmp::Frames::Current::the()->add(ss.str());
+    };
+    fmt_objs(dynamic_objs, "dynamic tree");
+    fmt_objs(anchored_objs, "anchored tree");
 
     std::vector<PenetrationAsPointPair<double>> contacts;
     penetration_as_point_pair::CallbackData data{&collision_filter_, &contacts};
 
     // Perform a query of the dynamic objects against themselves.
-    dynamic_tree_.collide(&data, penetration_as_point_pair::Callback);
+    // XXX rico  replace with n-squared narrow-phase checks.
+    // dynamic_tree_.collide(&data, penetration_as_point_pair::Callback);
+    for (auto ii = dynamic_objs.begin(); ii != dynamic_objs.end(); ii++) {
+      for (auto jj = ii; jj != dynamic_objs.end(); jj++) {
+        penetration_as_point_pair::Callback(*ii, *jj, &data);
+      }
+    }
 
     // Perform a query of the dynamic objects against the anchored. We don't do
     // anchored against anchored because those pairs are implicitly filtered.
