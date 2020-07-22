@@ -36,6 +36,8 @@ namespace drake {
 namespace geometry {
 namespace internal {
 
+DEFINE_bool(hack_broadphase, false, "hack around problematic FCL broadphase collision checks");
+
 using Eigen::Vector3d;
 using fcl::CollisionObjectd;
 using drake::geometry::internal::HydroelasticType;
@@ -863,8 +865,11 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
     // cliques will always match if we sorted them and ignored the IDs.
     // tmp::Frames::Current::the()->add(collision_filter_.to_string());
 
+      // xxx grumble eigen.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     auto cmp = [](const CollisionObjectd* a, const CollisionObjectd* b) {
-#define FIELD_CMP(a, b) if (a != b) { return a < b; }
+#define FIELD_CMP(x, y) if (x != y) { return x < y; }
       if (a == b) { return false; }
       FIELD_CMP(a->getObjectType(), b->getObjectType());
       FIELD_CMP(a->getNodeType(), b->getNodeType());
@@ -881,6 +886,7 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
       FIELD_CMP(arx[3], brx[3]);
       DRAKE_UNREACHABLE();
     };
+#pragma GCC diagnostic pop
 
     auto sort_objs = [&cmp](const auto& tree) {
       std::vector<CollisionObjectd*> objs;
@@ -918,12 +924,18 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
     penetration_as_point_pair::CallbackData data{&collision_filter_, &contacts};
 
     // Perform a query of the dynamic objects against themselves.
-    // XXX rico  replace with n-squared narrow-phase checks.
-    // dynamic_tree_.collide(&data, penetration_as_point_pair::Callback);
-    for (auto ii = dynamic_objs.begin(); ii != dynamic_objs.end(); ii++) {
-      for (auto jj = ii; jj != dynamic_objs.end(); jj++) {
-        penetration_as_point_pair::Callback(*ii, *jj, &data);
+    if (FLAGS_hack_broadphase) {
+      // XXX rico  replace with n-squared narrow-phase checks.
+      // XXX rico  using an unsorted sequence here brings back divergences.
+      // std::vector<CollisionObjectd*> unsorted;
+      // dynamic_tree_.getObjects(unsorted);
+      for (auto ii = dynamic_objs.begin(); ii != dynamic_objs.end(); ii++) {
+        for (auto jj = ii; jj != dynamic_objs.end(); jj++) {
+          penetration_as_point_pair::Callback(*ii, *jj, &data);
+        }
       }
+    } else {
+      dynamic_tree_.collide(&data, penetration_as_point_pair::Callback);
     }
 
     // Perform a query of the dynamic objects against the anchored. We don't do
