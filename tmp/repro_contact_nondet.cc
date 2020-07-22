@@ -34,7 +34,8 @@ DEFINE_int64(sim_trials, 4, "Number of sim trials within a meta trial.");
 DEFINE_string(styles, "", "Styles to run, comma-separated list.");
 DEFINE_string(setups, "", "Setups to run, comma-separated list.");
 DEFINE_bool(visualize, false, "Emit data to drake visualizer.");
-
+DEFINE_bool(hack_sim_initialize, false,
+            "Explicitly initialize simulator between Reuse-style trials.");
 using Simulator = systems::Simulator<double>;
 using CalcOutput = std::function<std::string (const systems::Context<double>&)>;
 
@@ -340,6 +341,10 @@ std::tuple<ResimulateStyle, std::string> simulate_trials(
       for (int k = 0; k < num_sim_trials; k++) {
         fmt::print("  index: {}\n", k);
         d_context.SetTimeStateAndParametersFrom(*d_context_initial);
+        if (FLAGS_hack_sim_initialize) {
+          // Temporary workaround while simulator/context API is being discussed.
+          simulator->Initialize();
+        }
         checker.run(simulator.get(), calc_output);
       }
       break;
