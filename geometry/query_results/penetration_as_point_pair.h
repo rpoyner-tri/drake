@@ -40,6 +40,8 @@ struct PenetrationAsPointPair {
   Vector3<T> nhat_BA_W;
   /** The penetration depth. */
   T depth{-1.0};
+
+
 };
 
 }  // namespace geometry
