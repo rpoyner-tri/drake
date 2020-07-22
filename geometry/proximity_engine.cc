@@ -53,58 +53,58 @@ using std::vector;
 
 namespace {
 
-std::string FormatShape(const fcl::ShapeBased& shape) {
-  std::stringstream ss;
-  switch (shape.getNodeType()) {
-    case fcl::GEOM_SPHERE: {
-      ss << dynamic_cast<const fcl::Sphered&>(shape);
-      break;
-    }
-    case fcl::GEOM_BOX: {
-      ss << dynamic_cast<const fcl::Boxd&>(shape);
-      break;
-    }
-    case fcl::GEOM_CYLINDER: {
-      ss << dynamic_cast<const fcl::Cylinderd&>(shape);
-      break;
-    }
-    case fcl::BV_UNKNOWN: { DRAKE_UNREACHABLE(); }
-    case fcl::BV_AABB: { DRAKE_UNREACHABLE(); }
-    case fcl::BV_OBB: { DRAKE_UNREACHABLE(); }
-    case fcl::BV_RSS: { DRAKE_UNREACHABLE(); }
-    case fcl::BV_kIOS: { DRAKE_UNREACHABLE(); }
-    case fcl::BV_OBBRSS: { DRAKE_UNREACHABLE(); }
-    case fcl::BV_KDOP16: { DRAKE_UNREACHABLE(); }
-    case fcl::BV_KDOP18: { DRAKE_UNREACHABLE(); }
-    case fcl::BV_KDOP24: { DRAKE_UNREACHABLE(); }
-    case fcl::GEOM_ELLIPSOID: { DRAKE_UNREACHABLE(); }
-    case fcl::GEOM_CAPSULE: { DRAKE_UNREACHABLE(); }
-    case fcl::GEOM_CONE: { DRAKE_UNREACHABLE(); }
-    case fcl::GEOM_CONVEX: { DRAKE_UNREACHABLE(); }
-    case fcl::GEOM_PLANE: { DRAKE_UNREACHABLE(); }
-    case fcl::GEOM_HALFSPACE: { DRAKE_UNREACHABLE(); }
-    case fcl::GEOM_TRIANGLE: { DRAKE_UNREACHABLE(); }
-    case fcl::GEOM_OCTREE: { DRAKE_UNREACHABLE(); }
-    case fcl::NODE_COUNT: { DRAKE_UNREACHABLE(); }
-    // default: {
-    //   DRAKE_UNREACHABLE();
-    // }
-  }
-  return ss.str();
-}
+// std::string FormatShape(const fcl::ShapeBased& shape) {
+//   std::stringstream ss;
+//   switch (shape.getNodeType()) {
+//     case fcl::GEOM_SPHERE: {
+//       ss << dynamic_cast<const fcl::Sphered&>(shape);
+//       break;
+//     }
+//     case fcl::GEOM_BOX: {
+//       ss << dynamic_cast<const fcl::Boxd&>(shape);
+//       break;
+//     }
+//     case fcl::GEOM_CYLINDER: {
+//       ss << dynamic_cast<const fcl::Cylinderd&>(shape);
+//       break;
+//     }
+//     case fcl::BV_UNKNOWN: { DRAKE_UNREACHABLE(); }
+//     case fcl::BV_AABB: { DRAKE_UNREACHABLE(); }
+//     case fcl::BV_OBB: { DRAKE_UNREACHABLE(); }
+//     case fcl::BV_RSS: { DRAKE_UNREACHABLE(); }
+//     case fcl::BV_kIOS: { DRAKE_UNREACHABLE(); }
+//     case fcl::BV_OBBRSS: { DRAKE_UNREACHABLE(); }
+//     case fcl::BV_KDOP16: { DRAKE_UNREACHABLE(); }
+//     case fcl::BV_KDOP18: { DRAKE_UNREACHABLE(); }
+//     case fcl::BV_KDOP24: { DRAKE_UNREACHABLE(); }
+//     case fcl::GEOM_ELLIPSOID: { DRAKE_UNREACHABLE(); }
+//     case fcl::GEOM_CAPSULE: { DRAKE_UNREACHABLE(); }
+//     case fcl::GEOM_CONE: { DRAKE_UNREACHABLE(); }
+//     case fcl::GEOM_CONVEX: { DRAKE_UNREACHABLE(); }
+//     case fcl::GEOM_PLANE: { DRAKE_UNREACHABLE(); }
+//     case fcl::GEOM_HALFSPACE: { DRAKE_UNREACHABLE(); }
+//     case fcl::GEOM_TRIANGLE: { DRAKE_UNREACHABLE(); }
+//     case fcl::GEOM_OCTREE: { DRAKE_UNREACHABLE(); }
+//     case fcl::NODE_COUNT: { DRAKE_UNREACHABLE(); }
+//     // default: {
+//     //   DRAKE_UNREACHABLE();
+//     // }
+//   }
+//   return ss.str();
+// }
 
-std::string FormatGeometry(const fcl::CollisionObjectd* obj) {
-  switch (obj->getObjectType()) {
-    case fcl::OT_GEOM: {
-      return FormatShape(dynamic_cast<const fcl::ShapeBased&>(*obj->collisionGeometry()));
-    }
-    case fcl::OT_UNKNOWN: { DRAKE_UNREACHABLE(); }
-    case fcl::OT_BVH: { DRAKE_UNREACHABLE(); }
-    case fcl::OT_OCTREE: { DRAKE_UNREACHABLE(); }
-    case fcl::OT_COUNT: { DRAKE_UNREACHABLE(); }
-  }
-  DRAKE_UNREACHABLE();
-}
+// std::string FormatGeometry(const fcl::CollisionObjectd* obj) {
+//   switch (obj->getObjectType()) {
+//     case fcl::OT_GEOM: {
+//       return FormatShape(dynamic_cast<const fcl::ShapeBased&>(*obj->collisionGeometry()));
+//     }
+//     case fcl::OT_UNKNOWN: { DRAKE_UNREACHABLE(); }
+//     case fcl::OT_BVH: { DRAKE_UNREACHABLE(); }
+//     case fcl::OT_OCTREE: { DRAKE_UNREACHABLE(); }
+//     case fcl::OT_COUNT: { DRAKE_UNREACHABLE(); }
+//   }
+//   DRAKE_UNREACHABLE();
+// }
 
 
 
@@ -902,23 +902,23 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
     const auto& dynamic_objs = sort_objs(dynamic_tree_);
     const auto& anchored_objs = sort_objs(anchored_tree_);
 
-    auto fmt_objs = [](const auto& objs, std::string title) {
-      std::stringstream ss;
-      ss << title << ":\n";
-      for (const auto& obj : objs) {
-        ss << fmt::format(
-            "  ot {} nt {} tx {} rx {}\n"
-            "  geom {}\n",
-            obj->getObjectType(),
-            obj->getNodeType(),
-            tmp::vec_fmt(obj->getTranslation()),
-            tmp::vec_fmt(obj->getQuatRotation().coeffs()),
-            FormatGeometry(obj));
-      }
-      tmp::Frames::Current::the()->add(ss.str());
-    };
-    fmt_objs(dynamic_objs, "dynamic tree");
-    fmt_objs(anchored_objs, "anchored tree");
+    // auto fmt_objs = [](const auto& objs, std::string title) {
+    //   std::stringstream ss;
+    //   ss << title << ":\n";
+    //   for (const auto& obj : objs) {
+    //     ss << fmt::format(
+    //         "  ot {} nt {} tx {} rx {}\n"
+    //         "  geom {}\n",
+    //         obj->getObjectType(),
+    //         obj->getNodeType(),
+    //         tmp::vec_fmt(obj->getTranslation()),
+    //         tmp::vec_fmt(obj->getQuatRotation().coeffs()),
+    //         FormatGeometry(obj));
+    //   }
+    //   tmp::Frames::Current::the()->add(ss.str());
+    // };
+    // fmt_objs(dynamic_objs, "dynamic tree");
+    // fmt_objs(anchored_objs, "anchored tree");
 
     std::vector<PenetrationAsPointPair<double>> contacts;
     penetration_as_point_pair::CallbackData data{&collision_filter_, &contacts};
@@ -1444,17 +1444,17 @@ void ProximityEngine<T>::UpdateWorldPoses(
     const unordered_map<GeometryId, RigidTransform<T>>& X_WGs) {
   // xxx DRAKE_ASSERT(false);
   DRAKE_ASSERT(tmp::Frames::Current::the());
-  if constexpr (std::is_same<T, double>::value) {
-      std::stringstream ss;
-      for (const auto& pair : X_WGs) {
-        ss << fmt::format(
-            "(id XXX, (r {} t {}))\n",
-            //pair.first,
-            tmp::vec_fmt(pair.second.rotation().ToQuaternionAsVector4()),
-            tmp::vec_fmt(pair.second.translation()));
-      }
-      tmp::Frames::Current::the()->add(ss.str());
-  }
+  // if constexpr (std::is_same<T, double>::value) {
+  //     std::stringstream ss;
+  //     for (const auto& pair : X_WGs) {
+  //       ss << fmt::format(
+  //           "(id XXX, (r {} t {}))\n",
+  //           //pair.first,
+  //           tmp::vec_fmt(pair.second.rotation().ToQuaternionAsVector4()),
+  //           tmp::vec_fmt(pair.second.translation()));
+  //     }
+  //     tmp::Frames::Current::the()->add(ss.str());
+  // }
   impl_->UpdateWorldPoses(X_WGs);
 }
 
