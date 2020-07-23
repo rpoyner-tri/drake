@@ -22,6 +22,8 @@ using fcl::Contactd;
 bool Callback(CollisionObjectd* fcl_object_A_ptr,
               CollisionObjectd* fcl_object_B_ptr,
               void* callback_data) {
+  FLAGS_hack_narrowphase =
+      gflags::BoolFromEnv("FLAGS_hack_narrowphase", FLAGS_hack_narrowphase);
   auto& data = *static_cast<CallbackData*>(callback_data);
 
   // Extract the collision filter keys from the fcl collision objects. These

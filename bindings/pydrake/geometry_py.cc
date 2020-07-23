@@ -20,6 +20,7 @@
 #include "drake/geometry/geometry_roles.h"
 #include "drake/geometry/geometry_visualization.h"
 #include "drake/geometry/proximity/obj_to_surface_mesh.h"
+#include "drake/geometry/proximity/penetration_as_point_pair_callback.h"
 #include "drake/geometry/proximity/surface_mesh.h"
 #include "drake/geometry/query_results/penetration_as_point_pair.h"
 #include "drake/geometry/render/gl_renderer/render_engine_gl_factory.h"

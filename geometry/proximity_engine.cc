@@ -749,6 +749,8 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
 
   std::vector<PenetrationAsPointPair<double>> ComputePointPairPenetration()
       const {
+    FLAGS_hack_broadphase =
+        gflags::BoolFromEnv("FLAGS_hack_broadphase", FLAGS_hack_broadphase);
     std::vector<PenetrationAsPointPair<double>> contacts;
     penetration_as_point_pair::CallbackData data{&collision_filter_, &contacts};
 

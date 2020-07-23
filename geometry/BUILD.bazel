@@ -59,6 +59,7 @@ drake_cc_library(
         "//math",
         "@fcl",
         "@fmt",
+        "@gflags",
         "@tinyobjloader",
     ],
 )

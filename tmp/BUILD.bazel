@@ -96,3 +96,9 @@ drake_cc_binary(
         "@gflags",
     ],
 )
+
+sh_binary(
+    name = "repro_contact_nondeterminism_hacks",
+    srcs = ["repro_contact_nondeterminism_hacks.sh"],
+    data = [":repro_contact_nondeterminism"],
+)

@@ -393,6 +393,7 @@ drake_cc_library(
         ":proximity_utilities",
         "//geometry/query_results:penetration_as_point_pair",
         "@fcl",
+        "@gflags",
     ],
 )
 

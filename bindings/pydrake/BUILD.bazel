@@ -135,6 +135,7 @@ drake_pybind_library(
         "//bindings/pydrake/common:type_pack",
         "//bindings/pydrake/common:value_pybind",
         "//lcmtypes:viewer",
+        "@fcl",
     ],
     cc_srcs = ["geometry_py.cc"],
     package_info = PACKAGE_INFO,
