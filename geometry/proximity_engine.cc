@@ -34,6 +34,8 @@ namespace drake {
 namespace geometry {
 namespace internal {
 
+DEFINE_bool(hack_broadphase, false, "hack around broadphase ordering lapses");
+
 using Eigen::Vector3d;
 using fcl::CollisionObjectd;
 using drake::geometry::internal::HydroelasticType;
@@ -757,6 +759,16 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
     // anchored against anchored because those pairs are implicitly filtered.
     FclCollide(dynamic_tree_, anchored_tree_, &data,
                penetration_as_point_pair::Callback);
+
+    if (FLAGS_hack_broadphase) {
+      // From chat with Sean. This is pretty close to the actual fix.
+      std::sort(contacts.begin(), contacts.end(),
+                [](const PenetrationAsPointPair<double>& p1,
+                   const PenetrationAsPointPair<double>& p2) {
+                  if (p1.id_A != p2.id_A) return p1.id_A < p2.id_A;
+                  return p1.id_B < p2.id_B;
+                });
+    }
 
     return contacts;
   }

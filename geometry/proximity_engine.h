@@ -7,6 +7,8 @@
 #include <unordered_set>
 #include <vector>
 
+#include <gflags/gflags.h>
+
 #include "drake/common/autodiff.h"
 #include "drake/common/sorted_pair.h"
 #include "drake/geometry/geometry_ids.h"
@@ -26,6 +28,8 @@ namespace geometry {
 template <typename T> class GeometryState;
 
 namespace internal {
+
+DECLARE_bool(hack_broadphase);
 
 #ifndef DRAKE_DOXYGEN_CXX
 // This provides GeometryState limited "friend" access to ProximityEngine for

@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <fcl/fcl.h>
+#include <gflags/gflags.h>
 
 #include "drake/geometry/proximity/collision_filter_legacy.h"
 #include "drake/geometry/proximity/proximity_utilities.h"
@@ -12,6 +13,8 @@ namespace drake {
 namespace geometry {
 namespace internal {
 namespace penetration_as_point_pair {
+
+DECLARE_bool(hack_narrowphase);
 
 // TODO(SeanCurtis-TRI): Template this and include X_WGs when this query
 //  supports AutoDiff scalars.
