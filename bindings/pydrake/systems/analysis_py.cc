@@ -120,6 +120,15 @@ PYBIND11_MODULE(analysis, m) {
             // Keep alive, reference: `self` keeps `context` alive.
             py::keep_alive<1, 3>(), doc.RungeKutta3Integrator.ctor.doc);
 
+    auto param_struct = DefineTemplateClassWithDefault<
+        typename Simulator<T>::InitializationParams>(m,
+        "SimulatorInitializationParams", GetPyParam<T>(),
+        doc.Simulator.Initialize.doc);
+    param_struct.def(py::init<>())
+        .def_readwrite("suppress_initialization_events",
+            &Simulator<
+                T>::InitializationParams::suppress_initialization_events);
+
     auto cls = DefineTemplateClassWithDefault<Simulator<T>>(
         m, "Simulator", GetPyParam<T>(), doc.Simulator.doc);
     cls  // BR
@@ -130,7 +139,8 @@ PYBIND11_MODULE(analysis, m) {
             // Keep alive, ownership: `context` keeps `self` alive.
             py::keep_alive<3, 1>(), doc.Simulator.ctor.doc)
         .def("Initialize", &Simulator<T>::Initialize,
-            doc.Simulator.Initialize.doc)
+            doc.Simulator.Initialize.doc,
+            py::arg("params") = typename Simulator<T>::InitializationParams{})
         .def("AdvanceTo", &Simulator<T>::AdvanceTo, py::arg("boundary_time"),
             doc.Simulator.AdvanceTo.doc)
         .def("AdvancePendingEvents", &Simulator<T>::AdvancePendingEvents,

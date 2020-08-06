@@ -22,6 +22,8 @@ from pydrake.systems.analysis import (
     ResetIntegratorFromFlags,
     RungeKutta2Integrator,
     SimulatorStatus, Simulator, Simulator_,
+    SimulatorInitializationParams,
+    SimulatorInitializationParams_
     )
 from pydrake.systems.framework import (
     BasicVector, BasicVector_,
@@ -369,6 +371,9 @@ class TestGeneral(unittest.TestCase):
             self.assertTrue(simulator.get_context() is
                             simulator.get_mutable_context())
             check_output(simulator.get_context())
+            params = SimulatorInitializationParams_[T]()
+            params.suppress_initialization_events = True
+            simulator.Initialize(params=params)
             simulator.AdvanceTo(1)
             simulator.ResetStatistics()
             simulator.AdvanceTo(2)
