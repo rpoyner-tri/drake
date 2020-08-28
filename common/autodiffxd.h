@@ -91,6 +91,9 @@ class AutoDiffScalar<VectorXd>
   AutoDiffScalar(const AutoDiffScalar& other)
       : m_value(other.value()), m_derivatives(other.derivatives()) {}
 
+  AutoDiffScalar(AutoDiffScalar&&) = default;
+  AutoDiffScalar& operator=(AutoDiffScalar&&) = default;
+
   template <typename OtherDerType>
   inline AutoDiffScalar& operator=(const AutoDiffScalar<OtherDerType>& other) {
     m_value = other.value();
