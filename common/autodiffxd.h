@@ -88,10 +88,6 @@ class AutoDiffScalar<VectorXd>
       : m_value(other.value()), m_derivatives(other.derivatives()) {
   }
 
-  friend std::ostream& operator<<(std::ostream& s, const AutoDiffScalar& a) {
-    return s << a.value();
-  }
-
   AutoDiffScalar(const AutoDiffScalar& other)
       : m_value(other.value()), m_derivatives(other.derivatives()) {}
 
@@ -112,6 +108,10 @@ class AutoDiffScalar<VectorXd>
     m_value = other;
     if (m_derivatives.size() > 0) m_derivatives.setZero();
     return *this;
+  }
+
+  friend std::ostream& operator<<(std::ostream& s, const AutoDiffScalar& a) {
+    return s << a.value();
   }
 
   inline const Scalar& value() const { return m_value; }
@@ -248,6 +248,30 @@ class AutoDiffScalar<VectorXd>
     return MakeAutoDiffScalar(a.value() * other, a.derivatives() * other);
   }
 
+  template <typename OtherDerType>
+  inline const AutoDiffScalar<DerType> operator*(
+      const AutoDiffScalar<OtherDerType>& other) const {
+    const bool has_this_der = m_derivatives.size() > 0;
+    const bool has_both_der = has_this_der && (other.derivatives().size() > 0);
+    return MakeAutoDiffScalar(
+        m_value * other.value(),
+        has_both_der ? VectorXd(m_derivatives * other.value() +
+                                other.derivatives() * m_value)
+                     : has_this_der ? VectorXd(m_derivatives * other.value())
+                                    : VectorXd(other.derivatives() * m_value));
+  }
+
+  inline AutoDiffScalar& operator*=(const Scalar& other) {
+    *this = *this * other;
+    return *this;
+  }
+
+  template <typename OtherDerType>
+  inline AutoDiffScalar& operator*=(const AutoDiffScalar<OtherDerType>& other) {
+    *this = *this * other;
+    return *this;
+  }
+
   inline const AutoDiffScalar<DerType> operator/(const Scalar& other) const {
     return MakeAutoDiffScalar(m_value / other,
                               (m_derivatives * (Scalar(1) / other)));
@@ -276,30 +300,6 @@ class AutoDiffScalar<VectorXd>
             VectorXd(this_der * other.value()) * scale :
         // has_other_der || has_neither
             VectorXd(other_der * -m_value) * scale);
-  }
-
-  template <typename OtherDerType>
-  inline const AutoDiffScalar<DerType> operator*(
-      const AutoDiffScalar<OtherDerType>& other) const {
-    const bool has_this_der = m_derivatives.size() > 0;
-    const bool has_both_der = has_this_der && (other.derivatives().size() > 0);
-    return MakeAutoDiffScalar(
-        m_value * other.value(),
-        has_both_der ? VectorXd(m_derivatives * other.value() +
-                                other.derivatives() * m_value)
-                     : has_this_der ? VectorXd(m_derivatives * other.value())
-                                    : VectorXd(other.derivatives() * m_value));
-  }
-
-  inline AutoDiffScalar& operator*=(const Scalar& other) {
-    *this = *this * other;
-    return *this;
-  }
-
-  template <typename OtherDerType>
-  inline AutoDiffScalar& operator*=(const AutoDiffScalar<OtherDerType>& other) {
-    *this = *this * other;
-    return *this;
   }
 
   inline AutoDiffScalar& operator/=(const Scalar& other) {
@@ -431,9 +431,8 @@ inline const AutoDiffScalar<VectorXd> pow(const AutoDiffScalar<VectorXd>& a,
 inline const AutoDiffScalar<VectorXd> min(const AutoDiffScalar<VectorXd>& a,
                                           const AutoDiffScalar<VectorXd>& b) {
   // If both a and b have derivatives, then their derivative sizes must match.
-  DRAKE_ASSERT(
-      a.derivatives().size() == 0 || b.derivatives().size() == 0 ||
-      a.derivatives().size() == b.derivatives().size());
+  DRAKE_ASSERT(a.derivatives().size() == 0 || b.derivatives().size() == 0 ||
+               a.derivatives().size() == b.derivatives().size());
   // The smaller of a or b wins; ties go to a iff it has any derivatives.
   return ((a < b) || ((a == b) && (a.derivatives().size() != 0))) ? a : b;
 }
@@ -442,9 +441,8 @@ inline const AutoDiffScalar<VectorXd> min(const AutoDiffScalar<VectorXd>& a,
 inline const AutoDiffScalar<VectorXd> max(const AutoDiffScalar<VectorXd>& a,
                                           const AutoDiffScalar<VectorXd>& b) {
   // If both a and b have derivatives, then their derivative sizes must match.
-  DRAKE_ASSERT(
-      a.derivatives().size() == 0 || b.derivatives().size() == 0 ||
-      a.derivatives().size() == b.derivatives().size());
+  DRAKE_ASSERT(a.derivatives().size() == 0 || b.derivatives().size() == 0 ||
+               a.derivatives().size() == b.derivatives().size());
   // The larger of a or b wins; ties go to a iff it has any derivatives.
   return ((a > b) || ((a == b) && (a.derivatives().size() != 0))) ? a : b;
 }
