@@ -212,40 +212,51 @@ class AutoDiffScalar<VectorXd>
     return a;
   }
 
-  inline const AutoDiffScalar<DerType> operator-(const Scalar& b) const {
-    return AutoDiffScalar<DerType>(m_value - b, m_derivatives);
-  }
-
-  friend inline const AutoDiffScalar<DerType> operator-(
-      const Scalar& a, const AutoDiffScalar& b) {
-    return AutoDiffScalar<DerType>(a - b.value(), -b.derivatives());
-  }
-
   inline AutoDiffScalar& operator-=(const Scalar& other) {
-    value() -= other;
+    m_value -= other;
     return *this;
   }
 
-  template <typename OtherDerType>
-  inline const AutoDiffScalar<DerType> operator-(
-      const AutoDiffScalar<OtherDerType>& other) const {
-    const bool has_this_der = m_derivatives.size() > 0;
-    const bool has_both_der = has_this_der && (other.derivatives().size() > 0);
-    return MakeAutoDiffScalar(
-        m_value - other.value(),
-        has_both_der
-            ? VectorXd(m_derivatives - other.derivatives())
-            : has_this_der ? m_derivatives : VectorXd(-other.derivatives()));
+  friend inline AutoDiffScalar<DerType> operator-(AutoDiffScalar<DerType> a,
+                                                  const Scalar& other) {
+    a -= other;
+    return a;
+  }
+
+  friend inline const AutoDiffScalar<DerType> operator-(const Scalar& a,
+                                                        AutoDiffScalar b) {
+    b.value() = a - b.value();
+    b.derivatives() *= -1;
+    return b;
   }
 
   template <typename OtherDerType>
   inline AutoDiffScalar& operator-=(const AutoDiffScalar<OtherDerType>& other) {
-    *this = *this - other;
+    const bool has_this_der = m_derivatives.size() > 0;
+    const bool has_both_der = has_this_der && (other.derivatives().size() > 0);
+    m_value -= other.value();
+    if (has_both_der) {
+      m_derivatives -= other.derivatives();
+    } else if (has_this_der) {
+      // noop
+    } else {
+      m_derivatives = -other.derivatives();
+    }
     return *this;
   }
 
-  inline const AutoDiffScalar<DerType> operator-() const {
-    return AutoDiffScalar<DerType>(-m_value, -m_derivatives);
+  template <typename OtherDerType>
+  friend inline const AutoDiffScalar<DerType> operator-(
+      AutoDiffScalar<DerType> a, const AutoDiffScalar<OtherDerType>& other) {
+    a -= other;
+    return a;
+  }
+
+  friend inline const AutoDiffScalar<DerType> operator-(
+      AutoDiffScalar<DerType> a) {
+    a.value() *= -1;
+    a.derivatives() *= -1;
+    return a;
   }
 
   inline const AutoDiffScalar<DerType> operator*(const Scalar& other) const {
