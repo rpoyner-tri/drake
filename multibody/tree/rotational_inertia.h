@@ -372,8 +372,9 @@ class RotationalInertia {
   /// @param nonnegative_scalar Nonnegative scalar which multiplies `this`.
   /// @return `this` rotational inertia multiplied by `nonnegative_scalar`.
   /// @see operator*=(), operator*(const T&, const RotationalInertia<T>&)
-  RotationalInertia<T> operator*(const T& nonnegative_scalar) const {
-    return RotationalInertia(*this) *= nonnegative_scalar;
+  friend RotationalInertia<T> operator*(RotationalInertia<T> I_BP_E, const T& nonnegative_scalar) {
+    I_BP_E *= nonnegative_scalar;
+    return I_BP_E;
   }
 
   /// Multiplies a nonnegative scalar (>= 0) by the rotational inertia `I_BP_E`.
@@ -382,9 +383,10 @@ class RotationalInertia {
   /// @return `nonnegative_scalar` multiplied by rotational inertia `I_BP_E`.
   /// @see operator*=(), operator*()
   friend RotationalInertia<T> operator*(const T& nonnegative_scalar,
-                                        const RotationalInertia<T>& I_BP_E) {
+                                        RotationalInertia<T> I_BP_E) {
     /// Multiplication of a scalar with a rotational matrix is commutative.
-    return RotationalInertia(I_BP_E) *= nonnegative_scalar;
+    I_BP_E *= nonnegative_scalar;
+    return I_BP_E;
   }
 
   /// Multiplies `this` rotational inertia about-point P, expressed-in frame E
