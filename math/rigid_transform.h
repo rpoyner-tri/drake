@@ -465,9 +465,19 @@ class RigidTransform {
 
   /// Multiplies `this` %RigidTransform `X_AB` by the `other` %RigidTransform
   /// `X_BC` and returns the %RigidTransform `X_AC = X_AB * X_BC`.
-  RigidTransform<T> operator*(const RigidTransform<T>& other) const {
-    const Vector3<T> p_AoCo_A = *this * other.translation();
-    return RigidTransform<T>(rotation() * other.rotation(), p_AoCo_A);
+  // RigidTransform<T> operator*(const RigidTransform<T>& other) const {
+  //   const Vector3<T> p_AoCo_A = *this * other.translation();
+  //   return RigidTransform<T>(rotation() * other.rotation(), p_AoCo_A);
+  // }
+  friend RigidTransform<T> operator*(RigidTransform<T> a, const RigidTransform<T>& b) {
+    a *= b;
+    return a;
+  }
+  friend RigidTransform<T> operator*(const RigidTransform<T>& a, RigidTransform<T>&& b) {
+    // TODO(rpoyner-tri): is there a smarter way to reuse storage of b?
+    b.p_AoBo_A_ = a * b.translation();
+    b.R_AB_ = a.R_AB_* b.rotation();
+    return b;
   }
 
   /// Multiplies `this` %RigidTransform `X_AB` by the translation-only transform
