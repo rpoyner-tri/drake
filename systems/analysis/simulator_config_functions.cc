@@ -1,4 +1,4 @@
-#include "sim/common/simulator_config_functions.h"
+#include "drake/systems/analysis/simulator_config_functions.h"
 
 #include <memory>
 #include <string>
@@ -8,8 +8,8 @@
 #include "drake/systems/analysis/simulator_flags.h"
 #include "drake/systems/primitives/symbolic_vector_system.h"
 
-namespace anzu {
-namespace sim {
+namespace drake {
+namespace systems {
 
 using drake::NiceTypeName;
 using drake::systems::IntegratorBase;
@@ -74,5 +74,5 @@ SimulatorConfig ExtractSimulatorConfig(
   return result;
 }
 
-}  // namespace sim
-}  // namespace anzu
+}  // namespace systems
+}  // namespace drake

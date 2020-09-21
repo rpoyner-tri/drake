@@ -7,8 +7,8 @@
 // TODO(jeremy.nimmer) Move this file into Drake once we like how it works.
 // See https://github.com/RobotLocomotion/drake/issues/12903.
 
-namespace anzu {
-namespace sim {
+namespace drake {
+namespace systems {
 
 // N.B. The names and defaults here match drake/systems/analysis exactly.
 /// The set of configurable properties on a simulator.
@@ -31,5 +31,5 @@ struct SimulatorConfig {
   double publish_every_time_step{false};
 };
 
-}  // namespace sim
-}  // namespace anzu
+}  // namespace systems
+}  // namespace drake

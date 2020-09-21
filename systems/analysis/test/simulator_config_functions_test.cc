@@ -1,11 +1,11 @@
-#include "sim/common/simulator_config_functions.h"
+#include "drake/systems/analysis/simulator_config_functions.h"
 
 #include <gtest/gtest.h>
 
 #include "drake/systems/framework/leaf_system.h"
 
-namespace anzu {
-namespace sim {
+namespace drake {
+namespace systems {
 namespace {
 
 // A hollow shell of a System.
@@ -53,5 +53,5 @@ GTEST_TEST(SimulatorConfigFunctionsTest, RoundTripTest) {
 }
 
 }  // namespace
-}  // namespace sim
-}  // namespace anzu
+}  // namespace systems
+}  // namespace drake
