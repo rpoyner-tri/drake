@@ -10,9 +10,6 @@
 namespace drake {
 namespace multibody {
 
-// Forward declaration to define dot product with a spatial velocity.
-template <typename T> class SpatialVelocity;
-
 /// This class is used to represent the _spatial momentum_ of a particle, system
 /// of particles or body (whether rigid or soft.)
 /// The linear momentum `l_NS` of a system of particles S in a reference frame
@@ -176,7 +173,10 @@ class SpatialMomentum : public SpatialVector<SpatialMomentum, T> {
   /// mass. The above is true due to how spatial momentum and velocity shift
   /// when changing point P, see SpatialMomentum::Shift() and
   /// SpatialVelocity::Shift().
-  T dot(const SpatialVelocity<T>& V_NBp_E) const;
+  template <template <typename> class U>
+  T dot(const SpatialVector<U, T>& V_NBp_E) const {
+    return internal::do_dot(*this, V_NBp_E);
+  }
 };
 
 /// Computes the resultant spatial momentum as the addition of two spatial

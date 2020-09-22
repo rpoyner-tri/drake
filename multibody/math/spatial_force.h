@@ -10,9 +10,6 @@
 namespace drake {
 namespace multibody {
 
-// Forward declaration to define dot product with a spatial velocity.
-template <typename T> class SpatialVelocity;
-
 /// This class is used to represent a _spatial force_ (also called a _wrench_)
 /// that combines both rotational (torque) and translational force components.
 /// Spatial forces are 6-element quantities that are pairs of ordinary
@@ -219,7 +216,10 @@ class SpatialForce : public SpatialVector<SpatialForce, T> {
   ///
   /// @warning The result of this method cannot be interpreted as power unless
   ///          the spatial velocity is measured in an inertial frame I.
-  T dot(const SpatialVelocity<T>& V_IBp_E) const;
+  template <template <typename> class U>
+  T dot(const SpatialVector<U, T>& V_IBp_E) const {
+    return internal::do_dot(*this, V_IBp_E);
+  }
 };
 
 /// Computes the resultant spatial force as the addition of two spatial forces

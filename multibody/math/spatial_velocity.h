@@ -10,12 +10,6 @@
 namespace drake {
 namespace multibody {
 
-// Forward declaration to define dot product with a spatial force.
-template <typename T> class SpatialForce;
-
-// Forward declaration to define dot product with a spatial momentum.
-template <typename T> class SpatialMomentum;
-
 /// This class is used to represent a _spatial velocity_ (also called a
 /// _twist_) that combines rotational (angular) and translational
 /// (linear) velocity components. Spatial velocities are 6-element
@@ -199,6 +193,9 @@ class SpatialVelocity : public SpatialVector<SpatialVelocity, T> {
     return this->Shift(p_PoBo_E) + V_PB_E;
   }
 
+  /// SpatialVelocity supports dot products with two other types:
+  /// SpatialForce, and SpatialMomentum.
+  ///
   /// Given `this` spatial velocity `V_IBp_E` of point P of body B,
   /// measured in an inertial frame I and expressed in a frame E,
   /// this method computes the 6-dimensional dot product with the spatial
@@ -212,8 +209,7 @@ class SpatialVelocity : public SpatialVector<SpatialVelocity, T> {
   /// @warning The result of this method cannot be interpreted as power unless
   ///          `this` spatial velocity is measured in an inertial frame I,
   ///          which cannot be enforced by this class.
-  T dot(const SpatialForce<T>& F_Q_E) const;
-
+  ///
   /// Given `this` spatial velocity `V_NBp_E` of rigid body B frame shifted to
   /// point P, measured in an inertial (or Newtonian) frame N and, expressed in
   /// a frame E this method computes the dot product with the spatial momentum
@@ -230,7 +226,10 @@ class SpatialVelocity : public SpatialVector<SpatialVelocity, T> {
   /// mass. The above is true due to how spatial momentum and velocity shift
   /// when changing point P, see SpatialMomentum::Shift() and
   /// SpatialVelocity::Shift().
-  T dot(const SpatialMomentum<T>& L_NBp_E) const;
+  template <template <typename> class U>
+  T dot(const SpatialVector<U, T>& other) const {
+    return internal::do_dot(*this, other);
+  }
 };
 
 /// Performs the addition of two spatial velocities. This operator

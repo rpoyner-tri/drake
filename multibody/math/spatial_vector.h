@@ -297,5 +297,39 @@ std::ostream& operator<<(std::ostream& o,
   return o;
 }
 
+namespace internal {
+
+// The base template for dot-product will deliberately fail to compile. Later
+// specializations will provide the supported operations.
+template <template <typename> class SV1,
+          template <typename> class SV2,
+          typename T>
+struct Dot {
+  T operator()(const SpatialVector<SV1, T>& a,
+               const SpatialVector<SV2, T>& b) {
+    // The point of this statement is to not compile.
+    DotProductNotPermitted(a, b);
+  }
+};
+
+// A convenience wrapper for derived types to use in implementations.
+template <template <typename> class SV1,
+          template <typename> class SV2,
+          typename T>
+T do_dot(const SpatialVector<SV1, T>& a,
+         const SpatialVector<SV2, T>& b) {
+  return Dot<SV1, SV2, T>()(a, b);
+}
+
+// A working implementation for the Dot specializations to use.
+template <template <typename> class SV1,
+          template <typename> class SV2,
+          typename T>
+T do_dot_permitted(const SpatialVector<SV1, T>& a,
+                   const SpatialVector<SV2, T>& b) {
+  return a.get_coeffs().dot(b.get_coeffs());
+}
+
+}  // namespace internal
 }  // namespace multibody
 }  // namespace drake

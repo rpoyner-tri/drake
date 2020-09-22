@@ -16,28 +16,45 @@
 #include "drake/multibody/math/spatial_momentum.h"
 #include "drake/multibody/math/spatial_velocity.h"
 
+// The specializations below enable only the supported combinations of dot
+// products.
+
 namespace drake {
 namespace multibody {
+namespace internal {
 
 template <typename T>
-T SpatialVelocity<T>::dot(const SpatialForce<T>& F) const {
-  return this->get_coeffs().dot(F.get_coeffs());
-}
+struct Dot<SpatialVelocity, SpatialForce, T> {
+  T operator()(const SpatialVector<SpatialVelocity, T>& a,
+               const SpatialVector<SpatialForce, T>& b) {
+    return do_dot_permitted(a, b);
+  }
+};
 
 template <typename T>
-T SpatialForce<T>::dot(const SpatialVelocity<T>& V) const {
-  return V.dot(*this);  // dot-product is commutative.
-}
+struct Dot<SpatialForce, SpatialVelocity, T> {
+  T operator()(const SpatialVector<SpatialForce, T>& a,
+               const SpatialVector<SpatialVelocity, T>& b) {
+    return do_dot_permitted(a, b);
+  }
+};
 
 template <typename T>
-T SpatialMomentum<T>::dot(const SpatialVelocity<T>& V) const {
-  return this->get_coeffs().dot(V.get_coeffs());
-}
+struct Dot<SpatialVelocity, SpatialMomentum, T> {
+  T operator()(const SpatialVector<SpatialVelocity, T>& a,
+               const SpatialVector<SpatialMomentum, T>& b) {
+    return do_dot_permitted(a, b);
+  }
+};
 
 template <typename T>
-T SpatialVelocity<T>::dot(const SpatialMomentum<T>& L) const {
-  return L.dot(*this);  // dot-product is commutative.
-}
+struct Dot<SpatialMomentum, SpatialVelocity, T> {
+  T operator()(const SpatialVector<SpatialMomentum, T>& a,
+               const SpatialVector<SpatialVelocity, T>& b) {
+    return do_dot_permitted(a, b);
+  }
+};
 
+}  // namespace internal
 }  // namespace multibody
 }  // namespace drake
