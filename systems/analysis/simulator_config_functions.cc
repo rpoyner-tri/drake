@@ -6,7 +6,7 @@
 #include "drake/common/nice_type_name.h"
 #include "drake/systems/analysis/integrator_base.h"
 #include "drake/systems/analysis/simulator_flags.h"
-#include "drake/systems/primitives/symbolic_vector_system.h"
+#include "drake/systems/framework/leaf_system.h"
 
 namespace drake {
 namespace systems {
@@ -14,7 +14,6 @@ namespace systems {
 using drake::NiceTypeName;
 using drake::systems::IntegratorBase;
 using drake::systems::Simulator;
-using drake::systems::SymbolicVectorSystemBuilder;
 
 void ApplySimulatorConfig(
     Simulator<double>* simulator,

@@ -21,8 +21,9 @@ GTEST_TEST(SimulatorConfigFunctionsTest, ExtractDefaultsTest) {
   // We can always extract the defaults.
   const SimulatorConfig defaults = ExtractSimulatorConfig(simulator);
   EXPECT_EQ(defaults.integration_scheme, "runge_kutta3");
-  // TODO(jeremy.nimmer) Drake returns incorrect defaults for max_step_size and
-  // accuracy.  Once Drake is fixed, we should EXPECT_EQ instead here.
+  // TODO(jeremy.nimmer) The integrators return incorrect defaults for
+  // max_step_size and accuracy.  Once Drake is fixed, we should EXPECT_EQ
+  // instead here.
   EXPECT_GT(defaults.max_step_size, 0);
   EXPECT_GT(defaults.accuracy, 0);
   EXPECT_EQ(defaults.use_error_control, true);

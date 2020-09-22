@@ -4,9 +4,6 @@
 
 #include "drake/common/name_value.h"
 
-// TODO(jeremy.nimmer) Move this file into Drake once we like how it works.
-// See https://github.com/RobotLocomotion/drake/issues/12903.
-
 namespace drake {
 namespace systems {
 

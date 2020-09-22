@@ -101,7 +101,7 @@ drake_cc_library(
         ":simulator",
         ":simulator_config",
         ":simulator_flags",
-        "//systems/primitives:symbolic_vector_system",
+        "//systems/framework:leaf_system",
     ],
 )
 
