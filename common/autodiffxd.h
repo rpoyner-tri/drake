@@ -231,7 +231,8 @@ class AutoDiffScalar<VectorXd>
     const bool has_both_der = has_this_der && (other.derivatives().size() > 0);
     m_value += other.value();
     if (has_both_der) {
-      m_derivatives += other.derivatives();
+      // m_derivatives += other.derivatives();
+      m_derivatives = m_derivatives + other.derivatives();
     } else if (has_this_der) {
       // noop
     } else {
@@ -271,7 +272,8 @@ class AutoDiffScalar<VectorXd>
     const bool has_both_der = has_this_der && (other.derivatives().size() > 0);
     m_value -= other.value();
     if (has_both_der) {
-      m_derivatives -= other.derivatives();
+      // m_derivatives -= other.derivatives();
+      m_derivatives = m_derivatives - other.derivatives();
     } else if (has_this_der) {
       // noop
     } else {
@@ -324,8 +326,10 @@ class AutoDiffScalar<VectorXd>
   }
 
   inline AutoDiffScalar& operator*=(const Scalar& other) {
-    m_value *= other;
-    m_derivatives *= other;
+    // m_value *= other;
+    // m_derivatives *= other;
+    m_value = m_value * other;
+    m_derivatives = m_derivatives * other;
     return *this;
   }
 
