@@ -334,10 +334,12 @@ class AutoDiffScalar<VectorXd>
     const bool has_this_der = m_derivatives.size() > 0;
     const bool has_both_der = has_this_der && (other.derivatives().size() > 0);
     if (has_both_der) {
-      m_derivatives *= other.value();
-      m_derivatives += other.derivatives() * m_value;
+      // m_derivatives *= other.value();
+      // m_derivatives += other.derivatives() * m_value;
+      m_derivatives = m_derivatives * other.value() + other.derivatives() * m_value;
     } else if (has_this_der) {
-      m_derivatives *= other.value();
+      // m_derivatives *= other.value();
+      m_derivatives = m_derivatives * other.value();
     } else {
       m_derivatives = other.derivatives() * m_value;
     }
