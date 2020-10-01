@@ -136,7 +136,7 @@ BENCHMARK_F(CassieDoubleFixture, DoubleMassMatrix)(benchmark::State& state) {
   MatrixXd M(nv_, nv_);
   for (auto _ : state) {
     // @see LimitMalloc note above.
-    LimitMalloc guard({.max_num_allocations = 0});
+    LimitMalloc guard({.max_num_allocations = 175});
     InvalidateState();
     plant_->CalcMassMatrix(*context_, &M);
     tracker.Update(guard.num_allocations());
@@ -216,7 +216,7 @@ BENCHMARK_F(CassieAutodiffFixture, AutodiffMassMatrix)
 
   for (int k = 0; k < 3; k++) {
     // @see LimitMalloc note above.
-    LimitMalloc guard(LimitReleaseOnly(31426));
+    LimitMalloc guard(LimitReleaseOnly(61405));
 
     compute();
 
@@ -253,7 +253,7 @@ BENCHMARK_F(CassieAutodiffFixture, AutodiffInverseDynamics)
 
   for (int k = 0; k < 3; k++) {
     // @see LimitMalloc note above.
-    LimitMalloc guard(LimitReleaseOnly(38027));
+    LimitMalloc guard(LimitReleaseOnly(68798));
 
     compute();
 
@@ -289,7 +289,7 @@ BENCHMARK_F(CassieAutodiffFixture, AutodiffForwardDynamics)
 
   for (int k = 0; k < 3; k++) {
     // @see LimitMalloc note above.
-    LimitMalloc guard(LimitReleaseOnly(57693));
+    LimitMalloc guard(LimitReleaseOnly(102904));
 
     compute();
 
