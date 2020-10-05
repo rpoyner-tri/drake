@@ -213,7 +213,7 @@ HydroelasticTractionCalculator<T>::CalcTractionAtQHelper(
 
   // Determine the normal traction at the point.
   using std::max;
-  const T normal_traction = max(e - vn_BqAq_W * c, T(0));
+  const T normal_traction = max(T(e - vn_BqAq_W * c), T(0));
 
   // Get the slip velocity at the point.
   traction_data.vt_BqAq_W = v_BqAq_W - nhat_W * vn_BqAq_W;

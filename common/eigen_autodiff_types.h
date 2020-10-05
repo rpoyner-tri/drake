@@ -26,6 +26,7 @@ using AutoDiffXd = Eigen::AutoDiffScalar<Eigen::VectorXd>;
 /// An autodiff variable with `num_vars` partials.
 template <int num_vars>
 using AutoDiffd = Eigen::AutoDiffScalar<Eigen::Matrix<double, num_vars, 1> >;
+using AutoDiff67d = AutoDiffd<67>;
 
 /// A vector of `rows` autodiff variables, each with `num_vars` partials.
 template <int num_vars, int rows>

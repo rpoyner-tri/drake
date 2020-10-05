@@ -133,8 +133,8 @@ Vector3<T> CalcRollPitchYawFromQuaternionAndRotationMatrix(
   const T epsilon = Eigen::NumTraits<T>::epsilon();
   const auto isSingularA = abs(yA) <= epsilon && abs(xA) <= epsilon;
   const auto isSingularB = abs(yB) <= epsilon && abs(xB) <= epsilon;
-  const T zA = if_then_else(isSingularA, T{0.0}, atan2(yA, xA));
-  const T zB = if_then_else(isSingularB, T{0.0}, atan2(yB, xB));
+  const T zA = if_then_else(isSingularA, T{0.0}, T(atan2(yA, xA)));
+  const T zB = if_then_else(isSingularB, T{0.0}, T(atan2(yB, xB)));
   T q1 = zA - zB;  // First angle in rotation sequence.
   T q3 = zA + zB;  // Third angle in rotation sequence.
 
