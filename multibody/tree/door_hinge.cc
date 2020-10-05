@@ -107,7 +107,7 @@ T DoorHinge<T>::CalcHingeSpringTorque(const T& angle) const {
   } else {
     const T catch_center = config_.catch_width / 2;
     const auto [s, singlet, doublet] =
-        CalcApproximationCurves(catch_center, angle - catch_center);
+        CalcApproximationCurves(catch_center, T(angle - catch_center));
     drake::unused(s);
     drake::unused(singlet);
     return config_.catch_torque * doublet -
@@ -163,12 +163,12 @@ T DoorHinge<T>::CalcHingeStoredEnergy(const T& angle) const {
   if (config_.catch_width != 0) {
     const T catch_center = config_.catch_width / 2;
     const auto [s_q, singlet_q, doublet_q] =
-        CalcApproximationCurves(catch_center, angle - catch_center);
+        CalcApproximationCurves(catch_center, T(angle - catch_center));
     drake::unused(s_q);
     drake::unused(doublet_q);
 
     const auto [s_0, singlet_0, doublet_0] =
-        CalcApproximationCurves(catch_center, -catch_center);
+        CalcApproximationCurves(catch_center, T(-catch_center));
     drake::unused(s_0);
     drake::unused(doublet_0);
     energy += config_.catch_torque * catch_center * (singlet_q - singlet_0);

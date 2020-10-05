@@ -1079,6 +1079,7 @@ class System : public SystemBase {
   See @ref system_scalar_conversion for detailed background and examples
   related to scalar-type conversion support. */
   std::unique_ptr<System<AutoDiffXd>> ToAutoDiffXd() const;
+  std::unique_ptr<System<AutoDiff67d>> ToAutoDiff67d() const;
 
   /** Creates a deep copy of `from`, transmogrified to use the autodiff scalar
   type, with a dynamic-sized vector of partial derivatives.  The result is
@@ -1109,10 +1110,29 @@ class System : public SystemBase {
     return dynamic_pointer_cast_or_throw<S<U>>(std::move(base_result));
   }
 
+  template <template <typename> class S = ::drake::systems::System>
+  static std::unique_ptr<S<AutoDiff67d>> ToAutoDiff67d(const S<T>& from) {
+    using U = AutoDiff67d;
+    std::unique_ptr<System<U>> base_result = from.ToAutoDiff67dMaybe();
+    if (!base_result) {
+      std::stringstream ss;
+      ss << "The object named [" << from.get_name() << "] of type "
+         << NiceTypeName::Get(from) << " does not support ToAutoDiff67d.";
+      throw std::logic_error(ss.str().c_str());
+    }
+
+    return dynamic_pointer_cast_or_throw<S<U>>(std::move(base_result));
+  }
+
   /** Creates a deep copy of this system exactly like ToAutoDiffXd(), but
   returns nullptr if this System does not support autodiff, instead of
   throwing an exception. */
   std::unique_ptr<System<AutoDiffXd>> ToAutoDiffXdMaybe() const;
+
+  /** Creates a deep copy of this system exactly like ToAutoDiff67d(), but
+  returns nullptr if this System does not support autodiff, instead of
+  throwing an exception. */
+  std::unique_ptr<System<AutoDiff67d>> ToAutoDiff67dMaybe() const;
   //@}
 
   //----------------------------------------------------------------------------

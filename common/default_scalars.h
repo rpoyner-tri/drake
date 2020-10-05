@@ -78,6 +78,7 @@
     SomeType) \
 template SomeType<double>; \
 template SomeType<::drake::AutoDiffXd>; \
+template SomeType<::drake::AutoDiff67d>; \
 template SomeType<::drake::symbolic::Expression>;
 
 /// Defines template instantiations for Drake's default nonsymbolic scalars.
@@ -86,7 +87,8 @@ template SomeType<::drake::symbolic::Expression>;
   DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_NONSYMBOLIC_SCALARS( \
       SomeType) \
 template SomeType<double>; \
-template SomeType<::drake::AutoDiffXd>;
+template SomeType<::drake::AutoDiffXd>; \
+template SomeType<::drake::AutoDiff67d>;
 
 /// Declares that template instantiations exist for Drake's default scalars.
 /// This should only be used in .h files, never in .cc files.
@@ -94,6 +96,7 @@ template SomeType<::drake::AutoDiffXd>;
     SomeType) \
 extern template SomeType<double>; \
 extern template SomeType<::drake::AutoDiffXd>; \
+extern template SomeType<::drake::AutoDiff67d>; \
 extern template SomeType<::drake::symbolic::Expression>;
 
 /// Declares that template instantiations exist for Drake's default nonsymbolic
@@ -102,6 +105,7 @@ extern template SomeType<::drake::symbolic::Expression>;
   DRAKE_DECLARE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_NONSYMBOLIC_SCALARS( \
       SomeType) \
 extern template SomeType<double>; \
-extern template SomeType<::drake::AutoDiffXd>;
+extern template SomeType<::drake::AutoDiffXd>; \
+extern template SomeType<::drake::AutoDiff67d>;
 
 /// @}
