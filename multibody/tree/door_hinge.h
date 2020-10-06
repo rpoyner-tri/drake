@@ -194,6 +194,9 @@ class DoorHinge final : public ForceElement<T> {
   std::unique_ptr<ForceElement<AutoDiffXd>> DoCloneToScalar(
       const internal::MultibodyTree<AutoDiffXd>&) const override;
 
+  std::unique_ptr<ForceElement<AutoDiff67d>> DoCloneToScalar(
+      const internal::MultibodyTree<AutoDiff67d>&) const override;
+
   std::unique_ptr<ForceElement<symbolic::Expression>> DoCloneToScalar(
       const internal::MultibodyTree<symbolic::Expression>&) const override;
 

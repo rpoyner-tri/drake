@@ -154,6 +154,11 @@ class JointActuator final
   std::unique_ptr<JointActuator<AutoDiffXd>> DoCloneToScalar(
       const internal::MultibodyTree<AutoDiffXd>& tree_clone) const;
 
+  // Helper to clone an actuator (templated on T) to an actuator templated on
+  // `AutoDiff67d`.
+  std::unique_ptr<JointActuator<AutoDiff67d>> DoCloneToScalar(
+      const internal::MultibodyTree<AutoDiff67d>& tree_clone) const;
+
   std::unique_ptr<JointActuator<symbolic::Expression>> DoCloneToScalar(
       const internal::MultibodyTree<symbolic::Expression>& tree_clone) const;
 

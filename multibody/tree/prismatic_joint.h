@@ -301,6 +301,9 @@ class PrismaticJoint final : public Joint<T> {
   std::unique_ptr<Joint<AutoDiffXd>> DoCloneToScalar(
       const internal::MultibodyTree<AutoDiffXd>& tree_clone) const final;
 
+  std::unique_ptr<Joint<AutoDiff67d>> DoCloneToScalar(
+      const internal::MultibodyTree<AutoDiff67d>& tree_clone) const final;
+
   std::unique_ptr<Joint<symbolic::Expression>> DoCloneToScalar(
       const internal::MultibodyTree<symbolic::Expression>&) const final;
 

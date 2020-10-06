@@ -115,6 +115,9 @@ class BodyFrame final : public Frame<T> {
   std::unique_ptr<Frame<AutoDiffXd>> DoCloneToScalar(
       const internal::MultibodyTree<AutoDiffXd>& tree_clone) const override;
 
+  std::unique_ptr<Frame<AutoDiff67d>> DoCloneToScalar(
+      const internal::MultibodyTree<AutoDiff67d>& tree_clone) const override;
+
   std::unique_ptr<Frame<symbolic::Expression>> DoCloneToScalar(
       const internal::MultibodyTree<symbolic::Expression>&) const override;
 
@@ -400,6 +403,10 @@ class Body : public MultibodyElement<Body, T, BodyIndex> {
   /// Clones this %Body (templated on T) to a body templated on AutoDiffXd.
   virtual std::unique_ptr<Body<AutoDiffXd>> DoCloneToScalar(
       const internal::MultibodyTree<AutoDiffXd>& tree_clone) const = 0;
+
+  /// Clones this %Body (templated on T) to a body templated on AutoDiff67d.
+  virtual std::unique_ptr<Body<AutoDiff67d>> DoCloneToScalar(
+      const internal::MultibodyTree<AutoDiff67d>& tree_clone) const = 0;
 
   /// Clones this %Body (templated on T) to a body templated on Expression.
   virtual std::unique_ptr<Body<symbolic::Expression>> DoCloneToScalar(
