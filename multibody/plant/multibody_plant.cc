@@ -1252,7 +1252,7 @@ std::pair<T, T> CombinePointContactParameters(const T& k1, const T& k2,
   // Simple utility to detect 0 / 0. As it is used in this method, denom
   // can only be zero if num is also zero, so we'll simply return zero.
   auto safe_divide = [](const T& num, const T& denom) {
-    return denom == 0.0 ? 0.0 : num / denom;
+    return denom == T(0.0) ? T(0.0) : T(num / denom);
   };
   return std::pair(
       safe_divide(k1 * k2, k1 + k2),                                   // k
