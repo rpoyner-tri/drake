@@ -326,6 +326,11 @@ class RigidBody : public Body<T> {
     return TemplatedDoCloneToScalar(tree_clone);
   }
 
+  std::unique_ptr<Body<AutoDiff67d>> DoCloneToScalar(
+      const internal::MultibodyTree<AutoDiff67d>& tree_clone) const final {
+    return TemplatedDoCloneToScalar(tree_clone);
+  }
+
   std::unique_ptr<Body<symbolic::Expression>> DoCloneToScalar(
       const internal::MultibodyTree<symbolic::Expression>& tree_clone) const
       final {

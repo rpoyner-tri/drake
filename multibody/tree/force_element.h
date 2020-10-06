@@ -240,6 +240,11 @@ class ForceElement : public
   virtual std::unique_ptr<ForceElement<AutoDiffXd>> DoCloneToScalar(
       const internal::MultibodyTree<AutoDiffXd>& tree_clone) const = 0;
 
+  /// Clones this %ForceElement (templated on T) to a mobilizer templated on
+  /// AutoDiff67d.
+  virtual std::unique_ptr<ForceElement<AutoDiff67d>> DoCloneToScalar(
+      const internal::MultibodyTree<AutoDiff67d>& tree_clone) const = 0;
+
   virtual std::unique_ptr<ForceElement<symbolic::Expression>> DoCloneToScalar(
       const internal::MultibodyTree<symbolic::Expression>&) const = 0;
   /// @}
