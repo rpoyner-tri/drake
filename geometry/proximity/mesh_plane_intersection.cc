@@ -262,6 +262,19 @@ ComputeContactSurfaceFromSoftVolumeRigidHalfSpace(
       "supported");
 }
 
+// Create a version with AutoDiff67d so that hydroelastic_callback (and,
+// ultimately, ProximityEngine) can compile.
+template <>
+std::unique_ptr<ContactSurface<AutoDiff67d>>
+ComputeContactSurfaceFromSoftVolumeRigidHalfSpace(
+    const GeometryId, const VolumeMeshFieldLinear<double, double>&,
+    const Bvh<VolumeMesh<double>>&, const math::RigidTransform<AutoDiff67d>&,
+    const GeometryId, const math::RigidTransform<AutoDiff67d>&) {
+  throw std::logic_error(
+      "AutoDiff-valued ContactSurface calculations are not currently "
+      "supported");
+}
+
 }  // namespace internal
 }  // namespace geometry
 }  // namespace drake

@@ -101,13 +101,17 @@ class SystemScalarConverter {
     using Expression = symbolic::Expression;
     // From double to all other types.
     AddIfSupported<S, AutoDiffXd, double>(subtype_preservation);
+    AddIfSupported<S, AutoDiff67d, double>(subtype_preservation);
     AddIfSupported<S, Expression, double>(subtype_preservation);
     // From AutoDiffXd to all other types.
     AddIfSupported<S, double,     AutoDiffXd>(subtype_preservation);
+    AddIfSupported<S, double,     AutoDiff67d>(subtype_preservation);
     AddIfSupported<S, Expression, AutoDiffXd>(subtype_preservation);
+    AddIfSupported<S, Expression, AutoDiff67d>(subtype_preservation);
     // From Expression to all other types.
     AddIfSupported<S, double,     Expression>(subtype_preservation);
     AddIfSupported<S, AutoDiffXd, Expression>(subtype_preservation);
+    AddIfSupported<S, AutoDiff67d, Expression>(subtype_preservation);
   }
 
   /// Returns true iff no conversions are supported.  (In other words, whether

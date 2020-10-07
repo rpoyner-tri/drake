@@ -804,6 +804,23 @@ std::unique_ptr<System<AutoDiffXd>> System<T>::ToAutoDiffXdMaybe() const {
 }
 
 template <typename T>
+std::unique_ptr<System<AutoDiff67d>> System<T>::ToAutoDiff67d() const {
+  return System<T>::ToAutoDiff67d(*this);
+}
+
+template <typename T>
+std::unique_ptr<System<AutoDiff67d>> System<T>::ToAutoDiff67dMaybe() const {
+  using U = AutoDiff67d;
+  auto result = system_scalar_converter_.Convert<U, T>(*this);
+  if (result) {
+    for (const auto& item : external_constraints_) {
+      result->AddExternalConstraint(item);
+    }
+  }
+  return result;
+}
+
+template <typename T>
 std::unique_ptr<System<symbolic::Expression>> System<T>::ToSymbolic() const {
   return System<T>::ToSymbolic(*this);
 }

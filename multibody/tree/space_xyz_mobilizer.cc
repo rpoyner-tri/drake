@@ -345,6 +345,13 @@ SpaceXYZMobilizer<T>::DoCloneToScalar(
 }
 
 template <typename T>
+std::unique_ptr<Mobilizer<AutoDiff67d>>
+SpaceXYZMobilizer<T>::DoCloneToScalar(
+    const MultibodyTree<AutoDiff67d>& tree_clone) const {
+  return TemplatedDoCloneToScalar(tree_clone);
+}
+
+template <typename T>
 std::unique_ptr<Mobilizer<symbolic::Expression>>
 SpaceXYZMobilizer<T>::DoCloneToScalar(
     const MultibodyTree<symbolic::Expression>& tree_clone) const {

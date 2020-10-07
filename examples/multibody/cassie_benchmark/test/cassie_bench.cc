@@ -327,52 +327,18 @@ class CassieAutodiff67Fixture : public CassieDoubleFixture {
   std::unique_ptr<Context<AutoDiff67d>> context_autodiff_;
 };
 
-BENCHMARK_F(CassieAutodiff67Fixture, AutodiffMassMatrix)
-    // NOLINTNEXTLINE(runtime/references) cpplint disapproves of gbench choices.
-    (benchmark::State& state) {
-  AllocationTracker tracker(&state);
-  MatrixX<AutoDiff67d> M_autodiff(nv_, nv_);
-  auto x_autodiff = math::initializeAutoDiff<67>(Eigen::Ref<Vector67d>(x_));
-  plant_autodiff_->SetPositionsAndVelocities(context_autodiff_.get(),
-      x_autodiff);
-
-  auto compute = [&]() {
-    InvalidateState();
-    plant_autodiff_->CalcMassMatrix(*context_autodiff_, &M_autodiff);
-  };
-
-  // The first iteration allocates more memory than subsequent runs.
-  compute();
-
-  for (auto _ : state) {
-    // @see LimitMalloc note above.
-    LimitMalloc guard(LimitReleaseOnly(31426));
-
-    compute();
-
-    tracker.Update(guard.num_allocations());
-  }
-  state.counters["autodiff_size"] = M_autodiff(0, 0).derivatives().size();
-}
-
-// BENCHMARK_F(CassieAutodiff67Fixture, AutodiffInverseDynamics)
+// BENCHMARK_F(CassieAutodiff67Fixture, AutodiffMassMatrix)
 //     // NOLINTNEXTLINE(runtime/references) cpplint disapproves of gbench choices.
 //     (benchmark::State& state) {
 //   AllocationTracker tracker(&state);
-//   Vector67d desired_vdot = Vector67d::Zero(nv_);
-//   multibody::MultibodyForces<AutoDiff67d> external_forces_autodiff(
-//       *plant_autodiff_);
-//   auto x_autodiff = math::initializeAutoDiff(x_, nq_ + 2 * nv_);
-//   auto vdot_autodiff =
-//       math::initializeAutoDiff(desired_vdot, nq_ + 2 * nv_, nq_ + nv_);
+//   MatrixX<AutoDiff67d> M_autodiff(nv_, nv_);
+//   auto x_autodiff = math::initializeAutoDiff<67>(Eigen::Ref<Vector67d>(x_));
 //   plant_autodiff_->SetPositionsAndVelocities(context_autodiff_.get(),
 //       x_autodiff);
 
 //   auto compute = [&]() {
 //     InvalidateState();
-//     plant_autodiff_->CalcInverseDynamics(*context_autodiff_,
-//                                          vdot_autodiff,
-//                                          external_forces_autodiff);
+//     plant_autodiff_->CalcMassMatrix(*context_autodiff_, &M_autodiff);
 //   };
 
 //   // The first iteration allocates more memory than subsequent runs.
@@ -380,14 +346,48 @@ BENCHMARK_F(CassieAutodiff67Fixture, AutodiffMassMatrix)
 
 //   for (auto _ : state) {
 //     // @see LimitMalloc note above.
-//     LimitMalloc guard(LimitReleaseOnly(38027));
+//     LimitMalloc guard(LimitReleaseOnly(31426));
 
 //     compute();
 
 //     tracker.Update(guard.num_allocations());
 //   }
-//   state.counters["autodiff_size"] = vdot_autodiff(0, 0).derivatives().size();
+//   state.counters["autodiff_size"] = M_autodiff(0, 0).derivatives().size();
 // }
+
+BENCHMARK_F(CassieAutodiff67Fixture, AutodiffInverseDynamics)
+    // NOLINTNEXTLINE(runtime/references) cpplint disapproves of gbench choices.
+    (benchmark::State& state) {
+  AllocationTracker tracker(&state);
+  Vector67d desired_vdot = Vector67d::Zero();
+  multibody::MultibodyForces<AutoDiff67d> external_forces_autodiff(
+      *plant_autodiff_);
+  auto x_autodiff = math::initializeAutoDiff<67>(x_, nq_ + 2 * nv_);
+  auto vdot_autodiff =
+      math::initializeAutoDiff<67>(desired_vdot, nq_ + 2 * nv_, nq_ + nv_);
+  plant_autodiff_->SetPositionsAndVelocities(context_autodiff_.get(),
+      x_autodiff);
+
+  auto compute = [&]() {
+    InvalidateState();
+    plant_autodiff_->CalcInverseDynamics(*context_autodiff_,
+                                         vdot_autodiff,
+                                         external_forces_autodiff);
+  };
+
+  // The first iteration allocates more memory than subsequent runs.
+  compute();
+
+  for (auto _ : state) {
+    // @see LimitMalloc note above.
+    LimitMalloc guard(LimitReleaseOnly(38027));
+
+    compute();
+
+    tracker.Update(guard.num_allocations());
+  }
+  state.counters["autodiff_size"] = vdot_autodiff(0, 0).derivatives().size();
+}
 
 // BENCHMARK_F(CassieAutodiff67Fixture, AutodiffForwardDynamics)
 //     // NOLINTNEXTLINE(runtime/references) cpplint disapproves of gbench choices.

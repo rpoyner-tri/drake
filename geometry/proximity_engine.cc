@@ -269,8 +269,9 @@ class ProximityEngine<T>::Impl : public ShapeReifier {
   Impl(Impl&& other) = delete;
   Impl& operator=(Impl&&) = delete;
 
-  std::unique_ptr<ProximityEngine<AutoDiffXd>::Impl> ToAutoDiff() const {
-    auto engine = make_unique<ProximityEngine<AutoDiffXd>::Impl>();
+  template <typename U>
+  std::unique_ptr<typename ProximityEngine<U>::Impl> ToAutoDiff() const {
+    auto engine = make_unique<typename ProximityEngine<U>::Impl>();
 
     // TODO(SeanCurtis-TRI): When AutoDiff is fully supported in the internal
     // types, modify this map to the appropriate scalar and modify consuming
@@ -1262,7 +1263,17 @@ template <typename T>
 std::unique_ptr<ProximityEngine<AutoDiffXd>> ProximityEngine<T>::ToAutoDiffXd()
     const {
   return unique_ptr<ProximityEngine<AutoDiffXd>>(
-      new ProximityEngine<AutoDiffXd>(impl_->ToAutoDiff().release()));
+      new ProximityEngine<AutoDiffXd>(
+          impl_->template ToAutoDiff<AutoDiffXd>().release()));
+}
+
+template <typename T>
+std::unique_ptr<ProximityEngine<AutoDiff67d>>
+ProximityEngine<T>::ToAutoDiff67d()
+    const {
+  return unique_ptr<ProximityEngine<AutoDiff67d>>(
+      new ProximityEngine<AutoDiff67d>(
+          impl_->template ToAutoDiff<AutoDiff67d>().release()));
 }
 
 template <typename T>

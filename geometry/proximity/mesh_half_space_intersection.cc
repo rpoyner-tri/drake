@@ -468,6 +468,17 @@ ComputeContactSurfaceFromSoftHalfSpaceRigidMesh(
       "supported");
 }
 
+template <>
+std::unique_ptr<ContactSurface<AutoDiff67d>>
+ComputeContactSurfaceFromSoftHalfSpaceRigidMesh(
+    GeometryId, const math::RigidTransform<AutoDiff67d>&, double, GeometryId,
+    const SurfaceMesh<double>&, const Bvh<SurfaceMesh<double>>&,
+    const math::RigidTransform<AutoDiff67d>&) {
+  throw std::logic_error(
+      "AutoDiff-valued ContactSurface calculations are not currently "
+      "supported");
+}
+
 }  // namespace internal
 }  // namespace geometry
 }  // namespace drake
