@@ -111,6 +111,7 @@ void FrameKinematicsVector<KinematicsValue>::CheckInvariants() const {
 // Explicitly instantiates on the most common scalar types.
 template class FrameKinematicsVector<math::RigidTransform<double>>;
 template class FrameKinematicsVector<math::RigidTransform<AutoDiffXd>>;
+template class FrameKinematicsVector<math::RigidTransform<AutoDiff67d>>;
 template class FrameKinematicsVector<
     math::RigidTransform<symbolic::Expression>>;
 

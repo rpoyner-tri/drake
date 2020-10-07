@@ -544,6 +544,23 @@ class GeometryState {
    the instance.  */
   std::unique_ptr<GeometryState<AutoDiffXd>> ToAutoDiffXd() const;
 
+  /** Returns a deep copy of this state using the AutoDiff67d scalar with all
+   scalar values initialized from the current values. If this is invoked on an
+   instance already instantiated on AutoDiff67d, it is equivalent to cloning
+   the instance.  */
+  std::unique_ptr<GeometryState<AutoDiff67d>> ToAutoDiff67d() const;
+
+  template <typename U>
+  std::unique_ptr<GeometryState<U>> ToSomeAutoDiff() const {
+    if constexpr (std::is_same<U, AutoDiffXd>::value) {
+        return ToAutoDiffXd();
+    } else if constexpr (std::is_same<U, AutoDiff67d>::value) {
+        return ToAutoDiff67d();
+    } else {
+      throw std::logic_error("unsupported type for autodiff conversion");
+    }
+  }
+
   //@}
 
  private:
@@ -566,8 +583,9 @@ class GeometryState {
         frames_(source.frames_),
         geometries_(source.geometries_),
         frame_index_to_id_map_(source.frame_index_to_id_map_),
-        geometry_engine_(std::move(source.geometry_engine_->ToAutoDiffXd())),
         render_engines_(source.render_engines_) {
+    auto thing = source.geometry_engine_->template ToSomeAutoDiff<T>();
+    geometry_engine_ = std::move(thing);
     auto convert_pose_vector = [](const std::vector<math::RigidTransform<U>>& s,
                                   std::vector<math::RigidTransform<T>>* d) {
       std::vector<math::RigidTransform<T>>& dest = *d;

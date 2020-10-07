@@ -475,6 +475,22 @@ ComputeContactSurfaceFromSoftVolumeRigidSurface(
       "currently supported");
 }
 
+// NOTE: This is a short-term hack to allow ProximityEngine to compile when
+// invoking this method. There are currently a host of issues preventing us from
+// doing contact surface computation with AutoDiff67d. This curtails those
+// issues for now by short-circuiting the functionality. (See the note on the
+// templated version of this function.)
+std::unique_ptr<ContactSurface<AutoDiff67d>>
+ComputeContactSurfaceFromSoftVolumeRigidSurface(
+    const GeometryId, const VolumeMeshField<double, double>&,
+    const Bvh<VolumeMesh<double>>&, const math::RigidTransform<AutoDiff67d>&,
+    const GeometryId, const SurfaceMesh<double>&,
+    const Bvh<SurfaceMesh<double>>&, const math::RigidTransform<AutoDiff67d>&) {
+  throw std::logic_error(
+      "AutoDiff-valued ContactSurface calculation between meshes is not"
+      "currently supported");
+}
+
 }  // namespace internal
 }  // namespace geometry
 }  // namespace drake

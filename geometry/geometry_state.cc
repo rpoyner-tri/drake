@@ -1061,6 +1061,13 @@ std::unique_ptr<GeometryState<AutoDiffXd>> GeometryState<T>::ToAutoDiffXd()
 }
 
 template <typename T>
+std::unique_ptr<GeometryState<AutoDiff67d>> GeometryState<T>::ToAutoDiff67d()
+    const {
+  return std::unique_ptr<GeometryState<AutoDiff67d>>(
+      new GeometryState<AutoDiff67d>(*this));
+}
+
+template <typename T>
 void GeometryState<T>::CollectIds(
     const GeometrySet& geometry_set, std::unordered_set<GeometryId>* dynamic,
     std::unordered_set<GeometryId>* anchored) {

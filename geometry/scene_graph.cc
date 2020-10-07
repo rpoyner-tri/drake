@@ -90,7 +90,7 @@ SceneGraph<T>::SceneGraph(const SceneGraph<U>& other) : SceneGraph() {
   // system that hasn't had its context allocated yet. We want the converted
   // system to persist the same state.
   if (other.initial_state_ != nullptr) {
-    *initial_state_ = *(other.initial_state_->ToAutoDiffXd());
+    *initial_state_ = *(other.initial_state_->template ToSomeAutoDiff<T>());
     model_inspector_.set(initial_state_);
   }
 
@@ -489,6 +489,7 @@ const GeometryState<T>& SceneGraph<T>::geometry_state(
 // Explicitly instantiates on the most common scalar types.
 template class SceneGraph<double>;
 template class SceneGraph<AutoDiffXd>;
+template class SceneGraph<AutoDiff67d>;
 
 }  // namespace geometry
 }  // namespace drake

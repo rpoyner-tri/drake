@@ -85,6 +85,22 @@ class ProximityEngine {
    to using the copy constructor to create a duplicate on the heap.  */
   std::unique_ptr<ProximityEngine<AutoDiffXd>> ToAutoDiffXd() const;
 
+  /* Returns an independent copy of this engine templated on the AutoDiff67d
+   scalar type. If the engine is already an AutoDiff67d engine, it is equivalent
+   to using the copy constructor to create a duplicate on the heap.  */
+  std::unique_ptr<ProximityEngine<AutoDiff67d>> ToAutoDiff67d() const;
+
+  template <typename U>
+  std::unique_ptr<ProximityEngine<U>> ToSomeAutoDiff() const {
+    if constexpr (std::is_same<U, AutoDiffXd>::value) {
+        return ToAutoDiffXd();
+    } else if constexpr (std::is_same<U, AutoDiff67d>::value) {
+        return ToAutoDiff67d();
+    } else {
+      throw std::logic_error("unsupported type for autodiff conversion");
+    }
+  }
+
   /* @name Topology management */
   //@{
 

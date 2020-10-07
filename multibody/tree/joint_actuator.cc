@@ -70,6 +70,14 @@ JointActuator<T>::DoCloneToScalar(
 }
 
 template <typename T>
+std::unique_ptr<JointActuator<AutoDiff67d>>
+JointActuator<T>::DoCloneToScalar(
+    const internal::MultibodyTree<AutoDiff67d>&) const {
+  return std::unique_ptr<JointActuator<AutoDiff67d>>(
+      new JointActuator<AutoDiff67d>(name_, joint_index_, effort_limit_));
+}
+
+template <typename T>
 std::unique_ptr<JointActuator<symbolic::Expression>>
 JointActuator<T>::DoCloneToScalar(
     const internal::MultibodyTree<symbolic::Expression>&) const {
