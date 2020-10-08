@@ -364,7 +364,7 @@ BENCHMARK_F(CassieAutodiff67Fixture, AutodiffInverseDynamics)
       *plant_autodiff_);
   auto x_autodiff = math::initializeAutoDiff<67>(x_, nq_ + 2 * nv_);
   auto vdot_autodiff =
-      math::initializeAutoDiff<67>(desired_vdot, nq_ + 2 * nv_, nq_ + nv_);
+      math::initializeAutoDiff<67>(desired_vdot, nq_ + 2 * nv_/*, nq_ + nv_*/);
   plant_autodiff_->SetPositionsAndVelocities(context_autodiff_.get(),
       x_autodiff);
 
