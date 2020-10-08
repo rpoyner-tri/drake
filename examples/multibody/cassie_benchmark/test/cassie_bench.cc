@@ -308,7 +308,6 @@ BENCHMARK_F(CassieAutodiffFixture, AutodiffForwardDynamics)
 // also holds a default context for autodiff.
 class CassieAutodiff67Fixture : public CassieDoubleFixture {
  public:
-  using Vector67d = Eigen::Matrix<double, 67, 1>;
   using CassieDoubleFixture::SetUp;
   void SetUp(benchmark::State& state) override {
     CassieDoubleFixture::SetUp(state);
@@ -332,6 +331,7 @@ class CassieAutodiff67Fixture : public CassieDoubleFixture {
 //     (benchmark::State& state) {
 //   AllocationTracker tracker(&state);
 //   MatrixX<AutoDiff67d> M_autodiff(nv_, nv_);
+//   using Vector67d = Eigen::Matrix<double, 67, 1>;
 //   auto x_autodiff = math::initializeAutoDiff<67>(Eigen::Ref<Vector67d>(x_));
 //   plant_autodiff_->SetPositionsAndVelocities(context_autodiff_.get(),
 //       x_autodiff);
@@ -359,12 +359,13 @@ BENCHMARK_F(CassieAutodiff67Fixture, AutodiffInverseDynamics)
     // NOLINTNEXTLINE(runtime/references) cpplint disapproves of gbench choices.
     (benchmark::State& state) {
   AllocationTracker tracker(&state);
-  Vector67d desired_vdot = Vector67d::Zero();
+  using Vector22d = Eigen::Matrix<double, 22, 1>;
+  Vector22d desired_vdot = Vector22d::Zero();
   multibody::MultibodyForces<AutoDiff67d> external_forces_autodiff(
       *plant_autodiff_);
   auto x_autodiff = math::initializeAutoDiff<67>(x_, nq_ + 2 * nv_);
   auto vdot_autodiff =
-      math::initializeAutoDiff<67>(desired_vdot, nq_ + 2 * nv_/*, nq_ + nv_*/);
+      math::initializeAutoDiff<67>(desired_vdot, nq_ + 2 * nv_, nq_ + nv_);
   plant_autodiff_->SetPositionsAndVelocities(context_autodiff_.get(),
       x_autodiff);
 
@@ -380,7 +381,7 @@ BENCHMARK_F(CassieAutodiff67Fixture, AutodiffInverseDynamics)
 
   for (auto _ : state) {
     // @see LimitMalloc note above.
-    LimitMalloc guard(LimitReleaseOnly(38027));
+    LimitMalloc guard(LimitReleaseOnly(4));
 
     compute();
 
