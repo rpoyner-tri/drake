@@ -227,6 +227,7 @@ BENCHMARK_F(CassieAutodiffFixture, AutodiffMassMatrix)
     compute();
   }
   state.counters["autodiff_size"] = M_autodiff(0, 0).derivatives().size();
+  state.counters["ads_sizeof"] = sizeof(AutoDiffXd);
 }
 
 BENCHMARK_F(CassieAutodiffFixture, AutodiffInverseDynamics)
@@ -265,6 +266,7 @@ BENCHMARK_F(CassieAutodiffFixture, AutodiffInverseDynamics)
     compute();
   }
   state.counters["autodiff_size"] = vdot_autodiff(0, 0).derivatives().size();
+  state.counters["ads_sizeof"] = sizeof(AutoDiffXd);
 }
 
 BENCHMARK_F(CassieAutodiffFixture, AutodiffForwardDynamics)
@@ -302,6 +304,7 @@ BENCHMARK_F(CassieAutodiffFixture, AutodiffForwardDynamics)
     compute();
   }
   state.counters["autodiff_size"] = x_autodiff(0, 0).derivatives().size();
+  state.counters["ads_sizeof"] = sizeof(AutoDiffXd);
 }
 
 // Fixture that holds a Cassie robot model in a MultibodyPlant<AutoDiff67d>. It
@@ -388,6 +391,7 @@ BENCHMARK_F(CassieAutodiff67Fixture, AutodiffInverseDynamics)
     tracker.Update(guard.num_allocations());
   }
   state.counters["autodiff_size"] = vdot_autodiff(0, 0).derivatives().size();
+  state.counters["ads_sizeof"] = sizeof(AutoDiff67d);
 }
 
 // BENCHMARK_F(CassieAutodiff67Fixture, AutodiffForwardDynamics)
