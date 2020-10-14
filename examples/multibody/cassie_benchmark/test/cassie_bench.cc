@@ -329,41 +329,41 @@ class CassieAutodiff67Fixture : public CassieDoubleFixture {
   std::unique_ptr<Context<AutoDiff67d>> context_autodiff_;
 };
 
-// BENCHMARK_F(CassieAutodiff67Fixture, AutodiffMassMatrix)
-//     // NOLINTNEXTLINE(runtime/references) cpplint disapproves of gbench choices.
-//     (benchmark::State& state) {
-//   AllocationTracker tracker(&state);
-//   MatrixX<AutoDiff67d> M_autodiff(nv_, nv_);
-//   using Vector67d = Eigen::Matrix<double, 67, 1>;
-//   auto x_autodiff = math::initializeAutoDiff<67>(Eigen::Ref<Vector67d>(x_));
-//   plant_autodiff_->SetPositionsAndVelocities(context_autodiff_.get(),
-//       x_autodiff);
+BENCHMARK_F(CassieAutodiff67Fixture, AutodiffMassMatrix)
+    // NOLINTNEXTLINE(runtime/references) cpplint disapproves of gbench choices.
+    (benchmark::State& state) {
+  AllocationTracker tracker(&state);
+  MatrixX<AutoDiff67d> M_autodiff(nv_, nv_);
+  using Vector45d = Eigen::Matrix<double, 45, 1>;
+  auto x_autodiff = math::initializeAutoDiff<67>(Eigen::Ref<Vector45d>(x_));
+  plant_autodiff_->SetPositionsAndVelocities(context_autodiff_.get(),
+      x_autodiff);
 
-//   auto compute = [&]() {
-//     InvalidateState();
-//     plant_autodiff_->CalcMassMatrix(*context_autodiff_, &M_autodiff);
-//   };
+  auto compute = [&]() {
+    InvalidateState();
+    plant_autodiff_->CalcMassMatrix(*context_autodiff_, &M_autodiff);
+  };
 
-//   // The first iteration allocates more memory than subsequent runs.
-//   compute();
+  // The first iteration allocates more memory than subsequent runs.
+  compute();
 
-//   for (auto _ : state) {
-//     // @see LimitMalloc note above.
-//     LimitMalloc guard(LimitReleaseOnly(31426));
+  for (auto _ : state) {
+    // @see LimitMalloc note above.
+    LimitMalloc guard(LimitReleaseOnly(31426));
 
-//     compute();
+    compute();
 
-//     tracker.Update(guard.num_allocations());
-//   }
-//   state.counters["autodiff_size"] = M_autodiff(0, 0).derivatives().size();
-// }
+    tracker.Update(guard.num_allocations());
+  }
+  state.counters["autodiff_size"] = M_autodiff(0, 0).derivatives().size();
+}
 
 BENCHMARK_F(CassieAutodiff67Fixture, AutodiffInverseDynamics)
     // NOLINTNEXTLINE(runtime/references) cpplint disapproves of gbench choices.
     (benchmark::State& state) {
   AllocationTracker tracker(&state);
-  using Vector22d = Eigen::Matrix<double, 22, 1>;
-  Vector22d desired_vdot = Vector22d::Zero();
+  using Vector22d = Eigen::Matrix<double, Eigen::Dynamic, 1, 0, 22, 1>;
+  Vector22d desired_vdot = Vector22d::Zero(22);
   multibody::MultibodyForces<AutoDiff67d> external_forces_autodiff(
       *plant_autodiff_);
   auto x_autodiff = math::initializeAutoDiff<67>(x_, nq_ + 2 * nv_);
@@ -394,38 +394,43 @@ BENCHMARK_F(CassieAutodiff67Fixture, AutodiffInverseDynamics)
   state.counters["ads_sizeof"] = sizeof(AutoDiff67d);
 }
 
-// BENCHMARK_F(CassieAutodiff67Fixture, AutodiffForwardDynamics)
-//     // NOLINTNEXTLINE(runtime/references) cpplint disapproves of gbench choices.
-//     (benchmark::State& state) {
-//   AllocationTracker tracker(&state);
-//   auto derivatives_autodiff = plant_autodiff_->AllocateTimeDerivatives();
-//   auto u_autodiff = math::initializeAutoDiff(u_, nq_ + nv_ + nu_, nq_ + nv_);
-//   auto& port_value = plant_autodiff_->get_actuation_input_port().FixValue(
-//       context_autodiff_.get(), u_autodiff);
-//   auto x_autodiff = math::initializeAutoDiff(x_, nq_ + nv_ + nu_);
-//   plant_autodiff_->SetPositionsAndVelocities(context_autodiff_.get(),
-//       x_autodiff);
+// This hits an unpopulated derivative in an expression tree deep inside Eigen.
+BENCHMARK_F(CassieAutodiff67Fixture, AutodiffForwardDynamics)
+    // NOLINTNEXTLINE(runtime/references) cpplint disapproves of gbench choices.
+    (benchmark::State& state) {
+  AllocationTracker tracker(&state);
+  using Vector10d = Eigen::Matrix<double, 10, 1>;
+  auto derivatives_autodiff = plant_autodiff_->AllocateTimeDerivatives();
+  auto u_autodiff = math::initializeAutoDiff<67>(Eigen::Ref<Vector10d>(u_),
+                                                 nq_ + nv_ + nu_, nq_ + nv_);
+  auto& port_value = plant_autodiff_->get_actuation_input_port().FixValue(
+      context_autodiff_.get(), u_autodiff);
+  using Vector45d = Eigen::Matrix<double, 45, 1>;
+  auto x_autodiff = math::initializeAutoDiff<67>(Eigen::Ref<Vector45d>(x_),
+                                                 nq_ + nv_ + nu_);
+  plant_autodiff_->SetPositionsAndVelocities(context_autodiff_.get(),
+      x_autodiff);
 
-//   auto compute = [&]() {
-//     InvalidateState();
-//     port_value.GetMutableData();  // Invalidates caching of inputs.
-//     plant_autodiff_->CalcTimeDerivatives(*context_autodiff_,
-//                                          derivatives_autodiff.get());
-//   };
+  auto compute = [&]() {
+    InvalidateState();
+    port_value.GetMutableData();  // Invalidates caching of inputs.
+    plant_autodiff_->CalcTimeDerivatives(*context_autodiff_,
+                                         derivatives_autodiff.get());
+  };
 
-//   // The first iteration allocates more memory than subsequent runs.
-//   compute();
+  // The first iteration allocates more memory than subsequent runs.
+  compute();
 
-//   for (auto _ : state) {
-//     // @see LimitMalloc note above.
-//     LimitMalloc guard(LimitReleaseOnly(57693));
+  for (auto _ : state) {
+    // @see LimitMalloc note above.
+    LimitMalloc guard(LimitReleaseOnly(57693));
 
-//     compute();
+    compute();
 
-//     tracker.Update(guard.num_allocations());
-//   }
-//   state.counters["autodiff_size"] = x_autodiff(0, 0).derivatives().size();
-// }
+    tracker.Update(guard.num_allocations());
+  }
+  state.counters["autodiff_size"] = x_autodiff(0, 0).derivatives().size();
+}
 
 }  // namespace
 }  // namespace examples

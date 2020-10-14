@@ -13,9 +13,9 @@ def eigen_repository(
             "unencumbered",  # Public-Domain
         ],
         modname = "eigen3",
-        atleast_version = "3.3.4",
+        atleast_version = "3.3.8",
         extra_defines = ["EIGEN_MPL2_ONLY"],
-        pkg_config_paths = ["/usr/local/opt/eigen/share/pkgconfig"],
+        pkg_config_paths = ["/home/rico/third/eigen"],
         **kwargs):
     pkg_config_repository(
         name = name,
