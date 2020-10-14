@@ -136,7 +136,7 @@ void initializeAutoDiff(const Eigen::MatrixBase<Derived>& val,
  */
 template <typename Derived, int Nq>
 using AutoDiffMatrixType = Eigen::Matrix<
-    Eigen::AutoDiffScalar<Eigen::Matrix<typename Derived::Scalar, Nq, 1>>,
+  Eigen::AutoDiffScalar<Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1, 0, Nq, 1>>,
     Derived::RowsAtCompileTime, Derived::ColsAtCompileTime, 0,
     Derived::MaxRowsAtCompileTime, Derived::MaxColsAtCompileTime>;
 
