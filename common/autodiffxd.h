@@ -24,6 +24,8 @@
 
 #include <Eigen/Dense>
 
+#include "drake/common/never_destroyed.h"
+
 namespace Eigen {
 
 #if !defined(DRAKE_DOXYGEN_CXX)
@@ -93,6 +95,15 @@ class VectorPool {
   private:
   std::vector<VectorUpTo128d*> pool_;
 };
+class PoolPtr : public std::unique_ptr<VectorUpTo128d, std::function<void(VectorUpTo128d*)>> {
+ public:
+  using Base = std::unique_ptr<VectorUpTo128d, std::function<void(VectorUpTo128d*)>>;
+  explicit PoolPtr(int dim = 0) : Base(s_pool.access().get(dim), &deleter) {}
+ private:
+  static void deleter(VectorUpTo128d* p) { s_pool.access().put(p); }
+  static thread_local drake::never_destroyed<VectorPool> s_pool;
+};
+inline thread_local drake::never_destroyed<VectorPool> PoolPtr::s_pool;
 template <>
 class AutoDiffScalar<VectorXd>
     : public internal::auto_diff_special_op<VectorXd, false> {
@@ -105,21 +116,21 @@ class AutoDiffScalar<VectorXd>
   using Base::operator+;
   using Base::operator*;
 
-  AutoDiffScalar(): m_derivatives(s_pool.get(0), &deleter) {}
+  AutoDiffScalar() {}
 
   AutoDiffScalar(const Scalar& value, int nbDer, int derNumber)
-      : m_value(value), m_derivatives(s_pool.get(nbDer), &deleter) {
+      : m_value(value), m_derivatives(nbDer) {
     m_derivatives->setZero();
     m_derivatives->coeffRef(derNumber) = Scalar(1);
   }
 
   // NOLINTNEXTLINE(runtime/explicit): Code from Eigen.
-  AutoDiffScalar(const Real& value) : m_value(value), m_derivatives(s_pool.get(0), &deleter) {
+  AutoDiffScalar(const Real& value) : m_value(value) {
     if (m_derivatives->size() > 0) m_derivatives->setZero();
   }
 
   AutoDiffScalar(const Scalar& value, const DerType& der)
-      : m_value(value), m_derivatives(s_pool.get(der.size()), &deleter) {
+      : m_value(value), m_derivatives(der.size()) {
     *m_derivatives = der;
   }
 
@@ -135,7 +146,7 @@ class AutoDiffScalar<VectorXd>
           void*>::type = 0
 #endif
       )
-      : m_value(other.value()), m_derivatives(s_pool.get(other.derivatives().size()), &deleter) {
+      : m_value(other.value()), m_derivatives(other.derivatives().size()) {
     *m_derivatives = other.derivatives();
   }
 
@@ -145,7 +156,7 @@ class AutoDiffScalar<VectorXd>
 
   AutoDiffScalar(const AutoDiffScalar& other)
       : m_value(other.value()),
-        m_derivatives(s_pool.get(other.derivatives().size()), &deleter) {
+        m_derivatives(other.derivatives().size()) {
     *m_derivatives = other.derivatives();
   }
 
@@ -417,11 +428,8 @@ class AutoDiffScalar<VectorXd>
 
  protected:
   Scalar m_value;
-  static void deleter(VectorUpTo128d* p) { s_pool.put(p); }
-  std::unique_ptr<VectorUpTo128d, decltype(&deleter)> m_derivatives;
-  static VectorPool s_pool;
+  PoolPtr m_derivatives;
 };
-inline VectorPool AutoDiffScalar<VectorXd>::s_pool;
 
 #define DRAKE_EIGEN_AUTODIFFXD_DECLARE_GLOBAL_UNARY(FUNC, CODE) \
   inline AutoDiffScalar<VectorXd> FUNC(                         \
