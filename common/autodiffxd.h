@@ -18,8 +18,8 @@
 
 #include <cmath>
 #include <memory>
+#include <mutex>
 #include <ostream>
-#include <unordered_map>
 #include <vector>
 
 #include <Eigen/Dense>
@@ -73,7 +73,8 @@ class VectorPool {
     if (pool_.empty()) {
       return new VectorUpTo128d(dim);
     } else {
-      VectorUpTo128d* result = pool_.back();
+      VectorUpTo128d* result{};
+      result = pool_.back();
       pool_.pop_back();
       result->resize(dim);
       return result;
@@ -88,22 +89,14 @@ class VectorPool {
   }
 
   ~VectorPool() {
-    for (auto& p : pool_) {
-        delete p;
-    }
+    // Deliberately leak pool memory.
   }
   private:
   std::vector<VectorUpTo128d*> pool_;
 };
-class PoolPtr : public std::unique_ptr<VectorUpTo128d, std::function<void(VectorUpTo128d*)>> {
- public:
-  using Base = std::unique_ptr<VectorUpTo128d, std::function<void(VectorUpTo128d*)>>;
-  explicit PoolPtr(int dim = 0) : Base(s_pool.access().get(dim), &deleter) {}
- private:
-  static void deleter(VectorUpTo128d* p) { s_pool.access().put(p); }
-  static thread_local drake::never_destroyed<VectorPool> s_pool;
-};
-inline thread_local drake::never_destroyed<VectorPool> PoolPtr::s_pool;
+static thread_local drake::never_destroyed<VectorPool> s_pool_storage;
+static thread_local VectorPool& s_pool(s_pool_storage.access());
+static inline void deleter(VectorUpTo128d* p) { s_pool.put(p); }
 template <>
 class AutoDiffScalar<VectorXd>
     : public internal::auto_diff_special_op<VectorXd, false> {
@@ -116,21 +109,21 @@ class AutoDiffScalar<VectorXd>
   using Base::operator+;
   using Base::operator*;
 
-  AutoDiffScalar() {}
+  AutoDiffScalar() : m_derivatives(s_pool.get(0), &deleter) {}
 
   AutoDiffScalar(const Scalar& value, int nbDer, int derNumber)
-      : m_value(value), m_derivatives(nbDer) {
+      : m_value(value), m_derivatives(s_pool.get(nbDer), &deleter) {
     m_derivatives->setZero();
     m_derivatives->coeffRef(derNumber) = Scalar(1);
   }
 
   // NOLINTNEXTLINE(runtime/explicit): Code from Eigen.
-  AutoDiffScalar(const Real& value) : m_value(value) {
+  AutoDiffScalar(const Real& value) : m_value(value), m_derivatives(s_pool.get(0), &deleter) {
     if (m_derivatives->size() > 0) m_derivatives->setZero();
   }
 
   AutoDiffScalar(const Scalar& value, const DerType& der)
-      : m_value(value), m_derivatives(der.size()) {
+      : m_value(value), m_derivatives(s_pool.get(der.size()), &deleter) {
     *m_derivatives = der;
   }
 
@@ -156,7 +149,7 @@ class AutoDiffScalar<VectorXd>
 
   AutoDiffScalar(const AutoDiffScalar& other)
       : m_value(other.value()),
-        m_derivatives(other.derivatives().size()) {
+        m_derivatives(s_pool.get(other.derivatives().size()), &deleter) {
     *m_derivatives = other.derivatives();
   }
 
@@ -428,6 +421,7 @@ class AutoDiffScalar<VectorXd>
 
  protected:
   Scalar m_value;
+  using PoolPtr = std::unique_ptr<VectorUpTo128d, decltype(&deleter)>;
   PoolPtr m_derivatives;
 };
 
