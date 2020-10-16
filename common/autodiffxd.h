@@ -26,6 +26,54 @@
 
 #include "drake/common/never_destroyed.h"
 
+namespace drake {
+namespace internal {
+namespace autodiff {
+
+// A pool of objects that get reused without returning storage to the global
+// heap. Use this to speed up computations that would otherwise thrash the heap
+// creating and destroying many objects of the same type. The type parameter T
+// must support default construction.
+template <typename T>
+class Pool {
+ public:
+
+  // Get an object from the pool, or make a new one from the global heap if
+  // none are available. Use this where you would otherwise use `new` or
+  // malloc().
+  inline T* get() {
+    if (pool_.empty()) {
+      return new T();
+    } else {
+      T* result{};
+      result = pool_.back();
+      pool_.pop_back();
+      return result;
+    }
+    DRAKE_UNREACHABLE();
+  }
+
+  // Put an object in the pool. Use this where you would otherwise use `delete`
+  // or free().
+  inline void put(T* p) {
+    if (!p) return;
+    pool_.push_back(p);
+  }
+
+  ~Pool() {
+    // This class is designed to be used with never_destroyed<>, so its
+    // destructor should never be invoked.
+    DRAKE_UNREACHABLE();
+  }
+
+  private:
+  std::vector<T*> pool_;
+};
+
+}  // namespace autodiff
+}  // namespace internal
+}  // namespace drake
+
 namespace Eigen {
 
 #if !defined(DRAKE_DOXYGEN_CXX)
@@ -65,38 +113,6 @@ namespace Eigen {
 // for more discussion of Drake considerations.
 //
 // TODO(rpoyner-tri): Convert more operations to exploit move-awareness.
-using VectorUpTo128d = Matrix<double, Dynamic, 1, 0, 128, 1>;
-class VectorPool {
- public:
-  VectorUpTo128d* get(int dim) {
-    // return new VectorUpTo128d(dim);
-    if (pool_.empty()) {
-      return new VectorUpTo128d(dim);
-    } else {
-      VectorUpTo128d* result{};
-      result = pool_.back();
-      pool_.pop_back();
-      result->resize(dim);
-      return result;
-    }
-    DRAKE_UNREACHABLE();
-  }
-
-  void put(const VectorUpTo128d* vec) {
-    // delete vec;
-    if (!vec) return;
-    pool_.push_back(const_cast<VectorUpTo128d*>(vec));
-  }
-
-  ~VectorPool() {
-    // Deliberately leak pool memory.
-  }
-  private:
-  std::vector<VectorUpTo128d*> pool_;
-};
-static thread_local drake::never_destroyed<VectorPool> s_pool_storage;
-static thread_local VectorPool& s_pool(s_pool_storage.access());
-static inline void deleter(VectorUpTo128d* p) { s_pool.put(p); }
 template <>
 class AutoDiffScalar<VectorXd>
     : public internal::auto_diff_special_op<VectorXd, false> {
@@ -106,24 +122,31 @@ class AutoDiffScalar<VectorXd>
   typedef typename internal::traits<DerType>::Scalar Scalar;
   typedef typename NumTraits<Scalar>::Real Real;
 
+  // Use a capped-size vector type for derivatives storage, together with an
+  // object pooling strategy.
+  using VectorUpTo128d = Matrix<double, Dynamic, 1, 0, 128, 1>;
+  // Avoid repeating the size cap everywhere.
+  using PoolVector = VectorUpTo128d;
+
   using Base::operator+;
   using Base::operator*;
 
-  AutoDiffScalar() : m_derivatives(s_pool.get(0), &deleter) {}
+  AutoDiffScalar() : m_derivatives(s_pool.get()) {}
 
   AutoDiffScalar(const Scalar& value, int nbDer, int derNumber)
-      : m_value(value), m_derivatives(s_pool.get(nbDer), &deleter) {
+      : m_value(value), m_derivatives(s_pool.get()) {
+    m_derivatives->resize(nbDer);
     m_derivatives->setZero();
     m_derivatives->coeffRef(derNumber) = Scalar(1);
   }
 
   // NOLINTNEXTLINE(runtime/explicit): Code from Eigen.
-  AutoDiffScalar(const Real& value) : m_value(value), m_derivatives(s_pool.get(0), &deleter) {
+  AutoDiffScalar(const Real& value) : m_value(value), m_derivatives(s_pool.get()) {
     if (m_derivatives->size() > 0) m_derivatives->setZero();
   }
 
   AutoDiffScalar(const Scalar& value, const DerType& der)
-      : m_value(value), m_derivatives(s_pool.get(der.size()), &deleter) {
+      : m_value(value), m_derivatives(s_pool.get()) {
     *m_derivatives = der;
   }
 
@@ -139,7 +162,7 @@ class AutoDiffScalar<VectorXd>
           void*>::type = 0
 #endif
       )
-      : m_value(other.value()), m_derivatives(other.derivatives().size()) {
+      : m_value(other.value()), m_derivatives(s_pool.get()) {
     *m_derivatives = other.derivatives();
   }
 
@@ -148,8 +171,7 @@ class AutoDiffScalar<VectorXd>
   }
 
   AutoDiffScalar(const AutoDiffScalar& other)
-      : m_value(other.value()),
-        m_derivatives(s_pool.get(other.derivatives().size()), &deleter) {
+      : m_value(other.value()), m_derivatives(s_pool.get()) {
     *m_derivatives = other.derivatives();
   }
 
@@ -180,8 +202,8 @@ class AutoDiffScalar<VectorXd>
   inline const Scalar& value() const { return m_value; }
   inline Scalar& value() { return m_value; }
 
-  inline const VectorUpTo128d& derivatives() const { return *m_derivatives; }
-  inline VectorUpTo128d& derivatives() { return *m_derivatives; }
+  inline const PoolVector& derivatives() const { return *m_derivatives; }
+  inline PoolVector& derivatives() { return *m_derivatives; }
 
   inline bool operator<(const Scalar& other) const { return m_value < other; }
   inline bool operator<=(const Scalar& other) const { return m_value <= other; }
@@ -421,9 +443,38 @@ class AutoDiffScalar<VectorXd>
 
  protected:
   Scalar m_value;
-  using PoolPtr = std::unique_ptr<VectorUpTo128d, decltype(&deleter)>;
+
+  // Construct a pool of derivative vectors, and cache a reference to it. See
+  // also initializers below, just outside the class declaration.
+  using VectorPool = drake::internal::autodiff::Pool<PoolVector>;
+  static thread_local drake::never_destroyed<VectorPool> s_pool_storage;
+  static thread_local VectorPool& s_pool;
+
+  // This function is a convenience wrapper to help construct a custom
+  // unique_ptr type that knows to return storage to the pool.
+  static inline void deleter(PoolVector* p) { s_pool.put(p); }
+
+  // Use some template magic to construct a custom unique_ptr type whose custom
+  // deleter is fixed at compile time.  See also StackOverflow article here:
+  // https://stackoverflow.com/questions/19053351/how-do-i-use-a-custom-deleter-with-a-stdunique-ptr-member
+  template <auto fn>
+  using DeleterFromFn = std::integral_constant<decltype(fn), fn>;
+  template <typename T, auto fn>
+  using DeleterUniquePtr = std::unique_ptr<T, DeleterFromFn<fn>>;
+  using PoolPtr = DeleterUniquePtr<PoolVector, deleter>;
+  static_assert(sizeof(PoolPtr) == sizeof(void*),
+                "PoolPtr is wasting storage for the custom deleter.");
+
   PoolPtr m_derivatives;
+
 };
+
+// Define and initialize storage for class-static data fields.
+inline thread_local
+drake::never_destroyed<AutoDiffScalar<VectorXd>::VectorPool>
+AutoDiffScalar<VectorXd>::s_pool_storage;
+inline thread_local AutoDiffScalar<VectorXd>::VectorPool&
+AutoDiffScalar<VectorXd>::s_pool{s_pool_storage.access()};
 
 #define DRAKE_EIGEN_AUTODIFFXD_DECLARE_GLOBAL_UNARY(FUNC, CODE) \
   inline AutoDiffScalar<VectorXd> FUNC(                         \
