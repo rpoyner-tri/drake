@@ -130,9 +130,9 @@ class AutoDiffScalar<VectorXd>
 
   // Use a capped-size vector type for derivatives storage, together with an
   // object pooling strategy.
-  using VectorUpTo128d = Matrix<double, Dynamic, 1, 0, 128, 1>;
+  using VectorUpTo1024d = Matrix<double, Dynamic, 1, 0, 1024, 1>;
   // Avoid repeating the size cap everywhere.
-  using PoolVector = VectorUpTo128d;
+  using PoolVector = VectorUpTo1024d;
 
   using Base::operator+;
   using Base::operator*;
