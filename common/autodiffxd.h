@@ -137,22 +137,22 @@ class AutoDiffScalar<VectorXd>
   using Base::operator+;
   using Base::operator*;
 
-  AutoDiffScalar() : m_derivatives(s_pool.get(0)) {}
+  AutoDiffScalar() : m_derivatives(s_pool->get(0)) {}
 
   AutoDiffScalar(const Scalar& value, int nbDer, int derNumber)
-      : m_value(value), m_derivatives(s_pool.get(nbDer)) {
+      : m_value(value), m_derivatives(s_pool->get(nbDer)) {
     m_derivatives->setZero();
     m_derivatives->coeffRef(derNumber) = Scalar(1);
   }
 
   // NOLINTNEXTLINE(runtime/explicit): Code from Eigen.
   AutoDiffScalar(const Real& value)
-      : m_value(value), m_derivatives(s_pool.get(0)) {
+      : m_value(value), m_derivatives(s_pool->get(0)) {
     if (m_derivatives->size() > 0) m_derivatives->setZero();
   }
 
   AutoDiffScalar(const Scalar& value, const DerType& der)
-      : m_value(value), m_derivatives(s_pool.get(der.size())) {
+      : m_value(value), m_derivatives(s_pool->get(der.size())) {
     *m_derivatives = der;
   }
 
@@ -169,7 +169,7 @@ class AutoDiffScalar<VectorXd>
 #endif
       )
       : m_value(other.value()),
-        m_derivatives(s_pool.get(other.derivatives().size())) {
+        m_derivatives(s_pool->get(other.derivatives().size())) {
     *m_derivatives = other.derivatives();
   }
 
@@ -179,7 +179,7 @@ class AutoDiffScalar<VectorXd>
 
   AutoDiffScalar(const AutoDiffScalar& other)
       : m_value(other.value()),
-        m_derivatives(s_pool.get(other.derivatives().size())) {
+        m_derivatives(s_pool->get(other.derivatives().size())) {
     *m_derivatives = other.derivatives();
   }
 
@@ -453,18 +453,22 @@ class AutoDiffScalar<VectorXd>
     return *this;
   }
 
+  using VectorPool = drake::internal::autodiff::Pool<PoolVector>;
+  static VectorPool* pool_init() {
+    if (s_pool) return s_pool;
+    s_pool = new VectorPool;
+    return s_pool;
+  }
+
  protected:
   Scalar m_value;
 
-  // Construct a pool of derivative vectors, and cache a reference to it. See
-  // also initializers below, just outside the class declaration.
-  using VectorPool = drake::internal::autodiff::Pool<PoolVector>;
-  static thread_local drake::never_destroyed<VectorPool> s_pool_storage;
-  static thread_local VectorPool& s_pool;
+  static thread_local VectorPool* s_pool;
+  static VectorPool* s_pool_main;
 
   // This function is a convenience wrapper to help construct a custom
   // unique_ptr type that knows to return storage to the pool.
-  static inline void deleter(PoolVector* p) { s_pool.put(p); }
+  static inline void deleter(PoolVector* p) { s_pool->put(p); }
 
   // Use some template magic to construct a custom unique_ptr type whose custom
   // deleter is fixed at compile time.  See also StackOverflow article here:
@@ -480,12 +484,12 @@ class AutoDiffScalar<VectorXd>
   PoolPtr m_derivatives;
 };
 
-// Define and initialize storage for class-static data fields.
-inline thread_local
-drake::never_destroyed<AutoDiffScalar<VectorXd>::VectorPool>
-AutoDiffScalar<VectorXd>::s_pool_storage;
-inline thread_local AutoDiffScalar<VectorXd>::VectorPool&
-AutoDiffScalar<VectorXd>::s_pool{s_pool_storage.access()};
+// We leave the pointer to the thread-local pool uninitialized, in an attempt
+// to avoid compiler-supplied wrapper functions.
+inline thread_local AutoDiffScalar<VectorXd>::VectorPool*
+AutoDiffScalar<VectorXd>::s_pool{};
+inline AutoDiffScalar<VectorXd>::VectorPool*
+AutoDiffScalar<VectorXd>::s_pool_main{pool_init()};
 
 #define DRAKE_EIGEN_AUTODIFFXD_DECLARE_GLOBAL_UNARY(FUNC, CODE) \
   inline AutoDiffScalar<VectorXd> FUNC(                         \
