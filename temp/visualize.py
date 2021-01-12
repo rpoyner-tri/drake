@@ -38,10 +38,10 @@ def visualize_gripper_frames(X_G):
 
     plant.Finalize()
 
-    meshcat = ConnectMeshcatVisualizer(
-        builder, scene_graph, zmq_url=zmq_url
-    )
-    meshcat.load()
+    # meshcat = ConnectMeshcatVisualizer(
+    #     builder, scene_graph, zmq_url=zmq_url
+    # )
+    # meshcat.load()
 
     diagram = builder.Build()
     context = diagram.CreateDefaultContext()
@@ -60,5 +60,5 @@ for i in range(5):
 print('Number of frame to draw', len(transforms))
 visualize_gripper_frames(transforms)
 
-while True:
-    continue
+# while True:
+#     continue
