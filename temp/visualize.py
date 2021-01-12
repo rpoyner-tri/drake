@@ -10,7 +10,7 @@ from pydrake.all import (
 )
 
 
-proc, zmq_url, web_url = start_zmq_server_as_subprocess()
+#proc, zmq_url, web_url = start_zmq_server_as_subprocess()
 
 
 def visualize_gripper_frames(X_G):
@@ -24,8 +24,9 @@ def visualize_gripper_frames(X_G):
     parser = Parser(plant, scene_graph)
 
     for key, pose in X_G.items():
+        fn = FindResourceOrThrow('drake/temp/box.sdf')
         g = parser.AddModelFromFile(
-            './box.sdf',
+            fn,
             f'location_{key}'
         )
 

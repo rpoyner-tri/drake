@@ -13,4 +13,5 @@ drake_py_binary(
     deps = [
         "//bindings/pydrake",
     ],
+    data = ["box.sdf"],
 )
