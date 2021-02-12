@@ -565,6 +565,16 @@ drake_py_unittest(
     tags = ["lint"],
 )
 
+drake_py_binary(
+    name = "wtf_weld",
+    srcs = ["wtf_weld.py"],
+    add_test_rule = 1,
+    isolate = 1,
+    deps = [
+        ":pydrake",
+    ],
+)
+
 generate_pybind_coverage(
     name = "generate_pybind_coverage",
     class_coverage = ":class_coverage.csv",
