@@ -392,6 +392,11 @@ DRAKE_EIGEN_AUTODIFFXD_DECLARE_GLOBAL_UNARY(
     x.value() = abs(x.value());)
 
 DRAKE_EIGEN_AUTODIFFXD_DECLARE_GLOBAL_UNARY(
+    fabs, using std::abs;
+    x.derivatives() *= (x.value() < 0 ? -1 : 1);
+    x.value() = abs(x.value());)
+
+DRAKE_EIGEN_AUTODIFFXD_DECLARE_GLOBAL_UNARY(
     abs2, using numext::abs2;
     x.derivatives() *= (Scalar(2) * x.value());
     x.value() = abs2(x.value());)
