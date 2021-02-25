@@ -99,7 +99,7 @@ Diagram<T>::AllocateCompositeEventCollection() const {
     subevents[i] = registered_systems_[i]->AllocateCompositeEventCollection();
   }
 
-  return std::make_unique<DiagramCompositeEventCollection<T>>(
+  return std::make_unique<internal::DiagramCompositeEventCollection<T>>(
       std::move(subevents));
 }
 
@@ -616,30 +616,27 @@ void Diagram<T>::AddTriggeredWitnessFunctionToCompositeEventCollection(
     CompositeEventCollection<T>* events) const {
   DRAKE_DEMAND(events);
   DRAKE_DEMAND(event);
-  DRAKE_DEMAND(event->get_event_data());
 
-  // Get the event data- it will need to be modified.
-  auto data = dynamic_cast<WitnessTriggeredEventData<T>*>(
-      event->get_mutable_event_data());
-  DRAKE_DEMAND(data);
+  // Get the trigger data- it will need to be modified.
+  auto& data = event->mutable_witness_trigger_data();
 
   // Get the vector of events corresponding to the subsystem.
-  const System<T>& subsystem = data->triggered_witness()->get_system();
+  const System<T>& subsystem = data.triggered_witness()->get_system();
   CompositeEventCollection<T>& subevents =
       GetMutableSubsystemCompositeEventCollection(subsystem, events);
 
   // Get the continuous states at both window endpoints.
   auto diagram_xc0 = dynamic_cast<const DiagramContinuousState<T>*>(
-      data->xc0());
+      data.xc0());
   DRAKE_DEMAND(diagram_xc0 != nullptr);
   auto diagram_xcf = dynamic_cast<const DiagramContinuousState<T>*>(
-      data->xcf());
+      data.xcf());
   DRAKE_DEMAND(diagram_xcf != nullptr);
 
   // Modify the pointer to the event data to point to the sub-system
   // continuous states.
-  data->set_xc0(DoGetTargetSystemContinuousState(subsystem, diagram_xc0));
-  data->set_xcf(DoGetTargetSystemContinuousState(subsystem, diagram_xcf));
+  data.set_xc0(DoGetTargetSystemContinuousState(subsystem, diagram_xc0));
+  data.set_xcf(DoGetTargetSystemContinuousState(subsystem, diagram_xcf));
 
   // Add the event to the collection.
   event->AddToComposite(&subevents);
@@ -728,10 +725,11 @@ Diagram<T>::DoGetMutableTargetSystemCompositeEventCollection(
     return events;
 
   return GetSubsystemStuff<CompositeEventCollection<T>,
-                           DiagramCompositeEventCollection<T>>(
+                           internal::DiagramCompositeEventCollection<T>>(
       target_system, events,
       &System<T>::DoGetMutableTargetSystemCompositeEventCollection,
-      &DiagramCompositeEventCollection<T>::get_mutable_subevent_collection);
+      &internal::DiagramCompositeEventCollection<
+          T>::get_mutable_subevent_collection);
 }
 
 template <typename T>
@@ -743,10 +741,10 @@ Diagram<T>::DoGetTargetSystemCompositeEventCollection(
     return events;
 
   return GetSubsystemStuff<const CompositeEventCollection<T>,
-                           const DiagramCompositeEventCollection<T>>(
+                           const internal::DiagramCompositeEventCollection<T>>(
       target_system, events,
       &System<T>::DoGetTargetSystemCompositeEventCollection,
-      &DiagramCompositeEventCollection<T>::get_subevent_collection);
+      &internal::DiagramCompositeEventCollection<T>::get_subevent_collection);
 }
 
 template <typename T>
@@ -848,7 +846,8 @@ void Diagram<T>::DoCalcNextUpdateTime(const Context<T>& context,
                                       CompositeEventCollection<T>* event_info,
                                       T* next_update_time) const {
   auto diagram_context = dynamic_cast<const DiagramContext<T>*>(&context);
-  auto info = dynamic_cast<DiagramCompositeEventCollection<T>*>(event_info);
+  auto info =
+      dynamic_cast<internal::DiagramCompositeEventCollection<T>*>(event_info);
   DRAKE_DEMAND(diagram_context != nullptr);
   DRAKE_DEMAND(info != nullptr);
 
@@ -1058,7 +1057,8 @@ Diagram<T>::AllocateForcedEventCollection(
         std::unique_ptr<EventCollection<EventType>>(const System<T>*)>
         allocator_func) const {
   const int num_systems = num_subsystems();
-  auto ret = std::make_unique<DiagramEventCollection<EventType>>(num_systems);
+  auto ret = std::make_unique<internal::DiagramEventCollection<EventType>>(
+      num_systems);
   for (SubsystemIndex i(0); i < num_systems; ++i) {
     std::unique_ptr<EventCollection<EventType>> subevent_collection =
         allocator_func(registered_systems_[i].get());
@@ -1076,8 +1076,8 @@ void Diagram<T>::DispatchPublishHandler(
     const EventCollection<PublishEvent<T>>& event_info) const {
   auto diagram_context = dynamic_cast<const DiagramContext<T>*>(&context);
   DRAKE_DEMAND(diagram_context);
-  const DiagramEventCollection<PublishEvent<T>>& info =
-      dynamic_cast<const DiagramEventCollection<PublishEvent<T>>&>(
+  const auto& info =
+      dynamic_cast<const internal::DiagramEventCollection<PublishEvent<T>>&>(
           event_info);
 
   for (SubsystemIndex i(0); i < num_subsystems(); ++i) {
@@ -1102,9 +1102,8 @@ void Diagram<T>::DispatchDiscreteVariableUpdateHandler(
       dynamic_cast<DiagramDiscreteValues<T>*>(discrete_state);
   DRAKE_DEMAND(diagram_discrete);
 
-  const DiagramEventCollection<DiscreteUpdateEvent<T>>& diagram_events =
-      dynamic_cast<const DiagramEventCollection<DiscreteUpdateEvent<T>>&>(
-          events);
+  const auto& diagram_events = dynamic_cast<
+      const internal::DiagramEventCollection<DiscreteUpdateEvent<T>>&>(events);
 
   for (SubsystemIndex i(0); i < num_subsystems(); ++i) {
     const EventCollection<DiscreteUpdateEvent<T>>& subevents =
@@ -1126,9 +1125,8 @@ void Diagram<T>::DoApplyDiscreteVariableUpdate(
     const EventCollection<DiscreteUpdateEvent<T>>& events,
     DiscreteValues<T>* discrete_state, Context<T>* context) const {
   // If this method is called, these are all Diagram objects.
-  const auto& diagram_events =
-      dynamic_cast<const DiagramEventCollection<DiscreteUpdateEvent<T>>&>(
-          events);
+  const auto& diagram_events = dynamic_cast<
+      const internal::DiagramEventCollection<DiscreteUpdateEvent<T>>&>(events);
   auto& diagram_discrete =
       dynamic_cast<DiagramDiscreteValues<T>&>(*discrete_state);
   auto& diagram_context = dynamic_cast<DiagramContext<T>&>(*context);
@@ -1158,9 +1156,9 @@ void Diagram<T>::DispatchUnrestrictedUpdateHandler(
   auto diagram_state = dynamic_cast<DiagramState<T>*>(state);
   DRAKE_DEMAND(diagram_state != nullptr);
 
-  const DiagramEventCollection<UnrestrictedUpdateEvent<T>>& diagram_events =
-      dynamic_cast<const DiagramEventCollection<UnrestrictedUpdateEvent<T>>&>(
-          events);
+  const auto& diagram_events = dynamic_cast<
+      const internal::DiagramEventCollection<UnrestrictedUpdateEvent<T>>&>(
+      events);
 
   for (SubsystemIndex i(0); i < num_subsystems(); ++i) {
     const EventCollection<UnrestrictedUpdateEvent<T>>& subevents =
@@ -1181,9 +1179,9 @@ void Diagram<T>::DoApplyUnrestrictedUpdate(
     const EventCollection<UnrestrictedUpdateEvent<T>>& events,
     State<T>* state, Context<T>* context) const {
   // If this method is called, these are all Diagram objects.
-  const auto& diagram_events =
-      dynamic_cast<const DiagramEventCollection<UnrestrictedUpdateEvent<T>>&>(
-          events);
+  const auto& diagram_events = dynamic_cast<
+      const internal::DiagramEventCollection<UnrestrictedUpdateEvent<T>>&>(
+      events);
   auto& diagram_state = dynamic_cast<DiagramState<T>&>(*state);
   auto& diagram_context = dynamic_cast<DiagramContext<T>&>(*context);
 
@@ -1302,11 +1300,11 @@ Diagram<T>::ConvertScalarType() const {
 }
 
 template <typename T>
-std::map<PeriodicEventData, std::vector<const Event<T>*>,
-    PeriodicEventDataComparator> Diagram<T>::DoGetPeriodicEvents() const {
-  std::map<PeriodicEventData,
+std::map<PeriodicTriggerData, std::vector<const Event<T>*>,
+    PeriodicTriggerDataComparator> Diagram<T>::DoGetPeriodicEvents() const {
+  std::map<PeriodicTriggerData,
       std::vector<const Event<T>*>,
-      PeriodicEventDataComparator> periodic_events_map;
+      PeriodicTriggerDataComparator> periodic_events_map;
 
   for (int i = 0; i < num_subsystems(); ++i) {
     auto sub_map = registered_systems_[i]->GetPeriodicEvents();
@@ -1325,7 +1323,8 @@ void Diagram<T>::DoGetPerStepEvents(
     const Context<T>& context,
     CompositeEventCollection<T>* event_info) const {
   auto diagram_context = dynamic_cast<const DiagramContext<T>*>(&context);
-  auto info = dynamic_cast<DiagramCompositeEventCollection<T>*>(event_info);
+  auto* info =
+      dynamic_cast<internal::DiagramCompositeEventCollection<T>*>(event_info);
   DRAKE_DEMAND(diagram_context != nullptr);
   DRAKE_DEMAND(info != nullptr);
 
@@ -1343,7 +1342,8 @@ void Diagram<T>::DoGetInitializationEvents(
     const Context<T>& context,
     CompositeEventCollection<T>* event_info) const {
   auto diagram_context = dynamic_cast<const DiagramContext<T>*>(&context);
-  auto info = dynamic_cast<DiagramCompositeEventCollection<T>*>(event_info);
+  auto* info =
+      dynamic_cast<internal::DiagramCompositeEventCollection<T>*>(event_info);
   DRAKE_DEMAND(diagram_context != nullptr);
   DRAKE_DEMAND(info != nullptr);
 
