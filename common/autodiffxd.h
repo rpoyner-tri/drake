@@ -286,6 +286,16 @@ class AutoDiffScalar<VectorXd>
     return a;
   }
 
+  // inline AutoDiffScalar operator+() const {
+  //   return *this;
+  // }
+  // friend inline AutoDiffScalar operator+(AutoDiffScalar a) {
+  //   return a;
+  // }
+  inline AutoDiffScalar operator+() const {
+    return AutoDiffScalar(*this);
+  }
+
   friend inline AutoDiffScalar operator*(AutoDiffScalar a, const Scalar& b) {
     a *= b;
     return a;

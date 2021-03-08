@@ -612,6 +612,8 @@ drake_cc_googletest(
         "test/autodiffxd_max_test.cc",
         "test/autodiffxd_min_test.cc",
         "test/autodiffxd_multiplication_test.cc",
+        "test/autodiffxd_neg_test.cc",
+        "test/autodiffxd_pos_test.cc",
         "test/autodiffxd_pow_test.cc",
         "test/autodiffxd_sin_test.cc",
         "test/autodiffxd_sinh_test.cc",
