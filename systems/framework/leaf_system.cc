@@ -61,8 +61,8 @@ std::unique_ptr<LeafContext<T>> LeafSystem<T>::AllocateContext() const {
 template <typename T>
 std::unique_ptr<EventCollection<PublishEvent<T>>>
 LeafSystem<T>::AllocateForcedPublishEventCollection() const {
-  auto collection =
-      internal::LeafEventCollection<PublishEvent<T>>::MakeForcedEventCollection();
+  auto collection = internal::LeafEventCollection<
+      PublishEvent<T>>::MakeForcedEventCollection();
   if (this->forced_publish_events_exist())
     collection->SetFrom(this->get_forced_publish_events());
   return collection;
@@ -71,9 +71,8 @@ LeafSystem<T>::AllocateForcedPublishEventCollection() const {
 template <typename T>
 std::unique_ptr<EventCollection<DiscreteUpdateEvent<T>>>
 LeafSystem<T>::AllocateForcedDiscreteUpdateEventCollection() const {
-  auto collection =
-      internal::LeafEventCollection<
-          DiscreteUpdateEvent<T>>::MakeForcedEventCollection();
+  auto collection = internal::LeafEventCollection<
+      DiscreteUpdateEvent<T>>::MakeForcedEventCollection();
   if (this->forced_discrete_update_events_exist())
     collection->SetFrom(this->get_forced_discrete_update_events());
   return collection;
@@ -82,9 +81,8 @@ LeafSystem<T>::AllocateForcedDiscreteUpdateEventCollection() const {
 template <typename T>
 std::unique_ptr<EventCollection<UnrestrictedUpdateEvent<T>>>
 LeafSystem<T>::AllocateForcedUnrestrictedUpdateEventCollection() const {
-  auto collection =
-      internal::LeafEventCollection<
-        UnrestrictedUpdateEvent<T>>::MakeForcedEventCollection();
+  auto collection = internal::LeafEventCollection<
+      UnrestrictedUpdateEvent<T>>::MakeForcedEventCollection();
   if (this->forced_unrestricted_update_events_exist())
     collection->SetFrom(this->get_forced_unrestricted_update_events());
   return collection;

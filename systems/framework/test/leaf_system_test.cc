@@ -355,8 +355,9 @@ class LeafSystemTest : public ::testing::Test {
  protected:
   void SetUp() override {
     event_info_ = system_.AllocateCompositeEventCollection();
-    leaf_info_ = dynamic_cast<const internal::LeafCompositeEventCollection<double>*>(
-        event_info_.get());
+    leaf_info_ =
+        dynamic_cast<const internal::LeafCompositeEventCollection<double>*>(
+            event_info_.get());
 
     // Make sure caching tests will work properly even if caching is off
     // by default.
@@ -388,8 +389,8 @@ TEST_F(LeafSystemTest, ForcedEventCollectionsTest) {
       forced_publishes_pointer);
 
   // Verify that we can set the discrete update collection.
-  auto forced_discrete_updates =
-      std::make_unique<internal::LeafEventCollection<DiscreteUpdateEvent<double>>>();
+  auto forced_discrete_updates = std::make_unique<
+      internal::LeafEventCollection<DiscreteUpdateEvent<double>>>();
   auto* forced_discrete_updates_pointer = forced_discrete_updates.get();
   system_.set_forced_discrete_update_events_collection(
       std::move(forced_discrete_updates));
@@ -397,8 +398,8 @@ TEST_F(LeafSystemTest, ForcedEventCollectionsTest) {
       forced_discrete_updates_pointer);
 
   // Verify that we can set the forced unrestricted update collection.
-  auto forced_unrestricted_updates =
-      std::make_unique<internal::LeafEventCollection<UnrestrictedUpdateEvent<double>>>();
+  auto forced_unrestricted_updates = std::make_unique<
+      internal::LeafEventCollection<UnrestrictedUpdateEvent<double>>>();
   auto* forced_unrestricted_updates_pointer = forced_unrestricted_updates.get();
   system_.set_forced_unrestricted_update_events_collection(
       std::move(forced_unrestricted_updates));
@@ -2232,7 +2233,8 @@ class TriggerTest : public ::testing::Test {
     context_ = dut_.CreateDefaultContext();
     info_ = dut_.AllocateCompositeEventCollection();
     leaf_info_ =
-        dynamic_cast<const internal::LeafCompositeEventCollection<double>*>(info_.get());
+        dynamic_cast<const internal::LeafCompositeEventCollection<double>*>(
+            info_.get());
     DRAKE_DEMAND(leaf_info_ != nullptr);
   }
 
