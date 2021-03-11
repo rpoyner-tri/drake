@@ -3,6 +3,7 @@
 #include <limits>
 #include <memory>
 #include <utility>
+#include <variant>
 
 #include "drake/common/drake_copyable.h"
 #include "drake/common/value.h"
