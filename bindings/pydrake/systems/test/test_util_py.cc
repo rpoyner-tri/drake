@@ -125,7 +125,7 @@ PYBIND11_MODULE(test_util, m) {
       // From t=0, return next update time for testing discrete time.
       // If there is an abstract / unrestricted update, this assumes that
       // `dt_discrete < dt_abstract`.
-      systems::LeafCompositeEventCollection<double> events;
+      systems::internal::LeafCompositeEventCollection<double> events;
       results["discrete_next_t"] = system.CalcNextUpdateTime(*context, &events);
     }
     return results;

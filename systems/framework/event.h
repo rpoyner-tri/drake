@@ -644,9 +644,13 @@ class PublishEvent final : public Event<T> {
   }
 
  private:
-  void DoAddToComposite(TriggerType,
+  void DoAddToComposite(TriggerType trigger_type,
                         CompositeEventCollection<T>* events) const final {
-    events->add_publish_event(*this);
+    // set trigger type!
+    // DRAKE_DEMAND(this->get_trigger_type() == trigger_type);
+    PublishEvent that(*this);
+    that.set_trigger_type(trigger_type);
+    events->add_publish_event(that);
   }
 
   // Clones PublishEvent-specific data.
@@ -712,9 +716,12 @@ class DiscreteUpdateEvent final : public Event<T> {
   }
 
  private:
-  void DoAddToComposite(TriggerType,
+  void DoAddToComposite(TriggerType trigger_type,
                         CompositeEventCollection<T>* events) const final {
-    events->add_discrete_update_event(*this);
+    // DRAKE_DEMAND(this->get_trigger_type() == trigger_type);
+    DiscreteUpdateEvent that(*this);
+    that.set_trigger_type(trigger_type);
+    events->add_discrete_update_event(that);
   }
 
   // Clones DiscreteUpdateEvent-specific data.
@@ -778,9 +785,12 @@ class UnrestrictedUpdateEvent final : public Event<T> {
   }
 
  private:
-  void DoAddToComposite(TriggerType,
+  void DoAddToComposite(TriggerType trigger_type,
                         CompositeEventCollection<T>* events) const final {
-    events->add_unrestricted_update_event(*this);
+    // DRAKE_DEMAND(this->get_trigger_type() == trigger_type);
+    UnrestrictedUpdateEvent that(*this);
+    that.set_trigger_type(trigger_type);
+    events->add_unrestricted_update_event(that);
   }
 
   // Clones event data specific to UnrestrictedUpdateEvent.

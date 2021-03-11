@@ -3057,7 +3057,7 @@ GTEST_TEST(SystemTest, MissedEventIssue12620) {
     const double trigger_time_;
   };
 
-  LeafCompositeEventCollection<double> events;
+  internal::LeafCompositeEventCollection<double> events;
 
   // First test returns NaN, which should be detected.
   TriggerTimeButNoEventSystem nan_system(NAN);
@@ -3096,13 +3096,12 @@ GTEST_TEST(SystemTest, ForgotToSetTheUpdateTime) {
     }
   };
 
-  LeafCompositeEventCollection<double> events;
-
   ForgotToSetTimeSystem forgot_system;
+  auto events = forgot_system.AllocateCompositeEventCollection();
   auto forgot_context = forgot_system.AllocateContext();
   forgot_context->SetTime(0.25);
   DRAKE_EXPECT_THROWS_MESSAGE(
-      forgot_system.CalcNextUpdateTime(*forgot_context, &events),
+      forgot_system.CalcNextUpdateTime(*forgot_context, events.get()),
       std::exception,
       ".*CalcNextUpdateTime.*ForgotToSetTimeSystem.*MyForgetfulSystem.*"
       "time=0.25.*no update time.*NaN.*Return infinity.*");
