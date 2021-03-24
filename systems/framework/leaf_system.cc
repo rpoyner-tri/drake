@@ -49,7 +49,7 @@ LeafSystem<T>::~LeafSystem() {}
 template <typename T>
 std::unique_ptr<CompositeEventCollection<T>>
 LeafSystem<T>::AllocateCompositeEventCollection() const {
-  return std::make_unique<LeafCompositeEventCollection<T>>();
+  return std::make_unique<internal::LeafCompositeEventCollection<T>>();
 }
 
 template <typename T>
@@ -61,8 +61,8 @@ std::unique_ptr<LeafContext<T>> LeafSystem<T>::AllocateContext() const {
 template <typename T>
 std::unique_ptr<EventCollection<PublishEvent<T>>>
 LeafSystem<T>::AllocateForcedPublishEventCollection() const {
-  auto collection =
-      LeafEventCollection<PublishEvent<T>>::MakeForcedEventCollection();
+  auto collection = internal::LeafEventCollection<
+      PublishEvent<T>>::MakeForcedEventCollection();
   if (this->forced_publish_events_exist())
     collection->SetFrom(this->get_forced_publish_events());
   return collection;
@@ -72,7 +72,7 @@ template <typename T>
 std::unique_ptr<EventCollection<DiscreteUpdateEvent<T>>>
 LeafSystem<T>::AllocateForcedDiscreteUpdateEventCollection() const {
   auto collection =
-      LeafEventCollection<
+      internal::LeafEventCollection<
           DiscreteUpdateEvent<T>>::MakeForcedEventCollection();
   if (this->forced_discrete_update_events_exist())
     collection->SetFrom(this->get_forced_discrete_update_events());
@@ -83,7 +83,7 @@ template <typename T>
 std::unique_ptr<EventCollection<UnrestrictedUpdateEvent<T>>>
 LeafSystem<T>::AllocateForcedUnrestrictedUpdateEventCollection() const {
   auto collection =
-      LeafEventCollection<
+      internal::LeafEventCollection<
         UnrestrictedUpdateEvent<T>>::MakeForcedEventCollection();
   if (this->forced_unrestricted_update_events_exist())
     collection->SetFrom(this->get_forced_unrestricted_update_events());
@@ -779,8 +779,8 @@ template <typename T>
 void LeafSystem<T>::DispatchPublishHandler(
     const Context<T>& context,
     const EventCollection<PublishEvent<T>>& events) const {
-  const LeafEventCollection<PublishEvent<T>>& leaf_events =
-     dynamic_cast<const LeafEventCollection<PublishEvent<T>>&>(events);
+  const auto& leaf_events = dynamic_cast<
+    const internal::LeafEventCollection<PublishEvent<T>>&>(events);
   // Only call DoPublish if there are publish events.
   DRAKE_DEMAND(leaf_events.HasEvents());
   this->DoPublish(context, leaf_events.get_events());
@@ -791,9 +791,8 @@ void LeafSystem<T>::DispatchDiscreteVariableUpdateHandler(
     const Context<T>& context,
     const EventCollection<DiscreteUpdateEvent<T>>& events,
     DiscreteValues<T>* discrete_state) const {
-  const LeafEventCollection<DiscreteUpdateEvent<T>>& leaf_events =
-      dynamic_cast<const LeafEventCollection<DiscreteUpdateEvent<T>>&>(
-          events);
+  const auto& leaf_events = dynamic_cast<
+    const internal::LeafEventCollection<DiscreteUpdateEvent<T>>&>(events);
   DRAKE_DEMAND(leaf_events.HasEvents());
 
   // Must initialize the output argument with the current contents of the
@@ -808,7 +807,8 @@ void LeafSystem<T>::DoApplyDiscreteVariableUpdate(
     const EventCollection<DiscreteUpdateEvent<T>>& events,
     DiscreteValues<T>* discrete_state, Context<T>* context) const {
   DRAKE_ASSERT(
-      dynamic_cast<const LeafEventCollection<DiscreteUpdateEvent<T>>*>(
+      dynamic_cast<
+          const internal::LeafEventCollection<DiscreteUpdateEvent<T>>*>(
           &events) != nullptr);
   DRAKE_DEMAND(events.HasEvents());
   // TODO(sherm1) Should swap rather than copy.
@@ -820,9 +820,8 @@ void LeafSystem<T>::DispatchUnrestrictedUpdateHandler(
     const Context<T>& context,
     const EventCollection<UnrestrictedUpdateEvent<T>>& events,
     State<T>* state) const {
-  const LeafEventCollection<UnrestrictedUpdateEvent<T>>& leaf_events =
-      dynamic_cast<const LeafEventCollection<UnrestrictedUpdateEvent<T>>&>(
-          events);
+  const auto& leaf_events = dynamic_cast<
+      const internal::LeafEventCollection<UnrestrictedUpdateEvent<T>>&>(events);
   DRAKE_DEMAND(leaf_events.HasEvents());
 
   // Must initialize the output argument with the current contents of the
@@ -837,7 +836,8 @@ void LeafSystem<T>::DoApplyUnrestrictedUpdate(
     const EventCollection<UnrestrictedUpdateEvent<T>>& events,
     State<T>* state, Context<T>* context) const {
   DRAKE_ASSERT(
-      dynamic_cast<const LeafEventCollection<UnrestrictedUpdateEvent<T>>*>(
+      dynamic_cast<
+          const internal::LeafEventCollection<UnrestrictedUpdateEvent<T>>*>(
           &events) != nullptr);
   DRAKE_DEMAND(events.HasEvents());
   // TODO(sherm1) Should swap rather than copy.

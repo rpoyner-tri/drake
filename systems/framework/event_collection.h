@@ -145,7 +145,8 @@ class EventCollection {
   virtual void DoAddToEnd(const EventCollection<EventType>& other) = 0;
 };
 
-/**
+namespace internal {
+/*
  * A concrete class that holds all simultaneous _homogeneous_ events for a
  * Diagram. For each subsystem in the corresponding Diagram, a derived
  * EventCollection instance is maintained internally, thus effectively holding
@@ -291,7 +292,7 @@ class DiagramEventCollection final : public EventCollection<EventType> {
       owned_subevent_collection_;
 };
 
-/**
+/*
  * A concrete class that holds all simultaneous _homogeneous_ events for a
  * LeafSystem.
  *
@@ -303,12 +304,12 @@ class LeafEventCollection final : public EventCollection<EventType> {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(LeafEventCollection)
 
-  /**
+  /*
    * Constructor.
    */
   LeafEventCollection() = default;
 
-  /**
+  /*
    * Static method that generates a LeafEventCollection with exactly
    * one event with no optional attribute, data or callback, and trigger type
    * kForced.
@@ -321,7 +322,7 @@ class LeafEventCollection final : public EventCollection<EventType> {
     return ret;
   }
 
-  /**
+  /*
    * Returns a const reference to the vector of const pointers to all of the
    * events.
    */
@@ -389,6 +390,7 @@ class LeafEventCollection final : public EventCollection<EventType> {
   // get_events().
   std::vector<const EventType*> events_;
 };
+}  // namespace internal
 
 /**
  * This class bundles an instance of each EventCollection<EventType> into one
@@ -464,7 +466,8 @@ class CompositeEventCollection {
    */
   void add_publish_event(std::unique_ptr<PublishEvent<T>> event) {
     DRAKE_DEMAND(event != nullptr);
-    auto& events = dynamic_cast<LeafEventCollection<PublishEvent<T>>&>(
+    auto& events = dynamic_cast<
+      internal::LeafEventCollection<PublishEvent<T>>&>(
         this->get_mutable_publish_events());
     events.add_event(std::move(event));
   }
@@ -478,7 +481,8 @@ class CompositeEventCollection {
   void add_discrete_update_event(
       std::unique_ptr<DiscreteUpdateEvent<T>> event) {
     DRAKE_DEMAND(event != nullptr);
-    auto& events = dynamic_cast<LeafEventCollection<DiscreteUpdateEvent<T>>&>(
+    auto& events = dynamic_cast<
+      internal::LeafEventCollection<DiscreteUpdateEvent<T>>&>(
         this->get_mutable_discrete_update_events());
     events.add_event(std::move(event));
   }
@@ -493,7 +497,8 @@ class CompositeEventCollection {
       std::unique_ptr<UnrestrictedUpdateEvent<T>> event) {
     DRAKE_DEMAND(event != nullptr);
     auto& events =
-        dynamic_cast<LeafEventCollection<UnrestrictedUpdateEvent<T>>&>(
+        dynamic_cast<
+          internal::LeafEventCollection<UnrestrictedUpdateEvent<T>>&>(
             this->get_mutable_unrestricted_update_events());
     events.add_event(std::move(event));
   }
@@ -592,7 +597,9 @@ class CompositeEventCollection {
       unrestricted_update_events_{nullptr};
 };
 
-/**
+namespace internal {
+
+/*
  * A CompositeEventCollection for a LeafSystem. i.e.
  * <pre>
  *   PublishEvent<T>: {event1i, ...}
@@ -612,24 +619,25 @@ class LeafCompositeEventCollection final : public CompositeEventCollection<T> {
             std::make_unique<
                 LeafEventCollection<UnrestrictedUpdateEvent<T>>>()) {}
 
-  /**
+  /*
    * Returns a const reference to the collection of publish events.
    */
   const LeafEventCollection<PublishEvent<T>>& get_publish_events() const {
-    return dynamic_cast<const LeafEventCollection<PublishEvent<T>>&>(
+    return dynamic_cast<const internal::LeafEventCollection<PublishEvent<T>>&>(
         CompositeEventCollection<T>::get_publish_events());
   }
 
-  /**
+  /*
    * Returns a const reference to the collection of discrete update events.
    */
   const LeafEventCollection<DiscreteUpdateEvent<T>>&
   get_discrete_update_events() const {
-    return dynamic_cast<const LeafEventCollection<DiscreteUpdateEvent<T>>&>(
+    return dynamic_cast<
+      const internal::LeafEventCollection<DiscreteUpdateEvent<T>>&>(
         CompositeEventCollection<T>::get_discrete_update_events());
   }
 
-  /**
+  /*
    * Returns a const reference to the collection of unrestricted update events.
    */
   const LeafEventCollection<UnrestrictedUpdateEvent<T>>&
@@ -639,7 +647,7 @@ class LeafCompositeEventCollection final : public CompositeEventCollection<T> {
   }
 };
 
-/**
+/*
  * CompositeEventCollection for a Diagram.
  *
  * End users should never need to use or know about this class.  It is for
@@ -651,7 +659,7 @@ class DiagramCompositeEventCollection final
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(DiagramCompositeEventCollection)
 
-  /**
+  /*
    * Allocated CompositeEventCollection for all constituent subsystems are
    * passed in `subevents` (a vector of size of the number of subsystems of
    * the corresponding diagram), for which ownership is also transferred to
@@ -699,7 +707,7 @@ class DiagramCompositeEventCollection final
     }
   }
 
-  /**
+  /*
    * Returns the number of subsystems for which this object contains event
    * collections.
    */
@@ -728,6 +736,7 @@ class DiagramCompositeEventCollection final
       owned_subevent_collection_;
 };
 
+}  // namespace internal
 }  // namespace systems
 }  // namespace drake
 
@@ -735,7 +744,7 @@ DRAKE_DECLARE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_SCALARS(
     class ::drake::systems::CompositeEventCollection)
 
 DRAKE_DECLARE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_SCALARS(
-    class ::drake::systems::LeafCompositeEventCollection)
+    class ::drake::systems::internal::LeafCompositeEventCollection)
 
 DRAKE_DECLARE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_SCALARS(
-    class ::drake::systems::DiagramCompositeEventCollection)
+    class ::drake::systems::internal::DiagramCompositeEventCollection)

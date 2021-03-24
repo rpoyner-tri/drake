@@ -2099,10 +2099,10 @@ class LeafSystem : public System<T> {
 
   // Update or Publish events declared by this system for every simulator
   // major time step.
-  LeafCompositeEventCollection<T> per_step_events_;
+  internal::LeafCompositeEventCollection<T> per_step_events_;
 
   // Update or Publish events that need to be handled at system initialization.
-  LeafCompositeEventCollection<T> initialization_events_;
+  internal::LeafCompositeEventCollection<T> initialization_events_;
 
   // A model continuous state to be used during Context allocation.
   std::unique_ptr<BasicVector<T>> model_continuous_state_vector_{

@@ -355,8 +355,9 @@ class LeafSystemTest : public ::testing::Test {
  protected:
   void SetUp() override {
     event_info_ = system_.AllocateCompositeEventCollection();
-    leaf_info_ = dynamic_cast<const LeafCompositeEventCollection<double>*>(
-        event_info_.get());
+    leaf_info_ =
+        dynamic_cast<const internal::LeafCompositeEventCollection<double>*>(
+            event_info_.get());
 
     // Make sure caching tests will work properly even if caching is off
     // by default.
@@ -368,7 +369,7 @@ class LeafSystemTest : public ::testing::Test {
   LeafContext<double>& context_ = *context_ptr_;
 
   std::unique_ptr<CompositeEventCollection<double>> event_info_;
-  const LeafCompositeEventCollection<double>* leaf_info_;
+  const internal::LeafCompositeEventCollection<double>* leaf_info_;
 };
 
 TEST_F(LeafSystemTest, ForcedEventCollectionsTest) {
@@ -379,7 +380,7 @@ TEST_F(LeafSystemTest, ForcedEventCollectionsTest) {
 
   // Verify that we can set the publish collection.
   auto forced_publishes =
-      std::make_unique<LeafEventCollection<PublishEvent<double>>>();
+      std::make_unique<internal::LeafEventCollection<PublishEvent<double>>>();
   auto* forced_publishes_pointer = forced_publishes.get();
   system_.set_forced_publish_events_collection(std::move(forced_publishes));
   EXPECT_EQ(&system_.get_forced_publish_events_collection(),
@@ -388,8 +389,8 @@ TEST_F(LeafSystemTest, ForcedEventCollectionsTest) {
       forced_publishes_pointer);
 
   // Verify that we can set the discrete update collection.
-  auto forced_discrete_updates =
-      std::make_unique<LeafEventCollection<DiscreteUpdateEvent<double>>>();
+  auto forced_discrete_updates = std::make_unique<
+      internal::LeafEventCollection<DiscreteUpdateEvent<double>>>();
   auto* forced_discrete_updates_pointer = forced_discrete_updates.get();
   system_.set_forced_discrete_update_events_collection(
       std::move(forced_discrete_updates));
@@ -397,8 +398,8 @@ TEST_F(LeafSystemTest, ForcedEventCollectionsTest) {
       forced_discrete_updates_pointer);
 
   // Verify that we can set the forced unrestricted update collection.
-  auto forced_unrestricted_updates =
-      std::make_unique<LeafEventCollection<UnrestrictedUpdateEvent<double>>>();
+  auto forced_unrestricted_updates = std::make_unique<
+      internal::LeafEventCollection<UnrestrictedUpdateEvent<double>>>();
   auto* forced_unrestricted_updates_pointer = forced_unrestricted_updates.get();
   system_.set_forced_unrestricted_update_events_collection(
       std::move(forced_unrestricted_updates));
@@ -1650,7 +1651,7 @@ TEST_F(LeafSystemTest, CallbackAndInvalidUpdates) {
   std::unique_ptr<State<double>> x = context->CloneState();
 
   // Create an unrestricted update callback that just copies the state.
-  LeafCompositeEventCollection<double> leaf_events;
+  internal::LeafCompositeEventCollection<double> leaf_events;
   {
     UnrestrictedUpdateEvent<double>::UnrestrictedUpdateCallback callback = [](
         const Context<double>& c, const Event<double>&, State<double>* s) {
@@ -2232,14 +2233,15 @@ class TriggerTest : public ::testing::Test {
     context_ = dut_.CreateDefaultContext();
     info_ = dut_.AllocateCompositeEventCollection();
     leaf_info_ =
-        dynamic_cast<const LeafCompositeEventCollection<double>*>(info_.get());
+        dynamic_cast<const internal::LeafCompositeEventCollection<double>*>(
+            info_.get());
     DRAKE_DEMAND(leaf_info_ != nullptr);
   }
 
   TestTriggerSystem dut_;
   std::unique_ptr<Context<double>> context_;
   std::unique_ptr<CompositeEventCollection<double>> info_;
-  const LeafCompositeEventCollection<double>* leaf_info_;
+  const internal::LeafCompositeEventCollection<double>* leaf_info_;
 };
 
 // After handling of the events, int_data_ should be {42},
@@ -3057,7 +3059,7 @@ GTEST_TEST(SystemTest, MissedEventIssue12620) {
     const double trigger_time_;
   };
 
-  LeafCompositeEventCollection<double> events;
+  internal::LeafCompositeEventCollection<double> events;
 
   // First test returns NaN, which should be detected.
   TriggerTimeButNoEventSystem nan_system(NAN);
@@ -3096,7 +3098,7 @@ GTEST_TEST(SystemTest, ForgotToSetTheUpdateTime) {
     }
   };
 
-  LeafCompositeEventCollection<double> events;
+  internal::LeafCompositeEventCollection<double> events;
 
   ForgotToSetTimeSystem forgot_system;
   auto forgot_context = forgot_system.AllocateContext();

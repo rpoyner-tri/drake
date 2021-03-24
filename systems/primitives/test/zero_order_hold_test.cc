@@ -76,8 +76,9 @@ class ZeroOrderHoldTest : public ::testing::TestWithParam<bool> {
     }
 
     event_info_ = hold_->AllocateCompositeEventCollection();
-    leaf_info_ = dynamic_cast<const LeafCompositeEventCollection<double>*>(
-        event_info_.get());
+    leaf_info_ =
+        dynamic_cast<const internal::LeafCompositeEventCollection<double>*>(
+            event_info_.get());
   }
 
   void CheckForUpdateAction() const {
@@ -93,7 +94,7 @@ class ZeroOrderHoldTest : public ::testing::TestWithParam<bool> {
   std::unique_ptr<ZeroOrderHold<double>> hold_;
   std::unique_ptr<Context<double>> context_;
   std::unique_ptr<CompositeEventCollection<double>> event_info_;
-  const LeafCompositeEventCollection<double>* leaf_info_;
+  const internal::LeafCompositeEventCollection<double>* leaf_info_;
 
   const bool is_abstract_{};
   Eigen::Vector3d state_value_override_;
