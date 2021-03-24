@@ -181,13 +181,6 @@ class DiagramEventCollection final : public EventCollection<EventType> {
         owned_subevent_collection_(num_subsystems) {}
 
   /**
-   * Throws if called, because no events should be added at the Diagram level.
-   */
-  void add_event(std::unique_ptr<EventType>) override {
-    throw std::logic_error("DiagramEventCollection::add_event is not allowed");
-  }
-
-  /**
    * Returns the number of constituent EventCollection objects that correspond
    * to each subsystem in the Diagram.
    */
@@ -263,8 +256,8 @@ class DiagramEventCollection final : public EventCollection<EventType> {
     return false;
   }
 
- protected:
-  /**
+ private:
+  /*
    * Goes through each subevent collection of `this` and adds the corresponding
    * one in `other_collection` to the subevent collection in `this`. Aborts if
    * `this` does not have the same number of subevent collections as
@@ -286,7 +279,13 @@ class DiagramEventCollection final : public EventCollection<EventType> {
     }
   }
 
- private:
+  /*
+   * Throws if called, because no events should be added at the Diagram level.
+   */
+  void add_event(std::unique_ptr<EventType>) final {
+    throw std::logic_error("DiagramEventCollection::add_event is not allowed");
+  }
+
   std::vector<EventCollection<EventType>*> subevent_collection_;
   std::vector<std::unique_ptr<EventCollection<EventType>>>
       owned_subevent_collection_;
@@ -352,7 +351,7 @@ class LeafEventCollection final : public EventCollection<EventType> {
     events_.clear();
   }
 
- protected:
+ private:
   /**
    * All events in `other_collection` are concatanated to this.
    *
@@ -382,7 +381,6 @@ class LeafEventCollection final : public EventCollection<EventType> {
     }
   }
 
- private:
   // Owned event unique pointers.
   std::vector<std::unique_ptr<EventType>> owned_events_;
 
