@@ -229,9 +229,9 @@ class TestSystem : public System<double> {
         UnrestrictedUpdateEvent<double>>::MakeForcedEventCollection();
   }
 
-  std::map<PeriodicEventData,
+  std::map<PeriodicTriggerData,
       std::vector<const Event<double>*>,
-      PeriodicEventDataComparator>
+      PeriodicTriggerDataComparator>
       DoGetPeriodicEvents() const override {
     return {};
   }
@@ -727,8 +727,8 @@ class ValueIOTestSystem : public System<T> {
         UnrestrictedUpdateEvent<T>>::MakeForcedEventCollection();
   }
 
-  std::map<PeriodicEventData, std::vector<const Event<T>*>,
-           PeriodicEventDataComparator>
+  std::map<PeriodicTriggerData, std::vector<const Event<T>*>,
+           PeriodicTriggerDataComparator>
   DoGetPeriodicEvents() const override {
     return {};
   }
@@ -1069,8 +1069,8 @@ class ComputationTestSystem final : public System<double> {
     ADD_FAILURE() << "Implementation is required, but unused here.";
   }
 
-  std::map<PeriodicEventData, std::vector<const Event<double>*>,
-           PeriodicEventDataComparator>
+  std::map<PeriodicTriggerData, std::vector<const Event<double>*>,
+           PeriodicTriggerDataComparator>
   DoGetPeriodicEvents() const final { return {}; }
 
   mutable int xcdot_count_{};

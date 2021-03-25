@@ -619,7 +619,7 @@ void Diagram<T>::AddTriggeredWitnessFunctionToCompositeEventCollection(
   DRAKE_DEMAND(event->get_event_data());
 
   // Get the event data- it will need to be modified.
-  auto data = dynamic_cast<WitnessTriggeredEventData<T>*>(
+  auto data = dynamic_cast<WitnessTriggerData<T>*>(
       event->get_mutable_event_data());
   DRAKE_DEMAND(data);
 
@@ -1303,11 +1303,11 @@ Diagram<T>::ConvertScalarType() const {
 }
 
 template <typename T>
-std::map<PeriodicEventData, std::vector<const Event<T>*>,
-    PeriodicEventDataComparator> Diagram<T>::DoGetPeriodicEvents() const {
-  std::map<PeriodicEventData,
+std::map<PeriodicTriggerData, std::vector<const Event<T>*>,
+    PeriodicTriggerDataComparator> Diagram<T>::DoGetPeriodicEvents() const {
+  std::map<PeriodicTriggerData,
       std::vector<const Event<T>*>,
-      PeriodicEventDataComparator> periodic_events_map;
+      PeriodicTriggerDataComparator> periodic_events_map;
 
   for (int i = 0; i < num_subsystems(); ++i) {
     auto sub_map = registered_systems_[i]->GetPeriodicEvents();

@@ -249,10 +249,10 @@ class EventData {
  * triggered at time = offset_sec + i * period_sec, where i is a non-negative
  * integer.
  */
-class PeriodicEventData : public EventData {
+class PeriodicTriggerData : public EventData {
  public:
-  PeriodicEventData() {}
-  DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(PeriodicEventData);
+  PeriodicTriggerData() {}
+  DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(PeriodicTriggerData);
 
   /// Gets the period with which this event should recur.
   double period_sec() const { return period_sec_; }
@@ -268,7 +268,7 @@ class PeriodicEventData : public EventData {
 
  private:
   [[nodiscard]] EventData* DoClone() const override {
-    PeriodicEventData* clone = new PeriodicEventData;
+    PeriodicTriggerData* clone = new PeriodicTriggerData;
     clone->period_sec_ = period_sec_;
     clone->offset_sec_ = offset_sec_;
     return clone;
@@ -277,6 +277,10 @@ class PeriodicEventData : public EventData {
   double period_sec_{0.0};
   double offset_sec_{0.0};
 };
+
+using PeriodicEventData
+      DRAKE_DEPRECATED("2021-06-01", "Use PeriodicTriggerData instead.")
+      = PeriodicTriggerData;
 
 /**
  * Class for storing data from a witness function triggering to be passed
@@ -287,10 +291,10 @@ class PeriodicEventData : public EventData {
  * triggered.
  */
 template <class T>
-class WitnessTriggeredEventData : public EventData {
+class WitnessTriggerData : public EventData {
  public:
-  WitnessTriggeredEventData() {}
-  DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(WitnessTriggeredEventData);
+  WitnessTriggerData() {}
+  DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(WitnessTriggerData);
 
   /// Gets the witness function that triggered the event handler.
   const WitnessFunction<T>* triggered_witness() const {
@@ -336,7 +340,7 @@ class WitnessTriggeredEventData : public EventData {
 
  private:
   [[nodiscard]] EventData* DoClone() const override {
-    WitnessTriggeredEventData<T>* clone = new WitnessTriggeredEventData;
+    WitnessTriggerData<T>* clone = new WitnessTriggerData;
     clone->triggered_witness_ = triggered_witness_;
     clone->t0_ = t0_;
     clone->tf_ = tf_;
@@ -351,6 +355,11 @@ class WitnessTriggeredEventData : public EventData {
   const ContinuousState<T>* xc0_{nullptr};
   const ContinuousState<T>* xcf_{nullptr};
 };
+
+template <typename T>
+using WitnessTriggeredEventData
+      DRAKE_DEPRECATED("2021-06-01", "Use WitnessTriggerData instead.")
+      = WitnessTriggerData<T>;
 
 /**
  * Predefined types of triggers for events. Used at run time to determine why
@@ -554,17 +563,22 @@ class Event {
 };
 
 /**
- * Structure for comparing two PeriodicEventData objects for use in a map
+ * Structure for comparing two PeriodicTriggerData objects for use in a map
  * container, using an arbitrary comparison method.
  */
-struct PeriodicEventDataComparator {
-  bool operator()(const PeriodicEventData& a,
-    const PeriodicEventData& b) const {
+struct PeriodicTriggerDataComparator {
+  bool operator()(const PeriodicTriggerData& a,
+    const PeriodicTriggerData& b) const {
       if (a.period_sec() == b.period_sec())
         return a.offset_sec() < b.offset_sec();
       return a.period_sec() < b.period_sec();
   }
 };
+
+using PeriodicEventDataComparator
+      DRAKE_DEPRECATED("2021-06-01", "Use PeriodicTriggerDataComparator "
+          "instead.")
+      = PeriodicTriggerDataComparator;
 
 /**
  * This class represents a publish event. It has an optional callback function
@@ -785,7 +799,7 @@ class UnrestrictedUpdateEvent final : public Event<T> {
 }  // namespace drake
 
 DRAKE_DECLARE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_SCALARS(
-    class ::drake::systems::WitnessTriggeredEventData)
+    class ::drake::systems::WitnessTriggerData)
 
 DRAKE_DECLARE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_SCALARS(
     class ::drake::systems::Event)

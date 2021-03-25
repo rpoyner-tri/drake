@@ -523,11 +523,11 @@ bool Simulator<T>::DidWitnessTrigger(
 // that was evaluated over the time interval [`t0`, `tf`] and adds it to the
 // given event collection (`events`).
 template <class T>
-void Simulator<T>::PopulateEventDataForTriggeredWitness(
+void Simulator<T>::PopulateTriggerDataForTriggeredWitness(
     const T& t0, const T& tf, const WitnessFunction<T>* witness,
     Event<T>* event, CompositeEventCollection<T>* events) const {
   // Populate the event data.
-  auto event_data = static_cast<WitnessTriggeredEventData<T>*>(
+  auto event_data = static_cast<WitnessTriggerData<T>*>(
       event->get_mutable_event_data());
   event_data->set_triggered_witness(witness);
   event_data->set_t0(t0);
@@ -626,9 +626,9 @@ Simulator<T>::IntegrateContinuousState(
       if (!event) {
         event = fn->get_event()->Clone();
         event->set_trigger_type(TriggerType::kWitness);
-        event->set_event_data(std::make_unique<WitnessTriggeredEventData<T>>());
+        event->set_event_data(std::make_unique<WitnessTriggerData<T>>());
       }
-      PopulateEventDataForTriggeredWitness(t0, tf, fn, event.get(),
+      PopulateTriggerDataForTriggeredWitness(t0, tf, fn, event.get(),
                                            witnessed_events);
     }
 
