@@ -239,7 +239,7 @@ class DiagramEventCollection final : public EventCollection<EventType> {
   /**
    * Clears all subevent collections.
    */
-  void Clear() override {
+  void Clear() final {
     for (EventCollection<EventType>* subevent : subevent_collection_) {
       subevent->Clear();
     }
@@ -249,7 +249,7 @@ class DiagramEventCollection final : public EventCollection<EventType> {
    * Returns `true` if and only if any of the subevent collections have any
    * events.
    */
-  bool HasEvents() const override {
+  bool HasEvents() const final {
     for (const EventCollection<EventType>* subevent : subevent_collection_) {
       if (subevent->HasEvents()) return true;
     }
@@ -268,7 +268,7 @@ class DiagramEventCollection final : public EventCollection<EventType> {
    * DiagramEventCollection.
    */
   void DoAddToEnd(
-      const EventCollection<EventType>& other_collection) override {
+      const EventCollection<EventType>& other_collection) final {
     const DiagramEventCollection<EventType>& other =
         dynamic_cast<const DiagramEventCollection<EventType>&>(
             other_collection);
@@ -341,7 +341,7 @@ class LeafEventCollection final : public EventCollection<EventType> {
   /**
    * Returns `true` if and only if this collection is nonempty.
    */
-  bool HasEvents() const override { return !events_.empty(); }
+  bool HasEvents() const final { return !events_.empty(); }
 
   /**
    * Removes all events from this collection.
@@ -371,7 +371,7 @@ class LeafEventCollection final : public EventCollection<EventType> {
    * @throws std::bad_cast if `other_collection` is not an instance of
    * LeafEventCollection.
    */
-  void DoAddToEnd(const EventCollection<EventType>& other_collection) override {
+  void DoAddToEnd(const EventCollection<EventType>& other_collection) final {
     const LeafEventCollection<EventType>& other =
         dynamic_cast<const LeafEventCollection<EventType>&>(other_collection);
 
