@@ -3,6 +3,7 @@
 #include <limits>
 #include <memory>
 #include <utility>
+#include <variant>
 
 #include "drake/common/drake_copyable.h"
 #include "drake/common/value.h"
@@ -12,6 +13,8 @@
 
 namespace drake {
 namespace systems {
+
+template <typename T> class System;
 
 /** @defgroup events_description System Events
     @ingroup systems
@@ -215,18 +218,9 @@ namespace systems {
 template <class T>
 class WitnessFunction;
 
-// Forward declaration of the event container classes.
-// -- Containers for homogeneous events.
-template <typename EventType>
-class EventCollection;
-template <typename EventType>
-class LeafEventCollection;
-
-// -- Containers for heterogeneous events.
+// Forward declaration of the container of heterogeneous events.
 template <typename T>
 class CompositeEventCollection;
-template <typename T>
-class LeafCompositeEventCollection;
 
 /**
  * Base class for storing trigger-specific data to be passed to event handlers.
@@ -442,18 +436,13 @@ enum class TriggerType {
 template <typename T>
 class Event {
  public:
+  DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(Event)
+
   #ifndef DRAKE_DOXYGEN_CXX
   // Constructs an Event with no trigger type and no event data.
   Event() { trigger_type_ = TriggerType::kUnknown; }
   virtual ~Event() {}
   #endif
-
-  /** @name Does not allow move or assignment; copy constructor is private. */
-  /** @{ */
-  void operator=(const Event&) = delete;
-  Event(Event&&) = delete;
-  void operator=(Event&&) = delete;
-  /** @} */
 
   // TODO(eric.cousineau): Deprecate and remove this alias.
   using TriggerType = systems::TriggerType;
@@ -490,7 +479,21 @@ class Event {
    * can be nullptr, which means this event does not have any associated
    * data.
    */
-  EventData* get_mutable_event_data() { return event_data_.get(); }
+  EventData* get_mutable_event_data() { return event_data_.get_mutable(); }
+
+  // Gets witness trigger data.
+  // @pre get_trigger_type() == TriggerType::kWitness.
+  const WitnessTriggerData<T>& witness_trigger_data() const {
+    DRAKE_DEMAND(get_trigger_type() == TriggerType::kWitness);
+    return std::get<WitnessTriggerData<T>>(trigger_data_);
+  }
+
+  // Gets periodic trigger data.
+  // @pre get_trigger_type() == TriggerType::kPeriodic.
+  const PeriodicTriggerData& periodic_trigger_data() const {
+    DRAKE_DEMAND(get_trigger_type() == TriggerType::kPeriodic);
+    return std::get<PeriodicTriggerData>(trigger_data_);
+  }
 
   // Note: Users should not be calling this.
   #if !defined(DRAKE_DOXYGEN_CXX)
@@ -502,10 +505,29 @@ class Event {
   void set_event_data(std::unique_ptr<EventData> data) {
     event_data_ = std::move(data);
   }
+
+  // Gets mutable witness trigger data. Creates data if it doesn't exist.
+  // @pre get_trigger_type() == TriggerType::kWitness.
+  WitnessTriggerData<T>& mutable_witness_trigger_data() {
+    DRAKE_DEMAND(get_trigger_type() == TriggerType::kWitness);
+    // Create the data if it doesn't exist.
+    if (!std::holds_alternative<WitnessTriggerData<T>>(trigger_data_))
+      trigger_data_ = WitnessTriggerData<T>();
+    return std::get<WitnessTriggerData<T>>(trigger_data_);
+  }
+
+  // Gets mutable periodic trigger data. Creates data if it doesn't exist.
+  // @pre get_trigger_type() == TriggerType::kPeriodic.
+  PeriodicTriggerData& mutable_periodic_trigger_data() {
+    DRAKE_DEMAND(get_trigger_type() == TriggerType::kPeriodic);
+    if (!std::holds_alternative<PeriodicTriggerData>(trigger_data_))
+      trigger_data_ = PeriodicTriggerData();
+    return std::get<PeriodicTriggerData>(trigger_data_);
+  }
   #endif
 
   /**
-   * Adds a clone of `this` event to the event collection `events`, with
+   * Adds a copy of `this` event to the event collection `events`, with
    * the given trigger type. If `this` event has an unknown trigger type, then
    * any trigger type is acceptable. Otherwise the given trigger type must
    * match match the trigger type stored in `this` event.
@@ -532,11 +554,6 @@ class Event {
   }
 
  protected:
-  Event(const Event& other) : trigger_type_(other.trigger_type_) {
-    if (other.event_data_ != nullptr)
-      set_event_data(other.event_data_->Clone());
-  }
-
   // Note: Users should not be calling this.
   #if !defined(DRAKE_DOXYGEN_CXX)
   // Constructs an Event with the specified @p trigger.
@@ -550,7 +567,7 @@ class Event {
   virtual void DoAddToComposite(TriggerType trigger_type,
                                 CompositeEventCollection<T>* events) const = 0;
 
-  /**
+  /*
    * Derived classes must implement this method to clone themselves. Any
    * Event-specific data is cloned using the Clone() method. Data specific
    * to the class derived from Event must be cloned by the implementation.
@@ -559,7 +576,8 @@ class Event {
 
  private:
   TriggerType trigger_type_;
-  std::unique_ptr<EventData> event_data_{nullptr};
+  drake::copyable_unique_ptr<EventData> event_data_{nullptr};
+  std::variant<PeriodicTriggerData, WitnessTriggerData<T>> trigger_data_;
 };
 
 /**
@@ -588,15 +606,14 @@ using PeriodicEventDataComparator
 template <typename T>
 class PublishEvent final : public Event<T> {
  public:
-  void operator=(const PublishEvent&) = delete;
-  PublishEvent(PublishEvent&&) = delete;
-  void operator=(PublishEvent&&) = delete;
+  DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(PublishEvent);
   bool is_discrete_update() const override { return false; }
 
   /**
    * Callback function that processes a publish event.
    */
-  typedef std::function<void(const Context<T>&, const PublishEvent<T>&)>
+  typedef std::function<void(const Context<T>&, const System<T>&,
+                             const PublishEvent<T>&)>
       PublishCallback;
 
   /// Makes a PublishEvent with no trigger type, no event data, and
@@ -626,18 +643,16 @@ class PublishEvent final : public Event<T> {
    * Calls the optional callback function, if one exists, with @p context and
    * `this`.
    */
-  void handle(const Context<T>& context) const {
-    if (callback_ != nullptr) callback_(context, *this);
+  void handle(const Context<T>& context, const System<T>& system) const {
+    if (callback_ != nullptr) callback_(context, system, *this);
   }
 
  private:
-  PublishEvent(const PublishEvent&) = default;
-
   void DoAddToComposite(TriggerType trigger_type,
                         CompositeEventCollection<T>* events) const final {
-    auto event = std::unique_ptr<PublishEvent<T>>(this->DoClone());
-    event->set_trigger_type(trigger_type);
-    events->add_publish_event(std::move(event));
+    PublishEvent e(*this);
+    e.set_trigger_type(trigger_type);
+    events->add_publish_event(e);
   }
 
   // Clones PublishEvent-specific data.
@@ -658,16 +673,14 @@ class PublishEvent final : public Event<T> {
 template <typename T>
 class DiscreteUpdateEvent final : public Event<T> {
  public:
-  void operator=(const DiscreteUpdateEvent&) = delete;
-  DiscreteUpdateEvent(DiscreteUpdateEvent&&) = delete;
-  void operator=(DiscreteUpdateEvent&&) = delete;
+  DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(DiscreteUpdateEvent);
   bool is_discrete_update() const override { return true; }
 
   /**
    * Callback function that processes a discrete update event.
    */
-  typedef std::function<void(const Context<T>&, const DiscreteUpdateEvent<T>&,
-                             DiscreteValues<T>*)>
+  typedef std::function<void(const Context<T>&, const System<T>&,
+                             const DiscreteUpdateEvent<T>&, DiscreteValues<T>*)>
       DiscreteUpdateCallback;
 
   /// Makes a DiscreteUpdateEvent with no trigger type, no event data, and
@@ -700,18 +713,17 @@ class DiscreteUpdateEvent final : public Event<T> {
    * 'this' and @p discrete_state.
    */
   void handle(const Context<T>& context,
+              const System<T>& system,
               DiscreteValues<T>* discrete_state) const {
-    if (callback_ != nullptr) callback_(context, *this, discrete_state);
+    if (callback_ != nullptr) callback_(context, system, *this, discrete_state);
   }
 
  private:
-  DiscreteUpdateEvent(const DiscreteUpdateEvent&) = default;
-
   void DoAddToComposite(TriggerType trigger_type,
                         CompositeEventCollection<T>* events) const final {
-    auto event = std::unique_ptr<DiscreteUpdateEvent<T>>(this->DoClone());
-    event->set_trigger_type(trigger_type);
-    events->add_discrete_update_event(std::move(event));
+    DiscreteUpdateEvent e(*this);
+    e.set_trigger_type(trigger_type);
+    events->add_discrete_update_event(e);
   }
 
   // Clones DiscreteUpdateEvent-specific data.
@@ -732,15 +744,13 @@ class DiscreteUpdateEvent final : public Event<T> {
 template <typename T>
 class UnrestrictedUpdateEvent final : public Event<T> {
  public:
-  void operator=(const UnrestrictedUpdateEvent&) = delete;
-  UnrestrictedUpdateEvent(UnrestrictedUpdateEvent&&) = delete;
-  void operator=(UnrestrictedUpdateEvent&&) = delete;
+  DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(UnrestrictedUpdateEvent);
   bool is_discrete_update() const override { return false; }
 
   /**
    * Callback function that processes an unrestricted update event.
    */
-  typedef std::function<void(const Context<T>&,
+  typedef std::function<void(const Context<T>&, const System<T>&,
                              const UnrestrictedUpdateEvent<T>&, State<T>*)>
       UnrestrictedUpdateCallback;
 
@@ -770,20 +780,19 @@ class UnrestrictedUpdateEvent final : public Event<T> {
 
   /**
    * Calls the optional callback function, if one exists, with @p context,
-   * `this` and @p discrete_state.
+   * `this` and @p state.
    */
-  void handle(const Context<T>& context, State<T>* state) const {
-    if (callback_ != nullptr) callback_(context, *this, state);
+  void handle(const Context<T>& context, const System<T>& system,
+              State<T>* state) const {
+    if (callback_ != nullptr) callback_(context, system, *this, state);
   }
 
  private:
-  UnrestrictedUpdateEvent(const UnrestrictedUpdateEvent&) = default;
-
   void DoAddToComposite(TriggerType trigger_type,
                         CompositeEventCollection<T>* events) const final {
-    auto event = std::unique_ptr<UnrestrictedUpdateEvent<T>>(this->DoClone());
-    event->set_trigger_type(trigger_type);
-    events->add_unrestricted_update_event(std::move(event));
+    UnrestrictedUpdateEvent e(*this);
+    e.set_trigger_type(trigger_type);
+    events->add_unrestricted_update_event(e);
   }
 
   // Clones event data specific to UnrestrictedUpdateEvent.

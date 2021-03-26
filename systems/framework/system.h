@@ -1204,7 +1204,7 @@ class System : public SystemBase {
   T CalcWitnessValue(const Context<T>& context,
                      const WitnessFunction<T>& witness_func) const;
 
-  /** Add `event` to `events` due to a witness function triggering. `events`
+  /** Add `event` to `events`. `events`
   should be allocated with this system's AllocateCompositeEventCollection.
   Neither `event` nor `events` can be nullptr. Additionally, `event` must
   contain event data (event->get_event_data() must not be nullptr) and

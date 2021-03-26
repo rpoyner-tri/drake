@@ -46,7 +46,7 @@ void CheckForSinglePeriodicEvent(const EventListType& events) {
   // ASSERT_EQ(...), to only run the following code if the prior expectation is
   // met.
   if (events.size() == 1) {
-    EXPECT_EQ(events.front()->get_trigger_type(),
+    EXPECT_EQ(events.front().get_trigger_type(),
         TriggerType::kPeriodic);
   }
 }

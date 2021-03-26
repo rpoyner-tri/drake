@@ -645,7 +645,7 @@ TEST_F(ImageWriterTest, SingleConfiguredPort) {
       ASSERT_EQ(1u, publish_events.size());
       const auto& event = publish_events.front();
       EXPECT_EQ(TriggerType::kPeriodic,
-                event->get_trigger_type());
+                event.get_trigger_type());
 
       // With no connection on the input port, publishing this event will result
       // in an error.

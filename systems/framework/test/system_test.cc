@@ -128,7 +128,7 @@ class TestSystem : public System<double> {
 
   // The default publish function.
   void MyPublish(const Context<double>& context,
-                 const std::vector<const PublishEvent<double>*>& events) const {
+                 const std::vector<PublishEvent<double>>& events) const {
     ++publish_count_;
   }
 
@@ -206,7 +206,7 @@ class TestSystem : public System<double> {
   // The default update function.
   void MyCalcDiscreteVariableUpdates(
       const Context<double>& context,
-      const std::vector<const DiscreteUpdateEvent<double>*>& events,
+      const std::vector<DiscreteUpdateEvent<double>>& events,
       DiscreteValues<double>* discrete_state) const {
     ++update_count_;
   }
@@ -327,7 +327,7 @@ TEST_F(SystemTest, DiscretePublish) {
       dynamic_cast<const internal::LeafCompositeEventCollection<double>*>(
           event_info.get())->get_publish_events().get_events();
   EXPECT_EQ(events.size(), 1);
-  EXPECT_EQ(events.front()->get_trigger_type(),
+  EXPECT_EQ(events.front().get_trigger_type(),
             TriggerType::kPeriodic);
 
   system_.Publish(*context_, event_info->get_publish_events());

@@ -134,7 +134,7 @@ class EventCollection {
    * does not permit adding new events. Derived classes must implement this
    * method to add the specified event to the homogeneous event collection.
    */
-  virtual void add_event(std::unique_ptr<EventType> event) = 0;
+  virtual void add_event(const EventType& event) = 0;
 
  protected:
   /**
@@ -282,7 +282,7 @@ class DiagramEventCollection final : public EventCollection<EventType> {
   /*
    * Throws if called, because no events should be added at the Diagram level.
    */
-  void add_event(std::unique_ptr<EventType>) final {
+  void add_event(const EventType&) final {
     throw std::logic_error("DiagramEventCollection::add_event is not allowed");
   }
 
@@ -316,8 +316,8 @@ class LeafEventCollection final : public EventCollection<EventType> {
   static std::unique_ptr<LeafEventCollection<EventType>>
   MakeForcedEventCollection() {
     auto ret = std::make_unique<LeafEventCollection<EventType>>();
-    auto event = std::make_unique<EventType>(EventType::TriggerType::kForced);
-    ret->add_event(std::move(event));
+    EventType event(EventType::TriggerType::kForced);
+    ret->add_event(event);
     return ret;
   }
 
@@ -326,17 +326,7 @@ class LeafEventCollection final : public EventCollection<EventType> {
    * events.
    */
   // TODO(siyuan): provide an iterator instead.
-  const std::vector<const EventType*>& get_events() const { return events_; }
-
-  /**
-   * Add `event` to the existing collection. Ownership of `event` is
-   * transferred. Aborts if event is null.
-   */
-  void add_event(std::unique_ptr<EventType> event) override {
-    DRAKE_DEMAND(event != nullptr);
-    owned_events_.push_back(std::move(event));
-    events_.push_back(owned_events_.back().get());
-  }
+  const std::vector<EventType>& get_events() const { return events_; }
 
   /**
    * Returns `true` if and only if this collection is nonempty.
@@ -346,10 +336,11 @@ class LeafEventCollection final : public EventCollection<EventType> {
   /**
    * Removes all events from this collection.
    */
-  void Clear() override {
-    owned_events_.clear();
+  void Clear() final {
     events_.clear();
   }
+
+  void add_event(const EventType& event) final { events_.push_back(event); }
 
  private:
   /**
@@ -375,18 +366,15 @@ class LeafEventCollection final : public EventCollection<EventType> {
     const LeafEventCollection<EventType>& other =
         dynamic_cast<const LeafEventCollection<EventType>&>(other_collection);
 
-    const std::vector<const EventType*>& other_events = other.get_events();
-    for (const EventType* other_event : other_events) {
-      this->add_event(static_pointer_cast<EventType>(other_event->Clone()));
+    const std::vector<EventType>& other_events = other.get_events();
+    for (const EventType& other_event : other_events) {
+      this->add_event(other_event);
     }
   }
 
-  // Owned event unique pointers.
-  std::vector<std::unique_ptr<EventType>> owned_events_;
-
   // Points to the corresponding unique pointers. This is primarily used for
   // get_events().
-  std::vector<const EventType*> events_;
+  std::vector<EventType> events_;
 };
 }  // namespace internal
 
@@ -458,47 +446,39 @@ class CompositeEventCollection {
 
   /**
    * Assuming the internal publish event collection is an instance of
-   * LeafEventCollection, adds the publish event `event` (ownership is also
-   * transferred) to it.
+   * LeafEventCollection, adds the publish event `event` to it.
    * @throws std::bad_cast if the assumption is incorrect.
    */
-  void add_publish_event(std::unique_ptr<PublishEvent<T>> event) {
-    DRAKE_DEMAND(event != nullptr);
-    auto& events = dynamic_cast<
-      internal::LeafEventCollection<PublishEvent<T>>&>(
-        this->get_mutable_publish_events());
-    events.add_event(std::move(event));
+  void add_publish_event(const PublishEvent<T>& event) {
+    auto& events =
+        dynamic_cast<internal::LeafEventCollection<PublishEvent<T>>&>(
+            this->get_mutable_publish_events());
+    events.add_event(event);
   }
 
   /**
    * Assuming the internal discrete update event collection is an instance of
-   * LeafEventCollection, adds the discrete update event `event` (ownership is
-   * also transferred) to it.
+   * LeafEventCollection, adds the discrete update event `event` to it.
    * @throws std::bad_cast if the assumption is incorrect.
    */
-  void add_discrete_update_event(
-      std::unique_ptr<DiscreteUpdateEvent<T>> event) {
-    DRAKE_DEMAND(event != nullptr);
-    auto& events = dynamic_cast<
-      internal::LeafEventCollection<DiscreteUpdateEvent<T>>&>(
-        this->get_mutable_discrete_update_events());
-    events.add_event(std::move(event));
+  void add_discrete_update_event(const DiscreteUpdateEvent<T>& event) {
+    auto& events =
+        dynamic_cast<internal::LeafEventCollection<DiscreteUpdateEvent<T>>&>(
+            this->get_mutable_discrete_update_events());
+    events.add_event(event);
   }
 
   /**
    * Assuming the internal unrestricted update event collection is an instance
    * of LeafEventCollection, adds the unrestricted update event `event`
-   * (ownership is also transferred) to it.
+   * to it.
    * @throws std::bad_cast if the assumption is incorrect.
    */
-  void add_unrestricted_update_event(
-      std::unique_ptr<UnrestrictedUpdateEvent<T>> event) {
-    DRAKE_DEMAND(event != nullptr);
-    auto& events =
-        dynamic_cast<
-          internal::LeafEventCollection<UnrestrictedUpdateEvent<T>>&>(
-            this->get_mutable_unrestricted_update_events());
-    events.add_event(std::move(event));
+  void add_unrestricted_update_event(const UnrestrictedUpdateEvent<T>& event) {
+    auto& events = dynamic_cast<
+        internal::LeafEventCollection<UnrestrictedUpdateEvent<T>>&>(
+        this->get_mutable_unrestricted_update_events());
+    events.add_event(event);
   }
 
   /**
@@ -621,7 +601,7 @@ class LeafCompositeEventCollection final : public CompositeEventCollection<T> {
    * Returns a const reference to the collection of publish events.
    */
   const LeafEventCollection<PublishEvent<T>>& get_publish_events() const {
-    return dynamic_cast<const internal::LeafEventCollection<PublishEvent<T>>&>(
+    return dynamic_cast<const LeafEventCollection<PublishEvent<T>>&>(
         CompositeEventCollection<T>::get_publish_events());
   }
 
@@ -630,8 +610,7 @@ class LeafCompositeEventCollection final : public CompositeEventCollection<T> {
    */
   const LeafEventCollection<DiscreteUpdateEvent<T>>&
   get_discrete_update_events() const {
-    return dynamic_cast<
-      const internal::LeafEventCollection<DiscreteUpdateEvent<T>>&>(
+    return dynamic_cast<const LeafEventCollection<DiscreteUpdateEvent<T>>&>(
         CompositeEventCollection<T>::get_discrete_update_events());
   }
 

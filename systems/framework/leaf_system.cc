@@ -332,9 +332,7 @@ void LeafSystem<T>::AddTriggeredWitnessFunctionToCompositeEventCollection(
     Event<T>* event,
     CompositeEventCollection<T>* events) const {
   DRAKE_DEMAND(event);
-  DRAKE_DEMAND(event->get_event_data());
-  DRAKE_DEMAND(dynamic_cast<const WitnessTriggerData<T>*>(
-      event->get_event_data()));
+  DRAKE_DEMAND(event->get_trigger_type() == TriggerType::kWitness);
   DRAKE_DEMAND(events);
   event->AddToComposite(events);
 }
@@ -689,16 +687,6 @@ std::unique_ptr<WitnessFunction<T>> LeafSystem<T>::MakeWitnessFunction(
 }
 
 template <typename T>
-std::unique_ptr<WitnessFunction<T>> LeafSystem<T>::MakeWitnessFunction(
-    const std::string& description,
-    const WitnessFunctionDirection& direction_type,
-    std::function<T(const Context<T>&)> calc,
-    const Event<T>& e) const {
-  return std::make_unique<WitnessFunction<T>>(
-      this, this, description, direction_type, calc, e.Clone());
-}
-
-template <typename T>
 SystemConstraintIndex LeafSystem<T>::DeclareEqualityConstraint(
     ContextConstraintCalc<T> calc, int count,
     std::string description) {
@@ -719,29 +707,29 @@ SystemConstraintIndex LeafSystem<T>::DeclareInequalityConstraint(
 template <typename T>
 void LeafSystem<T>::DoPublish(
     const Context<T>& context,
-    const std::vector<const PublishEvent<T>*>& events) const {
-  for (const PublishEvent<T>* event : events) {
-    event->handle(context);
+    const std::vector<PublishEvent<T>>& events) const {
+  for (const PublishEvent<T>& event : events) {
+    event.handle(context, *this);
   }
 }
 
 template <typename T>
 void LeafSystem<T>::DoCalcDiscreteVariableUpdates(
     const Context<T>& context,
-    const std::vector<const DiscreteUpdateEvent<T>*>& events,
+    const std::vector<DiscreteUpdateEvent<T>>& events,
     DiscreteValues<T>* discrete_state) const {
-  for (const DiscreteUpdateEvent<T>* event : events) {
-    event->handle(context, discrete_state);
+  for (const DiscreteUpdateEvent<T>& event : events) {
+    event.handle(context, *this, discrete_state);
   }
 }
 
 template <typename T>
 void LeafSystem<T>::DoCalcUnrestrictedUpdate(
     const Context<T>& context,
-    const std::vector<const UnrestrictedUpdateEvent<T>*>& events,
+    const std::vector<UnrestrictedUpdateEvent<T>>& events,
     State<T>* state) const {
-  for (const UnrestrictedUpdateEvent<T>* event : events) {
-    event->handle(context, state);
+  for (const UnrestrictedUpdateEvent<T>& event : events) {
+    event.handle(context, *this, state);
   }
 }
 
@@ -779,8 +767,9 @@ template <typename T>
 void LeafSystem<T>::DispatchPublishHandler(
     const Context<T>& context,
     const EventCollection<PublishEvent<T>>& events) const {
-  const auto& leaf_events = dynamic_cast<
-    const internal::LeafEventCollection<PublishEvent<T>>&>(events);
+  const internal::LeafEventCollection<PublishEvent<T>>& leaf_events =
+      dynamic_cast<const internal::LeafEventCollection<PublishEvent<T>>&>(
+          events);
   // Only call DoPublish if there are publish events.
   DRAKE_DEMAND(leaf_events.HasEvents());
   this->DoPublish(context, leaf_events.get_events());
@@ -791,8 +780,9 @@ void LeafSystem<T>::DispatchDiscreteVariableUpdateHandler(
     const Context<T>& context,
     const EventCollection<DiscreteUpdateEvent<T>>& events,
     DiscreteValues<T>* discrete_state) const {
-  const auto& leaf_events = dynamic_cast<
-    const internal::LeafEventCollection<DiscreteUpdateEvent<T>>&>(events);
+  const internal::LeafEventCollection<DiscreteUpdateEvent<T>>& leaf_events =
+      dynamic_cast<
+          const internal::LeafEventCollection<DiscreteUpdateEvent<T>>&>(events);
   DRAKE_DEMAND(leaf_events.HasEvents());
 
   // Must initialize the output argument with the current contents of the

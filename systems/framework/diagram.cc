@@ -1,5 +1,6 @@
 #include "drake/systems/framework/diagram.h"
 
+#include <array>
 #include <limits>
 #include <set>
 #include <stdexcept>
@@ -616,30 +617,27 @@ void Diagram<T>::AddTriggeredWitnessFunctionToCompositeEventCollection(
     CompositeEventCollection<T>* events) const {
   DRAKE_DEMAND(events);
   DRAKE_DEMAND(event);
-  DRAKE_DEMAND(event->get_event_data());
 
-  // Get the event data- it will need to be modified.
-  auto data = dynamic_cast<WitnessTriggerData<T>*>(
-      event->get_mutable_event_data());
-  DRAKE_DEMAND(data);
+  // Get the trigger data- it will need to be modified.
+  auto& data = event->mutable_witness_trigger_data();
 
   // Get the vector of events corresponding to the subsystem.
-  const System<T>& subsystem = data->triggered_witness()->get_system();
+  const System<T>& subsystem = data.triggered_witness()->get_system();
   CompositeEventCollection<T>& subevents =
       GetMutableSubsystemCompositeEventCollection(subsystem, events);
 
   // Get the continuous states at both window endpoints.
   auto diagram_xc0 = dynamic_cast<const DiagramContinuousState<T>*>(
-      data->xc0());
+      data.xc0());
   DRAKE_DEMAND(diagram_xc0 != nullptr);
   auto diagram_xcf = dynamic_cast<const DiagramContinuousState<T>*>(
-      data->xcf());
+      data.xcf());
   DRAKE_DEMAND(diagram_xcf != nullptr);
 
   // Modify the pointer to the event data to point to the sub-system
   // continuous states.
-  data->set_xc0(DoGetTargetSystemContinuousState(subsystem, diagram_xc0));
-  data->set_xcf(DoGetTargetSystemContinuousState(subsystem, diagram_xcf));
+  data.set_xc0(DoGetTargetSystemContinuousState(subsystem, diagram_xc0));
+  data.set_xcf(DoGetTargetSystemContinuousState(subsystem, diagram_xcf));
 
   // Add the event to the collection.
   event->AddToComposite(&subevents);
@@ -857,7 +855,8 @@ void Diagram<T>::DoCalcNextUpdateTime(const Context<T>& context,
   *next_update_time = std::numeric_limits<double>::infinity();
 
   // Iterate over the subsystems, and harvest the most imminent updates.
-  std::vector<T> times(num_subsystems());
+  const int kMaxSubsystems = 100;
+  std::array<T, kMaxSubsystems> times;
   for (SubsystemIndex i(0); i < num_subsystems(); ++i) {
     const Context<T>& subcontext = diagram_context->GetSubsystemContext(i);
     CompositeEventCollection<T>& subinfo =
