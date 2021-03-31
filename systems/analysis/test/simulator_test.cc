@@ -1138,7 +1138,8 @@ GTEST_TEST(SimulatorTest,
   simulator
       .Initialize();  // Trigger first (and only allowable) heap allocation.
   {
-    test::LimitMalloc heap_alloc_checker({.max_num_allocations = 66});
+    test::LimitMalloc heap_alloc_checker(
+        {.max_num_allocations = 60, .min_num_allocations = 60});
     simulator.AdvanceTo(1.0);
     simulator.AdvanceTo(2.0);
     simulator.AdvanceTo(3.0);
