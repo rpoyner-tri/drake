@@ -616,9 +616,11 @@ class LeafSystem : public System<T> {
 
     DeclarePerStepEvent<PublishEvent<T>>(PublishEvent<T>(
         TriggerType::kPerStep,
-        [this_ptr, publish](const Context<T>& context, const PublishEvent<T>&) {
+        [publish](const System<T>& system, const Context<T>& context,
+                  const PublishEvent<T>&) {
           // TODO(sherm1) Forward the return status.
-          (this_ptr->*publish)(context);  // Ignore return status for now.
+          const auto& sys = dynamic_cast<const MySystem&>(system);
+          (sys.*publish)(context);  // Ignore return status for now.
         }));
   }
 

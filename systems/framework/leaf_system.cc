@@ -721,7 +721,7 @@ void LeafSystem<T>::DoPublish(
     const Context<T>& context,
     const std::vector<const PublishEvent<T>*>& events) const {
   for (const PublishEvent<T>* event : events) {
-    event->handle(context);
+    event->handle(*this, context);
   }
 }
 
