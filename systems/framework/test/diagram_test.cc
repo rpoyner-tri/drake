@@ -3512,7 +3512,8 @@ GTEST_TEST(InitializationTest, InitializationTest) {
       PublishEvent<double> pub_event(
           TriggerType::kInitialization,
           std::bind(&InitializationTestSystem::InitPublish, this,
-                    std::placeholders::_1, std::placeholders::_2));
+                    std::placeholders::_1, std::placeholders::_2,
+                    std::placeholders::_3));
       DeclareInitializationEvent(pub_event);
 
       DeclareInitializationEvent(DiscreteUpdateEvent<double>(
@@ -3526,7 +3527,8 @@ GTEST_TEST(InitializationTest, InitializationTest) {
     bool get_unres_update_init() const { return unres_update_init_; }
 
    private:
-    void InitPublish(const Context<double>&,
+    void InitPublish(const System<double>&,
+                     const Context<double>&,
                      const PublishEvent<double>& event) const {
       EXPECT_EQ(event.get_trigger_type(),
                 TriggerType::kInitialization);

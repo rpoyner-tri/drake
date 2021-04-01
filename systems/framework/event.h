@@ -585,6 +585,8 @@ class PublishEvent final : public Event<T> {
   /**
    * Callback function that processes a publish event.
    */
+  DRAKE_DEPRECATED("2021-08-01",
+                   "Use PublishEventCallback and related APIs instead.")
   typedef std::function<void(const Context<T>&, const PublishEvent<T>&)>
       PublishCallback;
   typedef std::function<void(const System<T>&, const Context<T>&,
@@ -597,8 +599,14 @@ class PublishEvent final : public Event<T> {
 
   /// Makes a PublishEvent with no trigger type, no event data, and
   /// the specified callback function.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+  // PublishCallback is deprecated; remove related code after 2021-08-01.
+  DRAKE_DEPRECATED("2021-08-01",
+                   "Use PublishEventCallback and related APIs instead.")
   explicit PublishEvent(const PublishCallback& callback)
       : Event<T>(), callback_(callback) {}
+#pragma GCC diagnostic pop
 
   /// Makes a PublishEvent with no trigger type, no event data, and
   /// the specified callback function.
@@ -609,9 +617,15 @@ class PublishEvent final : public Event<T> {
   #if !defined(DRAKE_DOXYGEN_CXX)
   // Makes a PublishEvent with `trigger_type`, no event data, and
   // callback function `callback`, which can be null.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+  // PublishCallback is deprecated; remove related code after 2021-08-01.
+  DRAKE_DEPRECATED("2021-08-01",
+                   "Use PublishEventCallback and related APIs instead.")
   PublishEvent(const TriggerType& trigger_type,
                const PublishCallback& callback)
       : Event<T>(trigger_type), callback_(callback) {}
+#pragma GCC diagnostic pop
 
   // Makes a PublishEvent with `trigger_type`, no event data, and
   // callback function `callback`, which can be null.
@@ -630,6 +644,7 @@ class PublishEvent final : public Event<T> {
    * `this`.
    */
   void handle(const System<T>& system, const Context<T>& context) const {
+    // callback_ is deprecated; remove related code after 2021-08-01.
     DRAKE_ASSERT(callback_ == nullptr || event_callback_ == nullptr);
     if (callback_ != nullptr) {
       callback_(context, *this);
@@ -656,7 +671,11 @@ class PublishEvent final : public Event<T> {
   }
 
   // Optional callback function that handles this publish event.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+  // callback_ is deprecated; remove related code after 2021-08-01.
   PublishCallback callback_{nullptr};
+#pragma GCC diagnostic pop
   PublishEventCallback event_callback_{nullptr};
 };
 

@@ -167,9 +167,12 @@ const InputPort<double>& ImageWriter::DeclareImageInputPort(
 
   PublishEvent<double> event(
       TriggerType::kPeriodic,
-      [this, port_index = port.get_index()](const Context<double>& context,
-                                            const PublishEvent<double>&) {
-        WriteImage<kPixelType>(context, port_index);
+      [port_index = port.get_index()](
+          const System<double>& system,
+          const Context<double>& context,
+          const PublishEvent<double>&) {
+        auto& sys = dynamic_cast<const ImageWriter&>(system);
+        sys.WriteImage<kPixelType>(context, port_index);
       });
   DeclarePeriodicEvent<PublishEvent<double>>(publish_period, start_time, event);
   port_info_.emplace_back(std::move(file_name_format), kPixelType);
