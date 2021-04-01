@@ -307,12 +307,16 @@ class LeafSystem : public System<T> {
 
     DeclarePeriodicEvent(
         period_sec, offset_sec,
-        PublishEvent<T>(TriggerType::kPeriodic, [this_ptr, publish](
-                                                    const Context<T>& context,
-                                                    const PublishEvent<T>&) {
-          // TODO(sherm1) Forward the return status.
-          (this_ptr->*publish)(context);  // Ignore return status for now.
-        }));
+        PublishEvent<T>(
+            TriggerType::kPeriodic,
+            [publish](
+                const System<T>& system,
+                const Context<T>& context,
+                const PublishEvent<T>&) {
+              auto& sys = dynamic_cast<const MySystem&>(system);
+              // TODO(sherm1) Forward the return status.
+              (sys.*publish)(context);  // Ignore return status for now.
+            }));
   }
 
   /** This variant accepts a handler that is assumed to succeed rather than
@@ -333,12 +337,15 @@ class LeafSystem : public System<T> {
 
     DeclarePeriodicEvent(
         period_sec, offset_sec,
-        PublishEvent<T>(TriggerType::kPeriodic,
-                        [this_ptr, publish](const Context<T>& context,
-                                            const PublishEvent<T>&) {
-                          (this_ptr->*publish)(context);
-                          // TODO(sherm1) return EventStatus::Succeeded()
-                        }));
+        PublishEvent<T>(
+            TriggerType::kPeriodic,
+            [publish](const System<T>& system,
+                      const Context<T>& context,
+                      const PublishEvent<T>&) {
+              auto& sys = dynamic_cast<const MySystem&>(system);
+              (sys.*publish)(context);
+              // TODO(sherm1) return EventStatus::Succeeded()
+            }));
   }
 
   /** Declares that a DiscreteUpdate event should occur periodically and that it
@@ -783,10 +790,12 @@ class LeafSystem : public System<T> {
 
     DeclareInitializationEvent<PublishEvent<T>>(PublishEvent<T>(
         TriggerType::kInitialization,
-        [this_ptr, publish](const Context<T>& context,
-                            const PublishEvent<T>&) {
+        [publish](const System<T>& system,
+                  const Context<T>& context,
+                  const PublishEvent<T>&) {
+          auto& sys = dynamic_cast<const MySystem&>(system);
           // TODO(sherm1) Forward the return status.
-          (this_ptr->*publish)(context);  // Ignore return status for now.
+          (sys.*publish)(context);  // Ignore return status for now.
         }));
   }
 
@@ -1679,11 +1688,11 @@ class LeafSystem : public System<T> {
           const Context<T>&, const PublishEvent<T>&) const) const {
     static_assert(std::is_base_of<LeafSystem<T>, MySystem>::value,
                   "Expected to be invoked from a LeafSystem-derived system.");
-    auto fn = [this, publish_callback](
-        const Context<T>& context, const PublishEvent<T>& publish_event) {
-      auto system_ptr = dynamic_cast<const MySystem*>(this);
-      DRAKE_DEMAND(system_ptr);
-      return (system_ptr->*publish_callback)(context, publish_event);
+    auto fn = [publish_callback](
+        const System<T>& system, const Context<T>& context,
+        const PublishEvent<T>& publish_event) {
+      auto& sys = dynamic_cast<const MySystem&>(system);
+      return (sys.*publish_callback)(context, publish_event);
     };
     PublishEvent<T> publish_event(fn);
     publish_event.set_trigger_type(TriggerType::kWitness);

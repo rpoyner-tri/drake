@@ -725,9 +725,11 @@ class PeriodicPublishWithTimedWitnessSystem final : public LeafSystem<double> {
       1.0, 0.5, &PeriodicPublishWithTimedWitnessSystem::PublishPeriodic);
 
     // Declare the publish event for the witness trigger.
-    auto fn = [this](const Context<double>& context,
+    auto fn = [](const System<double>& system, const Context<double>& context,
         const PublishEvent<double>& witness_publish_event) {
-      return this->PublishWitness(context, witness_publish_event);
+      auto& sys =
+      dynamic_cast<const PeriodicPublishWithTimedWitnessSystem&>(system);
+      return sys.PublishWitness(context, witness_publish_event);
     };
     PublishEvent<double> witness_publish(fn);
     witness_ = this->MakeWitnessFunction(
@@ -1370,9 +1372,12 @@ class DiscreteInputAccumulator : public LeafSystem<double> {
     DeclarePeriodicEvent(
         kPeriod, kPublishOffset,
         PublishEvent<double>(
-            [this](const Context<double>& context,
-                   const PublishEvent<double>&) {
-              result_.push_back(get_x(context));  // y_n = x_n
+            [](const System<double>& system,
+               const Context<double>& context,
+               const PublishEvent<double>&) {
+              auto& sys = dynamic_cast<const DiscreteInputAccumulator&>(system);
+              auto& mut_sys = const_cast<DiscreteInputAccumulator&>(sys);
+              mut_sys.result_.push_back(sys.get_x(context));  // y_n = x_n
             }));
 
     // Update to x_{n+1} (x_np1), using a Drake "discrete update" event (occurs
@@ -2148,7 +2153,8 @@ GTEST_TEST(SimulatorTest, Initialization) {
       PublishEvent<double> pub_event(
           TriggerType::kInitialization,
           std::bind(&InitializationTestSystem::InitPublish, this,
-                    std::placeholders::_1, std::placeholders::_2));
+                    std::placeholders::_1, std::placeholders::_2,
+                    std::placeholders::_3));
       DeclareInitializationEvent(pub_event);
 
       DeclareInitializationEvent(DiscreteUpdateEvent<double>(
@@ -2172,7 +2178,7 @@ GTEST_TEST(SimulatorTest, Initialization) {
     }
 
    private:
-    void InitPublish(const Context<double>& context,
+    void InitPublish(const System<double>&, const Context<double>& context,
                      const PublishEvent<double>& event) const {
       EXPECT_EQ(context.get_time(), 0);
       EXPECT_EQ(event.get_trigger_type(),
@@ -2410,9 +2416,11 @@ GTEST_TEST(SimulatorTest, MissedPublishEventIssue13296) {
       *next_update_time = message_is_waiting_ ? context.get_time() : inf;
       PublishEvent<double> event(
           TriggerType::kTimed,
-          [this](const Context<double>& handler_context,
-                 const PublishEvent<double>& publish_event) {
-            this->MyPublishHandler(handler_context, publish_event);
+          [](const System<double>& system,
+             const Context<double>& handler_context,
+             const PublishEvent<double>& publish_event) {
+            auto& sys = dynamic_cast<const RightNowEventSystem&>(system);
+            sys.MyPublishHandler(handler_context, publish_event);
           });
       event.AddToComposite(event_info);
     }

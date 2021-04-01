@@ -452,7 +452,7 @@ TEST_F(LeafSystemTest, WitnessDeclarations) {
   EXPECT_EQ(witness3->CalcWitnessValue(context_), 3.0);
   auto pe = dynamic_cast<const PublishEvent<double>*>(witness3->get_event());
   ASSERT_TRUE(pe);
-  pe->handle(context_);
+  pe->handle(system_, context_);
   EXPECT_TRUE(system_.publish_callback_called());
 
   auto witness4 = system_.MakeWitnessWithDiscreteUpdate();
@@ -2174,7 +2174,7 @@ class TestTriggerSystem : public LeafSystem<double> {
         continue;
 
       // Call custom callback handler.
-      event->handle(context);
+      event->handle(*this, context);
     }
 
     publish_count_++;
@@ -2187,6 +2187,7 @@ class TestTriggerSystem : public LeafSystem<double> {
       PublishEvent<double> event(
           std::bind(&TestTriggerSystem::StringCallback, this,
               std::placeholders::_1, std::placeholders::_2,
+              std::placeholders::_3,
               std::make_shared<const std::string>("hello")));
       event.AddToComposite(TriggerType::kPerStep, events);
     }
@@ -2194,7 +2195,8 @@ class TestTriggerSystem : public LeafSystem<double> {
     {
       PublishEvent<double> event(
           std::bind(&TestTriggerSystem::IntCallback, this,
-              std::placeholders::_1, std::placeholders::_2, 42));
+              std::placeholders::_1, std::placeholders::_2,
+              std::placeholders::_3, 42));
       event.AddToComposite(TriggerType::kPerStep, events);
     }
   }
@@ -2209,13 +2211,17 @@ class TestTriggerSystem : public LeafSystem<double> {
 
  private:
   // Pass data by a shared_ptr<const stuff>.
-  void StringCallback(const Context<double>&, const PublishEvent<double>&,
+  void StringCallback(
+      const System<double>&, const Context<double>&,
+      const PublishEvent<double>&,
       std::shared_ptr<const std::string> data) const {
     string_data_.push_back(*data);
   }
 
   // Pass data by value.
-  void IntCallback(const Context<double>&, const PublishEvent<double>&,
+  void IntCallback(
+      const System<double>&,
+      const Context<double>&, const PublishEvent<double>&,
       int data) const {
     int_data_.push_back(data);
   }
@@ -2627,7 +2633,8 @@ GTEST_TEST(InitializationTest, InitializationTest) {
     InitializationTestSystem() {
       PublishEvent<double> pub_event(
           std::bind(&InitializationTestSystem::InitPublish, this,
-                    std::placeholders::_1, std::placeholders::_2));
+                    std::placeholders::_1, std::placeholders::_2,
+                    std::placeholders::_3));
       DeclareInitializationEvent(pub_event);
 
       DeclareInitializationEvent(DiscreteUpdateEvent<double>());
@@ -2639,7 +2646,8 @@ GTEST_TEST(InitializationTest, InitializationTest) {
     bool get_unres_update_init() const { return unres_update_init_; }
 
    private:
-    void InitPublish(const Context<double>&,
+    void InitPublish(const System<double>&,
+                     const Context<double>&,
                      const PublishEvent<double>& event) const {
       EXPECT_EQ(event.get_trigger_type(), TriggerType::kInitialization);
       pub_init_ = true;
