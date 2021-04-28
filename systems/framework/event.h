@@ -637,9 +637,9 @@ class PublishEvent final : public Event<T> {
  private:
   void DoAddToComposite(TriggerType trigger_type,
                         CompositeEventCollection<T>* events) const final {
-    auto event = std::unique_ptr<PublishEvent<T>>(this->DoClone());
-    event->set_trigger_type(trigger_type);
-    events->add_publish_event(std::move(event));
+    PublishEvent event(*this);
+    event.set_trigger_type(trigger_type);
+    events->AddPublishEvent(event);
   }
 
   // Clones PublishEvent-specific data.

@@ -488,9 +488,12 @@ class CompositeEventCollection {
    */
   void add_publish_event(std::unique_ptr<PublishEvent<T>> event) {
     DRAKE_DEMAND(event != nullptr);
+    AddPublishEvent(*event);
+  }
+  void AddPublishEvent(const PublishEvent<T>& event) {
     auto& events = dynamic_cast<LeafEventCollection<PublishEvent<T>>&>(
         this->get_mutable_publish_events());
-    events.add_event(std::move(event));
+    events.AddEvent(event);
   }
 
   /**
