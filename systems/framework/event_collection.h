@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+#include <list>
 #include <memory>
 #include <stdexcept>
 #include <utility>
@@ -135,6 +137,7 @@ class EventCollection {
    * method to add the specified event to the homogeneous event collection.
    */
   virtual void add_event(std::unique_ptr<EventType> event) = 0;
+  virtual void AddEvent(const EventType& event) = 0;
 
  protected:
   /**
@@ -184,6 +187,9 @@ class DiagramEventCollection final : public EventCollection<EventType> {
    */
   void add_event(std::unique_ptr<EventType>) override {
     throw std::logic_error("DiagramEventCollection::add_event is not allowed");
+  }
+  void AddEvent(const EventType&) override {
+    throw std::logic_error("DiagramEventCollection::AddEvent is not allowed");
   }
 
   /**
@@ -306,7 +312,9 @@ class LeafEventCollection final : public EventCollection<EventType> {
   /**
    * Constructor.
    */
-  LeafEventCollection() = default;
+  LeafEventCollection() {
+    events_storage_.emplace_back();
+  }
 
   /**
    * Static method that generates a LeafEventCollection with exactly
@@ -316,8 +324,8 @@ class LeafEventCollection final : public EventCollection<EventType> {
   static std::unique_ptr<LeafEventCollection<EventType>>
   MakeForcedEventCollection() {
     auto ret = std::make_unique<LeafEventCollection<EventType>>();
-    auto event = std::make_unique<EventType>(EventType::TriggerType::kForced);
-    ret->add_event(std::move(event));
+    EventType event(EventType::TriggerType::kForced);
+    ret->AddEvent(event);
     return ret;
   }
 
@@ -334,8 +342,17 @@ class LeafEventCollection final : public EventCollection<EventType> {
    */
   void add_event(std::unique_ptr<EventType> event) override {
     DRAKE_DEMAND(event != nullptr);
-    owned_events_.push_back(std::move(event));
-    events_.push_back(owned_events_.back().get());
+    AddEvent(*event);
+  }
+  void AddEvent(const EventType& event) override {
+    if (events_storage_.empty() ||
+        events_storage_.back().size == stride) {
+      events_storage_.emplace_back();
+    }
+    auto& block = events_storage_.back();
+    int index = block.size++;
+    block.entries[index] = event;
+    events_.push_back(&block.entries[index]);
   }
 
   /**
@@ -347,7 +364,8 @@ class LeafEventCollection final : public EventCollection<EventType> {
    * Removes all events from this collection.
    */
   void Clear() override {
-    owned_events_.clear();
+    events_storage_.resize(1);
+    events_storage_.back().size = 0;
     events_.clear();
   }
 
@@ -377,13 +395,19 @@ class LeafEventCollection final : public EventCollection<EventType> {
 
     const std::vector<const EventType*>& other_events = other.get_events();
     for (const EventType* other_event : other_events) {
-      this->add_event(static_pointer_cast<EventType>(other_event->Clone()));
+      this->AddEvent(*other_event);
     }
   }
 
  private:
-  // Owned event unique pointers.
-  std::vector<std::unique_ptr<EventType>> owned_events_;
+  static constexpr int stride = 128;
+  struct Block {
+    int size{0};
+    std::array<EventType, stride> entries;
+  };
+  // Invariant: Blocks are only ever added here, except for Clear(), which
+  // removes all of them.
+  std::list<Block> events_storage_;
 
   // Points to the corresponding unique pointers. This is primarily used for
   // get_events().
