@@ -505,9 +505,12 @@ class CompositeEventCollection {
   void add_discrete_update_event(
       std::unique_ptr<DiscreteUpdateEvent<T>> event) {
     DRAKE_DEMAND(event != nullptr);
+    AddDiscreteUpdateEvent(*event);
+  }
+  void AddDiscreteUpdateEvent(const DiscreteUpdateEvent<T>& event) {
     auto& events = dynamic_cast<LeafEventCollection<DiscreteUpdateEvent<T>>&>(
         this->get_mutable_discrete_update_events());
-    events.add_event(std::move(event));
+    events.AddEvent(event);
   }
 
   /**

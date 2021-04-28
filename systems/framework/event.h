@@ -730,9 +730,9 @@ class DiscreteUpdateEvent final : public Event<T> {
  private:
   void DoAddToComposite(TriggerType trigger_type,
                         CompositeEventCollection<T>* events) const final {
-    auto event = std::unique_ptr<DiscreteUpdateEvent<T>>(this->DoClone());
-    event->set_trigger_type(trigger_type);
-    events->add_discrete_update_event(std::move(event));
+    DiscreteUpdateEvent<T> event(*this);
+    event.set_trigger_type(trigger_type);
+    events->AddDiscreteUpdateEvent(event);
   }
 
   // Clones DiscreteUpdateEvent-specific data.
