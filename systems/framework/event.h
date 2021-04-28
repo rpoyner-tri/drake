@@ -822,9 +822,9 @@ class UnrestrictedUpdateEvent final : public Event<T> {
  private:
   void DoAddToComposite(TriggerType trigger_type,
                         CompositeEventCollection<T>* events) const final {
-    auto event = std::unique_ptr<UnrestrictedUpdateEvent<T>>(this->DoClone());
-    event->set_trigger_type(trigger_type);
-    events->add_unrestricted_update_event(std::move(event));
+    UnrestrictedUpdateEvent<T> event(*this);
+    event.set_trigger_type(trigger_type);
+    events->AddUnrestrictedUpdateEvent(event);
   }
 
   // Clones event data specific to UnrestrictedUpdateEvent.

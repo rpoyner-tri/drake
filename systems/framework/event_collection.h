@@ -522,10 +522,13 @@ class CompositeEventCollection {
   void add_unrestricted_update_event(
       std::unique_ptr<UnrestrictedUpdateEvent<T>> event) {
     DRAKE_DEMAND(event != nullptr);
+    AddUnrestrictedUpdateEvent(*event);
+  }
+  void AddUnrestrictedUpdateEvent(const UnrestrictedUpdateEvent<T>& event) {
     auto& events =
         dynamic_cast<LeafEventCollection<UnrestrictedUpdateEvent<T>>&>(
             this->get_mutable_unrestricted_update_events());
-    events.add_event(std::move(event));
+    events.AddEvent(event);
   }
 
   /**
