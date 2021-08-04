@@ -410,7 +410,7 @@ class BodyNode : public MultibodyElement<BodyNode, T, BodyNodeIndex> {
       const systems::Context<T>& context,
       const PositionKinematicsCache<T>& pc,
       const VelocityKinematicsCache<T>* vc,
-      const VectorX<T>& mbt_vdot,
+      const Eigen::Ref<const VectorX<T>>& mbt_vdot,
       std::vector<SpatialAcceleration<T>>* A_WB_array_ptr) const {
     // This method must not be called for the "world" body node.
     DRAKE_DEMAND(topology_.body != world_index());
@@ -1450,8 +1450,8 @@ class BodyNode : public MultibodyElement<BodyNode, T, BodyNodeIndex> {
   // tree. Useful for the implementation of operator forms where the generalized
   // velocity (or time derivatives of the generalized velocities) is an argument
   // to the operator.
-  Eigen::VectorBlock<const VectorX<T>> get_mobilizer_velocities(
-      const VectorX<T>& v) const {
+  Eigen::Ref<const VectorX<T>> get_mobilizer_velocities(
+      const Eigen::Ref<const VectorX<T>>& v) const {
     return v.segment(topology_.mobilizer_velocities_start_in_v,
                      topology_.num_mobilizer_velocities);
   }

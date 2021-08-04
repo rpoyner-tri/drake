@@ -1115,7 +1115,7 @@ void MultibodyTree<T>::CalcSpatialAccelerationsFromVdot(
     const systems::Context<T>& context,
     const PositionKinematicsCache<T>&,
     const VelocityKinematicsCache<T>&,
-    const VectorX<T>& known_vdot,
+    const Eigen::Ref<const VectorX<T>>& known_vdot,
     std::vector<SpatialAcceleration<T>>* A_WB_array) const {
   const bool ignore_velocities = false;
   CalcSpatialAccelerationsFromVdot(context, known_vdot, ignore_velocities,
@@ -1125,7 +1125,7 @@ void MultibodyTree<T>::CalcSpatialAccelerationsFromVdot(
 template <typename T>
 void MultibodyTree<T>::CalcSpatialAccelerationsFromVdot(
     const systems::Context<T>& context,
-    const VectorX<T>& known_vdot,
+    const Eigen::Ref<const VectorX<T>>& known_vdot,
     bool ignore_velocities,
     std::vector<SpatialAcceleration<T>>* A_WB_array) const {
   DRAKE_DEMAND(A_WB_array != nullptr);
@@ -1180,7 +1180,7 @@ void MultibodyTree<T>::CalcAccelerationKinematicsCache(
 template <typename T>
 VectorX<T> MultibodyTree<T>::CalcInverseDynamics(
     const systems::Context<T>& context,
-    const VectorX<T>& known_vdot,
+    const Eigen::Ref<const VectorX<T>>& known_vdot,
     const MultibodyForces<T>& external_forces) const {
   // Temporary storage used in the computation of inverse dynamics.
   std::vector<SpatialAcceleration<T>> A_WB(num_bodies());
@@ -1195,7 +1195,8 @@ VectorX<T> MultibodyTree<T>::CalcInverseDynamics(
 
 template <typename T>
 void MultibodyTree<T>::CalcInverseDynamics(
-    const systems::Context<T>& context, const VectorX<T>& known_vdot,
+    const systems::Context<T>& context,
+    const Eigen::Ref<const VectorX<T>>& known_vdot,
     const std::vector<SpatialForce<T>>& Fapplied_Bo_W_array,
     const Eigen::Ref<const VectorX<T>>& tau_applied_array,
     std::vector<SpatialAcceleration<T>>* A_WB_array,
@@ -1210,7 +1211,7 @@ void MultibodyTree<T>::CalcInverseDynamics(
 template <typename T>
 void MultibodyTree<T>::CalcInverseDynamics(
     const systems::Context<T>& context,
-    const VectorX<T>& known_vdot,
+    const Eigen::Ref<const VectorX<T>>& known_vdot,
     const std::vector<SpatialForce<T>>& Fapplied_Bo_W_array,
     const Eigen::Ref<const VectorX<T>>& tau_applied_array,
     bool ignore_velocities,

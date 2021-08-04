@@ -2727,7 +2727,7 @@ class MultibodyPlant : public internal::MultibodyTreeSystem<T> {
   /// by `known_vdot`.
   VectorX<T> CalcInverseDynamics(
       const systems::Context<T>& context,
-      const VectorX<T>& known_vdot,
+      const Eigen::Ref<const VectorX<T>>& known_vdot,
       const MultibodyForces<T>& external_forces) const {
     this->ValidateContext(context);
     return internal_tree().CalcInverseDynamics(

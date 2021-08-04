@@ -1420,13 +1420,13 @@ class MultibodyTree {
       const systems::Context<T>& context,
       const PositionKinematicsCache<T>& pc,
       const VelocityKinematicsCache<T>& vc,
-      const VectorX<T>& known_vdot,
+      const Eigen::Ref<const VectorX<T>>& known_vdot,
       std::vector<SpatialAcceleration<T>>* A_WB_array) const;
 
   // See MultibodyPlant method.
   VectorX<T> CalcInverseDynamics(
       const systems::Context<T>& context,
-      const VectorX<T>& known_vdot,
+      const Eigen::Ref<const VectorX<T>>& known_vdot,
       const MultibodyForces<T>& external_forces) const;
 
   // (Advanced) Given the state of `this` %MultibodyTree in `context` and a
@@ -1536,7 +1536,8 @@ class MultibodyTree {
   // @pre The velocity kinematics `vc` must have been previously updated with a
   // call to CalcVelocityKinematicsCache().
   void CalcInverseDynamics(
-      const systems::Context<T>& context, const VectorX<T>& known_vdot,
+      const systems::Context<T>& context,
+      const Eigen::Ref<const VectorX<T>>& known_vdot,
       const std::vector<SpatialForce<T>>& Fapplied_Bo_W_array,
       const Eigen::Ref<const VectorX<T>>& tau_applied_array,
       std::vector<SpatialAcceleration<T>>* A_WB_array,
@@ -1558,7 +1559,8 @@ class MultibodyTree {
   // ignored and are assumed to be zero. Therefore, C(q, v)v = 0 and it is not
   // computed to avoid unnecessary work.
   void CalcInverseDynamics(
-      const systems::Context<T>& context, const VectorX<T>& known_vdot,
+      const systems::Context<T>& context,
+      const Eigen::Ref<const VectorX<T>>& known_vdot,
       const std::vector<SpatialForce<T>>& Fapplied_Bo_W_array,
       const Eigen::Ref<const VectorX<T>>& tau_applied_array,
       bool ignore_velocities, std::vector<SpatialAcceleration<T>>* A_WB_array,
@@ -2575,7 +2577,8 @@ class MultibodyTree {
   // velocity dependent terms that become zero (such as bias terms) are not
   // computed to avoid unnecessary work.
   void CalcSpatialAccelerationsFromVdot(
-      const systems::Context<T>& context, const VectorX<T>& known_vdot,
+      const systems::Context<T>& context,
+      const Eigen::Ref<const VectorX<T>>& known_vdot,
       bool ignore_velocities,
       std::vector<SpatialAcceleration<T>>* A_WB_array) const;
 
