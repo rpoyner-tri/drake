@@ -275,6 +275,22 @@ class Joint : public MultibodyElement<Joint, T, JointIndex> {
     DoAddInDamping(context, forces);
   }
 
+  void lock(systems::Context<T>* context) const {
+    context->get_mutable_abstract_parameter(is_locked_parameter_index_)
+        .set_value(true);
+    do_lock(context);
+  }
+
+  void unlock(systems::Context<T>* context) const {
+    context->get_mutable_abstract_parameter(is_locked_parameter_index_)
+        .set_value(false);
+  }
+
+  bool is_locked(const systems::Context<T>& context) const {
+    return context.get_parameters().template get_abstract_parameter<bool>(
+        is_locked_parameter_index_);
+  }
+
   /// @name Methods to get and set the limits of `this` joint. For position
   /// limits, the layout is the same as the generalized position's. For
   /// velocity and acceleration limits, the layout is the same as the
@@ -574,6 +590,19 @@ class Joint : public MultibodyElement<Joint, T, JointIndex> {
   /// If the MultibodyTree has been finalized, this will return true.
   bool has_implementation() const { return implementation_ != nullptr; }
 
+  // Subclasses of Joint should set their generalized velocities to 0.
+  virtual void do_lock(systems::Context<T>*) const {}
+
+  // Implementation for MultibodyElement::DoDeclareParameters().
+  void DoDeclareParameters(
+      internal::MultibodyTreeSystem<T>* tree_system) override {
+    // Declare parent classes' parameters
+    MultibodyElement<Joint, T, JointIndex>::DoDeclareParameters(tree_system);
+
+    is_locked_parameter_index_ =
+        this->DeclareAbstractParameter(tree_system, Value<bool>(false));
+  }
+
  private:
   // Make all other Joint<U> objects a friend of Joint<T> so they can make
   // Joint<ToScalar>::JointImplementation from CloneToScalar<ToScalar>().
@@ -612,6 +641,9 @@ class Joint : public MultibodyElement<Joint, T, JointIndex> {
 
   // Joint default position. This vector has zero size for joints with no state.
   VectorX<double> default_positions_;
+
+  // System parameter index for `this` joint's lock state stored in a context.
+  systems::AbstractParameterIndex is_locked_parameter_index_;
 
   // The Joint<T> implementation:
   std::unique_ptr<JointImplementation> implementation_;

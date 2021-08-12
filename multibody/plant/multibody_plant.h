@@ -4233,6 +4233,7 @@ class MultibodyPlant : public internal::MultibodyTreeSystem<T> {
       const drake::systems::Context<T>& context0,
       contact_solvers::internal::ContactSolverResults<T>* results) const;
 
+
   // Eval version of the method CalcContactSolverResults().
   const contact_solvers::internal::ContactSolverResults<T>&
   EvalContactSolverResults(const systems::Context<T>& context) const {
@@ -4240,6 +4241,23 @@ class MultibodyPlant : public internal::MultibodyTreeSystem<T> {
         .template Eval<contact_solvers::internal::ContactSolverResults<T>>(
             context);
   }
+
+  // Computes a logical matrix L that can be used to remove the velocities
+  // constrained by joint or floating body locking:
+  //  v' = Lᵀ * v
+  //
+  // Given a full-width velocity vector v, the new result vector v' contains
+  // only the velocities not locked under the currently configured lock
+  // constraints.
+  //
+  // The returned matrix L will have num_velocities() rows and at most
+  // num_velocities() columns. Informally, it can be visualized as an identity
+  // matrix of num_velocities() size, with columns corresponding to
+  // lock-constrained velocities removed.
+  MatrixX<T> CalcJointLockingConstraintMatrix(
+      const systems::Context<T>& context) const;
+
+  // TODO(rpoyner-tri): add EvalJointLockingConstraintMatrix() and caching?
 
   // Computes the vector of ContactSurfaces for hydroelastic contact.
   void CalcContactSurfaces(
