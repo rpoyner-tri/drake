@@ -26,9 +26,14 @@ RigidBody<T>::RigidBody(const std::string& body_name,
       default_spatial_inertia_(M) {}
 
 template <typename T>
-void RigidBody<T>::DoLock(systems::Context<T>*) const {
+void RigidBody<T>::DoLock(systems::Context<T>* context) const {
   DRAKE_DEMAND(this->is_floating());
-  DRAKE_DEMAND(false);  // implement me
+  const auto& tree = this->get_parent_tree();
+  auto& state = context->get_mutable_state();
+  const int start = this->floating_velocities_start();
+  static constexpr int kVelocities = 6;
+  tree.template get_mutable_state_segment<kVelocities>(
+      &state, start).setZero();
 }
 
 }  // namespace multibody
