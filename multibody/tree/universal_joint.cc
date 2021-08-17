@@ -49,6 +49,11 @@ std::unique_ptr<Joint<symbolic::Expression>> UniversalJoint<T>::DoCloneToScalar(
   return TemplatedDoCloneToScalar(tree_clone);
 }
 
+template <typename T>
+void UniversalJoint<T>::DoLock(systems::Context<T>*) const {
+  DRAKE_DEMAND(false);  // implement me
+}
+
 // N.B. Due to esoteric linking errors on Mac (see #9345) involving
 // `MobilizerImpl`, we must place this implementation in the source file, not
 // in the header file.

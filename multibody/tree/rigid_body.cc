@@ -25,6 +25,11 @@ RigidBody<T>::RigidBody(const std::string& body_name,
     : Body<T>(body_name, model_instance, M.get_mass()),
       default_spatial_inertia_(M) {}
 
+template <typename T>
+void RigidBody<T>::DoLock(systems::Context<T>*) const {
+  DRAKE_DEMAND(this->is_floating());
+}
+
 }  // namespace multibody
 }  // namespace drake
 
