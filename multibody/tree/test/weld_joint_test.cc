@@ -88,6 +88,13 @@ TEST_F(WeldJointTest, GetJointLimits) {
   EXPECT_EQ(joint_->acceleration_upper_limits().size(), 0);
 }
 
+TEST_F(WeldJointTest, JointLocking) {
+  // Joint locking on a stateless joint does nothing; still, it should not be
+  // an error.
+
+  DRAKE_EXPECT_NO_THROW(joint_->Lock(*system_->CreateDefaultContext()));
+}
+
 }  // namespace
 }  // namespace multibody
 }  // namespace drake

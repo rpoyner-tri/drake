@@ -50,8 +50,8 @@ std::unique_ptr<Joint<symbolic::Expression>> UniversalJoint<T>::DoCloneToScalar(
 }
 
 template <typename T>
-void UniversalJoint<T>::DoLock(systems::Context<T>*) const {
-  DRAKE_DEMAND(false);  // implement me
+void UniversalJoint<T>::DoLock(systems::Context<T>* context) const {
+  set_angular_rates(context, {T(0), T(0)});
 }
 
 // N.B. Due to esoteric linking errors on Mac (see #9345) involving

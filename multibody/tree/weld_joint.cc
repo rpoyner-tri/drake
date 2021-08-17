@@ -45,7 +45,7 @@ std::unique_ptr<Joint<symbolic::Expression>> WeldJoint<T>::DoCloneToScalar(
 
 template <typename T>
 void WeldJoint<T>::DoLock(systems::Context<T>*) const {
-  DRAKE_DEMAND(false);  // implement me
+  // No velocities; nothing to do.
 }
 
 // N.B. Due to esoteric linking errors on Mac (see #9345) involving

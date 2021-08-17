@@ -125,6 +125,10 @@ TEST_F(BallRpyJointTest, ContextDependentAccess) {
   // Angular velocity access:
   joint_->set_angular_velocity(context_.get(), some_value);
   EXPECT_EQ(joint_->get_angular_velocity(*context_), some_value);
+
+  // Joint locking.
+  joint_->Lock(context_.get());
+  EXPECT_EQ(joint_->get_angular_velocity(*context_), Vector3d(0., 0., 0.));
 }
 
 // Tests API to apply torques to joint.
