@@ -94,7 +94,7 @@ class LadderTest : public ::testing::Test {
     plant_->get_actuation_input_port().FixValue(plant_context_, tau_actuation);
 
     if (locked_joint) {
-        weld_->lock(plant_context_);
+        weld_->Lock(plant_context_);
     }
   }
 

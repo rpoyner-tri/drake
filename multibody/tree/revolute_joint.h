@@ -312,7 +312,7 @@ class RevoluteJoint final : public Joint<T> {
     }
   }
 
-  void do_lock(systems::Context<T>* context) const override {
+  void DoLock(systems::Context<T>* context) const override {
     set_angular_rate(context, T(0));
   }
 

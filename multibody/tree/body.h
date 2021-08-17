@@ -208,17 +208,17 @@ class Body : public MultibodyElement<Body, T, BodyIndex> {
     return body_frame_;
   }
 
-  void lock(systems::Context<T>* context) const {
+  void Lock(systems::Context<T>* context) const {
     if (!is_floating()) {
       throw std::logic_error(fmt::format(
           "Attempted to call lock() on non-floating body {}", name()));
     }
     context->get_mutable_abstract_parameter(is_locked_parameter_index_)
         .set_value(true);
-    do_lock(context);
+    DoLock(context);
   }
 
-  void unlock(systems::Context<T>* context) const {
+  void Unlock(systems::Context<T>* context) const {
     if (!is_floating()) {
       throw std::logic_error(fmt::format(
           "Attempted to call unlock() on non-floating body {}", name()));
@@ -442,9 +442,6 @@ class Body : public MultibodyElement<Body, T, BodyIndex> {
 
   /// @}
 
-  // Subclasses of Joint should set their generalized velocities to 0.
-  virtual void do_lock(systems::Context<T>*) const {}
-
   // Implementation for MultibodyElement::DoDeclareParameters().
   void DoDeclareParameters(
       internal::MultibodyTreeSystem<T>* tree_system) override {
@@ -480,6 +477,9 @@ class Body : public MultibodyElement<Body, T, BodyIndex> {
     topology_ = tree_topology.get_body(this->index());
     body_frame_.SetTopology(tree_topology);
   }
+
+  // Subclasses of Body should set their generalized velocities to 0.
+  virtual void DoLock(systems::Context<T>*) const = 0;
 
   // MultibodyTree has access to the mutable BodyFrame through BodyAttorney.
   BodyFrame<T>& get_mutable_body_frame() {

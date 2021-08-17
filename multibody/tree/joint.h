@@ -275,13 +275,13 @@ class Joint : public MultibodyElement<Joint, T, JointIndex> {
     DoAddInDamping(context, forces);
   }
 
-  void lock(systems::Context<T>* context) const {
+  void Lock(systems::Context<T>* context) const {
     context->get_mutable_abstract_parameter(is_locked_parameter_index_)
         .set_value(true);
-    do_lock(context);
+    DoLock(context);
   }
 
-  void unlock(systems::Context<T>* context) const {
+  void Unlock(systems::Context<T>* context) const {
     context->get_mutable_abstract_parameter(is_locked_parameter_index_)
         .set_value(false);
   }
@@ -591,7 +591,7 @@ class Joint : public MultibodyElement<Joint, T, JointIndex> {
   bool has_implementation() const { return implementation_ != nullptr; }
 
   // Subclasses of Joint should set their generalized velocities to 0.
-  virtual void do_lock(systems::Context<T>*) const {}
+  virtual void DoLock(systems::Context<T>*) const = 0;
 
   // Implementation for MultibodyElement::DoDeclareParameters().
   void DoDeclareParameters(
