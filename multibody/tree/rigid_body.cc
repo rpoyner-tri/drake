@@ -28,6 +28,7 @@ RigidBody<T>::RigidBody(const std::string& body_name,
 template <typename T>
 void RigidBody<T>::DoLock(systems::Context<T>*) const {
   DRAKE_DEMAND(this->is_floating());
+  DRAKE_DEMAND(false);  // implement me
 }
 
 }  // namespace multibody

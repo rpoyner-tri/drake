@@ -51,8 +51,8 @@ std::unique_ptr<Joint<symbolic::Expression>> ScrewJoint<T>::DoCloneToScalar(
 }
 
 template <typename T>
-void ScrewJoint<T>::DoLock(systems::Context<T>*) const {
-  DRAKE_DEMAND(false);  // implement me
+void ScrewJoint<T>::DoLock(systems::Context<T>* context) const {
+  set_translational_velocity(context, T(0));
 }
 
 // N.B. Due to esoteric linking errors on Mac (see #9345) involving
