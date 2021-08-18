@@ -2248,7 +2248,9 @@ void MultibodyPlant<T>::CalcContactSolverResults(
   }
 
   // Joint locking.
-  MatrixX<T> L = CalcJointLockingConstraintMatrix(context0);
+  const MatrixX<T>& L = EvalJointLockingConstraintMatrix(context0);
+  // TODO(joemasterjohn): See if storing L_transpose in the cache adds any
+  // benefit.
   MatrixX<T> L_T = L.transpose();
 
   MatrixX<T> M0_locked = L_T * M0 * L;
@@ -2289,8 +2291,8 @@ void MultibodyPlant<T>::CalcContactSolverResults(
 }
 
 template <typename T>
-MatrixX<T> MultibodyPlant<T>::CalcJointLockingConstraintMatrix(
-    const systems::Context<T>& context) const {
+void MultibodyPlant<T>::CalcJointLockingConstraintMatrix(
+    const systems::Context<T>& context, MatrixX<T>* L) const {
   std::map<JointIndex, int> joint_index_map;
   std::map<BodyIndex, int> body_index_map;
 
@@ -2311,19 +2313,22 @@ MatrixX<T> MultibodyPlant<T>::CalcJointLockingConstraintMatrix(
     }
   }
 
+  L->resize(num_velocities(), nv_locked);
+
   // If no joints or bodies are locked, don't do any work and just return
   // identity.
   if (nv_locked == num_velocities()) {
-    return MatrixX<T>::Identity(num_velocities(), num_velocities());
+    *L = MatrixX<T>::Identity(num_velocities(), num_velocities());
+    return;
   }
 
-  MatrixX<T> L = MatrixX<T>::Zero(num_velocities(), nv_locked);
+  *L = MatrixX<T>::Zero(num_velocities(), nv_locked);
 
   for (JointIndex joint_index(0); joint_index < num_joints(); ++joint_index) {
     const Joint<T>& joint = get_joint(joint_index);
     if (!joint.is_locked(context)) {
-      L.block(joint.velocity_start(), joint_index_map[joint.index()],
-              joint.num_velocities(), joint.num_velocities()) =
+      L->block(joint.velocity_start(), joint_index_map[joint.index()],
+               joint.num_velocities(), joint.num_velocities()) =
           MatrixX<T>::Identity(joint.num_velocities(), joint.num_velocities());
     }
   }
@@ -2331,12 +2336,10 @@ MatrixX<T> MultibodyPlant<T>::CalcJointLockingConstraintMatrix(
   for (BodyIndex body_index(1); body_index < num_bodies(); ++body_index) {
     const Body<T>& body = get_body(body_index);
     if (body.is_floating() && !body.is_locked(context)) {
-      L.block(body.floating_velocities_start() - num_positions(),
-              body_index_map[body.index()], 6, 6) = MatrixX<T>::Identity(6, 6);
+      L->block(body.floating_velocities_start() - num_positions(),
+               body_index_map[body.index()], 6, 6) = MatrixX<T>::Identity(6, 6);
     }
   }
-
-  return L;
 }
 
 template <typename T>
@@ -3055,6 +3058,15 @@ void MultibodyPlant<T>::DeclareCacheEntries() {
       {this->xd_ticket(), this->all_parameters_ticket()});
   cache_indexes_.discrete_contact_pairs =
       discrete_contact_pairs_cache_entry.cache_index();
+
+  // Cache joint locking constraint matrix
+  const auto& joint_locking_constraint_matrix_cache_entry =
+      this->DeclareCacheEntry("Joint Locking Constraint Matrix.",
+                              MatrixX<T>(num_velocities(), num_velocities()),
+                              &MultibodyPlant::CalcJointLockingConstraintMatrix,
+                              {this->all_parameters_ticket()});
+  cache_indexes_.joint_locking_constraint_matrix =
+      joint_locking_constraint_matrix_cache_entry.cache_index();
 }
 
 template <typename T>

@@ -4016,6 +4016,7 @@ class MultibodyPlant : public internal::MultibodyTreeSystem<T> {
     systems::CacheIndex spatial_contact_forces_continuous;
     systems::CacheIndex contact_solver_results;
     systems::CacheIndex discrete_contact_pairs;
+    systems::CacheIndex joint_locking_constraint_matrix;
   };
 
   // Constructor to bridge testing from MultibodyTree to MultibodyPlant.
@@ -4254,10 +4255,15 @@ class MultibodyPlant : public internal::MultibodyTreeSystem<T> {
   // num_velocities() columns. Informally, it can be visualized as an identity
   // matrix of num_velocities() size, with columns corresponding to
   // lock-constrained velocities removed.
-  MatrixX<T> CalcJointLockingConstraintMatrix(
-      const systems::Context<T>& context) const;
+  void CalcJointLockingConstraintMatrix(const systems::Context<T>& context,
+                                        MatrixX<T>* L) const;
 
-  // TODO(rpoyner-tri): add EvalJointLockingConstraintMatrix() and caching?
+  // Eval version of the method CalcJointLockingConstraintMatrix().
+  const MatrixX<T>& EvalJointLockingConstraintMatrix(
+      const systems::Context<T>& context) const {
+    return this->get_cache_entry(cache_indexes_.joint_locking_constraint_matrix)
+        .template Eval<MatrixX<T>>(context);
+  }
 
   // Computes the vector of ContactSurfaces for hydroelastic contact.
   void CalcContactSurfaces(
