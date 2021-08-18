@@ -2293,52 +2293,50 @@ void MultibodyPlant<T>::CalcContactSolverResults(
 template <typename T>
 void MultibodyPlant<T>::CalcJointLockingConstraintMatrix(
     const systems::Context<T>& context, MatrixX<T>* L) const {
-  std::map<JointIndex, int> joint_index_map;
-  std::map<BodyIndex, int> body_index_map;
+  // Track where the 1-valued pivots should go; index is the column,
+  // pivots[index] is the row. If anything is locked, some of the vector will go
+  // unused.
+  std::vector<int> pivots(num_velocities());
 
-  int nv_locked = 0;
+  int velocity_cursor = 0;
+  int unlocked_cursor = 0;
   for (JointIndex joint_index(0); joint_index < num_joints(); ++joint_index) {
     const Joint<T>& joint = get_joint(joint_index);
-    if (!joint.is_locked(context)) {
-      joint_index_map[joint.index()] = nv_locked;
-      nv_locked += joint.num_velocities();
+    if (joint.is_locked(context)) {
+      velocity_cursor += joint.num_velocities();
+    } else {
+      for (int k = 0; k < joint.num_velocities(); k++) {
+        pivots[unlocked_cursor++] = velocity_cursor++;
+      }
     }
   }
 
   for (BodyIndex body_index(1); body_index < num_bodies(); ++body_index) {
     const Body<T>& body = get_body(body_index);
-    if (body.is_floating() && !body.is_locked(context)) {
-      body_index_map[body.index()] = nv_locked;
-      nv_locked += 6;
+    if (!body.is_floating()) {
+      continue;
+    }
+    if (body.is_locked(context)) {
+      velocity_cursor += 6;
+    } else {
+      for (int k = 0; k < 6; k++) {
+        pivots[unlocked_cursor++] = velocity_cursor++;
+      }
     }
   }
+  DRAKE_ASSERT(velocity_cursor == num_velocities());
+  DRAKE_ASSERT(unlocked_cursor <= num_velocities());
 
-  L->resize(num_velocities(), nv_locked);
-
-  // If no joints or bodies are locked, don't do any work and just return
-  // identity.
-  if (nv_locked == num_velocities()) {
+  // If no joints or bodies are locked, just return identity.
+  if (unlocked_cursor == num_velocities()) {
     *L = MatrixX<T>::Identity(num_velocities(), num_velocities());
     return;
   }
 
-  *L = MatrixX<T>::Zero(num_velocities(), nv_locked);
+  *L = MatrixX<T>::Zero(num_velocities(), unlocked_cursor);
 
-  for (JointIndex joint_index(0); joint_index < num_joints(); ++joint_index) {
-    const Joint<T>& joint = get_joint(joint_index);
-    if (!joint.is_locked(context)) {
-      L->block(joint.velocity_start(), joint_index_map[joint.index()],
-               joint.num_velocities(), joint.num_velocities()) =
-          MatrixX<T>::Identity(joint.num_velocities(), joint.num_velocities());
-    }
-  }
-
-  for (BodyIndex body_index(1); body_index < num_bodies(); ++body_index) {
-    const Body<T>& body = get_body(body_index);
-    if (body.is_floating() && !body.is_locked(context)) {
-      L->block(body.floating_velocities_start() - num_positions(),
-               body_index_map[body.index()], 6, 6) = MatrixX<T>::Identity(6, 6);
-    }
+  for (int k = 0; k < unlocked_cursor; k++) {
+    (*L)(pivots[k], k) = 1.;
   }
 }
 

@@ -89,10 +89,10 @@ TEST_F(WeldJointTest, GetJointLimits) {
 }
 
 TEST_F(WeldJointTest, JointLocking) {
-  // Joint locking on a stateless joint does nothing; still, it should not be
-  // an error.
-
-  DRAKE_EXPECT_NO_THROW(joint_->Lock(*system_->CreateDefaultContext()));
+  // Joint locking on a weld joint does nothing; still, invoking it should not
+  // be an error.
+  auto context = system_->CreateDefaultContext();
+  DRAKE_EXPECT_NO_THROW(joint_->Lock(context.get()));
 }
 
 }  // namespace
