@@ -481,6 +481,10 @@ class MultibodyTreeSystem : public systems::LeafSystem<T> {
   // owned by `this` system to declare their system parameters on `this`.
   void DeclareMultibodyElementParameters();
 
+  // Helper function to throw if joint or body locking is attempted in
+  // continuous mode calculations.
+  void ThrowIfAnyJointsOrBodiesAreLocked() const;
+
   // Allow different specializations to access each other's private data for
   // scalar conversion.
   template <typename U>

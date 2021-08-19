@@ -332,12 +332,13 @@ GTEST_TEST(QuaternionFloatingMobilizer, InboardJointLocking) {
 
   // Instantiate the model for the free body in space.
   AxiallySymmetricFreeBodyPlant<double> free_body_plant(
-      kMass, kInertia, kInertia, acceleration_of_gravity);
+      kMass, kInertia, kInertia, acceleration_of_gravity,
+      0.001/* time_step */);
   const internal::MultibodyTree<double>& model =
       internal::GetInternalTree(free_body_plant);
 
-  std::unique_ptr<Context<double>> context =
-      free_body_plant.CreateDefaultContext();
+  systems::Simulator<double> simulator(free_body_plant);
+  systems::Context<double>& context = simulator.get_mutable_context();
 
   // Set velocities.
   const Vector3d w_WB(1.0, 2.0, 3.0);
@@ -345,10 +346,17 @@ GTEST_TEST(QuaternionFloatingMobilizer, InboardJointLocking) {
   const auto& free_body = free_body_plant.body();
   DRAKE_EXPECT_NO_THROW(
       model.SetFreeBodySpatialVelocityOrThrow(
-          free_body, {w_WB, v_WB}, context.get()));
+          free_body, {w_WB, v_WB}, &context));
 
-  free_body.Lock(context.get());
-  const auto& velocity = free_body.EvalSpatialVelocityInWorld(*context);
+  free_body.Lock(&context);
+  auto velocity = free_body.EvalSpatialVelocityInWorld(context);
+  EXPECT_EQ(velocity.rotational(), Vector3d::Zero());
+  EXPECT_EQ(velocity.translational(), Vector3d::Zero());
+
+  simulator.Initialize();
+  simulator.AdvanceTo(1.0);
+
+  velocity = free_body.EvalSpatialVelocityInWorld(context);
   EXPECT_EQ(velocity.rotational(), Vector3d::Zero());
   EXPECT_EQ(velocity.translational(), Vector3d::Zero());
 }

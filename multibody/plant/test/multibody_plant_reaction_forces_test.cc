@@ -5,6 +5,7 @@
 
 #include "drake/common/drake_assert.h"
 #include "drake/common/test_utilities/eigen_matrix_compare.h"
+#include "drake/common/test_utilities/expect_throws_message.h"
 #include "drake/geometry/drake_visualizer.h"
 #include "drake/geometry/scene_graph.h"
 #include "drake/lcm/drake_lcm.h"
@@ -177,7 +178,7 @@ class LadderTest : public ::testing::Test {
     plant_->AddJointActuator("PinActuator", *pin_);
   }
 
-  void VerifyJointReactionForces() {
+  void VerifyJointReactionForces(bool locked_joint) {
     // We validate the numerical results to be within this tolerance value,
     // which is chosen consistently with the time the system is left to reach
     // steady state and the integration accuracy (for the continuous model).
@@ -185,8 +186,7 @@ class LadderTest : public ::testing::Test {
 
     // Sanity check model size.
     ASSERT_EQ(plant_->num_bodies(), 3);
-    ASSERT_GE(plant_->num_velocities(), 1);
-    ASSERT_LE(plant_->num_velocities(), 2);
+    ASSERT_EQ(plant_->num_velocities(), locked_joint ? 2 : 1);
     ASSERT_EQ(plant_->num_actuated_dofs(), 1);
 
     // We run a simulation to steady state so that contact forces balance
@@ -313,24 +313,32 @@ class LadderTest : public ::testing::Test {
 };
 
 TEST_F(LadderTest, PinReactionForcesContinuous) {
-  BuildLadderModel(0, false);
+  static constexpr bool kIsJointLocked = false;
+  BuildLadderModel(0, kIsJointLocked);
   ASSERT_FALSE(plant_->is_discrete());
-  VerifyJointReactionForces();
+  VerifyJointReactionForces(kIsJointLocked);
 }
 
 TEST_F(LadderTest, PinReactionForcesDiscrete) {
-  BuildLadderModel(1.0e-3, false);
+  static constexpr bool kIsJointLocked = false;
+  BuildLadderModel(1.0e-3, kIsJointLocked);
   ASSERT_TRUE(plant_->is_discrete());
-  VerifyJointReactionForces();
+  VerifyJointReactionForces(kIsJointLocked);
 }
 
-// TODO(joemasterjohn) Add the continuous locked joint test when continuous
+// TODO(joemasterjohn) Expand the continuous locked joint test when continuous
 // joint locking is implemented.
+TEST_F(LadderTest, PinReactionForcesLockedJointContinuous) {
+  static constexpr bool kIsJointLocked = true;
+  DRAKE_EXPECT_THROWS_MESSAGE(
+      BuildLadderModel(0, kIsJointLocked), ".*is_state_discrete.*");
+}
 
 TEST_F(LadderTest, PinReactionForcesLockedJointDiscrete) {
-  BuildLadderModel(1.0e-3, true);
+  static constexpr bool kIsJointLocked = true;
+  BuildLadderModel(1.0e-3, kIsJointLocked);
   ASSERT_TRUE(plant_->is_discrete());
-  VerifyJointReactionForces();
+  VerifyJointReactionForces(kIsJointLocked);
 }
 
 // This test verifies the computation of joint reaction forces for a case in

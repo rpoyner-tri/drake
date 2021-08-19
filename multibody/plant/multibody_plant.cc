@@ -2293,6 +2293,7 @@ void MultibodyPlant<T>::CalcContactSolverResults(
 template <typename T>
 void MultibodyPlant<T>::CalcJointLockingConstraintMatrix(
     const systems::Context<T>& context, MatrixX<T>* L) const {
+  DRAKE_DEMAND(L != nullptr);
   // Track where the 1-valued pivots should go; index is the column,
   // pivots[index] is the row. If anything is locked, some of the vector will go
   // unused.

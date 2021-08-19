@@ -209,6 +209,8 @@ class Body : public MultibodyElement<Body, T, BodyIndex> {
   }
 
   void Lock(systems::Context<T>* context) const {
+    // Body locking is only supported for discrete mode.
+    DRAKE_THROW_UNLESS(this->get_parent_tree().is_state_discrete());
     if (!is_floating()) {
       throw std::logic_error(fmt::format(
           "Attempted to call lock() on non-floating body {}", name()));

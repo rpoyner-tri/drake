@@ -276,6 +276,8 @@ class Joint : public MultibodyElement<Joint, T, JointIndex> {
   }
 
   void Lock(systems::Context<T>* context) const {
+    // Joint locking is only supported for discrete mode.
+    DRAKE_THROW_UNLESS(this->get_parent_tree().is_state_discrete());
     context->get_mutable_abstract_parameter(is_locked_parameter_index_)
         .set_value(true);
     DoLock(context);

@@ -60,7 +60,7 @@ class BallRpyJointTest : public ::testing::Test {
     // We are done adding modeling elements. Transfer tree to system and get
     // a Context.
     system_ = std::make_unique<internal::MultibodyTreeSystem<double>>(
-        std::move(model));
+        std::move(model), true/* is_discrete */);
     context_ = system_->CreateDefaultContext();
   }
 
