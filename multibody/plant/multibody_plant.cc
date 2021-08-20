@@ -2220,6 +2220,20 @@ void MultibodyPlant<T>::CalcContactSolverResults(
       EvalDiscreteContactPairs(context0);
   const int num_contacts = contact_pairs.size();
 
+  // Joint locking: quick exit if everything is locked.
+  const MatrixX<T>& L = EvalJointLockingConstraintMatrix(context0);
+  if (L.cols() == 0) {
+    // Everything is locked! Return a result that indicates no movement.
+    results->Resize(nv, num_contacts);
+    results->v_next.setZero();
+    results->fn.setZero();
+    results->ft.setZero();
+    results->vn.setZero();
+    results->vt.setZero();
+    results->tau_contact.setZero();
+    return;
+  }
+
   // Compute normal and tangential velocity Jacobians at t0.
   const internal::ContactJacobians<T>& contact_jacobians =
       EvalContactJacobians(context0);
@@ -2247,8 +2261,7 @@ void MultibodyPlant<T>::CalcContactSolverResults(
     phi0[i] = contact_pairs[i].phi0;
   }
 
-  // Joint locking.
-  const MatrixX<T>& L = EvalJointLockingConstraintMatrix(context0);
+  // Joint locking: reduce solver inputs.
   // TODO(joemasterjohn): See if storing L_transpose in the cache adds any
   // benefit.
   MatrixX<T> L_T = L.transpose();
@@ -2279,6 +2292,7 @@ void MultibodyPlant<T>::CalcContactSolverResults(
                     &results_locked);
   }
 
+  // Joint locking: expand reduced outputs.
   results->v_next = L * results_locked.v_next;
   results->tau_contact = contact_jacobians.Jn.transpose() * results_locked.fn;
   results->tau_contact = results->tau_contact +
