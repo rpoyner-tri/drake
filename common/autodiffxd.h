@@ -22,6 +22,14 @@
 
 #include <Eigen/Dense>
 
+namespace drake {
+namespace autodiffxd {
+namespace internal {
+static constexpr double kNaN = std::numeric_limits<double>::quiet_NaN();
+}  // namespace internal
+}  // namespace autodiffxd
+}  // namespace drake
+
 namespace Eigen {
 
 #if !defined(DRAKE_DOXYGEN_CXX)
@@ -383,6 +391,7 @@ class AutoDiffScalar<VectorXd>
   }
 
  protected:
+  // Scalar m_value{drake::autodiffxd::internal::kNaN};
   Scalar m_value;
   DerType m_derivatives;
 };

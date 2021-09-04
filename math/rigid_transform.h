@@ -237,6 +237,7 @@ class RigidTransform {
       // the line below is executed only if pose is actually a 3x1 matrix.
       set_translation(pose.template block<3, 1>(0, 0));
     } else if (num_rows == 3 && num_cols == 4) {
+      // maybe-uninit is flowing through here.
       set_rotation(RotationMatrix<T>(pose.template block<3, 3>(0, 0)));
       set_translation(pose.template block<3, 1>(0, 3));
     } else if (num_rows == 4 && num_cols == 4) {

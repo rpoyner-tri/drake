@@ -274,6 +274,7 @@ GTEST_TEST(ProximityEngineTest, ComputeContactSurfacesAutodiffSupport) {
             X_WG_d.rotation().cast<AutoDiffXd>(), p_WGo);
         added_derivatives = true;
       } else {
+        // Definitely a source of maybe-uninit warnings.
         X_WGs_ad[id] = RigidTransform<AutoDiffXd>(X_WG_d.GetAsMatrix34());
       }
     }
@@ -310,6 +311,7 @@ GTEST_TEST(ProximityEngineTest, ComputeContactSurfacesAutodiffSupport) {
         PopulateEngine(&engine_d, sphere, false, !soft, sphere, false, !soft);
     const auto engine_ad = engine_d.ToAutoDiffXd();
     unordered_map<GeometryId, RigidTransform<AutoDiffXd>> X_WGs_ad;
+    // XXX Definitely a source of maybe-uninit warnings.
     for (const auto& [id, X_WG_d] : X_WGs_d) {
       X_WGs_ad[id] = RigidTransform<AutoDiffXd>(X_WG_d.GetAsMatrix34());
     }
