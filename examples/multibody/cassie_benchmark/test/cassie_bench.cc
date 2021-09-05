@@ -30,9 +30,11 @@ namespace {
 // TODO(sherm1) Remove this if AutoDiffXd heap usage can be made the same
 //   in Release and Debug builds (higher in Debug currently).
 // Use this to suppress heap limiting in Debug builds.
-drake::test::LimitMallocParams LimitReleaseOnly(int max_num_allocations) {
+drake::test::LimitMallocParams LimitReleaseOnly(
+    int max_num_allocations, int min_num_allocations = -1) {
   if (kDrakeAssertIsArmed) { return {}; }
-  return { .max_num_allocations = max_num_allocations };
+  return { .max_num_allocations = max_num_allocations,
+           .min_num_allocations = min_num_allocations };
 }
 
 // Track and report simple streaming statistics on allocations. Variance
@@ -210,7 +212,7 @@ BENCHMARK_F(CassieAutodiffFixture, AutodiffMassMatrix)
 
   for (int k = 0; k < 3; k++) {
     // @see LimitMalloc note above.
-    LimitMalloc guard(LimitReleaseOnly(31273));
+    LimitMalloc guard(LimitReleaseOnly(31273, 31273));
 
     compute();
 
