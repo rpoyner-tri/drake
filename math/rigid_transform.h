@@ -259,6 +259,10 @@ class RigidTransform {
     set_rotation(R);
     set_translation(p);
   }
+  void set(RotationMatrix<T>&& R, const Vector3<T>& p) {
+    set_rotation(std::move(R));
+    set_translation(p);
+  }
 
   /// Sets `this` %RigidTransform from an Eigen Isometry3.
   /// @param[in] pose Isometry3 that contains an allegedly valid rotation matrix
@@ -310,6 +314,7 @@ class RigidTransform {
   /// Sets the %RotationMatrix portion of `this` %RigidTransform.
   /// @param[in] R rotation matrix relating frames A and B (e.g., `R_AB`).
   void set_rotation(const RotationMatrix<T>& R) { R_AB_ = R; }
+  void set_rotation(RotationMatrix<T>&& R) { R_AB_ = std::move(R); }
 
   /// Sets the rotation part of `this` %RigidTransform from a RollPitchYaw.
   /// @param[in] rpy "roll-pitch-yaw" angles.
