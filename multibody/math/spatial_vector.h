@@ -230,9 +230,10 @@ class SpatialVector {
   /// @warning This operation might not be physical for certain spatial
   /// quantities. For instance, combining the spatial accelerations of two
   /// frames does not correspond to this operation.
-  friend SpatialQuantity operator+(const SpatialQuantity& V1,
+  friend SpatialQuantity operator+(SpatialQuantity V1,
                                    const SpatialQuantity& V2) {
-    return SpatialQuantity(V1) += V2;
+    V1 += V2;
+    return V1;
   }
 
   /// (Advanced) Subtraction operator. Implements the subtraction of V1 and V2
@@ -268,6 +269,12 @@ class SpatialVector {
   friend SpatialQuantity operator*(
       const math::RotationMatrix<T>& R_FE, const SpatialQuantity& V_E) {
     return SpatialQuantity(R_FE * V_E.rotational(), R_FE * V_E.translational());
+  }
+  friend SpatialQuantity operator*(
+      const math::RotationMatrix<T>& R_FE, SpatialQuantity&& V_E) {
+    V_E.rotational() = R_FE * V_E.rotational();
+    V_E.translational() = R_FE * V_E.translational();
+    return V_E;
   }
 
   /// Factory to create a _zero_ %SpatialVector, i.e. rotational and
