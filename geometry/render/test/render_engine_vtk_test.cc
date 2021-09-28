@@ -51,13 +51,6 @@ using systems::sensors::ImageRgba8U;
 using systems::sensors::ImageTraits;
 using systems::sensors::PixelType;
 
-// Apple clang 13 -O2 optimization causes spurious test failures.
-#if defined(__APPLE__) && defined(__clang__) && __clang_major__ == 13
-  #define MAYBE_NOOPT __attribute__((optnone))
-#else
-  #define MAYBE_NOOPT
-#endif
-
 // Default camera properties.
 const int kWidth = 640;
 const int kHeight = 480;
@@ -1039,21 +1032,15 @@ TEST_F(RenderEngineVtkTest, RemoveVisual) {
     return std::make_tuple(label, depth);
   };
 
-  // Sets the expected values prior to calling PerformCenterShapeTest().
-  auto set_expectations = [this](const RgbaColor& color, float depth,
-                                 RenderLabel label) MAYBE_NOOPT {
-    expected_color_ = color;
-    expected_label_ = label;
-    expected_object_depth_ = depth;
-  };
-
   // Add another sphere of a different color in front of the default sphere
   const RgbaColor color1(Color<int>{128, 128, 255}, 255);
   float depth1{};
   RenderLabel label1{};
   const GeometryId id1 = GeometryId::get_new_id();
   std::tie(label1, depth1) = add_sphere(color1, 0.75, id1);
-  set_expectations(color1, depth1, label1);
+  expected_color_ = color1;
+  expected_label_ = label1;
+  expected_object_depth_ = depth1;
   PerformCenterShapeTest(renderer_.get(), "First sphere added in remove test");
 
   // Add a _third_ sphere in front of the second.
@@ -1062,7 +1049,9 @@ TEST_F(RenderEngineVtkTest, RemoveVisual) {
   RenderLabel label2{};
   const GeometryId id2 = GeometryId::get_new_id();
   std::tie(label2, depth2) = add_sphere(color2, 1.0, id2);
-  set_expectations(color2, depth2, label2);
+  expected_color_ = color2;
+  expected_label_ = label2;
+  expected_object_depth_ = depth2;
   PerformCenterShapeTest(renderer_.get(), "Second sphere added in remove test");
 
   // Remove the first sphere added; should report "true" and the render test
@@ -1075,7 +1064,9 @@ TEST_F(RenderEngineVtkTest, RemoveVisual) {
   // return to its default configuration.
   removed = renderer_->RemoveGeometry(id2);
   EXPECT_TRUE(removed);
-  set_expectations(default_color, default_depth, default_label);
+  expected_color_ = default_color;
+  expected_label_ = default_label;
+  expected_object_depth_ = default_depth;
   PerformCenterShapeTest(renderer_.get(),
                          "Default image restored by removing extra geometries");
 }
