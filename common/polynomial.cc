@@ -276,7 +276,7 @@ Polynomial<T> Polynomial<T>::Substitute(
       Polynomial<T> m = source_monomial.coefficient;
       for (const Term& t : source_monomial.terms) {
         if (t.var == orig) {
-          m *= pow(replacement, t.power);
+          m *= drake::pow(replacement, t.power);
         } else {
           m *= Polynomial(1.0, {t});
         }
@@ -735,7 +735,7 @@ class FromExpressionVisitor {
           DRAKE_ASSERT(base.is_polynomial());
           DRAKE_ASSERT(is_constant(exponent));
           return polynomial *
-                 pow(Polynomial<T>::FromExpression(base),
+              drake::pow(Polynomial<T>::FromExpression(base),
                      static_cast<int>(get_constant_value(exponent)));
         });
   }
@@ -766,7 +766,8 @@ class FromExpressionVisitor {
     DRAKE_ASSERT(e.is_polynomial());
     const int exponent{
         static_cast<int>(get_constant_value(get_second_argument(e)))};
-    return pow(Polynomial<T>::FromExpression(get_first_argument(e)), exponent);
+    return drake::pow(
+        Polynomial<T>::FromExpression(get_first_argument(e)), exponent);
   }
 
   static Polynomial<T> VisitAbs(const Expression&) {
