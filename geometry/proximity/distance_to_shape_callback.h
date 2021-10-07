@@ -230,7 +230,7 @@ void ComputeNarrowPhaseDistance(const fcl::CollisionObjectd& a,
 
 template <typename T>
 struct ScalarSupport {
-  static bool is_supported(fcl::NODE_TYPE node1, fcl::NODE_TYPE node2) {
+  static bool is_supported(fcl::NODE_TYPE, fcl::NODE_TYPE) {
     return false;
   }
 };

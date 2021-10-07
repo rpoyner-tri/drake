@@ -285,7 +285,7 @@ void PiecewisePolynomial<T>::ConcatenateInTime(
     DRAKE_THROW_UNLESS(this->cols() == other.cols());
     const T time_offset = other.start_time() - this->end_time();
     // Absolute tolerance is scaled along with the time scale.
-    const T absolute_tolerance = max(abs(this->end_time()), 1.) *
+    const T absolute_tolerance = max(abs(this->end_time()), T(1.)) *
                                       std::numeric_limits<double>::epsilon();
     DRAKE_THROW_UNLESS(abs(time_offset) < absolute_tolerance);
     // Gets instance breaks.

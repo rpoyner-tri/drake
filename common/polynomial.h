@@ -486,7 +486,7 @@ Polynomial<T> pow(
   if (exponent == 0) {
     return Polynomial<T>{1.0};
   }
-  const Polynomial<T> pow_half{pow(base, exponent / 2)};
+  const Polynomial<T> pow_half{drake::pow(base, exponent / 2)};
   if (exponent % 2 == 1) {
     return base * pow_half * pow_half;  // Odd exponent case.
   } else {
