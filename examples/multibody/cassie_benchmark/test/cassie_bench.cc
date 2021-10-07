@@ -207,6 +207,13 @@ BENCHMARK_F(CassieAutodiffFixture, AutodiffMassMatrix)
 
   // The first iteration allocates more memory than subsequent runs.
   compute();
+  static bool printed = false;
+  if (!printed) {
+    printed = true;
+    std::cerr
+        << fmt::format("nv {} nx {}  M_autodiff(0,0).derivatives().size() {}\n",
+                       nv_, x_.size(), M_autodiff(0, 0).derivatives().size());
+  }
 
   for (int k = 0; k < 3; k++) {
     // @see LimitMalloc note above.
@@ -358,6 +365,70 @@ BENCHMARK_F(CassieExpressionFixture, ExpressionForwardDynamics)
     port_value.GetMutableData();  // Invalidates caching of inputs.
     plant_expression_->CalcTimeDerivatives(
         *context_expression_, derivatives.get());
+  }
+}
+
+// Fixture that holds a Cassie robot model in a MultibodyPlant<CppADd>. It
+// also holds a default context for CppADd.
+class CassieCppADdFixture : public CassieDoubleFixture {
+ public:
+  using CassieDoubleFixture::SetUp;
+  void SetUp(benchmark::State& state) override {
+    CassieDoubleFixture::SetUp(state);
+    plant_cppadd_ = systems::System<double>::ToScalarType<CppADd>(*plant_);
+    context_cppadd_ = plant_cppadd_->CreateDefaultContext();
+  }
+
+  // @see CassieDoubleFixture::InvalidateState(). This method invalidates the
+  // cppadd version of state.
+  void InvalidateState() override {
+    context_cppadd_->NoteContinuousStateChange();
+  }
+
+ protected:
+  std::unique_ptr<MultibodyPlant<CppADd>> plant_cppadd_;
+  std::unique_ptr<Context<CppADd>> context_cppadd_;
+};
+
+BENCHMARK_F(CassieCppADdFixture, CppADdMassMatrix)
+    // NOLINTNEXTLINE(runtime/references) cpplint disapproves of gbench choices.
+    (benchmark::State& state) {
+  // Declare the output matrix.
+  MatrixX<CppADd> M(nv_, nv_);
+
+  // Grab the inputs, mark them independent, then put them back in the
+  // context. This is clumsy in part because CppAD::Independent can't currently
+  // consume drake::BasicVector.
+  auto v = context_cppadd_->get_continuous_state_vector().CopyToVector();
+  ::CppAD::Independent(v);
+  context_cppadd_->SetContinuousState(v);
+
+  // Do calculations.
+  plant_cppadd_->CalcMassMatrix(*context_cppadd_, &M);
+
+  // Grab the input variables again.
+  auto v2 = context_cppadd_->get_continuous_state_vector().CopyToVector();
+
+  // Flatten the output variables for CppAD compatibility. Perhaps we could
+  // sugar this away eventually.
+  VectorX<CppADd> M2 = Eigen::Map<VectorX<CppADd>>(M.data(), M.size());
+
+  // Capture the tape into a function object.
+  ::CppAD::ADFun<double> f(v2, M2);
+  // Calling optimize means we lost all our Taylor coefficients, and hence need
+  // to do a Forward() evaluation again before calling Reverse().
+  f.optimize();
+
+  // Get a double-valued state vector to use for input.
+  VectorXd astate =
+      context_->get_continuous_state_vector().CopyToVector();
+
+  // This is the part we actually time.
+  for (auto _ : state) {
+    // Get the mass-matrix value result.
+    f.Forward(0, astate);
+    // Get the full Jacobian.
+    f.Jacobian(astate);  // correct. slow.
   }
 }
 
