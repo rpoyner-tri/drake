@@ -447,16 +447,19 @@ template <template <typename, int...> typename LinearSolverType,
           typename DerivedA>
 internal::EigenLinearSolver<LinearSolverType, DerivedA> GetLinearSolver(
     const Eigen::MatrixBase<DerivedA>& A) {
-  if constexpr (internal::is_double_or_symbolic_v<typename DerivedA::Scalar>) {
+  using ScalarA = typename DerivedA::Scalar;
+  if constexpr (internal::is_double_or_symbolic_v<ScalarA>) {
     const internal::EigenLinearSolver<LinearSolverType, DerivedA> linear_solver(
         A);
     return linear_solver;
-  } else {
+  } else if constexpr (internal::is_autodiff_v<ScalarA>) {
     const auto A_val = ExtractValue(A);
     const internal::EigenLinearSolver<LinearSolverType, DerivedA> linear_solver(
         A_val);
     return linear_solver;
   }
+  // CppADd?
+  DRAKE_UNREACHABLE();
 }
 //@}
 
@@ -683,7 +686,7 @@ class LinearSolver {
                   "Mixing symbolic and other types is not supported.");
 
     if constexpr (std::is_same_v<ScalarA, ScalarB> &&
-                  !internal::is_autodiff_v<ScalarA>) {
+                  internal::is_double_or_symbolic_v<ScalarA>) {
       return eigen_linear_solver_.solve(b);
       // NOLINTNEXTLINE(readability/braces)
     } else if constexpr (std::is_same_v<ScalarA, double> &&

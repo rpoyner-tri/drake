@@ -71,6 +71,15 @@ std::unique_ptr<JointActuator<AutoDiffXd>> JointActuator<T>::DoCloneToScalar(
 }
 
 template <typename T>
+std::unique_ptr<JointActuator<CppADd>> JointActuator<T>::DoCloneToScalar(
+    const internal::MultibodyTree<CppADd>&) const {
+  return std::unique_ptr<JointActuator<CppADd>>(
+      new JointActuator<CppADd>(name_, joint_index_, effort_limit_,
+                                default_rotor_inertia_,
+                                default_gear_ratio_));
+}
+
+template <typename T>
 std::unique_ptr<JointActuator<symbolic::Expression>>
 JointActuator<T>::DoCloneToScalar(
     const internal::MultibodyTree<symbolic::Expression>&) const {

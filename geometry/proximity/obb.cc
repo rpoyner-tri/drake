@@ -384,6 +384,9 @@ template class ObbMaker<VolumeMesh<double>>;
 template class ObbMaker<SurfaceMesh<drake::AutoDiffXd>>;
 template class ObbMaker<VolumeMesh<drake::AutoDiffXd>>;
 
+template class ObbMaker<SurfaceMesh<drake::CppADd>>;
+template class ObbMaker<VolumeMesh<drake::CppADd>>;
+
 }  // namespace internal
 }  // namespace geometry
 }  // namespace drake

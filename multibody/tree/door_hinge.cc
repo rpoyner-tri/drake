@@ -204,6 +204,12 @@ std::unique_ptr<ForceElement<AutoDiffXd>> DoorHinge<T>::DoCloneToScalar(
 }
 
 template <typename T>
+std::unique_ptr<ForceElement<CppADd>> DoorHinge<T>::DoCloneToScalar(
+    const MultibodyTree<CppADd>& tree_clone) const {
+  return TemplatedClone(tree_clone);
+}
+
+template <typename T>
 std::unique_ptr<ForceElement<Expression>> DoorHinge<T>::DoCloneToScalar(
     const MultibodyTree<Expression>& tree_clone) const {
   return TemplatedClone(tree_clone);

@@ -111,7 +111,7 @@ SceneGraph<T>::SceneGraph(const SceneGraph<U>& other)
   //  T = AutoDiffXd. For now, that's true. If we ever support
   //  symbolic::Expression, this U --> T conversion will have to be more
   //  generic.
-  model_ = *(other.model_.ToAutoDiffXd());
+  model_ = *(other.model_.template ToScalarType<T>());
 
   // We need to guarantee that the same source ids map to the same port indices.
   // We'll do this by processing the source ids in monotonically increasing
@@ -519,6 +519,7 @@ const GeometryState<T>& SceneGraph<T>::geometry_state(
 // Explicitly instantiates on the most common scalar types.
 template class SceneGraph<double>;
 template class SceneGraph<AutoDiffXd>;
+template class SceneGraph<CppADd>;
 
 }  // namespace geometry
 }  // namespace drake

@@ -635,6 +635,13 @@ class Mobilizer : public MultibodyElement<Mobilizer, T, MobilizerIndex> {
   virtual std::unique_ptr<Mobilizer<AutoDiffXd>> DoCloneToScalar(
       const MultibodyTree<AutoDiffXd>& tree_clone) const = 0;
 
+  // Clones this %Mobilizer (templated on T) to a mobilizer templated on
+  // CppADd.
+  // @pre Inboard and outboard frames for this mobilizer already have a clone
+  // in `tree_clone`.
+  virtual std::unique_ptr<Mobilizer<CppADd>> DoCloneToScalar(
+      const MultibodyTree<CppADd>& tree_clone) const = 0;
+
   virtual std::unique_ptr<Mobilizer<symbolic::Expression>> DoCloneToScalar(
       const MultibodyTree<symbolic::Expression>& tree_clone) const = 0;
   // @}

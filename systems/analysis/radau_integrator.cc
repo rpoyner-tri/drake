@@ -662,6 +662,8 @@ MatrixX<T> RadauIntegrator<T, num_stages>::CalcTensorProduct(
 // integrators, which have num_stages set 1 and 2, respectively.
 template class drake::systems::RadauIntegrator<double, 1>;
 template class drake::systems::RadauIntegrator<drake::AutoDiffXd, 1>;
+template class drake::systems::RadauIntegrator<drake::CppADd, 1>;
 
 template class drake::systems::RadauIntegrator<double, 2>;
 template class drake::systems::RadauIntegrator<drake::AutoDiffXd, 2>;
+template class drake::systems::RadauIntegrator<drake::CppADd, 2>;

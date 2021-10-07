@@ -103,6 +103,13 @@ const AbstractValue& PortSwitch<AutoDiffXd>::get_model_value() const {
 }
 
 template <>
+const AbstractValue& PortSwitch<CppADd>::get_model_value() const {
+  DRAKE_DEMAND(false);
+  static int dud = 0;
+  return reinterpret_cast<AbstractValue&>(dud);
+}
+
+template <>
 const AbstractValue& PortSwitch<symbolic::Expression>::get_model_value() const {
   DRAKE_DEMAND(model_value_symbolic_ != nullptr);
   return *model_value_symbolic_;

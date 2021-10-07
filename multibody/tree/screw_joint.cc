@@ -45,6 +45,12 @@ std::unique_ptr<Joint<AutoDiffXd>> ScrewJoint<T>::DoCloneToScalar(
 }
 
 template <typename T>
+std::unique_ptr<Joint<CppADd>> ScrewJoint<T>::DoCloneToScalar(
+    const internal::MultibodyTree<CppADd>& tree_clone) const {
+  return TemplatedDoCloneToScalar(tree_clone);
+}
+
+template <typename T>
 std::unique_ptr<Joint<symbolic::Expression>> ScrewJoint<T>::DoCloneToScalar(
     const internal::MultibodyTree<symbolic::Expression>& tree_clone) const {
   return TemplatedDoCloneToScalar(tree_clone);

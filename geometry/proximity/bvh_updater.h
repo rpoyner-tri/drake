@@ -81,6 +81,17 @@ class BvhUpdater {
     return vertices_dbl;
   }
 
+  // If the mesh type is CppADd-valued, return double-valued vertices.
+  static const std::vector<Vector3<double>> GetMeshVertices(
+      const std::vector<Vector3<CppADd>>& vertices) {
+    std::vector<Vector3<double>> vertices_dbl;
+    vertices_dbl.reserve(vertices.size());
+    for (const auto& v : vertices) {
+      vertices_dbl.emplace_back(convert_to_double(v));
+    }
+    return vertices_dbl;
+  }
+
   // Helper function to perform a bottom-up refit.
   void UpdateRecursive(typename Bvh<Aabb, MeshType>::NodeType* node,
                        const std::vector<Vector3<double>>& vertices) {

@@ -667,6 +667,17 @@ inline void VelocityImplicitEulerIntegrator<AutoDiffXd>::
                            "AutoDiff'd VelocityImplicitEulerIntegrator");
 }
 
+template <>
+inline void VelocityImplicitEulerIntegrator<CppADd>::
+    ComputeAutoDiffVelocityJacobian(const CppADd&, const CppADd&,
+                                    const VectorX<CppADd>&,
+                                    const VectorX<CppADd>&,
+                                    const VectorX<CppADd>&,
+                                    MatrixX<CppADd>*) {
+  throw std::runtime_error("AutoDiff'd Jacobian not supported for "
+                           "CppADd'd VelocityImplicitEulerIntegrator");
+}
+
 }  // namespace systems
 }  // namespace drake
 

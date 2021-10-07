@@ -1061,8 +1061,13 @@ double ProximityEngine<T>::distance_tolerance() const {
 template <typename T>
 std::unique_ptr<ProximityEngine<AutoDiffXd>> ProximityEngine<T>::ToAutoDiffXd()
     const {
-  return unique_ptr<ProximityEngine<AutoDiffXd>>(
-      new ProximityEngine<AutoDiffXd>(impl_->ToAutoDiff().release()));
+  if constexpr (std::is_same_v<T, CppADd>) {
+      DRAKE_DEMAND(false);
+      return {};
+  } else {
+    return unique_ptr<ProximityEngine<AutoDiffXd>>(
+        new ProximityEngine<AutoDiffXd>(impl_->ToAutoDiff().release()));
+  }
 }
 
 template <typename T>

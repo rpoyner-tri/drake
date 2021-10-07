@@ -130,6 +130,11 @@ class FeatherstoneMobilizer final : public MobilizerImpl<T, 2, 2> {
     return TemplatedDoCloneToScalar(tree_clone);
   }
 
+  std::unique_ptr<Mobilizer<CppADd>> DoCloneToScalar(
+      const MultibodyTree<CppADd>& tree_clone) const override {
+    return TemplatedDoCloneToScalar(tree_clone);
+  }
+
   std::unique_ptr<Mobilizer<symbolic::Expression>> DoCloneToScalar(
       const MultibodyTree<symbolic::Expression>& tree_clone) const override {
     return TemplatedDoCloneToScalar(tree_clone);

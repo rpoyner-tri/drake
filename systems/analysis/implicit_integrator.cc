@@ -27,6 +27,7 @@ void ImplicitIntegrator<T>::DoReset() {
   DoImplicitIntegratorReset();
 }
 
+
 template <class T>
 void ImplicitIntegrator<T>::ComputeAutoDiffJacobian(
     const System<T>& system, const T& t, const VectorX<T>& xt,
@@ -210,8 +211,13 @@ void ImplicitIntegrator<T>::ComputeCentralDiffJacobian(
 template <class T>
 void ImplicitIntegrator<T>::IterationMatrix::SetAndFactorIterationMatrix(
     const MatrixX<T>& iteration_matrix) {
-  LU_.compute(iteration_matrix);
-  matrix_factored_ = true;
+  if constexpr (std::is_same_v<T, CppADd>) {
+    unused(iteration_matrix);
+    DRAKE_DEMAND(false);
+  } else {
+    LU_.compute(iteration_matrix);
+    matrix_factored_ = true;
+  }
 }
 
 template <class T>

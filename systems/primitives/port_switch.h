@@ -125,6 +125,8 @@ const AbstractValue& PortSwitch<double>::get_model_value() const;
 template <>
 const AbstractValue& PortSwitch<AutoDiffXd>::get_model_value() const;
 template <>
+const AbstractValue& PortSwitch<CppADd>::get_model_value() const;
+template <>
 const AbstractValue& PortSwitch<symbolic::Expression>::get_model_value() const;
 
 }  // namespace systems

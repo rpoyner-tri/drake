@@ -71,6 +71,9 @@ class RevoluteSpring final : public ForceElement<T> {
   std::unique_ptr<ForceElement<AutoDiffXd>> DoCloneToScalar(
       const internal::MultibodyTree<AutoDiffXd>& tree_clone) const override;
 
+  std::unique_ptr<ForceElement<CppADd>> DoCloneToScalar(
+      const internal::MultibodyTree<CppADd>& tree_clone) const override;
+
   std::unique_ptr<ForceElement<symbolic::Expression>> DoCloneToScalar(
       const internal::MultibodyTree<symbolic::Expression>&) const override;
 

@@ -421,6 +421,13 @@ void SymbolicVectorSystem<double>::EvaluateWithContext(
     VectorBase<double>* out) const;
 
 template <>
+void SymbolicVectorSystem<CppADd>::EvaluateWithContext(
+    const Context<CppADd>& context,
+    const VectorX<symbolic::Expression>& expr,
+    const MatrixX<symbolic::Expression>& jacobian, bool needs_inputs,
+    VectorBase<CppADd>* out) const;
+
+template <>
 void SymbolicVectorSystem<AutoDiffXd>::EvaluateWithContext(
     const Context<AutoDiffXd>& context,
     const VectorX<symbolic::Expression>& expr,

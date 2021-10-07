@@ -94,6 +94,14 @@ Vector3<double> convert_to_double(
   return result;
 }
 
+inline Vector3<double> convert_to_double(const Vector3<CppADd>& vec) {
+  Vector3<double> result;
+  for (int r = 0; r < 3; ++r) {
+    result(r) = ExtractDoubleOrThrow(vec(r));
+  }
+  return result;
+}
+
 // Don't needlessly copy transforms that are already scalar-valued.
 inline const math::RigidTransformd& convert_to_double(
     const math::RigidTransformd& X_AB) {
@@ -103,6 +111,19 @@ inline const math::RigidTransformd& convert_to_double(
 template <class VectorType>
 math::RigidTransformd convert_to_double(
     const math::RigidTransform<Eigen::AutoDiffScalar<VectorType>>& X_AB) {
+  Matrix3<double> R_converted;
+  Vector3<double> p_converted;
+  for (int r = 0; r < 3; ++r) {
+    p_converted(r) = ExtractDoubleOrThrow(X_AB.translation()(r));
+    for (int c = 0; c < 3; ++c) {
+      R_converted(r, c) = ExtractDoubleOrThrow(X_AB.rotation().matrix()(r, c));
+    }
+  }
+  return math::RigidTransformd(math::RotationMatrixd(R_converted), p_converted);
+}
+
+inline math::RigidTransformd convert_to_double(
+    const math::RigidTransform<CppADd>& X_AB) {
   Matrix3<double> R_converted;
   Vector3<double> p_converted;
   for (int r = 0; r < 3; ++r) {

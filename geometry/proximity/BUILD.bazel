@@ -492,7 +492,10 @@ drake_cc_library(
 drake_cc_library(
     name = "mesh_traits",
     hdrs = ["mesh_traits.h"],
-    deps = ["//common:autodiff"],
+    deps = [
+        "//common:autodiff",
+        "//common:autodiff2",
+    ],
 )
 
 drake_cc_library(

@@ -106,6 +106,12 @@ std::unique_ptr<ForceElement<AutoDiffXd>> RevoluteSpring<T>::DoCloneToScalar(
 }
 
 template <typename T>
+std::unique_ptr<ForceElement<CppADd>> RevoluteSpring<T>::DoCloneToScalar(
+    const internal::MultibodyTree<CppADd>& tree_clone) const {
+  return TemplatedDoCloneToScalar(tree_clone);
+}
+
+template <typename T>
 std::unique_ptr<ForceElement<symbolic::Expression>>
 RevoluteSpring<T>::DoCloneToScalar(
     const internal::MultibodyTree<symbolic::Expression>& tree_clone) const {

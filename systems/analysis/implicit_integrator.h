@@ -534,6 +534,14 @@ inline void ImplicitIntegrator<AutoDiffXd>::
         throw std::runtime_error("AutoDiff'd Jacobian not supported from "
                                      "AutoDiff'd ImplicitIntegrator");
 }
+template <>
+inline void ImplicitIntegrator<CppADd>::
+    ComputeAutoDiffJacobian(const System<CppADd>&,
+      const CppADd&, const VectorX<CppADd>&,
+      const Context<CppADd>&, MatrixX<CppADd>*) {
+        throw std::runtime_error("AutoDiff'd Jacobian not supported from "
+                                     "CppADd'd ImplicitIntegrator");
+}
 
 // Factors a dense matrix (the iteration matrix). This
 // AutoDiff-specialized method is necessary because Eigen's LU factorization,

@@ -86,6 +86,15 @@ void UnrevisedLemkeSolver<AutoDiffXd>::DoSolve(
       "MathematicalProgram while templatized as an AutoDiff");
 }
 
+template <>
+void UnrevisedLemkeSolver<CppADd>::DoSolve(
+    const MathematicalProgram&, const Eigen::VectorXd&,
+    const SolverOptions&, MathematicalProgramResult*) const {
+  throw std::logic_error(
+      "UnrevisedLemkeSolver cannot yet be used in a "
+      "MathematicalProgram while templatized as an AutoDiff");
+}
+
 template <typename T>
 void UnrevisedLemkeSolver<T>::DoSolve(
     const MathematicalProgram& prog,

@@ -228,6 +228,14 @@ void SymbolicVectorSystem<double>::EvaluateWithContext(
 }
 
 template <>
+void SymbolicVectorSystem<CppADd>::EvaluateWithContext(
+    const Context<CppADd>&, const VectorX<Expression>&,
+    const MatrixX<symbolic::Expression>&,
+    bool, VectorBase<CppADd>*) const {
+  DRAKE_DEMAND(false);
+}
+
+template <>
 void SymbolicVectorSystem<AutoDiffXd>::EvaluateWithContext(
     const Context<AutoDiffXd>& context, const VectorX<Expression>& expr,
     const MatrixX<symbolic::Expression>& jacobian,
