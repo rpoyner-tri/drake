@@ -82,7 +82,7 @@ def _transform(line, definitions):
 
 
 # Looks like "set(VAR value)".
-_set_var = re.compile(r'^\s*set\s*\(\s*(.+)\s+(.+)\s*\)\s*$')
+_set_var = re.compile(r'^\s*set\s*\(\s*(.+)\s+(.+)\s*\)\s*$', re.IGNORECASE)
 
 
 # From a line of CMakeLists.txt, return a set(...) key-value pair, if found.
@@ -96,6 +96,7 @@ def _extract_definition(line, prior_definitions):
     except KeyError:
         return dict()
     if value.startswith('"'):
+        value = value.strip()
         assert value.endswith('"')
         value = value[1:-1]
     return {var: value}

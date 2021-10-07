@@ -1,0 +1,100 @@
+# -*- python -*-
+
+load(
+    "@drake//tools/workspace:cmake_configure_file.bzl",
+    "cmake_configure_file",
+)
+load(
+    "@drake//tools/install:install.bzl",
+    "install",
+)
+load(
+    "@drake//tools/workspace:generate_export_header.bzl",
+    "generate_export_header",
+)
+load(
+    "@drake//tools/workspace:generate_include_header.bzl",
+    "drake_generate_include_header",
+)
+
+licenses(["notice"])  # EPL-2.0
+
+package(
+    default_visibility = ["//visibility:public"],
+)
+
+cmake_configure_file(
+    name = "config",
+    src = "include/cppad/configure.hpp.in",
+    out = "include/cppad/configure.hpp",
+    cmakelists = [
+        "CMakeLists.txt",
+        "include/cppad/CMakeLists.txt",
+    ],
+    defines = [
+        "cppad_has_colpack=0",
+        "cppad_deprecated_01=0",
+
+        # At least one of these must be set.
+        "cppad_boostvector=0",
+        "cppad_cppadvector=0",
+        "cppad_stdvector=1",
+        "cppad_eigenvector=1",
+        "cppad_has_gettimeofday=0",
+        "cppad_tape_addr_type=unsigned int",
+        "cppad_tape_id_type=unsigned int",
+        "cppad_max_num_threads=48",  # This is stupid.
+        "cppad_has_mkstemp=1",
+        "cppad_has_tmpnam_s=0",
+        "ipopt_prefix=\"\"",
+    ],
+    visibility = ["//visibility:private"],
+)
+
+_HDRS = glob(
+    include = [
+        "include/**/*.hpp",
+    ],
+    exclude = [
+        "cppad_ipopt/**",
+        "example/**",
+        # "include/cppad/example/**",
+        "speed/**",
+        "test_more/**",
+    ],
+    allow_empty = False,
+)
+
+_DRAKE_RELEVANT_SRCS = glob(
+    include = [
+        "**/*.cpp",
+    ],
+    exclude = [
+        "cppad_ipopt/**",
+        "cppad_lib/code_gen_fun.cpp",
+        "example/**",
+        "introduction/**",
+        "speed/**",
+        "test_more/**",
+    ],
+    allow_empty = False,
+)
+
+cc_library(
+    name = "cppad",
+    srcs = _DRAKE_RELEVANT_SRCS,
+    hdrs = _HDRS + [
+        ":config",
+    ],
+    copts = ["-fvisibility=hidden"],
+    includes = ["include"],
+    linkstatic = 1,
+    deps = [
+        "@eigen",
+    ],
+)
+
+install(
+    name = "install",
+    docs = ["COPYING"],
+)

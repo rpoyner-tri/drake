@@ -22,6 +22,7 @@ class HeaderDependencyTest(unittest.TestCase):
         # entries here without consulting Drake's build system maintainers.
         #  https://github.com/RobotLocomotion/drake/issues/7451
         re_thirds = [
+            re.compile(r'^cppad/.*$'),
             re.compile(r'^(Eigen|unsupported/Eigen)/.*$'),
             re.compile(r'^(fmt|spdlog)/.*$'),
             re.compile(r'^lcm/.*$'),
