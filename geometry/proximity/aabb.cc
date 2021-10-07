@@ -69,8 +69,10 @@ Aabb AabbMaker<MeshType>::Compute() const {
 
 template class AabbMaker<TriangleSurfaceMesh<double>>;
 template class AabbMaker<TriangleSurfaceMesh<AutoDiffXd>>;
+template class AabbMaker<TriangleSurfaceMesh<CppADd>>;
 template class AabbMaker<VolumeMesh<double>>;
 template class AabbMaker<VolumeMesh<AutoDiffXd>>;
+template class AabbMaker<VolumeMesh<CppADd>>;
 
 }  // namespace internal
 }  // namespace geometry

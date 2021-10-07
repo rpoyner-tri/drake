@@ -191,6 +191,12 @@ std::unique_ptr<Mobilizer<AutoDiffXd>> ScrewMobilizer<T>::DoCloneToScalar(
 }
 
 template <typename T>
+std::unique_ptr<Mobilizer<CppADd>> ScrewMobilizer<T>::DoCloneToScalar(
+    const MultibodyTree<CppADd>& tree_clone) const {
+  return TemplatedDoCloneToScalar(tree_clone);
+}
+
+template <typename T>
 std::unique_ptr<Mobilizer<symbolic::Expression>>
 ScrewMobilizer<T>::DoCloneToScalar(
     const MultibodyTree<symbolic::Expression>& tree_clone) const {

@@ -1016,6 +1016,13 @@ std::unique_ptr<GeometryState<AutoDiffXd>> GeometryState<T>::ToAutoDiffXd()
       new GeometryState<AutoDiffXd>(*this));
 }
 
+template <>
+std::unique_ptr<GeometryState<AutoDiffXd>> GeometryState<CppADd>::ToAutoDiffXd()
+    const {
+  DRAKE_DEMAND(false);
+  return {};
+}
+
 template <typename T>
 unordered_set<GeometryId> GeometryState<T>::CollectIds(
     const GeometrySet& geometry_set, std::optional<Role> role) const {

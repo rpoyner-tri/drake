@@ -1,6 +1,7 @@
 #include "drake/common/random.h"
 
 #include "drake/common/autodiff.h"
+#include "drake/common/autodiff2.h"
 
 namespace drake {
 template <typename T>
@@ -37,5 +38,7 @@ template double CalcProbabilityDensity<double>(
     RandomDistribution, const Eigen::Ref<const VectorX<double>>&);
 template AutoDiffXd CalcProbabilityDensity<AutoDiffXd>(
     RandomDistribution, const Eigen::Ref<const VectorX<AutoDiffXd>>&);
+template CppADd CalcProbabilityDensity<CppADd>(
+    RandomDistribution, const Eigen::Ref<const VectorX<CppADd>>&);
 }  // namespace drake
 

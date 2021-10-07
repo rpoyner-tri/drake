@@ -47,6 +47,12 @@ std::unique_ptr<Frame<AutoDiffXd>> FixedOffsetFrame<T>::DoCloneToScalar(
 }
 
 template <typename T>
+std::unique_ptr<Frame<CppADd>> FixedOffsetFrame<T>::DoCloneToScalar(
+    const internal::MultibodyTree<CppADd>& tree_clone) const {
+  return TemplatedDoCloneToScalar(tree_clone);
+}
+
+template <typename T>
 std::unique_ptr<Frame<symbolic::Expression>>
 FixedOffsetFrame<T>::DoCloneToScalar(
     const internal::MultibodyTree<symbolic::Expression>& tree_clone) const {

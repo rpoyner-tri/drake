@@ -543,6 +543,12 @@ class GeometryState {
    the instance.  */
   std::unique_ptr<GeometryState<AutoDiffXd>> ToAutoDiffXd() const;
 
+  template <typename U>
+  std::unique_ptr<GeometryState<U>> ToScalarType() const {
+    if constexpr (std::is_same_v<U, AutoDiffXd>) { return ToAutoDiffXd(); }
+    DRAKE_UNREACHABLE();
+  }
+
   //@}
 
  private:
@@ -565,9 +571,14 @@ class GeometryState {
         frames_(source.frames_),
         geometries_(source.geometries_),
         frame_index_to_id_map_(source.frame_index_to_id_map_),
-        geometry_engine_(std::move(source.geometry_engine_->ToAutoDiffXd())),
         render_engines_(source.render_engines_),
         geometry_version_(source.geometry_version_) {
+    if constexpr (!std::is_same_v<T, CppADd>) {
+      geometry_engine_ = std::move(source.geometry_engine_->ToAutoDiffXd());
+    } else {
+      DRAKE_DEMAND(false);
+    }
+
     auto convert_pose_vector = [](const std::vector<math::RigidTransform<U>>& s,
                                   std::vector<math::RigidTransform<T>>* d) {
       std::vector<math::RigidTransform<T>>& dest = *d;

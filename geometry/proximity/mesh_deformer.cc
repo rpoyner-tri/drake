@@ -25,8 +25,10 @@ void MeshDeformer<MeshType>::SetAllPositions(
 
 template class MeshDeformer<VolumeMesh<double>>;
 template class MeshDeformer<VolumeMesh<AutoDiffXd>>;
+template class MeshDeformer<VolumeMesh<CppADd>>;
 template class MeshDeformer<TriangleSurfaceMesh<double>>;
 template class MeshDeformer<TriangleSurfaceMesh<AutoDiffXd>>;
+template class MeshDeformer<TriangleSurfaceMesh<CppADd>>;
 
 }  // namespace internal
 }  // namespace geometry

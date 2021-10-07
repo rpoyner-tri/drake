@@ -185,6 +185,14 @@ UniformGravityFieldElement<T>::DoCloneToScalar(
 }
 
 template <typename T>
+std::unique_ptr<ForceElement<CppADd>>
+UniformGravityFieldElement<T>::DoCloneToScalar(
+    const internal::MultibodyTree<CppADd>&) const {
+  return std::make_unique<UniformGravityFieldElement<CppADd>>(
+      gravity_vector());
+}
+
+template <typename T>
 std::unique_ptr<ForceElement<symbolic::Expression>>
 UniformGravityFieldElement<T>::DoCloneToScalar(
     const internal::MultibodyTree<symbolic::Expression>&) const {

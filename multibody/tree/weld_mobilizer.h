@@ -89,6 +89,9 @@ class WeldMobilizer final : public MobilizerImpl<T, 0, 0> {
   std::unique_ptr<Mobilizer<AutoDiffXd>> DoCloneToScalar(
       const MultibodyTree<AutoDiffXd>& tree_clone) const final;
 
+  std::unique_ptr<Mobilizer<CppADd>> DoCloneToScalar(
+      const MultibodyTree<CppADd>& tree_clone) const final;
+
   std::unique_ptr<Mobilizer<symbolic::Expression>> DoCloneToScalar(
       const MultibodyTree<symbolic::Expression>& tree_clone) const final;
 

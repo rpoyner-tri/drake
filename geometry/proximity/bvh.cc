@@ -149,6 +149,11 @@ template class Bvh<Obb, VolumeMesh<AutoDiffXd>>;
 template class Bvh<Aabb, TriangleSurfaceMesh<AutoDiffXd>>;
 template class Bvh<Aabb, VolumeMesh<AutoDiffXd>>;
 
+template class Bvh<Obb, SurfaceMesh<CppADd>>;
+template class Bvh<Obb, VolumeMesh<CppADd>>;
+template class Bvh<Aabb, SurfaceMesh<CppADd>>;
+template class Bvh<Aabb, VolumeMesh<CppADd>>;
+
 }  // namespace internal
 }  // namespace geometry
 }  // namespace drake

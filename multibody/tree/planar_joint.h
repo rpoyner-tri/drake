@@ -319,6 +319,9 @@ class PlanarJoint final : public Joint<T> {
   std::unique_ptr<Joint<AutoDiffXd>> DoCloneToScalar(
       const internal::MultibodyTree<AutoDiffXd>& tree_clone) const final;
 
+  std::unique_ptr<Joint<CppADd>> DoCloneToScalar(
+      const internal::MultibodyTree<CppADd>& tree_clone) const final;
+
   std::unique_ptr<Joint<symbolic::Expression>> DoCloneToScalar(
       const internal::MultibodyTree<symbolic::Expression>&) const final;
 

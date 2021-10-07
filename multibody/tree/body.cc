@@ -32,6 +32,12 @@ std::unique_ptr<Frame<AutoDiffXd>> BodyFrame<T>::DoCloneToScalar(
 }
 
 template <typename T>
+std::unique_ptr<Frame<CppADd>> BodyFrame<T>::DoCloneToScalar(
+    const internal::MultibodyTree<CppADd>& tree_clone) const {
+  return TemplatedDoCloneToScalar(tree_clone);
+}
+
+template <typename T>
 std::unique_ptr<Frame<symbolic::Expression>> BodyFrame<T>::DoCloneToScalar(
     const internal::MultibodyTree<symbolic::Expression>& tree_clone) const {
   return TemplatedDoCloneToScalar(tree_clone);

@@ -384,6 +384,13 @@ QuaternionFloatingMobilizer<T>::DoCloneToScalar(
 }
 
 template <typename T>
+std::unique_ptr<Mobilizer<CppADd>>
+QuaternionFloatingMobilizer<T>::DoCloneToScalar(
+    const MultibodyTree<CppADd>& tree_clone) const {
+  return TemplatedDoCloneToScalar(tree_clone);
+}
+
+template <typename T>
 std::unique_ptr<Mobilizer<symbolic::Expression>>
 QuaternionFloatingMobilizer<T>::DoCloneToScalar(
     const MultibodyTree<symbolic::Expression>& tree_clone) const {

@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "drake/common/autodiff.h"
+#include "drake/common/autodiff2.h"
 #include "drake/common/drake_assert.h"
 #include "drake/common/drake_copyable.h"
 #include "drake/common/symbolic.h"
@@ -145,11 +146,12 @@ class SystemScalarConverter {
     using Expression = symbolic::Expression;
     // From double to all other types.
     MaybeAddConstructor<subtype_preservation, S, AutoDiffXd, double>();
+    MaybeAddConstructor<subtype_preservation, S, CppADd, double>();
     MaybeAddConstructor<subtype_preservation, S, Expression, double>();
-    // From AutoDiffXd to all other types.
+    // From AutoDiffXd to some other types.
     MaybeAddConstructor<subtype_preservation, S, double, AutoDiffXd>();
     MaybeAddConstructor<subtype_preservation, S, Expression, AutoDiffXd>();
-    // From Expression to all other types.
+    // From Expression to some other types.
     MaybeAddConstructor<subtype_preservation, S, double, Expression>();
     MaybeAddConstructor<subtype_preservation, S, AutoDiffXd, Expression>();
   }

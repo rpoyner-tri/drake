@@ -246,6 +246,9 @@ class SpaceXYZMobilizer final : public MobilizerImpl<T, 3, 3> {
   std::unique_ptr<Mobilizer<AutoDiffXd>> DoCloneToScalar(
       const MultibodyTree<AutoDiffXd>& tree_clone) const override;
 
+  std::unique_ptr<Mobilizer<CppADd>> DoCloneToScalar(
+      const MultibodyTree<CppADd>& tree_clone) const override;
+
   std::unique_ptr<Mobilizer<symbolic::Expression>> DoCloneToScalar(
       const MultibodyTree<symbolic::Expression>& tree_clone) const override;
 

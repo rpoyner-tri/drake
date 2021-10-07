@@ -3,6 +3,7 @@
 #include <type_traits>
 
 #include "drake/common/autodiff.h"
+#include "drake/common/autodiff2.h"
 
 namespace drake {
 namespace geometry {
@@ -19,6 +20,9 @@ namespace geometry {
  |    double    |  AutoDiffXd  |  AutoDiffXd  |
  |  AutoDiffXd  |    double    |  AutoDiffXd  |
  |    double    |    double    |    double    |
+ |    CppADd    |    CppADd    |    CppADd    |
+ |    double    |    CppADd    |    CppADd    |
+ |    CppADd    |    double    |    CppADd    |
 
  This also includes the helper type:
 
@@ -30,10 +34,15 @@ namespace geometry {
 template <typename T, typename U>
 struct promoted_numerical {
   static_assert(
-      std::conjunction_v<std::disjunction<std::is_same<U, double>,
-                                          std::is_same<U, AutoDiffXd>>,
-                         std::disjunction<std::is_same<T, double>,
-                                          std::is_same<T, AutoDiffXd>>>,
+      std::disjunction_v<
+          std::conjunction<std::disjunction<std::is_same<U, double>,
+                                            std::is_same<U, AutoDiffXd>>,
+                           std::disjunction<std::is_same<T, double>,
+                                            std::is_same<T, AutoDiffXd>>>,
+          std::conjunction<std::disjunction<std::is_same<U, double>,
+                                            std::is_same<U, CppADd>>,
+                           std::disjunction<std::is_same<T, double>,
+                                            std::is_same<T, CppADd>>>>,
       "This utility is only compatible with 'double' and 'AutoDiffXd' scalar "
       "types");
   /* If U is double, then the return type is ultimately determined by T. If
