@@ -274,6 +274,7 @@ void TestScalarType() {
 GTEST_TEST(TestPiecewiseQuaternionSlerp, ScalarTypes) {
   TestScalarType<double>();
   TestScalarType<AutoDiffXd>();
+  TestScalarType<CppADd>();
   TestScalarType<symbolic::Expression>();
 }
 

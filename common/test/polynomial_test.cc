@@ -533,6 +533,7 @@ void TestScalarType() {
 
 GTEST_TEST(PolynomialTest, ScalarTypes) {
   TestScalarType<AutoDiffXd>();
+  TestScalarType<CppADd>();
   TestScalarType<symbolic::Expression>();
 
   // Checks that we can create an instance, Polynomial<T>(0). `Scalar(0)` (where
@@ -540,6 +541,7 @@ GTEST_TEST(PolynomialTest, ScalarTypes) {
   // to make sure that we can build these instances.
   const Polynomial<double> p_double(0);
   const Polynomial<AutoDiffXd> p_autodiffxd(0);
+  const Polynomial<CppADd> p_cppadd(0);
   const Polynomial<symbolic::Expression> p_symbolic(0);
 }
 

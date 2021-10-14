@@ -465,6 +465,7 @@ void TestScalarType() {
 GTEST_TEST(PiecewiseTrajectoryTest, ScalarTypes) {
   TestScalarType<double>();
   TestScalarType<AutoDiffXd>();
+  TestScalarType<CppADd>();
   TestScalarType<symbolic::Expression>();
 }
 
@@ -530,6 +531,43 @@ GTEST_TEST(PiecewiseTrajectoryTest, AutoDiffDerivativesTest) {
     MatrixX<double> derivative_value = ExtractGradient(trajectory.value(t_k));
     MatrixX<double> expected_derivative_value =
         DiscardGradient(derivative_trajectory->value(t(k)));
+    EXPECT_TRUE(CompareMatrices(derivative_value, expected_derivative_value,
+                                tolerance));
+  }
+}
+
+// Verifies that the derivatives obtained by evaluating a
+// `PiecewisePolynomial<CppADd>` and extracting the gradient of the result
+// match those obtained by taking the derivative of the whole trajectory and
+// evaluating it at the same point.
+GTEST_TEST(PiecewiseTrajectoryTest, CppADdDerivativesTest) {
+  VectorX<CppADd> breaks(3);
+  breaks << 0, .5, 1.;
+  MatrixX<CppADd> samples(2, 3);
+  samples << 1, 1, 2, 2, 0, 3;
+
+  const PiecewisePolynomial<CppADd> trajectory =
+      PiecewisePolynomial<CppADd>::CubicWithContinuousSecondDerivatives(
+          breaks, samples);
+  std::unique_ptr<Trajectory<CppADd>> derivative_trajectory =
+      trajectory.MakeDerivative();
+  const int num_times = 100;
+  VectorX<double> t = VectorX<double>::LinSpaced(
+      num_times, ExtractDoubleOrThrow(trajectory.start_time()),
+      ExtractDoubleOrThrow(trajectory.end_time()));
+  const double tolerance = 20 * std::numeric_limits<double>::epsilon();
+  for (int k = 0; k < num_times; ++k) {
+    VectorX<CppADd> t_k(1);
+    t_k << t(k);
+    ::CppAD::Independent(t_k);
+    auto traj_value = trajectory.value(t_k[0]);
+    VectorX<CppADd> traj_value_flat =
+        Eigen::Map<VectorX<CppADd>>(traj_value.data(), traj_value.size());
+    ::CppAD::ADFun<double> f(t_k, traj_value_flat);
+    Eigen::VectorXd tk(1);
+    tk << t(k);
+    MatrixX<double> derivative_value = f.Jacobian(tk);
+    auto expected_derivative_value = derivative_trajectory->value(t(k));
     EXPECT_TRUE(CompareMatrices(derivative_value, expected_derivative_value,
                                 tolerance));
   }

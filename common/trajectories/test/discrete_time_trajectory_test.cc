@@ -94,6 +94,7 @@ void ScalarTypeTest() {
 GTEST_TEST(DiscreteTimeTrajectoryTest, ScalarTypeTest) {
   ScalarTypeTest<double>();
   ScalarTypeTest<AutoDiffXd>();
+  ScalarTypeTest<CppADd>();
   ScalarTypeTest<symbolic::Expression>();
 }
 
