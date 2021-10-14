@@ -7,6 +7,7 @@
 #include <gtest/gtest.h>
 
 #include "drake/common/autodiff.h"
+#include "drake/common/autodiff2.h"
 #include "drake/common/proto/call_python.h"
 #include "drake/common/symbolic.h"
 #include "drake/common/test_utilities/eigen_matrix_compare.h"
@@ -60,7 +61,7 @@ BsplineTrajectory<T> MakeCircleTrajectory() {
 template <typename T>
 class BsplineTrajectoryTests : public ::testing::Test {};
 
-using DefaultScalars = ::testing::Types<double, AutoDiffXd, Expression>;
+using DefaultScalars = ::testing::Types<double, AutoDiffXd, CppADd, Expression>;
 TYPED_TEST_SUITE(BsplineTrajectoryTests, DefaultScalars);
 
 // Verifies that the constructors work as expected.
@@ -307,6 +308,37 @@ GTEST_TEST(BsplineTrajectoryDerivativeTests, AutoDiffTest) {
   for (int k = 0; k < num_times; ++k) {
     AutoDiffXd t_k = math::InitializeAutoDiff(Vector1d{t(k)})[0];
     MatrixX<double> derivative_value = ExtractGradient(trajectory.value(t_k));
+    MatrixX<double> expected_derivative_value =
+        derivative_trajectory->value(t(k));
+    EXPECT_TRUE(CompareMatrices(derivative_value, expected_derivative_value,
+                                kTolerance));
+  }
+}
+
+// Verifies that the derivatives obtained by evaluating a
+// `BsplineTrajectory<CppADd>` and extracting the gradient of the result
+// match those obtained by taking the derivative of the whole trajectory and
+// evaluating it at the same point.
+GTEST_TEST(BsplineTrajectoryDerivativeTests, CppADTest) {
+  BsplineTrajectory<CppADd> trajectory = MakeCircleTrajectory<CppADd>();
+  std::unique_ptr<Trajectory<double>> derivative_trajectory =
+      MakeCircleTrajectory<double>().MakeDerivative();
+  const int num_times = 100;
+  VectorX<double> t = VectorX<double>::LinSpaced(
+      num_times, ExtractDoubleOrThrow(trajectory.start_time()),
+      ExtractDoubleOrThrow(trajectory.end_time()));
+  const double kTolerance = 20 * std::numeric_limits<double>::epsilon();
+  for (int k = 0; k < num_times; ++k) {
+    VectorX<CppADd> t_k(1);
+    t_k << t(k);
+    ::CppAD::Independent(t_k);
+    auto traj_value = trajectory.value(t_k[0]);
+    VectorX<CppADd> traj_value_flat =
+        Eigen::Map<VectorX<CppADd>>(traj_value.data(), traj_value.size());
+    ::CppAD::ADFun<double> f(t_k, traj_value_flat);
+    Eigen::VectorXd tk(1);
+    tk << t(k);
+    MatrixX<double> derivative_value = f.Jacobian(tk);
     MatrixX<double> expected_derivative_value =
         derivative_trajectory->value(t(k));
     EXPECT_TRUE(CompareMatrices(derivative_value, expected_derivative_value,

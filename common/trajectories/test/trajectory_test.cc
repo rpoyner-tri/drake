@@ -74,6 +74,7 @@ void TestScalarType() {
 
 GTEST_TEST(PiecewiseTrajectoryTest, ScalarTypes) {
   TestScalarType<AutoDiffXd>();
+  TestScalarType<CppADd>();
   TestScalarType<symbolic::Expression>();
 }
 

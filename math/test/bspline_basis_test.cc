@@ -19,7 +19,7 @@ using yaml::YamlReadArchive;
 template <typename T>
 class BsplineBasisTests : public ::testing::Test {};
 
-using DefaultScalars = ::testing::Types<double, AutoDiffXd, Expression>;
+using DefaultScalars = ::testing::Types<double, AutoDiffXd, CppADd, Expression>;
 TYPED_TEST_SUITE(BsplineBasisTests, DefaultScalars);
 
 // Verifies that the constructors work as expected.

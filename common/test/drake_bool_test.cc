@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 
 #include "drake/common/autodiff.h"
+#include "drake/common/autodiff2.h"
 #include "drake/common/symbolic.h"
 #include "drake/common/test_utilities/symbolic_test_util.h"
 
@@ -170,6 +171,52 @@ TEST_F(BoolTestAutoDiffXd, NoneOf) {
   // Vacuously true.
   EXPECT_TRUE(
       none_of(zero_m_, [](const AutoDiffXd& v) { return v >= 1.0; }));
+}
+
+// -------------------
+// Case T = CppADd
+// -------------------
+class BoolTestCppADd : public ::testing::Test {
+ protected:
+  void SetUp() override {
+    m_(0, 0) = CppADd{1.};
+    m_(0, 1) = CppADd{0.};
+    m_(1, 0) = CppADd{0.};
+    m_(1, 1) = CppADd{1.};
+  }
+
+  MatrixX<CppADd> m_{2, 2};
+  MatrixX<CppADd> zero_m_{0, 0};
+};
+
+TEST_F(BoolTestCppADd, TypeCheck) {
+  static_assert(std::is_same_v<boolean<CppADd>, bool>,
+                "boolean<CppADd> should be bool");
+  static_assert(std::is_same_v<scalar_predicate<CppADd>::type, bool>,
+                "scalar_predicate<CppADd>::type should be bool");
+  static_assert(scalar_predicate<CppADd>::is_bool,
+                "scalar_predicate<CppADd>::is_bool should be true");
+}
+
+TEST_F(BoolTestCppADd, AllOf) {
+  EXPECT_FALSE(
+      all_of(m_, [](const CppADd& v) { return v >= 1.0; }));
+
+  // Vacuously true.
+  EXPECT_TRUE(
+      all_of(zero_m_, [](const CppADd& v) { return v >= 1.0; }));
+}
+
+TEST_F(BoolTestCppADd, AnyOf) {
+  // Vacuously false.
+  EXPECT_FALSE(
+      any_of(zero_m_, [](const CppADd& v) { return v >= 1.0; }));
+}
+
+TEST_F(BoolTestCppADd, NoneOf) {
+  // Vacuously true.
+  EXPECT_TRUE(
+      none_of(zero_m_, [](const CppADd& v) { return v >= 1.0; }));
 }
 
 // -----------------------------

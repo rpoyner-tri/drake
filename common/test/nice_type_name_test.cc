@@ -9,6 +9,7 @@
 #include <gtest/gtest.h>
 
 #include "drake/common/autodiff.h"
+#include "drake/common/autodiff2.h"
 #include "drake/common/nice_type_name_override.h"
 
 using std::string;
@@ -130,6 +131,8 @@ GTEST_TEST(NiceTypeNameTest, Eigen) {
   EXPECT_EQ(NiceTypeName::Get<Eigen::VectorXd>(), "Eigen::VectorXd");
 
   EXPECT_EQ(NiceTypeName::Get<AutoDiffXd>(), "drake::AutoDiffXd");
+
+  EXPECT_EQ(NiceTypeName::Get<CppADd>(), "CppAD::AD<double>");
 
   using PairType = std::pair<Eigen::Vector2i, Eigen::Vector3d>;
   EXPECT_EQ(NiceTypeName::Get<PairType>(),

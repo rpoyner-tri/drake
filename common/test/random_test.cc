@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 
 #include "drake/common/autodiff.h"
+#include "drake/common/autodiff2.h"
 
 namespace drake {
 namespace {
@@ -56,6 +57,7 @@ void CheckCalcProbabilityDensityUniform() {
 GTEST_TEST(RandomTest, CalcProbabilityDensityUniform) {
   CheckCalcProbabilityDensityUniform<double>();
   CheckCalcProbabilityDensityUniform<AutoDiffXd>();
+  CheckCalcProbabilityDensityUniform<CppADd>();
 }
 
 template <typename T>
@@ -80,6 +82,7 @@ void CheckCalcProbabilityDensityGaussian() {
 GTEST_TEST(RandomTest, CalcProbabilityDensityGaussian) {
   CheckCalcProbabilityDensityGaussian<double>();
   CheckCalcProbabilityDensityGaussian<AutoDiffXd>();
+  CheckCalcProbabilityDensityGaussian<CppADd>();
 }
 
 template <typename T>
@@ -110,6 +113,7 @@ void CheckCalcProbabilityDensityExponential() {
 GTEST_TEST(RandomTest, CalcProbabilityDensityExponential) {
   CheckCalcProbabilityDensityExponential<double>();
   CheckCalcProbabilityDensityExponential<AutoDiffXd>();
+  CheckCalcProbabilityDensityExponential<CppADd>();
 }
 
 }  // namespace

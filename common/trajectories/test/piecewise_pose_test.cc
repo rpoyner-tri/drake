@@ -282,6 +282,7 @@ void TestScalarType() {
 GTEST_TEST(PiecewisePoseScalarTest, ScalarTypes) {
   TestScalarType<double>();
   TestScalarType<AutoDiffXd>();
+  TestScalarType<CppADd>();
   TestScalarType<symbolic::Expression>();
 }
 

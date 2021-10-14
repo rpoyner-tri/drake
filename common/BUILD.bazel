@@ -1097,6 +1097,7 @@ drake_cc_googletest(
     name = "nice_type_name_test",
     deps = [
         ":autodiff",
+        ":autodiff2",
         ":essential",
         ":nice_type_name",
     ],
