@@ -85,6 +85,10 @@ typedef ::testing::Types<
     SpatialForce<AutoDiffXd>,
     SpatialAcceleration<AutoDiffXd>,
     SpatialMomentum<AutoDiffXd>,
+    SpatialVelocity<CppADd>,
+    SpatialForce<CppADd>,
+    SpatialAcceleration<CppADd>,
+    SpatialMomentum<CppADd>,
     SpatialVelocity<Expression>,
     SpatialForce<Expression>,
     SpatialAcceleration<Expression>,
@@ -395,7 +399,7 @@ TYPED_TEST(SpatialQuantityTest, ReExpressInAnotherFrame) {
 }
 
 // Create a list of scalar types for the unit tests that follow below.
-typedef ::testing::Types<double, AutoDiffXd, Expression> ScalarTypes;
+typedef ::testing::Types<double, AutoDiffXd, CppADd, Expression> ScalarTypes;
 
 // SpatialVelocity specific unit tests.
 template <typename T>
@@ -556,6 +560,8 @@ typedef ::testing::Types<
     SpatialMomentum<double>,
     SpatialForce<AutoDiffXd>,
     SpatialMomentum<AutoDiffXd>,
+    SpatialForce<CppADd>,
+    SpatialMomentum<CppADd>,
     SpatialForce<Expression>,
     SpatialMomentum<Expression>> ElementsInF6Types;
 TYPED_TEST_SUITE(ElementsInF6Test, ElementsInF6Types);
