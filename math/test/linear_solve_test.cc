@@ -135,19 +135,28 @@ class LinearSolveTest : public ::testing::Test {
       }
     }
 
-// clang warns on C++2a extension here.
-#ifdef __clang__
-#pragma GCC diagnostic ignored "-Wc++2a-extensions"
-#endif
-    auto Independent = []<typename T>(T& m) {
-      VectorX<CppADd> mflat = Eigen::Map<VectorX<CppADd>>(m.data(), m.size());
-      ::CppAD::Independent(mflat);
-      m = Eigen::Map<std::remove_reference<decltype(m)>>(
-          mflat.data(), m.rows(), m.cols());
-    };  // NOLINT(readability/braces)
-    Independent(A_cp_);
+// // clang warns on C++2a extension here.
+// #ifdef __clang__
+// #pragma GCC diagnostic ignored "-Wc++2a-extensions"
+// #endif
+//     auto Independent = []<typename T>(T& m) {
+//       VectorX<CppADd> mflat =
+//           Eigen::Map<VectorX<CppADd>>(m.data(), m.size());
+//       ::CppAD::Independent(mflat);
+//       m = Eigen::Map<std::remove_reference<decltype(m)>>(
+//           mflat.data(), m.rows(), m.cols());
+//     };  // NOLINT(readability/braces)
+    VectorX<CppADd> A_cp_flat =
+        Eigen::Map<VectorX<CppADd>>(A_cp_.data(), A_cp_.size());
+    ::CppAD::Independent(A_cp_flat);
+    A_cp_ = Eigen::Map<decltype(A_cp_)>(
+        A_cp_flat.data(), A_cp_.rows(), A_cp_.cols());
     ::CppAD::Independent(b_vec_cp_);
-    Independent(b_mat_cp_);
+    VectorX<CppADd> b_mat_cp_flat =
+        Eigen::Map<VectorX<CppADd>>(b_mat_cp_.data(), b_mat_cp_.size());
+    ::CppAD::Independent(b_mat_cp_flat);
+    b_mat_cp_ = Eigen::Map<decltype(b_mat_cp_)>(
+        b_mat_cp_flat.data(), b_mat_cp_.rows(), b_mat_cp_.cols());
 
 
     A_sym_ << symbolic::Expression(1), symbolic::Expression(3),
