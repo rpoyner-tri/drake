@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 #include "drake/common/autodiff.h"
+#include "drake/common/autodiff2.h"
 #include "drake/common/symbolic.h"
 
 namespace drake {
@@ -48,6 +49,30 @@ GTEST_TEST(SaturateTest, AutoDiffXdTest) {
   // implicitly converts to AutoDiffXd.
   EXPECT_EQ(
       saturate(AutoDiffXd{1.0, Vector1d(10.2)}, lowerbound - 1, upperbound + 1),
+      lowerbound - 1);
+}
+
+// Tests that saturate works with CppADd types.
+GTEST_TEST(SaturateTest, CppADdTest) {
+  const CppADd lowerbound{5.0};
+  const CppADd upperbound{10.0};
+  const CppADd withinBoundsValue{7.5};
+
+  EXPECT_EQ(
+      saturate(CppADd{1.0}, lowerbound, upperbound),
+      lowerbound);
+  EXPECT_EQ(
+      saturate(withinBoundsValue, lowerbound, upperbound),
+      withinBoundsValue);
+  EXPECT_EQ(
+      saturate(CppADd{100.3}, lowerbound, upperbound),
+      upperbound);
+
+  // Tests a mixed-type scenario. Adding or subtracting 1 from an CppADd
+  // does not result in an CppADd, but rather some intermediate type that
+  // implicitly converts to CppADd.
+  EXPECT_EQ(
+      saturate(CppADd{1.0}, lowerbound - 1, upperbound + 1),
       lowerbound - 1);
 }
 

@@ -480,11 +480,21 @@ GTEST_TEST(RollPitchYaw, StreamInsertionOperator) {
   std::string rpy_expected_string = "rpy = 0.2 0.3 0.4";
   EXPECT_EQ(rpy_expected_string, streamA.str());
 
-  // Test stream insertion for RollPitchYaw<AutoDiffXd>.
-  const RollPitchYaw<AutoDiffXd> rpy_autodiff(0.5, 0.6, 0.7);
-  std::stringstream streamB;  streamB << rpy_autodiff;
-  rpy_expected_string = "rpy = 0.5 0.6 0.7";
-  EXPECT_EQ(rpy_expected_string, streamB.str());
+  {
+    // Test stream insertion for RollPitchYaw<AutoDiffXd>.
+    const RollPitchYaw<AutoDiffXd> rpy_autodiff(0.5, 0.6, 0.7);
+    std::stringstream streamB;  streamB << rpy_autodiff;
+    rpy_expected_string = "rpy = 0.5 0.6 0.7";
+    EXPECT_EQ(rpy_expected_string, streamB.str());
+  }
+
+  {
+    // Test stream insertion for RollPitchYaw<CppADd>.
+    const RollPitchYaw<CppADd> rpy_autodiff(0.5, 0.6, 0.7);
+    std::stringstream streamB;  streamB << rpy_autodiff;
+    rpy_expected_string = "rpy = 0.5 0.6 0.7";
+    EXPECT_EQ(rpy_expected_string, streamB.str());
+  }
 
   // Test stream insertion for RollPitchYaw<symbolic::Expression>.
   const symbolic::Variable r("roll"), p("pitch"), y("yaw");

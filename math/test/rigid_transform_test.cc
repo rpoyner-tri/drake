@@ -529,6 +529,29 @@ GTEST_TEST(RigidTransform, CastFromDoubleToAutoDiffXd) {
   }
 }
 
+// Test RigidTransform cast method from double to CppADd.
+GTEST_TEST(RigidTransform, CastFromDoubleToCppADd) {
+  const RollPitchYaw<double> rpy(0.4, 0.3, 0.2);
+  const RotationMatrix<double> R_double(rpy);
+  const Vector3d p_double(-5, 3, 9);
+  const RigidTransform<double> T_double(R_double, p_double);
+  const RigidTransform<CppADd> T_autodiff = T_double.cast<CppADd>();
+
+  // To avoid a (perhaps) tautological test, check element-by-element equality.
+  const Matrix4<double>& m_double = T_double.GetAsMatrix4();
+  const Matrix4<CppADd>& m_autodiff = T_autodiff.GetAsMatrix4();
+  for (int i = 0;  i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      const double mij_double = m_double(i, j);
+      const CppADd& mij_autodiff = m_autodiff(i, j);
+      EXPECT_EQ(mij_autodiff, mij_double);
+      // There is not really an equivalent way to test derivatives in CppAD;
+      // they are not state in the variables, but rather produced by recording
+      // a computation, and querying a function object built from the recording.
+    }
+  }
+}
+
 // Verify RigidTransform is compatible with symbolic::Expression. This includes,
 // construction and methods involving Bool specialized for symbolic::Expression,
 // namely: IsExactlyIdentity(), IsIdentityToEpsilon(), IsNearlyEqualTo().
@@ -827,15 +850,30 @@ GTEST_TEST(RigidTransform, StreamInsertionOperator) {
   VerifyStreamInsertionOperator(RigidTransform<double>(rpy_double, xyz_double),
                                 rpy_double.vector(), xyz_expected_string);
 
-  // Test stream insertion for RigidTransform<AutoDiffXd>.
-  // Verify streamB.str() is similar to "rpy = -0.33 0.17 0.9 xyz = 7 6 5";
-  const RollPitchYaw<AutoDiffXd> rpy_autodiff(-0.33, 0.17, 0.9);
-  const Vector3<AutoDiffXd> xyz_autodiff(-17, 987, 6.5432);
-  xyz_expected_string = "xyz = -17.* 987.* 6.5432.*";
-  const Vector3<double> rpy_values = ExtractValue(rpy_autodiff.vector());
-  VerifyStreamInsertionOperator(
-      RigidTransform<AutoDiffXd>(rpy_autodiff, xyz_autodiff), rpy_values,
-      xyz_expected_string);
+  {
+    // Test stream insertion for RigidTransform<AutoDiffXd>.
+    // Verify streamB.str() is similar to "rpy = -0.33 0.17 0.9 xyz = 7 6 5";
+    const RollPitchYaw<AutoDiffXd> rpy_autodiff(-0.33, 0.17, 0.9);
+    const Vector3<AutoDiffXd> xyz_autodiff(-17, 987, 6.5432);
+    xyz_expected_string = "xyz = -17.* 987.* 6.5432.*";
+    const Vector3<double> rpy_values = ExtractValue(rpy_autodiff.vector());
+    VerifyStreamInsertionOperator(
+        RigidTransform<AutoDiffXd>(rpy_autodiff, xyz_autodiff), rpy_values,
+        xyz_expected_string);
+  }
+
+  {
+    // Test stream insertion for RigidTransform<CppADd>.
+    // Verify streamB.str() is similar to "rpy = -0.33 0.17 0.9 xyz = 7 6 5";
+    const RollPitchYaw<CppADd> rpy_autodiff(-0.33, 0.17, 0.9);
+    const Vector3<CppADd> xyz_autodiff(-17, 987, 6.5432);
+    xyz_expected_string = "xyz = -17.* 987.* 6.5432.*";
+    const Vector3<double> rpy_values =
+        ExtractDoubleOrThrow(rpy_autodiff.vector());
+    VerifyStreamInsertionOperator(
+        RigidTransform<CppADd>(rpy_autodiff, xyz_autodiff), rpy_values,
+        xyz_expected_string);
+  }
 
   // Test stream insertion for RigidTransform<symbolic::Expression>.
   // Note: A numerical process calculates RollPitchYaw from a RotationMatrix.

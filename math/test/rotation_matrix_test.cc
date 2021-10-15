@@ -678,6 +678,27 @@ GTEST_TEST(RotationMatrix, CastFromDoubleToAutoDiffXd) {
   }
 }
 
+// Test RotationMatrix cast method from double to CppADd.
+GTEST_TEST(RotationMatrix, CastFromDoubleToCppADd) {
+  const RollPitchYaw<double> rpy(0.2, 0.3, 0.4);
+  const RotationMatrix<double> R_double(rpy);
+  const RotationMatrix<CppADd> R_autodiff = R_double.cast<CppADd>();
+
+  // To avoid a (perhaps) tautological test, do not just use an Eigen cast() to
+  // the Matrix3 that underlies the RotationMatrix class -- i.e., avoid just
+  // comparing m_autodiff.cast<double>() with m_double.
+  // Instead, check element-by-element equality as follows.
+  const Matrix3<double>& m_double = R_double.matrix();
+  const Matrix3<CppADd>& m_autodiff = R_autodiff.matrix();
+  for (int i = 0;  i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      const double mij_double = m_double(i, j);
+      const CppADd& mij_autodiff = m_autodiff(i, j);
+      EXPECT_EQ(mij_autodiff, mij_double);
+    }
+  }
+}
+
 // Verify RotationMatrix constructor is compatible with symbolic::Expression,
 // including the ThrowIfNotValid() check.
 GTEST_TEST(RotationMatrix, SymbolicConstructionTest) {
