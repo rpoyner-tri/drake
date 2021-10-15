@@ -30,6 +30,19 @@ struct is_autodiff<drake::AutoDiffd<N>> : std::true_type {};
 
 template <typename T>
 inline constexpr bool is_autodiff_v = is_autodiff<T>::value;
+
+template <typename T>
+using is_autodiff2 = std::is_same<T, CppADd>;
+
+template <typename T>
+inline constexpr bool is_autodiff2_v = is_autodiff2<T>::value;
+
+template <typename T>
+using is_autodiffy = std::disjunction<is_autodiff<T>, is_autodiff2<T>>;
+
+template <typename T>
+inline constexpr bool is_autodiffy_v = is_autodiffy<T>::value;
+
 }  // namespace internal
 
 /**
@@ -154,7 +167,7 @@ typename std::enable_if<
 template <typename LinearSolver, typename DerivedB>
 typename std::enable_if<
     std::is_same_v<typename LinearSolver::MatrixType::Scalar, double> &&
-        internal::is_autodiff_v<typename DerivedB::Scalar>,
+        internal::is_autodiffy_v<typename DerivedB::Scalar>,
     Eigen::Matrix<typename DerivedB::Scalar, DerivedB::RowsAtCompileTime,
                   DerivedB::ColsAtCompileTime>>::type
 SolveLinearSystem(const LinearSolver& linear_solver,
@@ -195,7 +208,7 @@ SolveLinearSystem(const LinearSolver& linear_solver,
 template <typename LinearSolver, typename DerivedA, typename DerivedB>
 typename std::enable_if<
     std::is_same_v<typename DerivedA::Scalar, double> &&
-        internal::is_autodiff_v<typename DerivedB::Scalar>,
+        internal::is_autodiffy_v<typename DerivedB::Scalar>,
     Eigen::Matrix<typename DerivedB::Scalar, DerivedA::RowsAtCompileTime,
                   DerivedB::ColsAtCompileTime>>::type
 SolveLinearSystem(const LinearSolver& linear_solver,
@@ -210,7 +223,7 @@ DRAKE_DEPRECATED("2022-01-01",
                  "Please use SolveLinearSystem() instead of LinearSolve()")
 typename std::enable_if<
     std::is_same_v<typename DerivedA::Scalar, double> &&
-        internal::is_autodiff_v<typename DerivedB::Scalar>,
+        internal::is_autodiffy_v<typename DerivedB::Scalar>,
     Eigen::Matrix<typename DerivedB::Scalar, DerivedA::RowsAtCompileTime,
                   DerivedB::ColsAtCompileTime>>::type
     LinearSolve(const LinearSolver& linear_solver,
@@ -330,11 +343,28 @@ SolveLinearSystem(const LinearSolver& linear_solver,
   return x_ad;
 }
 
+/**
+ * Specialized when A is an CppADd-valued matrix, and b can contain
+ * either CppADd or double. See @ref linear_solve_given_solver for more
+ * details.
+ */
+template <typename LinearSolver, typename DerivedA, typename DerivedB>
+typename std::enable_if<
+    internal::is_autodiff2_v<typename DerivedA::Scalar>,
+    Eigen::Matrix<typename DerivedA::Scalar, DerivedA::RowsAtCompileTime,
+                  DerivedB::ColsAtCompileTime>>::type
+SolveLinearSystem(const LinearSolver& linear_solver,
+                  const Eigen::MatrixBase<DerivedA>& A,
+                  const Eigen::MatrixBase<DerivedB>& b) {
+  unused(A);
+  return linear_solver.solve(b);
+}
+
 template <typename LinearSolver, typename DerivedA, typename DerivedB>
 DRAKE_DEPRECATED("2022-01-01",
                  "Please use SolveLinearSystem() instead of LinearSolve()")
 typename std::enable_if<
-    internal::is_autodiff_v<typename DerivedA::Scalar>,
+    internal::is_autodiffy_v<typename DerivedA::Scalar>,
     Eigen::Matrix<typename DerivedA::Scalar, DerivedA::RowsAtCompileTime,
                   DerivedB::ColsAtCompileTime>>::type
     LinearSolve(const LinearSolver& linear_solver,
@@ -458,9 +488,13 @@ internal::EigenLinearSolver<LinearSolverType, DerivedA> GetLinearSolver(
     const internal::EigenLinearSolver<LinearSolverType, DerivedA> linear_solver(
         A_val);
     return linear_solver;
+  } else {
+    // CppADd?
+    const auto A_val = ExtractDoubleOrThrow(A);
+    const internal::EigenLinearSolver<LinearSolverType, DerivedA> linear_solver(
+        A_val);
+    return linear_solver;
   }
-  // CppADd?
-  DRAKE_UNREACHABLE();
 }
 //@}
 
@@ -590,7 +624,7 @@ template <template <typename, int...> typename LinearSolverType,
 DRAKE_DEPRECATED("2022-01-01",
                  "Please use SolveLinearSystem() instead of LinearSolve()")
 typename std::enable_if<
-    internal::is_autodiff_v<typename DerivedA::Scalar>,
+    internal::is_autodiffy_v<typename DerivedA::Scalar>,
     Eigen::Matrix<typename DerivedA::Scalar, DerivedA::RowsAtCompileTime,
                   DerivedB::ColsAtCompileTime>>::type
     LinearSolve(const Eigen::MatrixBase<DerivedA>& A,
