@@ -2,6 +2,7 @@
 
 #include <optional>
 
+#include "drake/common/autodiff2.h"
 #include "drake/common/drake_deprecated.h"
 #include "drake/common/symbolic.h"
 #include "drake/math/autodiff.h"

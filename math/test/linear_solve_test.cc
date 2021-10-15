@@ -124,6 +124,8 @@ class LinearSolveTest : public ::testing::Test {
       }
     }
 
+    b_mat_cp_ = b_mat_val_.cast<CppADd>();
+
     A_sym_ << symbolic::Expression(1), symbolic::Expression(3),
         symbolic::Expression(3), symbolic::Expression(10);
     const symbolic::Variable sym_u("u");
@@ -152,6 +154,9 @@ class LinearSolveTest : public ::testing::Test {
   Eigen::Matrix<AutoDiffXd, 2, 2> A_ad_;
   Eigen::Matrix<AutoDiffXd, 2, 1> b_vec_ad_;
   Eigen::Matrix<AutoDiffXd, 2, 3> b_mat_ad_;
+  Eigen::Matrix<CppADd, 2, 2> A_cp_;
+  Eigen::Matrix<CppADd, 2, 1> b_vec_cp_;
+  Eigen::Matrix<CppADd, 2, 3> b_mat_cp_;
   Eigen::Matrix<symbolic::Expression, 2, 2> A_sym_;
   Eigen::Matrix<symbolic::Expression, 2, 3> b_sym_;
   // Use fixed-sized AutoDiffScalar.
@@ -213,6 +218,18 @@ TEST_F(LinearSolveTest, TestAutoDiffAandDoubleB) {
   TestSolveLinearSystem<Eigen::LDLT>(A_ad_, b_mat_val_);
   TestSolveLinearSystem<Eigen::ColPivHouseholderQR>(A_ad_, b_mat_val_);
   TestSolveLinearSystem<Eigen::PartialPivLU>(A_ad_, b_mat_val_);
+}
+
+TEST_F(LinearSolveTest, TestCppADdAandDoubleB) {
+  // A contains AutoDiffXd and b contains double.
+  TestSolveLinearSystem<Eigen::LLT>(A_cp_, b_vec_val_);
+  TestSolveLinearSystem<Eigen::LDLT>(A_cp_, b_vec_val_);
+  TestSolveLinearSystem<Eigen::ColPivHouseholderQR>(A_cp_, b_vec_val_);
+  TestSolveLinearSystem<Eigen::PartialPivLU>(A_cp_, b_vec_val_);
+  TestSolveLinearSystem<Eigen::LLT>(A_cp_, b_mat_val_);
+  TestSolveLinearSystem<Eigen::LDLT>(A_cp_, b_mat_val_);
+  TestSolveLinearSystem<Eigen::ColPivHouseholderQR>(A_cp_, b_mat_val_);
+  TestSolveLinearSystem<Eigen::PartialPivLU>(A_cp_, b_mat_val_);
 }
 
 TEST_F(LinearSolveTest, TestDoubleAandAutoDiffB) {
