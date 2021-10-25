@@ -9,6 +9,7 @@ const char* const kElastic = "hydroelastic_modulus";
 const char* const kFriction = "coulomb_friction";
 const char* const kHcDissipation = "hunt_crossley_dissipation";
 const char* const kPointStiffness = "point_contact_stiffness";
+const char* const kLinearDissipation = "linear_dissipation";
 
 const char* const kHydroGroup = "hydroelastic";
 const char* const kRezHint = "resolution_hint";
