@@ -54,7 +54,7 @@ TestSolveLinearSystem(const Eigen::MatrixBase<DerivedA>& A,
                 Ax.rows(), 0));
       }
     } else if constexpr (internal::is_autodiff2_v<ScalarAx>) {
-      DRAKE_DEMAND(false);
+      throw std::logic_error("test CppADd? How?");
     } else {
       Ax_val = ExtractValue(Ax);
       for (int i = 0; i < Ax.cols(); ++i) {
