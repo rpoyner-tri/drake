@@ -12,6 +12,14 @@ namespace drake {
 namespace math {
 namespace {
 
+// The clang optimizer breaks some code. This symbol can turn it off for the
+// scope of a function or lambda.
+#ifdef __clang__
+#define DRAKE_CLANG_OPTNONE __attribute__((optnone))
+#else
+#define DRAKE_CLANG_OPTNONE
+#endif
+
 template <template <typename, int...> typename LinearSolverType,
           typename DerivedA, typename DerivedB>
 typename std::enable_if<internal::is_autodiff_v<typename DerivedA::Scalar> ||
@@ -130,11 +138,20 @@ TestSolveLinearSystem(const Eigen::MatrixBase<DerivedA>& A,
       }
     } else if constexpr (std::is_same_v<typename DerivedA::Scalar, double> &&  // NOLINT
                          std::is_same_v<typename DerivedB::Scalar, double>) {
-      const auto x_eigen =
-          LinearSolverType<Eigen::Matrix<double, DerivedA::RowsAtCompileTime,
-                                         DerivedA::ColsAtCompileTime>>(A)
-              .solve(b);
-      EXPECT_TRUE(CompareMatrices(x_eigen, x));
+      using MatrixType = Eigen::Matrix<double, DerivedA::RowsAtCompileTime,
+                                       DerivedA::ColsAtCompileTime>;
+      using SolverType = LinearSolverType<MatrixType>;
+      using PplType = Eigen::PartialPivLU<MatrixType>;
+      if constexpr (std::is_same_v<SolverType, PplType>) {
+        auto no_opt = [&]() DRAKE_CLANG_OPTNONE {
+          const auto x_eigen = SolverType(A).solve(b);
+          EXPECT_TRUE(CompareMatrices(x_eigen, x));
+        };
+        no_opt();
+      } else {
+        const auto x_eigen = SolverType(A).solve(b);
+        EXPECT_TRUE(CompareMatrices(x_eigen, x));
+      }
     }
   }
 }
@@ -452,6 +469,8 @@ TEST_F(LinearSolveTest, GetLinearSolver) {
   CheckGetLinearSolver<Eigen::PartialPivLU>(A_ad_);
   CheckGetLinearSolver<Eigen::ColPivHouseholderQR>(A_ad_);
 }
+
+#undef DRAKE_CLANG_OPTNONE
 }  // namespace
 }  // namespace math
 }  // namespace drake
