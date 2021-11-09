@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 
+#include "drake/common/eigen_types.h"
 #include "drake/common/test_utilities/eigen_matrix_compare.h"
 #include "drake/common/test_utilities/expect_throws_message.h"
 #include "drake/common/test_utilities/symbolic_test_util.h"
@@ -12,15 +13,28 @@ namespace drake {
 namespace math {
 namespace {
 
+template <typename Derived>
+VectorX<typename Derived::Scalar> flatcopy(const Eigen::MatrixBase<Derived>& m) {
+  // Force resolution of expression types and recover a concrete Derived object.
+  Derived dm = m;
+  return Eigen::Map<VectorX<typename Derived::Scalar>>(dm.data(), dm.size());
+}
+
+template <typename Derived>
+Derived unflatcopy(VectorX<typename Derived::Scalar>& mflat,
+                   const Eigen::MatrixBase<Derived>& m) {
+      return Eigen::Map<Derived>(mflat.data(), m.rows(), m.cols());
+}
+
 template <template <typename, int...> typename LinearSolverType,
           typename DerivedA, typename DerivedB>
 typename std::enable_if<internal::is_autodiffy_v<typename DerivedA::Scalar> ||
                         std::is_same_v<typename DerivedA::Scalar, double>>::type
 TestSolveLinearSystem(const Eigen::MatrixBase<DerivedA>& A,
                       const Eigen::MatrixBase<DerivedB>& b) {
+  using ScalarA = typename DerivedA::Scalar;
+  using ScalarB = typename DerivedB::Scalar;
   for (const bool use_deprecated : {true, false}) {
-    using ScalarA = typename DerivedA::Scalar;
-    using ScalarB = typename DerivedB::Scalar;
     // Note: we can't declare Independent() here because input types are const.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -54,7 +68,16 @@ TestSolveLinearSystem(const Eigen::MatrixBase<DerivedA>& A,
                 Ax.rows(), 0));
       }
     } else if constexpr (internal::is_autodiff2_v<ScalarAx>) {
-      throw std::logic_error("test CppADd? How?");
+        auto Aflat = flatcopy(A);
+        MatrixX<CppADd> Axconcrete = Ax;
+        auto Axflat = flatcopy(Axconcrete);
+        ::CppAD::ADFun<double> Ax_fun(Aflat, Axflat);
+        auto astate = ExtractDoubleOrThrow(Aflat);
+        Ax_val = Ax_fun.Forward(0, astate);
+        auto jac = Ax_fun.Jacobian(astate);
+        // for (int i = 0; i < Ax.cols(); ++i) {
+        //   Ax_grad.push_back(ExtractGradient(Ax.col(i)));
+        // }
     } else {
       Ax_val = ExtractValue(Ax);
       for (int i = 0; i < Ax.cols(); ++i) {
@@ -62,7 +85,7 @@ TestSolveLinearSystem(const Eigen::MatrixBase<DerivedA>& A,
       }
     }
 
-    if constexpr (std::is_same_v<typename DerivedB::Scalar, double>) {
+    if constexpr (std::is_same_v<ScalarB, double>) {
       b_val = b;
       for (int i = 0; i < b.cols(); ++i) {
         b_grad.push_back(
@@ -137,8 +160,6 @@ class LinearSolveTest : public ::testing::Test {
       }
     }
 
-    MarkIndependent();
-
     A_sym_ << symbolic::Expression(1), symbolic::Expression(3),
         symbolic::Expression(3), symbolic::Expression(10);
     const symbolic::Variable sym_u("u");
@@ -167,11 +188,13 @@ class LinearSolveTest : public ::testing::Test {
 #pragma GCC diagnostic ignored "-Wc++2a-extensions"
 #endif
     auto Independent = []<typename T>(T& m) {
-      VectorX<CppADd> mflat =
-          Eigen::Map<VectorX<CppADd>>(m.data(), m.size());
+      // VectorX<CppADd> mflat =
+      //     Eigen::Map<VectorX<CppADd>>(m.data(), m.size());
+      auto mflat = flatcopy(m);
       ::CppAD::Independent(mflat);
-      m = Eigen::Map<std::remove_reference_t<decltype(m)>>(
-          mflat.data(), m.rows(), m.cols());
+      // m = Eigen::Map<std::remove_reference_t<decltype(m)>>(
+      //     mflat.data(), m.rows(), m.cols());
+      m = unflatcopy(mflat, m);
     };  // NOLINT(readability/braces)
     Independent(A_cp_);
     Independent(b_mat_cp_);
@@ -184,9 +207,9 @@ class LinearSolveTest : public ::testing::Test {
   Eigen::Matrix<AutoDiffXd, 2, 2> A_ad_;
   Eigen::Matrix<AutoDiffXd, 2, 1> b_vec_ad_;
   Eigen::Matrix<AutoDiffXd, 2, 3> b_mat_ad_;
-  Eigen::Matrix<CppADd, 2, 2> A_cp_;
-  Eigen::Matrix<CppADd, 2, 1> b_vec_cp_;
-  Eigen::Matrix<CppADd, 2, 3> b_mat_cp_;
+  MatrixX<CppADd> A_cp_{2, 2};
+  VectorX<CppADd> b_vec_cp_{2};
+  MatrixX<CppADd> b_mat_cp_{2, 3};
   Eigen::Matrix<symbolic::Expression, 2, 2> A_sym_;
   Eigen::Matrix<symbolic::Expression, 2, 3> b_sym_;
   // Use fixed-sized AutoDiffScalar.
@@ -252,6 +275,7 @@ TEST_F(LinearSolveTest, TestAutoDiffAandDoubleB) {
 
 TEST_F(LinearSolveTest, TestCppADdAandDoubleB) {
   // A contains AutoDiffXd and b contains double.
+  MarkIndependent();
   TestSolveLinearSystem<Eigen::LLT>(A_cp_, b_vec_val_);
   // TestSolveLinearSystem<Eigen::LDLT>(A_cp_, b_vec_val_);
   // TestSolveLinearSystem<Eigen::ColPivHouseholderQR>(A_cp_, b_vec_val_);
