@@ -1620,7 +1620,8 @@ class MultibodyPlant : public internal::MultibodyTreeSystem<T> {
   void set_contact_model(ContactModel model);
 
   /// Sets the representation of contact surfaces to be used by `this`
-  /// %MultibodyPlant for discrete systems.
+  /// %MultibodyPlant for discrete systems only. Continuous systems ignore this
+  /// setting.
   void set_contact_surface_representation(
       geometry::HydroelasticContactRepresentation representation) {
     contact_surface_representation_ = representation;
