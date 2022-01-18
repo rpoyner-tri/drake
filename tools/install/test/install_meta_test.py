@@ -1,10 +1,14 @@
 """Tests the behavior of targets that use `installer.py`."""
 
+from contextlib import redirect_stdout, redirect_stderr
+import io
 import os
 from os.path import isdir, join, relpath
 import unittest
 from subprocess import STDOUT, check_call, check_output
 import sys
+
+import drake.tools.install.installer as installer
 
 # TODO(eric.cousineau): Expand on these tests, especially for nuanced things
 # like Python C extensions.
@@ -35,10 +39,19 @@ class TestInstallMeta(unittest.TestCase):
                 out.add(join(dirrel, filename))
         return out
 
+    def dummy_install(self, *args):
+        stream = io.StringIO()
+        with redirect_stdout(stream), redirect_stderr(stream):
+            installer.main(
+                ['--actions', 'tools/install/dummy/install_actions']
+                + list(args))
+        return stream.getvalue()
+
     def test_nominal(self):
         """Test nominal behavior of install."""
         install_dir = self.get_install_dir("test_nominal")
-        check_call([self.BINARY, install_dir])
+        # check_call([self.BINARY, install_dir])
+        self.dummy_install(install_dir)
         py_dir = self.get_python_site_packages_dir()
         expected_manifest = {
             "share/README.md",
@@ -54,16 +67,18 @@ class TestInstallMeta(unittest.TestCase):
         install_dir = self.get_install_dir("test_strip_args")
         # - Without.
         substr_without = "Installing the project stripped..."
-        text_without = check_output(
-            [self.BINARY, install_dir], stderr=STDOUT).decode("utf8")
+        # text_without = check_output(
+        #     [self.BINARY, install_dir], stderr=STDOUT).decode("utf8")
+        text_without = self.dummy_install(install_dir)
         # N.B. `assertIn` error messages are not great for multiline, so just
         # print and use nominal asserts.
         print(text_without)
         self.assertTrue(substr_without in text_without)
         # - With.
         substr_with = "Install the project..."
-        text_with = check_output(
-            [self.BINARY, install_dir, "--no_strip"],
-            stderr=STDOUT).decode("utf8")
+        # text_with = check_output(
+        #     [self.BINARY, install_dir, "--no_strip"],
+        #     stderr=STDOUT).decode("utf8")
+        text_with = self.dummy_install(install_dir, '--no_strip')
         print(text_with)
         self.assertTrue(substr_with in text_with)
