@@ -23,12 +23,7 @@ from subprocess import check_output, check_call
 
 # Stores subdirectories that have already been created.
 subdirs = set()
-# Stored from command-line.
-color = False
-prefix = None
-strip = True
-strip_tool = None
-install_name_tool = None
+
 # Mapping used to (a) check for unique shared library names and (b) provide a
 # mapping from library name to paths for RPath fixes (where (a) is essential).
 # Structure: Map[ basename (Str) => full_path ]
@@ -41,8 +36,6 @@ binaries_to_fix_rpath = []
 # Files that are not libraries, but may still require fixing.
 # Structure: List[Str]
 potential_binaries_to_fix_rpath = []
-# Stores result of `--list` argument.
-list_only = False
 # Used for matching against libraries and extracting useful components.
 # N.B. On linux, dynamic libraries may have their version number as a suffix
 # (e.g. my_lib.so.x.y.z).
@@ -105,9 +98,9 @@ def may_be_binary(dst_full):
     return True
 
 
-def needs_install(src, dst):
+def needs_install(args, src, dst):
     # Get canonical destination.
-    dst_full = os.path.join(prefix, dst)
+    dst_full = os.path.join(args.prefix, dst)
 
     # Check if destination exists.
     if not os.path.exists(dst_full):
@@ -136,25 +129,25 @@ def copy_or_link(src, dst):
         shutil.copy2(src, dst)
 
 
-def install(src, dst):
+def do_install(args, src, dst):
     global subdirs
 
     # In list-only mode, just display the filename, don't do any real work.
-    if list_only:
+    if args.list:
         print(dst)
         return
 
     # Ensure destination subdirectory exists, creating it if necessary.
     subdir = os.path.dirname(dst)
     if subdir not in subdirs:
-        subdir_full = os.path.join(prefix, subdir)
+        subdir_full = os.path.join(args.prefix, subdir)
         if not os.path.exists(subdir_full):
             os.makedirs(subdir_full)
         subdirs.add(subdir)
 
-    dst_full = os.path.join(prefix, dst)
+    dst_full = os.path.join(args.prefix, dst)
     # Install file, if not up to date.
-    if needs_install(src, dst):
+    if needs_install(args, src, dst):
         print("-- Installing: {}".format(dst_full))
         if os.path.exists(dst_full):
             os.remove(dst_full)
@@ -327,13 +320,13 @@ def linux_fix_rpaths(dst_full):
     )
 
 
-def create_java_launcher(filename, classpath, jvm_flags, main_class):
+def do_create_java_launcher(args, filename, classpath, jvm_flags, main_class):
     # In list-only mode, just display the filename, don't do any real work.
-    if list_only:
+    if args.list:
         print(filename)
         return
 
-    filename = os.path.join(prefix, filename)
+    filename = os.path.join(args.prefix, filename)
     print("-- Generating: {}".format(filename))
 
     # Make sure install directory exists.
@@ -367,14 +360,9 @@ java {} {} "$@"
              | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 
-def main(args):
-    global color
-    global list_only
-    global prefix
-    global strip
-    global strip_tool
-    global install_name_tool
 
+
+def parse_command_line(argv):
     # Set up options.
     parser = argparse.ArgumentParser()
     parser.add_argument('prefix', type=str, help='Install prefix')
@@ -400,45 +388,40 @@ def main(args):
         '--pre_clean', action='store_true', default=False,
         help='ensure clean install by removing `prefix` dir if it exists '
              'before installing')
-    args = parser.parse_args(args)
-
-    color = args.color
-    # Get install prefix.
-    prefix = args.prefix
-    list_only = args.list
-    # Check if we want to avoid stripping symbols.
-    strip = args.strip
-    strip_tool = args.strip_tool
-    install_name_tool = args.install_name_tool
-    pre_clean = args.pre_clean
+    args = parser.parse_args(argv)
 
     # Transform install prefix if DESTDIR is set.
     # https://www.gnu.org/prep/standards/html_node/DESTDIR.html
     destdir = os.environ.get('DESTDIR')
     if destdir:
-        prefix = destdir + prefix
+        args.prefix = destdir + args.prefix
 
     # Because Bazel executes us in a strange working directory and not the
     # working directory of the user's shell, enforce that the install
     # location is an absolute path so that the user is not surprised.
-    if not os.path.isabs(prefix):
+    if not os.path.isabs(args.prefix):
         parser.error(
             "Install prefix must be an absolute path (got '{}')\n".format(
-                prefix))
+                args.prefix))
 
-    if color:
+    return args
+
+
+def main():
+    args = parse_command_line(sys.argv[1:])
+    if args.color:
         ansi_color_escape = "\x1b[36m"
         ansi_reset_escape = "\x1b[0m"
     else:
         ansi_color_escape = ""
         ansi_reset_escape = ""
 
-    if pre_clean:
-        if os.path.isdir(prefix):
-            print(f"Remove previous directory: {prefix}")
-            shutil.rmtree(prefix)
+    if args.pre_clean:
+        if os.path.isdir(args.prefix):
+            print(f"Remove previous directory: {args.prefix}")
+            shutil.rmtree(args.prefix)
 
-    if strip:
+    if args.strip:
         # Match the output of the CMake install/strip target
         # (https://git.io/fpdzK).
         print("{}Installing the project stripped...{}".format(
@@ -462,4 +445,4 @@ def main(args):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()
