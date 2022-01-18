@@ -360,6 +360,26 @@ java {} {} "$@"
              | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 
+def execute_install_actions(args):
+    # TODO(jwnimmer-tri) Executing arbitrary Python code from the actions file
+    # is an absurd implementation choice that we've inherited from the original
+    # installer scripts.  We should rework the install.bzl <=> installer.py
+    # specification format to use something other than open-ended Python code.
+    with open(args.actions, "r", encoding="utf-8") as f:
+        actions = f.read()
+    def install(*pos_args):
+        do_install(args, *pos_args)
+    def create_java_launcher(*pos_args):
+        do_create_java_launcher(args, *pos_args)
+    myglobals = dict(
+        # Allowed install actions.
+        install=install,
+        create_java_launcher=create_java_launcher,
+
+        # Reduce attack surface (somewhat).
+        __builtins__={},
+    )
+    exec(actions, myglobals, {})
 
 
 def parse_command_line(argv):
@@ -431,15 +451,7 @@ def main():
         print("{}Install the project...{}".format(
             ansi_color_escape, ansi_reset_escape))
 
-    # Execute the install actions.
-    # TODO(jwnimmer-tri) Executing arbitrary Python code from the actions file
-    # is an absurd implementation choice that we've inherited from the original
-    # installer scripts.  We should rework the install.bzl <=> installer.py
-    # specification format to use something other than open-ended Python code.
-    with open(args.actions, "r", encoding="utf-8") as f:
-        actions = f.read()
-    exec(actions)
-
+    execute_install_actions(args)
     # Libraries paths may need to be updated in libraries and executables.
     fix_rpaths_and_strip()
 
