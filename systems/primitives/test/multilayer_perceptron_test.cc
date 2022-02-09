@@ -7,6 +7,7 @@
 
 #include "drake/common/test_utilities/eigen_matrix_compare.h"
 #include "drake/common/test_utilities/expect_throws_message.h"
+#include "drake/common/test_utilities/limit_malloc.h"
 #include "drake/math/autodiff_gradient.h"
 #include "drake/systems/framework/test_utilities/scalar_conversion.h"
 
@@ -217,6 +218,11 @@ void BackpropTest(PerceptronActivationType type) {
   Eigen::VectorXd dloss_dparams(mlp.num_parameters());
   double loss = mlp.BackpropagationMeanSquaredError(*context, X, Y_desired,
                                                     &dloss_dparams);
+  {
+      drake::test::LimitMalloc guard({.max_num_allocations=0});
+      loss = mlp.BackpropagationMeanSquaredError(*context, X, Y_desired,
+                                                 &dloss_dparams);
+  }
 
   // Check that they give the same values.
   EXPECT_NEAR(loss, loss_ad.value(), 1e-14);
@@ -244,7 +250,10 @@ GTEST_TEST(MultilayerPereceptronTest, BatchOutput) {
       mlp.get_input_port().FixValue(context.get(), X.col(i));
       Y_desired.col(i) = mlp.get_output_port().Eval(*context);
     }
-    mlp.BatchOutput(*context, X, &Y);
+    {
+      drake::test::LimitMalloc guard({.max_num_allocations=0});
+      mlp.BatchOutput(*context, X, &Y);
+    }
 
     EXPECT_TRUE(CompareMatrices(Y, Y_desired, 1e-14));
   }
