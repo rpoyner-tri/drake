@@ -40,6 +40,11 @@ namespace multibody {
 // pre-finalize.
 #define DRAKE_MBP_THROW_IF_NOT_FINALIZED() ThrowIfNotFinalized(__func__)
 
+// Helper macro to throw an exception within methods that do not support some
+// scalar type.
+#define DRAKE_MBP_THROW_IF_UNSUPPORTED_SCALAR(scalar_type_name) \
+  ThrowIfUnsupportedScalar(__func__, scalar_type_name)
+
 using geometry::CollisionFilterDeclaration;
 using geometry::ContactSurface;
 using geometry::FrameId;
@@ -1327,8 +1332,9 @@ void MultibodyPlant<symbolic::Expression>::
     AppendContactResultsContinuousHydroelastic(
         const Context<symbolic::Expression>&,
         ContactResults<symbolic::Expression>*) const {
-  throw std::logic_error(
-      "This method doesn't support T = symbolic::Expression.");
+  // TODO(rpoyner-tri): this method is private, so the message will be
+  // incomprehensible.
+  DRAKE_MBP_THROW_IF_UNSUPPORTED_SCALAR("symbolic::Expression");
 }
 
 template <typename T>
@@ -1640,8 +1646,9 @@ void MultibodyPlant<symbolic::Expression>::CalcHydroelasticContactForces(
     const Context<symbolic::Expression>&,
     internal::HydroelasticContactInfoAndBodySpatialForces<
         symbolic::Expression>*) const {
-  throw std::logic_error(
-      "This method doesn't support T = symbolic::Expression.");
+  // TODO(rpoyner-tri): this method is private, so the message will be
+  // incomprehensible.
+  DRAKE_MBP_THROW_IF_UNSUPPORTED_SCALAR("symbolic::Expression");
 }
 
 template <typename T>
@@ -1977,8 +1984,7 @@ template <>
 void MultibodyPlant<symbolic::Expression>::CalcContactSurfaces(
     const Context<symbolic::Expression>&,
     std::vector<geometry::ContactSurface<symbolic::Expression>>*) const {
-  throw std::logic_error(
-      "This method doesn't support T = symbolic::Expression.");
+  DRAKE_MBP_THROW_IF_UNSUPPORTED_SCALAR("symbolic::Expression");
 }
 
 template <typename T>
@@ -2005,9 +2011,7 @@ void MultibodyPlant<symbolic::Expression>::CalcHydroelasticWithFallback(
     internal::HydroelasticFallbackCacheData<symbolic::Expression>*) const {
   // TODO(SeanCurtis-TRI): Special case the AutoDiff scalar such that it works
   //  as long as there are no collisions -- akin to CalcPointPairPenetrations().
-  throw std::domain_error(
-      fmt::format("This method doesn't support T = {}.",
-                  NiceTypeName::Get<symbolic::Expression>()));
+  DRAKE_MBP_THROW_IF_UNSUPPORTED_SCALAR("symbolic::Expression");
 }
 
 // TODO(16106): This code will go into:
@@ -2202,8 +2206,7 @@ void MultibodyPlant<T>::CalcDiscreteContactPairs(
     }
   } else {
     drake::unused(context);
-    throw std::domain_error(fmt::format("This method doesn't support T = {}.",
-                                        NiceTypeName::Get<T>()));
+    DRAKE_MBP_THROW_IF_UNSUPPORTED_SCALAR(NiceTypeName::Get<T>());
   }
 }
 
@@ -2478,8 +2481,7 @@ void MultibodyPlant<symbolic::Expression>::CallContactSolver(
     const VectorX<symbolic::Expression>&,
     contact_solvers::internal::ContactSolverResults<symbolic::Expression>*)
     const {
-  throw std::logic_error(
-      "This method doesn't support T = symbolic::Expression.");
+  DRAKE_MBP_THROW_IF_UNSUPPORTED_SCALAR("symbolic::Expression");
 }
 
 template <typename T>
@@ -3513,6 +3515,13 @@ void MultibodyPlant<T>::ThrowIfNotFinalized(const char* source_method) const {
         "Pre-finalize calls to '" + std::string(source_method) + "()' are "
         "not allowed; you must call Finalize() first.");
   }
+}
+
+template <typename T>
+void ThrowIfUnsupportedScalar(const char* source_method,
+                              const std::string& scalar_type) const {
+  throw std::logic_error(fmt:format("{} doesn't support scalar type T = {}.",
+                                    source_method, scalar_type));
 }
 
 template <typename T>

@@ -4203,6 +4203,12 @@ class MultibodyPlant : public internal::MultibodyTreeSystem<T> {
   // that the error message can include that detail.
   void ThrowIfNotFinalized(const char* source_method) const;
 
+  // Helper method for throwing an exception within public methods that do not
+  // support some scalar type.  The invoking method should pass it's name so
+  // that the error message can include that detail.
+  void ThrowIfUnsupportedScalar(const char* source_method,
+                                const std::string& scalar_type) const;
+
   // Helper method that is used to finalize the plant's internals after
   // MultibodyTree::Finalize() was called.
   void FinalizePlantOnly();
