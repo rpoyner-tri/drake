@@ -477,6 +477,25 @@ GTEST_TEST(MultibodyPlantTest, EmptyWorldDiscrete) {
       plant.CalcDiscreteVariableUpdates(*context, new_discrete_state.get()));
 }
 
+GTEST_TEST(MultibodyPlantTest, EmptyWorldDiscreteSymbolic) {
+  const double discrete_update_period = 1.0e-3;
+  MultibodyPlant<double> plant(discrete_update_period);
+  plant.Finalize();
+  std::unique_ptr<MultibodyPlant<symbolic::Expression>> px;
+  px = systems::System<double>::ToScalarType<symbolic::Expression>(plant);
+  EXPECT_EQ(px->num_velocities(), 0);
+  EXPECT_EQ(px->num_positions(), 0);
+  // Compute discrete update.
+  auto context = px->CreateDefaultContext();
+  auto& discrete_state_vector = context->get_discrete_state_vector();
+  EXPECT_EQ(discrete_state_vector.size(), 0);
+  auto new_discrete_state = px->AllocateDiscreteVariables();
+  const auto& new_discrete_state_vector = new_discrete_state->get_vector();
+  EXPECT_EQ(new_discrete_state_vector.size(), 0);
+  DRAKE_EXPECT_NO_THROW(
+      px->CalcDiscreteVariableUpdates(*context, new_discrete_state.get()));
+}
+
 GTEST_TEST(MultibodyPlantTest, EmptyWorldContinuous) {
   MultibodyPlant<double> plant(0.0);
   plant.Finalize();
@@ -493,6 +512,27 @@ GTEST_TEST(MultibodyPlantTest, EmptyWorldContinuous) {
   VectorXd residual = plant.AllocateImplicitTimeDerivativesResidual();
   EXPECT_EQ(residual.size(), 0);
   DRAKE_EXPECT_NO_THROW(plant.CalcImplicitTimeDerivativesResidual(
+      *context, *new_derivatives, &residual));
+}
+
+GTEST_TEST(MultibodyPlantTest, EmptyWorldContinuousSymbolic) {
+  MultibodyPlant<double> plant(0.0);
+  plant.Finalize();
+  std::unique_ptr<MultibodyPlant<symbolic::Expression>> px;
+  px = systems::System<double>::ToScalarType<symbolic::Expression>(plant);
+  EXPECT_EQ(px->num_velocities(), 0);
+  EXPECT_EQ(px->num_positions(), 0);
+  // Compute continuous derivatives.
+  auto context = px->CreateDefaultContext();
+  auto& continuous_state_vector = context->get_continuous_state_vector();
+  EXPECT_EQ(continuous_state_vector.size(), 0);
+  auto new_derivatives = px->AllocateTimeDerivatives();
+  EXPECT_EQ(new_derivatives->size(), 0);
+  DRAKE_EXPECT_NO_THROW(
+      px->CalcTimeDerivatives(*context, new_derivatives.get()));
+  auto residual = px->AllocateImplicitTimeDerivativesResidual();
+  EXPECT_EQ(residual.size(), 0);
+  DRAKE_EXPECT_NO_THROW(px->CalcImplicitTimeDerivativesResidual(
       *context, *new_derivatives, &residual));
 }
 

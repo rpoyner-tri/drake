@@ -23,6 +23,20 @@ from pydrake.systems.framework import DiagramBuilder
 from pydrake.systems.primitives import VectorLogSink
 
 
+def symbolic_nonsense(plant, time_step):
+    context = plant.CreateDefaultContext()
+    px = plant.ToSymbolic()
+    cx = px.CreateDefaultContext()
+    cx.SetTimeStateAndParametersFrom(context)
+    px.FixInputPortsFrom(plant, context, cx)
+    if time_step == 0.0:
+        # continuous.
+        derivs = cx.Clone().get_mutable_continuous_state()
+        res = px.CalcImplicitTimeDerivativesResidual(cx, derivs)
+    else:
+        # discrete.
+        raise RuntimeError("discrete nonsense not implemented")
+
 def make_ball_paddle(contact_model, contact_surface_representation,
                      time_step):
     multibody_plant_config = \
@@ -55,6 +69,7 @@ def make_ball_paddle(contact_model, contact_surface_representation,
     #  and resolution hint from the two SDF files above.
 
     plant.Finalize()
+    symbolic_nonsense(plant, time_step)
 
     DrakeVisualizer.AddToBuilder(builder=builder, scene_graph=scene_graph)
     ConnectContactResultsToDrakeVisualizer(builder=builder, plant=plant,

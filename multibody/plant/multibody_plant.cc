@@ -3530,9 +3530,9 @@ void MultibodyPlant<T>::ThrowIfNotFinalized(const char* source_method) const {
 }
 
 template <typename T>
-void ThrowIfUnsupportedScalar(const char* source_method,
-                              const std::string& scalar_type) const {
-  throw std::logic_error(fmt:format("{} doesn't support scalar type T = {}.",
+void MultibodyPlant<T>::ThrowIfUnsupportedScalar(
+    const char* source_method, const std::string& scalar_type) const {
+  throw std::logic_error(fmt::format("{} doesn't support scalar type T = {}.",
                                     source_method, scalar_type));
 }
 
