@@ -1316,12 +1316,14 @@ void MultibodyPlant<T>::CalcContactResultsContinuous(
       break;
 
     case ContactModel::kHydroelastic:
+      // XXX
       AppendContactResultsContinuousHydroelastic(context, contact_results);
       break;
 
     case ContactModel::kHydroelasticWithFallback:
       // Simply merge the contributions of each contact representation.
       AppendContactResultsContinuousPointPair(context, contact_results);
+      // XXX
       AppendContactResultsContinuousHydroelastic(context, contact_results);
       break;
   }
@@ -1487,6 +1489,7 @@ void MultibodyPlant<T>::CalcContactResultsDiscrete(
     case ContactModel::kHydroelastic:
       // N.B. We are simply computing the hydro force as function of the state,
       // not the actual discrete approximation used by the contact solver.
+      // XXX
       AppendContactResultsContinuousHydroelastic(context, contact_results);
       break;
 
@@ -1496,6 +1499,7 @@ void MultibodyPlant<T>::CalcContactResultsDiscrete(
 
       // N.B. We are simply computing the hydro force as function of the state,
       // not the actual discrete approximation used by the contact solver.
+      // XXX
       AppendContactResultsContinuousHydroelastic(context, contact_results);
       break;
   }
@@ -1984,6 +1988,8 @@ template <>
 void MultibodyPlant<symbolic::Expression>::CalcContactSurfaces(
     const Context<symbolic::Expression>&,
     std::vector<geometry::ContactSurface<symbolic::Expression>>*) const {
+  // TODO(rpoyner-tri): this method is private, so the message will be
+  // incomprehensible.
   DRAKE_MBP_THROW_IF_UNSUPPORTED_SCALAR("symbolic::Expression");
 }
 
@@ -2011,6 +2017,8 @@ void MultibodyPlant<symbolic::Expression>::CalcHydroelasticWithFallback(
     internal::HydroelasticFallbackCacheData<symbolic::Expression>*) const {
   // TODO(SeanCurtis-TRI): Special case the AutoDiff scalar such that it works
   //  as long as there are no collisions -- akin to CalcPointPairPenetrations().
+  // TODO(rpoyner-tri): this method is private, so the message will be
+  // incomprehensible.
   DRAKE_MBP_THROW_IF_UNSUPPORTED_SCALAR("symbolic::Expression");
 }
 
@@ -2206,6 +2214,8 @@ void MultibodyPlant<T>::CalcDiscreteContactPairs(
     }
   } else {
     drake::unused(context);
+    // TODO(rpoyner-tri): this method is private, so the message will be
+    // incomprehensible.
     DRAKE_MBP_THROW_IF_UNSUPPORTED_SCALAR(NiceTypeName::Get<T>());
   }
 }
@@ -2481,6 +2491,8 @@ void MultibodyPlant<symbolic::Expression>::CallContactSolver(
     const VectorX<symbolic::Expression>&,
     contact_solvers::internal::ContactSolverResults<symbolic::Expression>*)
     const {
+  // TODO(rpoyner-tri): this method is private, so the message will be
+  // incomprehensible.
   DRAKE_MBP_THROW_IF_UNSUPPORTED_SCALAR("symbolic::Expression");
 }
 
