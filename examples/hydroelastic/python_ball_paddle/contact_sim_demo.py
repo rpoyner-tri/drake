@@ -12,24 +12,28 @@ from pydrake.geometry import DrakeVisualizer
 from pydrake.math import RigidTransform
 from pydrake.math import RollPitchYaw
 from pydrake.multibody.parsing import Parser
-from pydrake.multibody.plant import AddMultibodyPlant
+from pydrake.multibody.plant import (AddMultibodyPlant,
+                                     AddMultibodyPlantSceneGraph)
 from pydrake.multibody.plant import ConnectContactResultsToDrakeVisualizer
 from pydrake.multibody.plant import MultibodyPlantConfig
+from pydrake.symbolic import Expression
 from pydrake.systems.analysis import ApplySimulatorConfig
 from pydrake.systems.analysis import Simulator
 from pydrake.systems.analysis import SimulatorConfig
 from pydrake.systems.analysis import PrintSimulatorStatistics
-from pydrake.systems.framework import DiagramBuilder
+from pydrake.systems.framework import DiagramBuilder, DiagramBuilder_
 from pydrake.systems.primitives import VectorLogSink
 
 
-def symbolic_nonsense(plant, time_step):
+def symbolic_nonsense(diagram, plant):
+    dx = diagram.ToScalarType[Expression]()
+    px = dx.GetSubsystemByName("plant")
+    sgx = dx.GetSubsystemByName("scene_graph")
     context = plant.CreateDefaultContext()
-    px = plant.ToSymbolic()
     cx = px.CreateDefaultContext()
     cx.SetTimeStateAndParametersFrom(context)
     px.FixInputPortsFrom(plant, context, cx)
-    if time_step == 0.0:
+    if plant.time_step() == 0.0:
         # continuous.
         derivs = cx.Clone().get_mutable_continuous_state()
         res = px.CalcImplicitTimeDerivativesResidual(cx, derivs)
@@ -50,6 +54,8 @@ def make_ball_paddle(contact_model, contact_surface_representation,
                                      np.array([0, 0, -0.01]))
     builder = DiagramBuilder()
     plant, scene_graph = AddMultibodyPlant(multibody_plant_config, builder)
+    plant.set_name("plant")
+    scene_graph.set_name("scene_graph")
 
     parser = Parser(plant)
     paddle_sdf_file_name = \
@@ -69,11 +75,10 @@ def make_ball_paddle(contact_model, contact_surface_representation,
     #  and resolution hint from the two SDF files above.
 
     plant.Finalize()
-    symbolic_nonsense(plant, time_step)
 
-    DrakeVisualizer.AddToBuilder(builder=builder, scene_graph=scene_graph)
-    ConnectContactResultsToDrakeVisualizer(builder=builder, plant=plant,
-                                           scene_graph=scene_graph)
+    # DrakeVisualizer.AddToBuilder(builder=builder, scene_graph=scene_graph)
+    # ConnectContactResultsToDrakeVisualizer(builder=builder, plant=plant,
+    #                                        scene_graph=scene_graph)
 
     nx = plant.num_positions() + plant.num_velocities()
     state_logger = builder.AddSystem(VectorLogSink(nx))
@@ -81,6 +86,7 @@ def make_ball_paddle(contact_model, contact_surface_representation,
                     state_logger.get_input_port())
 
     diagram = builder.Build()
+    symbolic_nonsense(diagram, plant)
     return diagram, plant, state_logger
 
 
