@@ -1,4 +1,5 @@
 #include "drake/multibody/parsing/detail_collision_filter_group_resolver.h"
+
 #include "drake/multibody/parsing/scoped_names.h"
 
 namespace drake {
@@ -45,7 +46,6 @@ void CollisionFilterGroupResolver::AddGroup(
     geometry_set.Add(plant_->GetBodyFrameIdOrThrow(body.index()));
   }
   groups_.insert({FullyQualify(group_name, model_instance), geometry_set});
-
 }
 
 void CollisionFilterGroupResolver::AddPair(
@@ -58,14 +58,10 @@ void CollisionFilterGroupResolver::AddPair(
     DRAKE_DEMAND(*model_instance < plant_->num_model_instances());
   }
 
-  // The named groups must already be defined; look them up and store them by
-  // fully qualified name.
+  // Store group pairs by fully qualified name. The groups don't need to
+  // actually be defined until Resolve() time.
   const std::string name_a = FullyQualify(group_name_a, model_instance);
-  // XXX TODO diagnostics?
-  DRAKE_THROW_UNLESS(IsGroupDefined(name_a));
   const std::string name_b = FullyQualify(group_name_b, model_instance);
-  // XXX TODO diagnostics?
-  DRAKE_THROW_UNLESS(IsGroupDefined(name_b));
 
   // These two group names are allowed to be identical, which means the
   // bodies inside this collision filter group should be collision excluded
@@ -75,6 +71,10 @@ void CollisionFilterGroupResolver::AddPair(
 
 void CollisionFilterGroupResolver::Resolve() {
   for (const auto& [name_a, name_b] : pairs_) {
+    // XXX TODO diagnostics?
+    DRAKE_THROW_UNLESS(IsGroupDefined(name_a));
+    // XXX TODO diagnostics?
+    DRAKE_THROW_UNLESS(IsGroupDefined(name_b));
     plant_->ExcludeCollisionGeometriesWithCollisionFilterGroupPair(
         {name_a, groups_.find(name_a)->second},
         {name_b, groups_.find(name_b)->second});

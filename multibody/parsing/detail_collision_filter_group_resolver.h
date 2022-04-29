@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <optional>
 #include <set>
 #include <string>
 
@@ -15,9 +16,9 @@ namespace internal {
 
 class CollisionFilterGroupResolver {
  public:
-  CollisionFilterGroupResolver(MultibodyPlant<double>* plant);
+  explicit CollisionFilterGroupResolver(MultibodyPlant<double>* plant);
   void AddGroup(const std::string& group_name,
-                std::set<std::string> body_names,
+                const std::set<std::string> body_names,
                 std::optional<ModelInstanceIndex> model_instance);
   void AddPair(const std::string& group_name_a,
                const std::string& group_name_b,
