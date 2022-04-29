@@ -2,7 +2,6 @@
 
 #include "drake/common/drake_assert.h"
 #include "drake/common/filesystem.h"
-#include "drake/multibody/parsing/detail_collision_filter_group_resolver.h"
 
 namespace drake {
 namespace multibody {
@@ -195,6 +194,7 @@ void ParseCollisionFilterGroupCommon(
     ModelInstanceIndex model_instance,
     const ElementNode& model_node,
     MultibodyPlant<double>* plant,
+    CollisionFilterGroupResolver* resolver,
     const std::function<ElementNode(const ElementNode&, const char*)>&
         next_child_element,
     const std::function<ElementNode(const ElementNode&, const char*)>&
@@ -206,8 +206,8 @@ void ParseCollisionFilterGroupCommon(
         read_bool_attribute,
     const std::function<std::string(const ElementNode&, const char*)>&
         read_tag_string) {
+  // XXX TODO should this check be elsewhere?
   DRAKE_DEMAND(plant->geometry_source_is_registered());
-  CollisionFilterGroupResolver resolver(plant);
 
   for (auto group_node =
            next_child_element(model_node, "drake:collision_filter_group");
@@ -217,12 +217,10 @@ void ParseCollisionFilterGroupCommon(
        group_node =
            next_sibling_element(group_node, "drake:collision_filter_group")) {
     CollectCollisionFilterGroup(
-        model_instance, *plant, group_node, &resolver, next_child_element,
+        model_instance, *plant, group_node, resolver, next_child_element,
         next_sibling_element, has_attribute, read_string_attribute,
         read_bool_attribute, read_tag_string);
   }
-
-  resolver.Resolve();
 }
 
 }  // namespace internal

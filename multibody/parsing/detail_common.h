@@ -12,6 +12,7 @@
 #include "drake/common/diagnostic_policy.h"
 #include "drake/common/drake_copyable.h"
 #include "drake/geometry/proximity_properties.h"
+#include "drake/multibody/parsing/detail_collision_filter_group_resolver.h"
 #include "drake/multibody/plant/coulomb_friction.h"
 #include "drake/multibody/plant/multibody_plant.h"
 #include "drake/multibody/tree/linear_bushing_roll_pitch_yaw.h"
@@ -193,6 +194,7 @@ const LinearBushingRollPitchYaw<double>* ParseLinearBushingRollPitchYaw(
 void ParseCollisionFilterGroupCommon(
     ModelInstanceIndex model_instance, const ElementNode& model_node,
     MultibodyPlant<double>* plant,
+    parsing::internal::CollisionFilterGroupResolver* resolver,
     const std::function<ElementNode(const ElementNode&, const char*)>&
         next_child_element,
     const std::function<ElementNode(const ElementNode&, const char*)>&

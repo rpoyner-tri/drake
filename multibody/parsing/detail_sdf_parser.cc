@@ -23,6 +23,7 @@
 #include "drake/geometry/geometry_instance.h"
 #include "drake/math/rigid_transform.h"
 #include "drake/math/rotation_matrix.h"
+#include "drake/multibody/parsing/detail_collision_filter_group_resolver.h"
 #include "drake/multibody/parsing/detail_ignition.h"
 #include "drake/multibody/parsing/detail_path_utils.h"
 #include "drake/multibody/parsing/detail_sdf_geometry.h"
@@ -51,6 +52,7 @@ using Eigen::Vector3d;
 using geometry::GeometryInstance;
 using math::RigidTransformd;
 using math::RotationMatrixd;
+using parsing::internal::CollisionFilterGroupResolver;
 using std::unique_ptr;
 
 // Unnamed namespace for free functions local to this file.
@@ -939,7 +941,8 @@ bool AreWelded(
 
 void ParseCollisionFilterGroup(ModelInstanceIndex model_instance,
                                const sdf::Model& model,
-                               MultibodyPlant<double>* plant) {
+                               MultibodyPlant<double>* plant,
+                               CollisionFilterGroupResolver* resolver) {
   auto next_child_element = [](const ElementNode& data_element,
                                const char* element_name) {
     return std::get<sdf::ElementPtr>(data_element)
@@ -983,6 +986,7 @@ void ParseCollisionFilterGroup(ModelInstanceIndex model_instance,
     return param->GetAsString();
   };
   ParseCollisionFilterGroupCommon(model_instance, model.Element(), plant,
+                                  resolver,
                                   next_child_element, next_sibling_element,
                                   has_attribute, get_string_attribute,
                                   get_bool_attribute, read_tag_string);
@@ -996,6 +1000,7 @@ std::vector<ModelInstanceIndex> AddModelsFromSpecification(
     const std::string& model_name,
     const RigidTransformd& X_WP,
     MultibodyPlant<double>* plant,
+    CollisionFilterGroupResolver* resolver,
     const PackageMap& package_map,
     const std::string& root_dir) {
   const ModelInstanceIndex model_instance =
@@ -1020,7 +1025,7 @@ std::vector<ModelInstanceIndex> AddModelsFromSpecification(
         AddModelsFromSpecification(
             diagnostic, nested_model,
             sdf::JoinName(model_name, nested_model.Name()), X_WM,
-            plant, package_map, root_dir);
+            plant, resolver, package_map, root_dir);
 
     added_model_instances.insert(added_model_instances.end(),
                                  nested_model_instances.begin(),
@@ -1129,7 +1134,7 @@ std::vector<ModelInstanceIndex> AddModelsFromSpecification(
   // Parses the collision filter groups only if the scene graph is registered.
   if (plant->geometry_source_is_registered()) {
     drake::log()->trace("sdf_parser: Add collision filter groups");
-    ParseCollisionFilterGroup(model_instance, model, plant);
+    ParseCollisionFilterGroup(model_instance, model, plant, resolver);
   }
 
   return added_model_instances;
@@ -1206,7 +1211,8 @@ void AddJointsToInterfaceModel(const MultibodyPlant<double>& plant,
 // This is a forward-declaration of an anonymous helper that's defined later
 // in this file.
 sdf::ParserConfig MakeSdfParserConfig(
-    const PackageMap&, MultibodyPlant<double>*, bool test_sdf_forced_nesting);
+    const PackageMap&, MultibodyPlant<double>*, CollisionFilterGroupResolver*,
+    bool test_sdf_forced_nesting);
 
 sdf::Error MakeSdfError(sdf::ErrorCode code, const DiagnosticDetail& detail) {
   sdf::Error result(code, detail.message);
@@ -1226,10 +1232,11 @@ sdf::Error MakeSdfError(sdf::ErrorCode code, const DiagnosticDetail& detail) {
 // parsers comply with this assumption.
 sdf::InterfaceModelPtr ParseNestedInterfaceModel(
     MultibodyPlant<double>* plant, const PackageMap& package_map,
+    CollisionFilterGroupResolver* resolver,
     const sdf::NestedInclude& include, sdf::Errors* errors,
     bool test_sdf_forced_nesting) {
   const sdf::ParserConfig parser_config = MakeSdfParserConfig(
-      package_map, plant, test_sdf_forced_nesting);
+      package_map, plant, resolver, test_sdf_forced_nesting);
 
   // Do not attempt to parse anything other than URDF or forced nesting files.
   const bool is_urdf = EndsWith(include.ResolvedFileName(), kExtUrdf);
@@ -1306,7 +1313,7 @@ sdf::InterfaceModelPtr ParseNestedInterfaceModel(
     main_model_instance = AddModelsFromSpecification(
         diagnostic, model,
         sdf::JoinName(include.AbsoluteParentName(), model_name), {},
-        plant, package_map, data_source.GetRootDir()).front();
+        plant, resolver, package_map, data_source.GetRootDir()).front();
   }
 
   // Now that the model is parsed, we create interface elements to send to
@@ -1386,6 +1393,7 @@ sdf::InterfaceModelPtr ParseNestedInterfaceModel(
 sdf::ParserConfig MakeSdfParserConfig(
     const PackageMap& package_map,
     MultibodyPlant<double>* plant,
+    CollisionFilterGroupResolver* resolver,
     bool test_sdf_forced_nesting) {
 
   // The error severity settings here are somewhat subtle. We set all of them
@@ -1415,9 +1423,10 @@ sdf::ParserConfig MakeSdfParserConfig(
     });
 
   parser_config.RegisterCustomModelParser(
-      [&package_map, plant, test_sdf_forced_nesting](
+      [&package_map, plant, resolver, test_sdf_forced_nesting](
           const sdf::NestedInclude& include, sdf::Errors& errors) {
-        return ParseNestedInterfaceModel(plant, package_map, include, &errors,
+        return ParseNestedInterfaceModel(plant, package_map, resolver,
+                                         include, &errors,
                                          test_sdf_forced_nesting);
       });
 
@@ -1432,8 +1441,10 @@ std::optional<ModelInstanceIndex> AddModelFromSdf(
     bool test_sdf_forced_nesting) {
   DRAKE_THROW_UNLESS(!workspace.plant->is_finalized());
 
+  CollisionFilterGroupResolver resolver{workspace.plant};
   sdf::ParserConfig parser_config = MakeSdfParserConfig(
-      workspace.package_map, workspace.plant, test_sdf_forced_nesting);
+      workspace.package_map, workspace.plant, &resolver,
+      test_sdf_forced_nesting);
 
   sdf::Root root;
 
@@ -1454,9 +1465,11 @@ std::optional<ModelInstanceIndex> AddModelFromSdf(
   std::vector<ModelInstanceIndex> added_model_instances =
       AddModelsFromSpecification(
           workspace.diagnostic, model, model_name, {}, workspace.plant,
+          &resolver,
           workspace.package_map, data_source.GetRootDir());
 
   DRAKE_DEMAND(!added_model_instances.empty());
+  resolver.Resolve();
   return added_model_instances.front();
 }
 
@@ -1466,8 +1479,10 @@ std::vector<ModelInstanceIndex> AddModelsFromSdf(
     bool test_sdf_forced_nesting) {
   DRAKE_THROW_UNLESS(!workspace.plant->is_finalized());
 
+  CollisionFilterGroupResolver resolver{workspace.plant};
   sdf::ParserConfig parser_config = MakeSdfParserConfig(
-      workspace.package_map, workspace.plant, test_sdf_forced_nesting);
+      workspace.package_map, workspace.plant, &resolver,
+      test_sdf_forced_nesting);
 
   sdf::Root root;
 
@@ -1501,6 +1516,7 @@ std::vector<ModelInstanceIndex> AddModelsFromSdf(
     std::vector<ModelInstanceIndex> added_model_instances =
         AddModelsFromSpecification(
             workspace.diagnostic, model, model.Name(), {}, workspace.plant,
+            &resolver,
             workspace.package_map, data_source.GetRootDir());
     model_instances.insert(model_instances.end(),
                            added_model_instances.begin(),
@@ -1521,11 +1537,13 @@ std::vector<ModelInstanceIndex> AddModelsFromSdf(
       std::vector<ModelInstanceIndex> added_model_instances =
           AddModelsFromSpecification(
               workspace.diagnostic, model, model.Name(), {}, workspace.plant,
+              &resolver,
               workspace.package_map, data_source.GetRootDir());
       model_instances.insert(model_instances.end(),
                              added_model_instances.begin(),
                              added_model_instances.end());
     }
+    resolver.Resolve();
 
     for (uint64_t frame_index = 0; frame_index < world.FrameCount();
         ++frame_index) {

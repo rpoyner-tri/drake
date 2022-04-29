@@ -18,6 +18,7 @@
 
 #include "drake/common/sorted_pair.h"
 #include "drake/math/rotation_matrix.h"
+#include "drake/multibody/parsing/detail_collision_filter_group_resolver.h"
 #include "drake/multibody/parsing/detail_path_utils.h"
 #include "drake/multibody/parsing/detail_tinyxml.h"
 #include "drake/multibody/parsing/detail_tinyxml2_diagnostic.h"
@@ -135,6 +136,7 @@ class UrdfParser {
   XMLDocument* const xml_doc_;
   const ParsingWorkspace& w_;
   TinyXml2Diagnostic diagnostic_;
+  parsing::internal::CollisionFilterGroupResolver resolver_{w_.plant};
 
   ModelInstanceIndex model_instance_{};
 };
@@ -312,6 +314,7 @@ void UrdfParser::ParseCollisionFilterGroup(XMLElement* node) {
     return attribute_value == std::string("true") ? true : false;
   };
   ParseCollisionFilterGroupCommon(model_instance_, node, w_.plant,
+                                  &resolver_,
                                   next_child_element, next_sibling_element,
                                   has_attribute, get_string_attribute,
                                   get_bool_attribute, get_string_attribute);
@@ -882,6 +885,7 @@ std::optional<ModelInstanceIndex> UrdfParser::Parse() {
     ParseBushing(bushing_node);
   }
 
+  resolver_.Resolve();
   return model_instance_;
 }
 
