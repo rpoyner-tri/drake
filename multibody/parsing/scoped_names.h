@@ -12,6 +12,9 @@ namespace drake {
 namespace multibody {
 namespace parsing {
 
+constexpr char const* kScopedNameDefaultDelim = "::";
+
+
 /// Finds an optionally model-scoped frame, using the naming rules of
 /// `ParseScopedName`.
 ///
@@ -55,10 +58,13 @@ struct ScopedName {
 /// - The delimiter "::" may appear zero or more times.
 /// - If one more delimiters are present, the full name is split by the *last*
 ///   delimiter. The provided model instance name must exist.
-ScopedName ParseScopedName(const std::string& full_name);
+ScopedName ParseScopedName(
+    const std::string& full_name,
+    const std::string& delimiter = kScopedNameDefaultDelim);
 
 /// Composes a "namespace::name" name from its components.
-std::string PrefixName(const std::string& namespace_, const std::string& name);
+std::string PrefixName(const std::string& namespace_, const std::string& name,
+                       const std::string& delimiter = kScopedNameDefaultDelim);
 
 /// Gets the namespace prefix for a given model instance.
 std::string GetInstanceScopeName(

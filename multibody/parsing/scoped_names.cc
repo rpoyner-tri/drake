@@ -4,8 +4,6 @@ namespace drake {
 namespace multibody {
 namespace parsing {
 
-constexpr char const* kDelim = "::";
-
 const drake::multibody::Frame<double>*
 GetScopedFrameByNameMaybe(
     const drake::multibody::MultibodyPlant<double>& plant,
@@ -33,8 +31,9 @@ std::string GetScopedFrameName(
       plant, frame.model_instance()), frame.name());
 }
 
-ScopedName ParseScopedName(const std::string& full_name) {
-  size_t pos = full_name.rfind(kDelim);
+ScopedName ParseScopedName(const std::string& full_name,
+                           const std::string& delimiter) {
+  size_t pos = full_name.rfind(delimiter);
   ScopedName result;
   if (pos == std::string::npos) {
     result.name = full_name;
@@ -42,18 +41,19 @@ ScopedName ParseScopedName(const std::string& full_name) {
     result.instance_name = full_name.substr(0, pos);
     // "Global scope" (e.g. "::my_frame") not supported.
     DRAKE_DEMAND(!result.instance_name.empty());
-    result.name = full_name.substr(pos + std::string(kDelim).size());
+    result.name = full_name.substr(pos + std::string(delimiter).size());
   }
   return result;
 }
 
-std::string PrefixName(const std::string& namespace_, const std::string& name) {
+std::string PrefixName(const std::string& namespace_, const std::string& name,
+                       const std::string& delimiter) {
   if (namespace_.empty())
     return name;
   else if (name.empty())
     return namespace_;
   else
-    return namespace_ + kDelim + name;
+    return namespace_ + delimiter + name;
 }
 
 std::string GetInstanceScopeName(
