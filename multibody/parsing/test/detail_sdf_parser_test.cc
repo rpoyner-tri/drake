@@ -158,7 +158,8 @@ class SdfParserTest : public ::testing::Test {
   DiagnosticPolicy diagnostic_;
   MultibodyPlant<double> plant_{0.0};
   SceneGraph<double> scene_graph_;
-  ParsingWorkspace w_{package_map_, diagnostic_, &plant_};
+  parsing::internal::CollisionFilterGroupResolver resolver_{&plant_};
+  ParsingWorkspace w_{package_map_, diagnostic_, &plant_, &resolver_};
 
   std::vector<DiagnosticDetail> error_records_;
   std::vector<DiagnosticDetail> warning_records_;
@@ -2281,6 +2282,9 @@ TEST_F(SdfParserTest, CollisionFilterGroupParsingTest) {
   // is applied due to the collision filter group parsing.
   ASSERT_FALSE(plant_.is_finalized());
 
+  // Actually apply filters.
+  resolver_.Resolve();
+
   // We have six geometries and 15 possible pairs, each with a particular
   // disposition.
   // (1, 2) - unfiltered
@@ -2317,6 +2321,7 @@ TEST_F(SdfParserTest, CollisionFilterGroupParsingTest) {
 
   // Make sure we can add the model a second time.
   AddModelFromSdfFile(full_sdf_filename, "model2");
+  resolver_.Resolve();
 }
 
 // TODO(marcoag) We might want to add some form of feedback for:

@@ -59,11 +59,13 @@ class UrdfParserTest : public test::DiagnosticPolicyTestBase {
     return AddModelFromUrdf(
         {DataSource::kContents, &file_contents}, model_name, {}, w_);
   }
+
  protected:
   PackageMap package_map_;
   MultibodyPlant<double> plant_{0.0};
   SceneGraph<double> scene_graph_;
-  ParsingWorkspace w_{package_map_, diagnostic_policy_, &plant_};
+  parsing::internal::CollisionFilterGroupResolver resolver_{&plant_};
+  ParsingWorkspace w_{package_map_, diagnostic_policy_, &plant_, &resolver_};
 };
 
 // Some tests contain deliberate typos to provoke parser errors or warnings. In
@@ -1299,6 +1301,9 @@ TEST_F(UrdfParserTest, CollisionFilterGroupParsingTest) {
   // is applied due to the collision filter group parsing.
   ASSERT_FALSE(plant_.is_finalized());
 
+  // Actually apply filters.
+  resolver_.Resolve();
+
   // We have six geometries and 15 possible pairs, each with a particular
   // disposition.
   // (1, 2) - unfiltered
@@ -1335,6 +1340,7 @@ TEST_F(UrdfParserTest, CollisionFilterGroupParsingTest) {
 
   // Make sure we can add the model a second time.
   AddModelFromUrdfFile(full_name, "model2");
+  resolver_.Resolve();
 }
 
 // TODO(marcoag) We might want to add some form of feedback for:

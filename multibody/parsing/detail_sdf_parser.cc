@@ -23,7 +23,6 @@
 #include "drake/geometry/geometry_instance.h"
 #include "drake/math/rigid_transform.h"
 #include "drake/math/rotation_matrix.h"
-#include "drake/multibody/parsing/detail_collision_filter_group_resolver.h"
 #include "drake/multibody/parsing/detail_ignition.h"
 #include "drake/multibody/parsing/detail_path_utils.h"
 #include "drake/multibody/parsing/detail_sdf_geometry.h"
@@ -1271,7 +1270,7 @@ sdf::InterfaceModelPtr ParseNestedInterfaceModel(
   // New instances will have indices starting from cur_num_models
   int cur_num_models = plant->num_model_instances();
   if (is_urdf) {
-    ParsingWorkspace workspace{package_map, diagnostic, plant};
+    ParsingWorkspace workspace{package_map, diagnostic, plant, resolver};
     const std::optional<ModelInstanceIndex> maybe_model =
         AddModelFromUrdf(data_source, include.LocalModelName().value_or(""),
                          include.AbsoluteParentName(), workspace);
@@ -1441,9 +1440,8 @@ std::optional<ModelInstanceIndex> AddModelFromSdf(
     bool test_sdf_forced_nesting) {
   DRAKE_THROW_UNLESS(!workspace.plant->is_finalized());
 
-  CollisionFilterGroupResolver resolver{workspace.plant};
   sdf::ParserConfig parser_config = MakeSdfParserConfig(
-      workspace.package_map, workspace.plant, &resolver,
+      workspace.package_map, workspace.plant, workspace.resolver,
       test_sdf_forced_nesting);
 
   sdf::Root root;
@@ -1465,11 +1463,10 @@ std::optional<ModelInstanceIndex> AddModelFromSdf(
   std::vector<ModelInstanceIndex> added_model_instances =
       AddModelsFromSpecification(
           workspace.diagnostic, model, model_name, {}, workspace.plant,
-          &resolver,
+          workspace.resolver,
           workspace.package_map, data_source.GetRootDir());
 
   DRAKE_DEMAND(!added_model_instances.empty());
-  resolver.Resolve();
   return added_model_instances.front();
 }
 
@@ -1479,9 +1476,8 @@ std::vector<ModelInstanceIndex> AddModelsFromSdf(
     bool test_sdf_forced_nesting) {
   DRAKE_THROW_UNLESS(!workspace.plant->is_finalized());
 
-  CollisionFilterGroupResolver resolver{workspace.plant};
   sdf::ParserConfig parser_config = MakeSdfParserConfig(
-      workspace.package_map, workspace.plant, &resolver,
+      workspace.package_map, workspace.plant, workspace.resolver,
       test_sdf_forced_nesting);
 
   sdf::Root root;
@@ -1516,7 +1512,7 @@ std::vector<ModelInstanceIndex> AddModelsFromSdf(
     std::vector<ModelInstanceIndex> added_model_instances =
         AddModelsFromSpecification(
             workspace.diagnostic, model, model.Name(), {}, workspace.plant,
-            &resolver,
+            workspace.resolver,
             workspace.package_map, data_source.GetRootDir());
     model_instances.insert(model_instances.end(),
                            added_model_instances.begin(),
@@ -1537,13 +1533,12 @@ std::vector<ModelInstanceIndex> AddModelsFromSdf(
       std::vector<ModelInstanceIndex> added_model_instances =
           AddModelsFromSpecification(
               workspace.diagnostic, model, model.Name(), {}, workspace.plant,
-              &resolver,
+              workspace.resolver,
               workspace.package_map, data_source.GetRootDir());
       model_instances.insert(model_instances.end(),
                              added_model_instances.begin(),
                              added_model_instances.end());
     }
-    resolver.Resolve();
 
     for (uint64_t frame_index = 0; frame_index < world.FrameCount();
         ++frame_index) {

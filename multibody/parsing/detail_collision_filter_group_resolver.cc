@@ -79,6 +79,8 @@ void CollisionFilterGroupResolver::Resolve() {
         {name_a, groups_.find(name_a)->second},
         {name_b, groups_.find(name_b)->second});
   }
+  groups_.clear();
+  pairs_.clear();
 }
 
 std::string CollisionFilterGroupResolver::FullyQualify(
