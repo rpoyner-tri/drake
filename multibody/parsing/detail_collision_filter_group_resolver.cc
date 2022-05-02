@@ -34,15 +34,16 @@ void CollisionFilterGroupResolver::AddGroup(
         // Nothing to do.
       }
     } else {
-      // Within local scopes, scoped names are not supported.
-      // XXX TODO diagnostics?
-      DRAKE_THROW_UNLESS(!model_instance);
+      // // Within local scopes, scoped names are not supported.
+      // // XXX TODO diagnostics?
+      // DRAKE_THROW_UNLESS(!model_instance);
       body_model = plant_->GetModelInstanceByName(scoped_name.instance_name);
     }
 
-    const auto& body = body_model ?
-                       plant_->GetBodyByName(body_name.c_str(), *body_model) :
-                       plant_->GetBodyByName(body_name.c_str());
+    const auto& body =
+        body_model ?
+        plant_->GetBodyByName(scoped_name.name.c_str(), *body_model) :
+        plant_->GetBodyByName(scoped_name.name.c_str());
     geometry_set.Add(plant_->GetBodyFrameIdOrThrow(body.index()));
   }
   groups_.insert({FullyQualify(group_name, model_instance), geometry_set});
@@ -95,10 +96,16 @@ std::string CollisionFilterGroupResolver::FullyQualify(
   // don't support outbound references from a local model scope to somewhere
   // else.
   ScopedName scoped_name = ParseScopedName(name);
-  // XXX TODO diagnostics?
-  DRAKE_THROW_UNLESS(scoped_name.instance_name.empty());
+  if (!scoped_name.instance_name.empty()) {
+    // XXX TODO Right now, this allows outbound references (spelled as absolute
+    // names). Is that what we want?
+    return name;
+  }
+  // // XXX TODO diagnostics?
+  // DRAKE_THROW_UNLESS(scoped_name.instance_name.empty());
 
-  return PrefixName(GetInstanceScopeName(*plant_, *model_instance), name);
+  return PrefixName(GetInstanceScopeName(*plant_, *model_instance),
+                    scoped_name.name);
 }
 
 bool CollisionFilterGroupResolver::IsGroupDefined(
