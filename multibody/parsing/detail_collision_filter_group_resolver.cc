@@ -22,17 +22,12 @@ void CollisionFilterGroupResolver::AddGroup(
   geometry::GeometrySet geometry_set;
   for (const auto& body_name : body_names) {
     DRAKE_DEMAND(!body_name.empty());
-    std::optional<ModelInstanceIndex> body_model;
-    ScopedName scoped_name = ParseScopedName(body_name);
+    ScopedName scoped_name = ParseScopedName(
+        FullyQualify(body_name, model_instance));
 
+    std::optional<ModelInstanceIndex> body_model;
     if (scoped_name.instance_name.empty()) {
-      if (model_instance) {
-        // Local and unprefixed; look within this model.
-        body_model = *model_instance;
-      } else {
-        // Global and unprefixed.
-        // Nothing to do.
-      }
+      body_model = *model_instance;
     } else {
       // // Within local scopes, scoped names are not supported.
       // // XXX TODO diagnostics?
@@ -92,20 +87,10 @@ std::string CollisionFilterGroupResolver::FullyQualify(
     return name;
   }
 
-  // Names found in local scope are not allowed to be scoped names, since we
-  // don't support outbound references from a local model scope to somewhere
-  // else.
-  ScopedName scoped_name = ParseScopedName(name);
-  if (!scoped_name.instance_name.empty()) {
-    // XXX TODO Right now, this allows outbound references (spelled as absolute
-    // names). Is that what we want?
-    return name;
-  }
-  // // XXX TODO diagnostics?
-  // DRAKE_THROW_UNLESS(scoped_name.instance_name.empty());
-
-  return PrefixName(GetInstanceScopeName(*plant_, *model_instance),
-                    scoped_name.name);
+  // Blithely assume the name is relative and we can just prefix it with the
+  // model instance name.  XXX TODO work out what to do with various error
+  // cases (unwanted absolute naming, etc.).
+  return PrefixName(GetInstanceScopeName(*plant_, *model_instance), name);
 }
 
 bool CollisionFilterGroupResolver::IsGroupDefined(
