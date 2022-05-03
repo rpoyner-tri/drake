@@ -2266,67 +2266,88 @@ TEST_F(SdfParserTest, CollisionFilterGroupParsingTest) {
   // Get geometry ids for all the bodies.
   const geometry::SceneGraphInspector<double>& inspector =
       scene_graph_.model_inspector();
-  static constexpr int kNumLinks = 12;
+  static constexpr int kNumRobots = 2;
+  static constexpr int kNumLinksPerRobot = 6;
+  static constexpr int kNumLinks = kNumLinksPerRobot * kNumRobots;
+  // Verify the number we expect and that they are all in proximity role.
   ASSERT_EQ(kNumLinks, inspector.num_geometries());
-  const std::vector<GeometryId> all = inspector.GetAllGeometryIds();
-  for (const auto& gid : all) {
-    std::cerr << " " << inspector.GetName(gid) << "\n";
+  ASSERT_EQ(kNumLinks,
+            inspector.NumGeometriesWithRole(geometry::Role::kProximity));
+  // Get the unsorted geometry ids.
+  const std::vector<GeometryId> unsorted = inspector.GetAllGeometryIds();
+  // Use a map to get them in order by name.
+  std::map<std::string, GeometryId> by_name;
+  for (const auto& gid : unsorted) {
+    by_name[inspector.GetName(gid)] = gid;
   }
-  // std::vector<GeometryId> ids(1 + kNumLinks);  // allow 1-based indices.
-  // for (int r = 1; r <= 2; ++r) {
-  //   for (int k = 1; k <= 6; ++k) {
-  //     const std::string name = fmt::format(
-  //         "collision_filter_group_parsing_test::robot{}::link{}", r, k);
-  //     const auto geometry_id = inspector.GetGeometryIdByName(
-  //         plant_.GetBodyFrameIdOrThrow(
-  //             plant_.GetBodyByName(name).index()),
-  //         geometry::Role::kProximity,
-  //    fmt::format("collision_filter_group_parsing_test::link{}_sphere", k));
-  //     ids[k] = geometry_id;
-  //   }
-  // }
+  // Extract the in-order ids to a vector; allow 1-based indices.
+  std::vector<GeometryId> ids(1 + kNumLinks);
+  int index{1};
+  for (const auto& pair : by_name) {
+    ids[index++] = pair.second;
+  }
 
-  // Make sure the plant is not finalized such that the adjacent joint filter
-  // has not taken into effect yet. This guarantees that the collision filtering
-  // is applied due to the collision filter group parsing.
+  // Make sure the plant is not finalized such that the Finalize() default
+  // filtering has not taken into effect yet. This guarantees that the
+  // collision filtering is applied due to the collision filter group parsing.
   ASSERT_FALSE(plant_.is_finalized());
 
   // Actually apply filters.
   resolver_.Resolve();
 
-  // We have six geometries and 15 possible pairs, each with a particular
-  // disposition.
-  // (1, 2) - unfiltered
-  // EXPECT_FALSE(inspector.CollisionFiltered(ids[1], ids[2]));
-  // // (1, 3) - filtered by group_link3 ignores group_link14
-  // EXPECT_TRUE(inspector.CollisionFiltered(ids[1], ids[3]));
-  // // (1, 4) - filtered by group_link14 ignores itself
-  // EXPECT_TRUE(inspector.CollisionFiltered(ids[1], ids[4]));
-  // // (1, 5) - unfiltered
-  // EXPECT_FALSE(inspector.CollisionFiltered(ids[1], ids[5]));
-  // // (1, 6) - unfiltered
-  // EXPECT_FALSE(inspector.CollisionFiltered(ids[1], ids[6]));
-  // // (2, 3) - filtered by group_link2 ignores group_link3
-  // EXPECT_TRUE(inspector.CollisionFiltered(ids[2], ids[3]));
-  // // (2, 4) - unfiltered (although declared in an *ignored* self-filtering
-  // // group_link24).
-  // EXPECT_FALSE(inspector.CollisionFiltered(ids[2], ids[4]));
-  // // (2, 5) - filtered by group_link56 ignored group_link2
-  // EXPECT_TRUE(inspector.CollisionFiltered(ids[2], ids[5]));
-  // // (2, 6) - filtered by group_link56 ignored group_link2
-  // EXPECT_TRUE(inspector.CollisionFiltered(ids[2], ids[6]));
-  // // (3, 4) - filtered by group_link3 ignores group_link14
-  // EXPECT_TRUE(inspector.CollisionFiltered(ids[3], ids[4]));
-  // // (3, 5) - filtered by group_link56 ignored group_link3
-  // EXPECT_TRUE(inspector.CollisionFiltered(ids[3], ids[5]));
-  // // (3, 6) - filtered by group_link56 ignored group_link3
-  // EXPECT_TRUE(inspector.CollisionFiltered(ids[3], ids[6]));
-  // // (4, 5) - unfiltered
-  // EXPECT_FALSE(inspector.CollisionFiltered(ids[4], ids[5]));
-  // // (4, 6) - unfiltered
-  // EXPECT_FALSE(inspector.CollisionFiltered(ids[4], ids[6]));
-  // // (5, 6) - filtered by group_link56 ignores itself
-  // EXPECT_TRUE(inspector.CollisionFiltered(ids[5], ids[6]));
+  // Verify filtering local to the nested robots.
+  for (int k = 0; k < kNumRobots; ++k) {
+    int offset = k * kNumLinksPerRobot;
+    // We have six geometries and 15 possible pairs, each with a particular
+    // disposition.
+    // (1, 2) - unfiltered
+    EXPECT_FALSE(inspector.CollisionFiltered(ids[1 + offset], ids[2 + offset]));
+    // (1, 3) - filtered by group_link3 ignores group_link14
+    EXPECT_TRUE(inspector.CollisionFiltered(ids[1 + offset], ids[3 + offset]));
+    // (1, 4) - filtered by group_link14 ignores itself
+    EXPECT_TRUE(inspector.CollisionFiltered(ids[1 + offset], ids[4 + offset]));
+    // (1, 5) - unfiltered
+    EXPECT_FALSE(inspector.CollisionFiltered(ids[1 + offset], ids[5 + offset]));
+    // (1, 6) - unfiltered
+    EXPECT_FALSE(inspector.CollisionFiltered(ids[1 + offset], ids[6 + offset]));
+    // (2, 3) - filtered by group_link2 ignores group_link3
+    EXPECT_TRUE(inspector.CollisionFiltered(ids[2 + offset], ids[3 + offset]));
+    // (2, 4) - unfiltered (although declared in an *ignored* self-filtering
+    // group_link24).
+    EXPECT_FALSE(inspector.CollisionFiltered(ids[2 + offset], ids[4 + offset]));
+    // (2, 5) - filtered by group_link56 ignored group_link2
+    EXPECT_TRUE(inspector.CollisionFiltered(ids[2 + offset], ids[5 + offset]));
+    // (2, 6) - filtered by group_link56 ignored group_link2
+    EXPECT_TRUE(inspector.CollisionFiltered(ids[2 + offset], ids[6 + offset]));
+    // (3, 4) - filtered by group_link3 ignores group_link14
+    EXPECT_TRUE(inspector.CollisionFiltered(ids[3 + offset], ids[4 + offset]));
+    // (3, 5) - filtered by group_link56 ignored group_link3
+    EXPECT_TRUE(inspector.CollisionFiltered(ids[3 + offset], ids[5 + offset]));
+    // (3, 6) - filtered by group_link56 ignored group_link3
+    EXPECT_TRUE(inspector.CollisionFiltered(ids[3 + offset], ids[6 + offset]));
+    // (4, 5) - unfiltered
+    EXPECT_FALSE(inspector.CollisionFiltered(ids[4 + offset], ids[5 + offset]));
+    // (4, 6) - unfiltered
+    EXPECT_FALSE(inspector.CollisionFiltered(ids[4 + offset], ids[6 + offset]));
+    // (5, 6) - filtered by group_link56 ignores itself
+    EXPECT_TRUE(inspector.CollisionFiltered(ids[5 + offset], ids[6 + offset]));
+  }
+
+  // Verify filtering spanning multiple robots.
+  for (int m = 1; m <= kNumLinksPerRobot; ++m) {
+    for (int n = 1; n <= kNumLinksPerRobot; ++n) {
+      SCOPED_TRACE(fmt::format("robot1::link{} vs robot2::link{}", m, n));
+      if ((m == 3 && n == 3) ||  // group_3s
+          (m == 6 && n == 6)) {  // group_6s
+        EXPECT_TRUE(inspector.CollisionFiltered(
+                        ids[m], ids[n + kNumLinksPerRobot]));
+      } else {
+        EXPECT_FALSE(inspector.CollisionFiltered(
+                        ids[m], ids[n + kNumLinksPerRobot]));
+      }
+    }
+  }
+
 
   // Make sure we can add the model a second time.
   AddModelFromSdfFile(full_sdf_filename, "model2");
