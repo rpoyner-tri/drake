@@ -44,6 +44,11 @@ using tinyxml2::XMLElement;
 
 namespace {
 
+bool EndsWith(std::string_view value, std::string_view ending) {
+  if (ending.size() > value.size()) { return false; }
+  return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+
 // For tags that exist in the MuJoCo XML schema, but are not (yet) supported
 // here, we print a warning to the console.  This method checks the node for
 // the child element, and prints the warning if any occurrences exist.
@@ -1102,24 +1107,27 @@ class MujocoParser {
         scene_graph->collision_filter_manager();
     const geometry::SceneGraphInspector<double>& inspector =
         scene_graph->model_inspector();
-    const std::vector<GeometryId> geom_ids = inspector.GetAllGeometryIds();
+    const auto geom_ids = inspector.GetGeometryIds(
+        geometry::GeometrySet(inspector.GetAllGeometryIds()),
+        geometry::Role::kProximity);
 
-    // MultibodyPlant Register__Geometry methods automatically changes the
-    // geometry name to model_instance_name::geometry_name (in
-    // MultibodyPlant::GetScopedName). I need to undo that change here.
-    int scoped_name_prefix_length =
-        plant_->GetModelInstanceName(model_instance_).size() + 2;
+    // "Frame group" is the scene graph analog of model instance index;
+    // MultibodyPlant guarantees that the numeric values match.
+    int frame_group = model_instance_;
 
-    auto geom_id_from_name = [&inspector, &geom_ids, scoped_name_prefix_length](
+    auto geom_id_from_name = [&inspector, &geom_ids, frame_group](
                                  const std::string& name) {
       for (GeometryId id : geom_ids) {
-        const std::string_view unscoped_name =
-            std::string_view(inspector.GetName(id))
-                .substr(scoped_name_prefix_length, std::string::npos);
-        if (unscoped_name == name) {
-          return id;
-          break;
-        }
+        // Only match geometry loaded from the current model instance.
+        int candidate_frame_group =
+            inspector.GetFrameGroup(inspector.GetFrameId(id));
+        if (candidate_frame_group != frame_group) { continue; }
+
+        // MultibodyPlant Register__Geometry methods automatically change the
+        // geometry name to model_instance_name::geometry_name (in
+        // MultibodyPlant::GetScopedName). Cope with that change here.
+        const std::string candidate_name = inspector.GetName(id);
+        if (EndsWith(candidate_name, name)) { return id; }
       }
       return GeometryId();
     };
