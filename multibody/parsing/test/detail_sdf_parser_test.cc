@@ -2755,7 +2755,7 @@ TEST_F(SdfParserTest, TestUnsupportedVisualGeometry) {
     </link>
   </model>)""");
   EXPECT_THAT(FormatFirstWarning(), ::testing::MatchesRegex(
-      ".*Ignoring unsupported SDFormat element in geometry: heightmap.*"));
+      ".*Unsupported SDFormat element in geometry: heightmap.*"));
   ClearDiagnostics();
 
   ParseTestString(R"""(
@@ -2769,7 +2769,7 @@ TEST_F(SdfParserTest, TestUnsupportedVisualGeometry) {
     </link>
   </model>)""");
   EXPECT_THAT(FormatFirstWarning(), ::testing::MatchesRegex(
-      ".*Ignoring unsupported SDFormat element in geometry: polyline.*"));
+      ".*Unsupported SDFormat element in geometry: polyline.*"));
   ClearDiagnostics();
 }
 
@@ -2787,7 +2787,7 @@ TEST_F(SdfParserTest, TestUnsupportedCollisionGeometry) {
     </link>
   </model>)""");
   EXPECT_THAT(FormatFirstWarning(), ::testing::MatchesRegex(
-      ".*Ignoring unsupported SDFormat element in geometry: heightmap.*"));
+      ".*Unsupported SDFormat element in geometry: heightmap.*"));
   ClearDiagnostics();
 
   ParseTestString(R"""(
@@ -2801,7 +2801,7 @@ TEST_F(SdfParserTest, TestUnsupportedCollisionGeometry) {
     </link>
   </model>)""");
   EXPECT_THAT(FormatFirstWarning(), ::testing::MatchesRegex(
-      ".*Ignoring unsupported SDFormat element in geometry: polyline.*"));
+      ".*Unsupported SDFormat element in geometry: polyline.*"));
   ClearDiagnostics();
 }
 
