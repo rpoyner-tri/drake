@@ -11,3 +11,9 @@ import %workspace%/gen/environment.bazelrc
 
 # Try to import user-specific configuration local to workspace.
 try-import %workspace%/user.bazelrc
+
+# Experiment with mold.
+build --linkopt=-fuse-ld=mold
+build --action_env=MOLD_DEBUG=1
+build --host_action_env=MOLD_DEBUG=1
+
