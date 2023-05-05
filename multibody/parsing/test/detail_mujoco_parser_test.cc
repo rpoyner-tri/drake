@@ -760,16 +760,16 @@ TEST_F(MujocoParserTest, InertiaFromGeometry) {
       "box_from_mesh",
       SpatialInertia<double>::SolidCubeWithMass(1.0, 2.0),
       1e-13);
-  // This unit inertia was collected empirically from the results of
-  // multibody::CalcSpatialInertia() on the non-convex mesh. The important fact
-  // is that it differs from the result obtained by estimating inertia on an
-  // oriented bounding box.
-  UnitInertia<double> non_convex_unit_inertia{0.168, 0.168, 0.168,
-                                              -0.034, -0.034, -0.034};
+  // This unit inertia and center of mass were collected empirically from the
+  // results of multibody::CalcSpatialInertia() on the non-convex mesh. The
+  // important fact is that it differs from the result obtained by estimating
+  // inertia on an oriented bounding box.
+  const UnitInertia<double> non_convex_unit_inertia{0.168,  0.168,  0.168,
+                                                    -0.034, -0.034, -0.034};
+  const Vector3d non_convex_com = Vector3d::Constant(0.2166666666666666);
   check_body_spatial(
       "non_convex_body",
-      SpatialInertia<double>{1.0, Vector3d::Zero(),
-                             non_convex_unit_inertia},
+      SpatialInertia<double>{1.0, non_convex_com, non_convex_unit_inertia},
       1e-13);
 
   check_body_spatial("sphere_auto", inertia_from_inertial_tag);
@@ -788,8 +788,7 @@ TEST_F(MujocoParserTest, InertiaFromGeometry) {
       1e-12);
   check_body_spatial(
       "non_convex_body_w_density",
-      SpatialInertia<double>{0.1, Vector3d::Zero(),
-                             non_convex_unit_inertia},
+      SpatialInertia<double>{0.1, non_convex_com, non_convex_unit_inertia},
       1e-13);
 
   // A cube rotating about its corner.
