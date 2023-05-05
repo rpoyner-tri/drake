@@ -13,9 +13,6 @@
 #include <drake_vendor/tinyxml2.h>
 #include <fmt/format.h>
 
-#include "drake/geometry/proximity/meshing_utilities.h"
-#include "drake/geometry/proximity/obb.h"
-#include "drake/geometry/proximity/obj_to_surface_mesh.h"
 #include "drake/geometry/shape_specification.h"
 #include "drake/math/rigid_transform.h"
 #include "drake/math/rotation_matrix.h"
@@ -342,6 +339,48 @@ class MujocoParser {
     WarnUnsupportedAttribute(*node, "user");
   }
 
+  // Computes the spatial inertia for a shape given the assumption of unit
+  // density.
+  class InertiaCalculator final : public geometry::ShapeReifier {
+   public:
+    DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(InertiaCalculator);
+    // The reifier aliases the pre-computed mesh spatial inertias. When looking
+    // up mesh inertias, it uses the mujoco geometry _name_ and not the
+    // mesh filename.
+    InertiaCalculator(
+        const std::map<std::string, SpatialInertia<double>>* mesh_inertia,
+        std::string name)
+        : mesh_inertia_(*mesh_inertia),
+          name_(std::move(name)) {
+      DRAKE_DEMAND(mesh_inertia != nullptr);
+    }
+
+    SpatialInertia<double> spatial_inertia(const geometry::Shape& shape) {
+      shape.Reify(this);
+      return M_GG_G;
+    }
+
+    using geometry::ShapeReifier::ImplementGeometry;
+
+    void ImplementGeometry(const geometry::Mesh&, void*) final {
+      DRAKE_DEMAND(mesh_inertia_.count(name_) == 1);
+      M_GG_G = mesh_inertia_.at(name_);
+    }
+
+    void ImplementGeometry(const geometry::HalfSpace&, void*) final {
+      // Do nothing; leave M_GG_G default initialized.
+    }
+
+    void DefaultImplementGeometry(const geometry::Shape& shape) final {
+      M_GG_G = CalcSpatialInertia(shape, 1.0 /* density */);
+    }
+
+   private:
+    const std::map<std::string, SpatialInertia<double>>& mesh_inertia_;
+    std::string name_;
+    SpatialInertia<double> M_GG_G;
+  };
+
   SpatialInertia<double> ParseInertial(XMLElement* node) {
     // We use F to denote the "inertial frame" in the MujoCo documentation.  B
     // is the body frame.
@@ -448,7 +487,6 @@ class MujocoParser {
     if (type == "plane") {
       // We interpret the MuJoCo infinite plane as a half-space.
       geom.shape = std::make_unique<geometry::HalfSpace>();
-      // No inertia; can only be static geometry.
     } else if (type == "sphere") {
       if (size.size() < 1) {
         Error(*node,
@@ -457,7 +495,6 @@ class MujocoParser {
         return geom;
       }
       geom.shape = std::make_unique<geometry::Sphere>(size[0]);
-      unit_M_GG_G = multibody::UnitInertia<double>::SolidSphere(size[0]);
     } else if (type == "capsule") {
       if (has_fromto) {
         if (size.size() < 1) {
@@ -468,8 +505,6 @@ class MujocoParser {
         }
         double length = (fromto.head<3>() - fromto.tail<3>()).norm();
         geom.shape = std::make_unique<geometry::Capsule>(size[0], length);
-        unit_M_GG_G =
-            multibody::UnitInertia<double>::SolidCapsule(size[0], length);
 
       } else {
         if (size.size() < 2) {
@@ -479,8 +514,6 @@ class MujocoParser {
           return geom;
         }
         geom.shape = std::make_unique<geometry::Capsule>(size[0], 2 * size[1]);
-        unit_M_GG_G =
-            multibody::UnitInertia<double>::SolidCapsule(size[0], 2 * size[1]);
       }
     } else if (type == "ellipsoid") {
       if (has_fromto) {
@@ -499,8 +532,6 @@ class MujocoParser {
         }
         geom.shape =
             std::make_unique<geometry::Ellipsoid>(size[0], size[1], size[2]);
-        unit_M_GG_G = multibody::UnitInertia<double>::SolidEllipsoid(
-            size[0], size[1], size[2]);
       }
     } else if (type == "cylinder") {
       if (has_fromto) {
@@ -512,8 +543,6 @@ class MujocoParser {
         }
         double length = (fromto.head<3>() - fromto.tail<3>()).norm();
         geom.shape = std::make_unique<geometry::Cylinder>(size[0], length);
-        unit_M_GG_G =
-            multibody::UnitInertia<double>::SolidCylinder(size[0], length);
       } else {
         if (size.size() < 2) {
           Error(*node,
@@ -522,8 +551,6 @@ class MujocoParser {
           return geom;
         }
         geom.shape = std::make_unique<geometry::Cylinder>(size[0], 2 * size[1]);
-        unit_M_GG_G =
-            multibody::UnitInertia<double>::SolidCylinder(size[0], 2 * size[1]);
       }
     } else if (type == "box") {
       if (has_fromto) {
@@ -542,8 +569,6 @@ class MujocoParser {
         }
         geom.shape = std::make_unique<geometry::Box>(
             size[0] * 2.0, size[1] * 2.0, size[2] * 2.0);
-        unit_M_GG_G = multibody::UnitInertia<double>::SolidBox(
-            size[0] * 2.0, size[1] * 2.0, size[2] * 2.0);
       }
     } else if (type == "mesh") {
       if (!ParseStringAttribute(node, "mesh", &mesh)) {
@@ -554,14 +579,6 @@ class MujocoParser {
       }
       if (mesh_.count(mesh)) {
         geom.shape = mesh_.at(mesh)->Clone();
-        if (compute_inertia) {
-          // At least so far, we have a surface mesh for every mesh.
-          DRAKE_ASSERT(surface_mesh_.count(mesh) == 1);
-          const geometry::TriangleSurfaceMesh<double>& surface_mesh =
-              surface_mesh_.at(mesh);
-          unit_M_GG_G =
-              multibody::CalcSpatialInertia(surface_mesh).get_unit_inertia();
-        }
       } else {
         Warning(
             *node,
@@ -667,20 +684,16 @@ class MujocoParser {
     WarnUnsupportedAttribute(*node, "user");
 
     if (compute_inertia) {
-      double mass, density{1000};
+      SpatialInertia<double> M_GG_G_one =
+          InertiaCalculator(&mesh_inertia_, mesh).spatial_inertia(*geom.shape);
+      double mass{};
       if (!ParseScalarAttribute(node, "mass", &mass)) {
+        double density{1000};
         ParseScalarAttribute(node, "density", &density);
-        if (type == "mesh") {
-          // At least so far, we have a surface mesh for every mesh.
-          DRAKE_ASSERT(surface_mesh_.count(mesh) == 1);
-          mass = density *
-                 geometry::internal::CalcEnclosedVolume(surface_mesh_.at(mesh));
-        } else {
-          mass = density * geometry::CalcVolume(*geom.shape);
-        }
+        mass = M_GG_G_one.get_mass() * density;
       }
-      multibody::SpatialInertia<double> M_GG_G(mass, Vector3d::Zero(),
-                                               unit_M_GG_G);
+      SpatialInertia<double> M_GG_G(mass, M_GG_G_one.get_com(),
+                                    M_GG_G_one.get_unit_inertia());
       geom.M_GBo_B = M_GG_G.ReExpress(geom.X_BG.rotation())
                          .Shift(-geom.X_BG.translation());
     }
@@ -974,9 +987,7 @@ class MujocoParser {
 
         if (std::filesystem::exists(filename)) {
           mesh_[name] = std::make_unique<geometry::Mesh>(filename, scale[0]);
-          surface_mesh_.emplace(std::pair(
-              name,
-              geometry::ReadObjToTriangleSurfaceMesh(filename, scale[0])));
+          mesh_inertia_[name] = CalcSpatialInertia(*mesh_[name], 1);
         } else if (std::filesystem::exists(original_filename)) {
           Warning(
               *node,
@@ -1384,7 +1395,8 @@ class MujocoParser {
   std::map<std::string, XMLElement*> material_{};
   std::optional<std::filesystem::path> meshdir_{};
   std::map<std::string, std::unique_ptr<geometry::Mesh>> mesh_{};
-  std::map<std::string, geometry::TriangleSurfaceMesh<double>> surface_mesh_{};
+  // Spatial inertia of mesh assets assuming density = 1.
+  std::map<std::string, SpatialInertia<double>> mesh_inertia_;
 };
 
 }  // namespace
