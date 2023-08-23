@@ -104,12 +104,16 @@ class TestScene {
                         const Shape& shape) {
     switch (type) {
       case HydroelasticType::kSoft:
-        this->hydroelastic_geometries_.MaybeAddGeometry(shape, id,
-                                                        &soft_properties());
+        {
+        ProximityProperties soft(soft_properties());
+        this->hydroelastic_geometries_.MaybeAddGeometry(shape, id, &soft);
+        }
         break;
       case HydroelasticType::kRigid:
-        this->hydroelastic_geometries_.MaybeAddGeometry(shape, id,
-                                                        &rigid_properties());
+        {
+        ProximityProperties rigid(rigid_properties());
+        this->hydroelastic_geometries_.MaybeAddGeometry(shape, id, &rigid);
+        }
         break;
       case HydroelasticType::kUndefined:
         // Note: HydroelasticType::kUndefined will not be added.
