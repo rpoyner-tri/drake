@@ -85,8 +85,8 @@ void Geometries::MaybeAddGeometry(const Shape& shape, GeometryId id,
       shape.Reify(this, &data);
       inferred_properties.UpdateProperty(kHydroGroup, kComplianceType,
                                          data.type);
-      // Write back inferred properties.
-      *properties = inferred_properties;
+      // // Write back inferred properties.
+      // *properties = inferred_properties;
     }
   }
 }

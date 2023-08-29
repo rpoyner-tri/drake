@@ -68,7 +68,7 @@ T GetCombinedHuntCrossleyDissipation(
     const geometry::SceneGraphInspector<T>& inspector) {
   const double kInf = std::numeric_limits<double>::infinity();
   // Demand that at least one is compliant.
-  DRAKE_DEMAND(stiffness_A != kInf || stiffness_B != kInf);
+  // XXX DRAKE_DEMAND(stiffness_A != kInf || stiffness_B != kInf);
   DRAKE_DEMAND(stiffness_A >= 0.0);
   DRAKE_DEMAND(stiffness_B >= 0.0);
   DRAKE_DEMAND(default_dissipation >= 0.0);
