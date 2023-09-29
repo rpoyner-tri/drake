@@ -15,16 +15,31 @@ licenses(["notice"])  # BSD-3-Clause
 
 package(default_visibility = ["//visibility:private"])
 
+# Group the headers exported by this library.
+cc_library(
+    name = "hdrs",
+    hdrs = ["er.h"],
+)
+
 # Compile the code (using both its exported headers and its private headers).
 cc_library(
     name = "compiled",
-    srcs = glob(["*.c", "*.h"], allow_empty = False),
+    srcs = glob(["*.c"], exclude=["arx.c", "rvp.c"], allow_empty = False),
+    hdrs = glob(["rx_cls_*.c", "*.h"], allow_empty = False),
     copts = [
         "-Wno-all",
         "-fvisibility=hidden",
     ],
-    defines = ['EXPAT_H=<expat.h>', 'UNISTD_H=<unistd.h>', "SUPPRESS_MAIN"],
+    defines = [
+        'EXPAT_H=<expat.h>',
+        'UNISTD_H=<unistd.h>',
+        "SUPPRESS_MAIN",
+        'ARX_VERSION=\\"dontcare\\"',
+        'RNV_VERSION=\\"dontcare\\"',
+        'RVP_VERSION=\\"dontcare\\"',
+    ],
     linkstatic = True,
+    deps = [":hdrs"],
 )
 
 # Strip the private headers out; we just want the object code.
@@ -41,12 +56,13 @@ cc_library(
     deps = [
         ":archive",
         ":hdrs",
+        "@expat",
     ],
     visibility = ["//visibility:public"],
 )
 
 install(
     name = "install",
-    docs = ["BSD-LICENSE"],
+    docs = ["COPYING"],
     visibility = ["//visibility:public"],
 )
