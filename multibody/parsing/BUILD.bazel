@@ -35,6 +35,12 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+filegroup(
+    name = "urdf_schema",
+    srcs = ["urdf.rnc"],
+    visibility = ["//visibility:public"],
+)
+
 _DM_CONTROL_MUJOCO_FILES = forward_files(
     srcs = ["@dm_control_internal//:" + x for x in dm_control_mujoco_files()],
     dest_prefix = "",
@@ -450,9 +456,9 @@ drake_cc_binary(
     testonly = 1,
     srcs = ["test/schema_manual_test.cc"],
     add_test_rule = 1,
-    data = [":test_models"],
+    data = [":test_models", ":urdf_schema"],
     test_rule_args = [
-        "urdf.rnc",
+        "multibody/parsing/urdf.rnc",
         "multibody/parsing/test/urdf_parser_test/joint_parsing_test.urdf",
     ],
     deps = [
