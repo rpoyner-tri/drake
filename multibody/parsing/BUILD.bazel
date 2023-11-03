@@ -297,7 +297,6 @@ drake_cc_library(
     deps = [
         "//common:diagnostic_policy",
         "//common:unused",
-        "@rnv_internal//:rnv",
     ],
 )
 
