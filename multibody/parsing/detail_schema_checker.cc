@@ -1,6 +1,6 @@
 #include "drake/multibody/parsing/detail_schema_checker.h"
 
-#include <libxml++/validators/relaxngvalidator.h>
+#include <libxml++-2.6/libxml++/validators/relaxngvalidator.h>
 
 namespace drake {
 namespace multibody {
