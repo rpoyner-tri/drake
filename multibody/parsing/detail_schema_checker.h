@@ -8,9 +8,9 @@ namespace drake {
 namespace multibody {
 namespace internal {
 
-int CheckDocumentAgainstRncSchema(
+int CheckDocumentAgainstRngSchema(
     const drake::internal::DiagnosticPolicy& diagnostic,
-    const std::filesystem::path& rnc_schema,
+    const std::filesystem::path& rng_schema,
     const std::filesystem::path& document);
 
 }  // namespace internal

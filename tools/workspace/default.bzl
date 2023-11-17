@@ -57,6 +57,7 @@ load("//tools/workspace/libpng:repository.bzl", "libpng_repository")
 load("//tools/workspace/libpng_internal:repository.bzl", "libpng_internal_repository")  # noqa
 load("//tools/workspace/libtiff:repository.bzl", "libtiff_repository")
 load("//tools/workspace/libtiff_internal:repository.bzl", "libtiff_internal_repository")  # noqa
+load("//tools/workspace/libxml:repository.bzl", "libxml_repository")  # noqa
 load("//tools/workspace/meshcat:repository.bzl", "meshcat_repository")
 load("//tools/workspace/mosek:repository.bzl", "mosek_repository")
 load("//tools/workspace/mpmath_py_internal:repository.bzl", "mpmath_py_internal_repository")  # noqa
@@ -256,6 +257,8 @@ def add_default_repositories(excludes = [], mirrors = DEFAULT_MIRRORS):
         libtiff_repository(name = "libtiff")
     if "libtiff_internal" not in excludes:
         libtiff_internal_repository(name = "libtiff_internal", mirrors = mirrors)  # noqa
+    if "libxml" not in excludes:
+        libxml_repository(name = "libxml")
     if "meshcat" not in excludes:
         meshcat_repository(name = "meshcat", mirrors = mirrors)
     if "mosek" not in excludes:

@@ -25,7 +25,7 @@ int do_main(int argc, char* argv[]) {
   drake::internal::DiagnosticPolicy policy;
   std::filesystem::path schema(argv[1]);
   std::filesystem::path document(argv[2]);
-  return internal::CheckDocumentAgainstRncSchema(policy, schema, document);
+  return internal::CheckDocumentAgainstRngSchema(policy, schema, document);
 }
 
 }  // namespace

@@ -37,7 +37,10 @@ filegroup(
 
 filegroup(
     name = "urdf_schema",
-    srcs = ["urdf.rnc"],
+    srcs = [
+        "urdf.rnc",
+        "urdf.rng",  # TODOXXX genrule
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -297,6 +300,7 @@ drake_cc_library(
     deps = [
         "//common:diagnostic_policy",
         "//common:unused",
+        "@libxml",
     ],
 )
 
@@ -460,7 +464,7 @@ drake_cc_binary(
         ":urdf_schema",
     ],
     test_rule_args = [
-        "multibody/parsing/urdf.rnc",
+        "multibody/parsing/urdf.rng",
         "multibody/parsing/test/urdf_parser_test/joint_parsing_test.urdf",
     ],
     deps = [
