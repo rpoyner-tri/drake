@@ -17,4 +17,5 @@ patchelf
 pkg-config
 python3-all-dev
 python3-pygame
+trang
 zlib1g-dev
