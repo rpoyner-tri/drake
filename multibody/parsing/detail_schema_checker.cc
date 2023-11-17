@@ -1,39 +1,90 @@
 #include "drake/multibody/parsing/detail_schema_checker.h"
 
+#include <string>
+
 #include <libxml/parser.h>
 #include <libxml/relaxng.h>
 #include <libxml/xmlmemory.h>
 
-#include "drake/common/unused.h"
+#include "drake/common/scope_exit.h"
 
 namespace drake {
 namespace multibody {
 namespace internal {
 
+using drake::internal::DiagnosticDetail;
+using drake::internal::DiagnosticPolicy;
+
+namespace {
+class ErrorHandler {
+ public:
+  ErrorHandler(
+      const DiagnosticPolicy& diagnostic) : diagnostic_(diagnostic) {}
+
+  static void ReceiveStructuredError(void* userData, xmlErrorPtr error) {
+    ErrorHandler* handler = static_cast<ErrorHandler*>(userData);
+    handler->Receive(error);
+  }
+
+  void Receive(xmlErrorPtr error) {
+    DRAKE_DEMAND(error != nullptr);
+    switch (error->level) {
+      case XML_ERR_NONE: { break; }
+      case XML_ERR_WARNING: {
+        diagnostic_.Warning(Convert(error));
+        break;
+      }
+      case XML_ERR_ERROR:
+      case XML_ERR_FATAL: {
+        diagnostic_.Error(Convert(error));
+        break;
+      }
+    }
+  }
+
+ private:
+  DiagnosticDetail Convert(xmlErrorPtr error) {
+    DRAKE_DEMAND(error != nullptr);
+    DiagnosticDetail detail;
+    detail.filename = std::string(error->file == nullptr ? "" : error->file);
+    detail.line = error->line;
+    detail.message = std::string(error->message);
+    return detail;
+  }
+
+  const DiagnosticPolicy& diagnostic_;
+};
+}  // namespace
+
 int CheckDocumentAgainstRngSchema(
-    const drake::internal::DiagnosticPolicy& diagnostic,
+    const DiagnosticPolicy& diagnostic,
     const std::filesystem::path& rng_schema,
     const std::filesystem::path& document) {
-  unused(diagnostic);
-  int status;
-  xmlDoc *doc;
-  xmlRelaxNGPtr schema;
-  xmlRelaxNGValidCtxtPtr validctxt;
-  xmlRelaxNGParserCtxtPtr rngparser;
+  ErrorHandler error_handler(diagnostic);
 
-  doc = xmlParseFile(document.c_str());
+  xmlDoc *doc = xmlParseFile(document.c_str());
+  ScopeExit doc_guard([&doc]() { xmlFreeDoc(doc); });
 
-  rngparser = xmlRelaxNGNewParserCtxt(rng_schema.c_str());
-  schema = xmlRelaxNGParse(rngparser);
-  validctxt = xmlRelaxNGNewValidCtxt(schema);
+  xmlRelaxNGParserCtxtPtr rngparser =
+      xmlRelaxNGNewParserCtxt(rng_schema.c_str());
+  ScopeExit rngparser_guard([&rngparser]() {
+    xmlRelaxNGFreeParserCtxt(rngparser);
+  });
+  xmlRelaxNGSetParserStructuredErrors(
+      rngparser, ErrorHandler::ReceiveStructuredError, &error_handler);
 
-  status = xmlRelaxNGValidateDoc(validctxt, doc);
-  printf("status == %d\n", status);
+  xmlRelaxNGPtr schema = xmlRelaxNGParse(rngparser);
+  ScopeExit schema_guard([&schema]() { xmlRelaxNGFree(schema); });
 
-  xmlRelaxNGFree(schema);
-  xmlRelaxNGFreeValidCtxt(validctxt);
-  xmlRelaxNGFreeParserCtxt(rngparser);
-  xmlFreeDoc(doc);
+  xmlRelaxNGValidCtxtPtr validctxt = xmlRelaxNGNewValidCtxt(schema);
+  ScopeExit validctxt_guard([&validctxt]() {
+    xmlRelaxNGFreeValidCtxt(validctxt);
+  });
+  xmlRelaxNGSetValidStructuredErrors(
+      validctxt, ErrorHandler::ReceiveStructuredError, &error_handler);
+
+  int status = xmlRelaxNGValidateDoc(validctxt, doc);
+
   return status;
 }
 
