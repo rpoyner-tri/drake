@@ -19,4 +19,5 @@ pkg-config
 python3-all-dev
 python3-pygame
 trang
+xxd
 zlib1g-dev
