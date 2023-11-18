@@ -35,12 +35,19 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
-filegroup(
-    name = "urdf_schema",
-    srcs = [
-        "urdf.rnc",
-        "urdf.rng",  # TODOXXX genrule
-    ],
+genrule(
+    name = "urdf_rng",
+    srcs = ["urdf.rnc"],
+    outs = ["urdf.rng"],
+    cmd = "trang -I rnc -O rng $< $@",
+    visibility = ["//visibility:public"],
+)
+
+genrule(
+    name = "urdf_rng_h",
+    srcs = [":urdf_rng"],
+    outs = ["urdf_rng.h"],
+    cmd = "xxd -i $< | sed 's#bazel_.*_bin_##g' > $@",
     visibility = ["//visibility:public"],
 )
 
@@ -461,7 +468,7 @@ drake_cc_binary(
     add_test_rule = 1,
     data = [
         ":test_models",
-        ":urdf_schema",
+        ":urdf_rng",
     ],
     test_rule_args = [
         "multibody/parsing/urdf.rng",
