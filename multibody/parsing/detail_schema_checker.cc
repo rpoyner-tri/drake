@@ -78,7 +78,7 @@ int CheckDocumentAgainstRngParser(
   xmlRelaxNGSetParserStructuredErrors(
       rngparser, ErrorHandler::ReceiveStructuredError, &error_handler);
 
-  xmlDoc *doc = xmlParseFile(document.c_str());
+  xmlDoc *doc = xmlReadFile(document.c_str(), nullptr, 0);
   ScopeExit doc_guard([&doc]() { xmlFreeDoc(doc); });
 
   xmlRelaxNGPtr schema = xmlRelaxNGParse(rngparser);
