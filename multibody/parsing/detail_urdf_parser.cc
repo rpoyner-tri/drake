@@ -1167,7 +1167,7 @@ AddOrMergeModelFromUrdf(
   UrdfParser parser(&data_source, model_name_in, parent_model_name,
                     merge_into_model_instance, data_source.GetRootDir(),
                     &xml_doc, workspace);
-  return parser.Parse();;
+  return parser.Parse();
 }
 }  // namespace
 
