@@ -1,47 +1,46 @@
 #pragma once
 
+#include <string>
+
 #include "drake/common/name_value.h"
 
 namespace drake {
 namespace geometry {
 
-/// Configurable properties for the automatic hydroelastic feature.
-///
-/// Controls whether the hydroelastic feature is enabled, and what default
-/// values are supplied for proximity properties to geometries that are not
-/// annotated for hydroelastic contact in the scene graph model.
-///
 /// @see @ref hug_hydroelastic, @ref hug_properties,
 /// @ref stribeck_approximation.
-struct HydroelasticConfig {
+struct DefaultProximityProperties {
   /// Passes this object to an Archive.
   /// Refer to @ref yaml_serialization "YAML Serialization" for background.
   template <typename Archive>
   void Serialize(Archive* a) {
-    a->Visit(DRAKE_NVP(enabled));
-    a->Visit(DRAKE_NVP(minimum_primitive_size));
-    a->Visit(DRAKE_NVP(default_hydroelastic_modulus));
-    a->Visit(DRAKE_NVP(default_mesh_resolution_hint));
-    a->Visit(DRAKE_NVP(default_slab_thickness));
+    a->Visit(DRAKE_NVP(compliance_type));
+    a->Visit(DRAKE_NVP(compliance_type_rigid_fallback));
+    a->Visit(DRAKE_NVP(hydroelastic_modulus));
+    a->Visit(DRAKE_NVP(mesh_resolution_hint));
+    a->Visit(DRAKE_NVP(slab_thickness));
+    a->Visit(DRAKE_NVP(hunt_crossley_dissipation));
+    a->Visit(DRAKE_NVP(dynamic_friction));
+    a->Visit(DRAKE_NVP(static_friction));
   }
-  /// If true, the hydroelastic feature will be applied to scene graph model
-  /// data when new contexts are created.
-  bool enabled{false};
-  /// Configures the minimum primitive geometry size (in meters) to consider
-  /// for hydroelastic contact. Primitives smaller than this size will have
-  /// their proximity role removed. Mesh geometries are not affected by this
-  /// setting.
-  double minimum_primitive_size{1e-4};
-  /// Configures the default hydroelastic modulus (in pascals) to use when
-  /// hydroelastic is active.
-  double default_hydroelastic_modulus{1e7};
-  /// Configures the default resolution hint (in meters) to use when
-  /// hydroelastic is active.
-  double default_mesh_resolution_hint{0.01};
-  /// Configures the default slab thickness (in meters) to use when
-  /// hydroelastic is active. Only has an effect on half space geometry
-  /// elements.
-  double default_slab_thickness{10.0};
+  /** There are three valid options for `compliance_type`:
+  - "undefined": hydroelastic contact will not be used.
+  - "rigid": the default hydroelastic compliance type will be rigid.
+  - "compliant": the default hydroelastic compliance type will be compliant;
+  note that `compliance_type_rigid_fallback` offers a caveat for shapes
+  that do not support compliant contact.
+  */
+  std::string compliance_type{"undefined"};
+  /** If default compliance_type is "compliant" but the shape does not support
+  compliant contact (currently only for non-convex meshes) then the compliance
+  type will fall back to "rigid". */
+  bool compliance_type_rigid_fallback{true};
+  double hydroelastic_modulus{1e7};
+  double mesh_resolution_hint{0.01};
+  double slab_thickness{10.0};
+  double hunt_crossley_dissipation{1.25};
+  double dynamic_friction{0.5};
+  double static_friction{0.5};
 };
 
 /// The set of configurable properties on a SceneGraph.
@@ -52,11 +51,11 @@ struct SceneGraphConfig {
   /// Refer to @ref yaml_serialization "YAML Serialization" for background.
   template <typename Archive>
   void Serialize(Archive* a) {
-    a->Visit(DRAKE_NVP(hydroelastic));
+    a->Visit(DRAKE_NVP(default_proximity_properties));
   }
 
   /// Configures the SceneGraph hydroelastic feature.
-  HydroelasticConfig hydroelastic{};
+  DefaultProximityProperties default_proximity_properties{};
 };
 
 }  // namespace geometry

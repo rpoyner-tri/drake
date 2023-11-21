@@ -35,9 +35,9 @@ void DoScalarIndependentDefinitions(py::module m) {
   }
 
   {
-    using Class = geometry::HydroelasticConfig;
-    constexpr auto& cls_doc = doc.HydroelasticConfig;
-    py::class_<Class> cls(m, "HydroelasticConfig", cls_doc.doc);
+    using Class = geometry::DefaultProximityProperties;
+    constexpr auto& cls_doc = doc.DefaultProximityProperties;
+    py::class_<Class> cls(m, "DefaultProximityProperties", cls_doc.doc);
     cls  // BR
         .def(ParamInit<Class>());
     DefAttributesUsingSerialize(&cls, cls_doc);
