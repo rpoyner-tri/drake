@@ -84,16 +84,15 @@ class GeometryStateValue final : public Value<GeometryState<T>> {
 
 // Throws if config values are invalid.
 void ValidateConfig(const SceneGraphConfig& config) {
-  const auto& hydro = config.hydroelastic;
-  DRAKE_THROW_UNLESS(std::isfinite(hydro.minimum_primitive_size));
-  DRAKE_THROW_UNLESS(std::isfinite(hydro.default_hydroelastic_modulus));
-  DRAKE_THROW_UNLESS(std::isfinite(hydro.default_mesh_resolution_hint));
-  DRAKE_THROW_UNLESS(std::isfinite(hydro.default_slab_thickness));
+  DRAKE_DEMAND(false);
+  const auto& props = config.default_proximity_properties;
+  DRAKE_THROW_UNLESS(std::isfinite(props.hydroelastic_modulus));
+  DRAKE_THROW_UNLESS(std::isfinite(props.mesh_resolution_hint));
+  DRAKE_THROW_UNLESS(std::isfinite(props.slab_thickness));
 
-  DRAKE_THROW_UNLESS(hydro.minimum_primitive_size >= 0.0);
-  DRAKE_THROW_UNLESS(hydro.default_hydroelastic_modulus > 0.0);
-  DRAKE_THROW_UNLESS(hydro.default_mesh_resolution_hint > 0.0);
-  DRAKE_THROW_UNLESS(hydro.default_slab_thickness > 0.0);
+  DRAKE_THROW_UNLESS(props.hydroelastic_modulus > 0.0);
+  DRAKE_THROW_UNLESS(props.mesh_resolution_hint > 0.0);
+  DRAKE_THROW_UNLESS(props.slab_thickness > 0.0);
 }
 
 }  // namespace
@@ -296,7 +295,7 @@ GeometryId SceneGraph<T>::RegisterGeometry(
   auto geometry_id =
       g_state.RegisterGeometry(source_id, frame_id, std::move(geometry));
   const auto& config = scene_graph_config(*context);
-  if (config.hydroelastic.enabled == true && has_proximity) {
+  if (has_proximity) {
     internal::Hydroelasticate(&g_state, config, geometry_id);
   }
   return geometry_id;
@@ -461,9 +460,7 @@ void SceneGraph<T>::AssignRole(Context<T>* context, SourceId source_id,
   auto& g_state = mutable_geometry_state(context);
   g_state.AssignRole(source_id, geometry_id, std::move(properties), assign);
   const auto& config = scene_graph_config(*context);
-  if (config.hydroelastic.enabled == true) {
-    internal::Hydroelasticate(&g_state, config, geometry_id);
-  }
+  internal::Hydroelasticate(&g_state, config, geometry_id);
 }
 
 template <typename T>
@@ -553,9 +550,8 @@ void SceneGraph<T>::SetDefaultParameters(const Context<T>& context,
                                          Parameters<T>* parameters) const {
   LeafSystem<T>::SetDefaultParameters(context, parameters);
   const GeometryState<T>* from = &hub_.model();
-  if (hub_.config().hydroelastic.enabled) {
-    from = &hub_.hydroelasticated_model();
-  }
+  // XXX ever skip this?
+  from = &hub_.hydroelasticated_model();
   parameters->template get_mutable_abstract_parameter<GeometryState<T>>(
       geometry_state_index_) = *from;
   parameters->template get_mutable_abstract_parameter<SceneGraphConfig>(

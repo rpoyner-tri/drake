@@ -23,11 +23,11 @@ void BackfillDefaults(ProximityProperties* properties,
   };
 
   backfill(kHydroGroup, kElastic,
-           config.hydroelastic.default_hydroelastic_modulus);
+           config.default_proximity_properties.hydroelastic_modulus);
   backfill(kHydroGroup, kRezHint,
-           config.hydroelastic.default_mesh_resolution_hint);
+           config.default_proximity_properties.mesh_resolution_hint);
   backfill(kHydroGroup, kSlabThickness,
-           config.hydroelastic.default_slab_thickness);
+           config.default_proximity_properties.slab_thickness);
 }
 
 class ShapeAdjuster final : private ShapeReifier {
@@ -51,10 +51,8 @@ class ShapeAdjuster final : private ShapeReifier {
   };
 
   void CheckTooSmall(ReifyData* data, double max_radius) {
-    if (2 * max_radius <
-        data->config.hydroelastic.minimum_primitive_size) {
-      data->is_too_small = true;
-    }
+    unused(data, max_radius);
+    DRAKE_DEMAND(false);
   }
 
   void AdjustMesh(ReifyData* data, const std::string& extension) {

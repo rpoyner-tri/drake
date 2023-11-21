@@ -171,7 +171,8 @@ int do_main() {
   plant_config.time_step = FLAGS_mbp_discrete_update_period;
   plant_config.discrete_contact_approximation = FLAGS_contact_approximation;
   SceneGraphConfig scene_graph_config;
-  scene_graph_config.hydroelastic.enabled = FLAGS_hydroelasticate;
+  scene_graph_config.default_proximity_properties.compliance_type =
+      FLAGS_hydroelasticate;
   auto [plant, scene_graph] =
       multibody::AddMultibodyPlant(plant_config, scene_graph_config, &builder);
 
