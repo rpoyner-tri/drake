@@ -361,7 +361,7 @@ TEST_F(SceneGraphTest, RegisterUnsupportedDeformableGeometry) {
 TEST_F(SceneGraphTest, Hydroelasticate) {
   EXPECT_EQ(
       scene_graph_.get_config().default_proximity_properties.compliance_type,
-      "unknown");
+      "undefined");
   SourceId s_id = scene_graph_.RegisterSource();
   auto geometry_instance = make_unique<GeometryInstance>(
       RigidTransformd::Identity(), make_unique<Box>(1.0, 2.0, 3.0), "box");
@@ -376,8 +376,8 @@ TEST_F(SceneGraphTest, Hydroelasticate) {
   SceneGraphConfig config;
   config.default_proximity_properties.compliance_type = "compliant";
   scene_graph_.set_config(config);
-  const auto& props = scene_graph_.get_config().default_proximity_properties;
-  EXPECT_EQ(props.compliance_type, "compliant");
+  const auto& defaults = scene_graph_.get_config().default_proximity_properties;
+  EXPECT_EQ(defaults.compliance_type, "compliant");
   // Hydroelasticated context.
   CreateDefaultContext();
   props = query_object().inspector().GetProximityProperties(g_id);
