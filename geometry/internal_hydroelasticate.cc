@@ -50,9 +50,21 @@ class ShapeAdjuster final : private ShapeReifier {
     bool is_too_small{false};
   };
 
+  // If a the `max_radius` (strictly, 1/2 of the largest OBB dimension) is less
+  // than some threshold, flag the shape as too small in the `data` struct.
+  //
+  // Note that this heuristic does not flag shapes that are microscopic in
+  // only some dimensions: flat sheets, or long skinny shapes. Those may
+  // still hit some geometry exception (near-zero tetrahedron volume was the
+  // important one at the time of this writing).
   void CheckTooSmall(ReifyData* data, double max_radius) {
-    unused(data, max_radius);
-    DRAKE_DEMAND(false);
+    // Congratulations. Your geometry is smaller than a speck of household
+    // dust. That is just too small to reliably construct a hydroelastic mesh.
+    const double kTooSmall = 2e-5;
+
+    if (max_radius < kTooSmall) {
+      data->is_too_small = true;
+    }
   }
 
   void AdjustMesh(ReifyData* data, const std::string& extension) {

@@ -84,15 +84,25 @@ class GeometryStateValue final : public Value<GeometryState<T>> {
 
 // Throws if config values are invalid.
 void ValidateConfig(const SceneGraphConfig& config) {
-  DRAKE_DEMAND(false);
   const auto& props = config.default_proximity_properties;
+  // XXX check compliance_type.
   DRAKE_THROW_UNLESS(std::isfinite(props.hydroelastic_modulus));
   DRAKE_THROW_UNLESS(std::isfinite(props.mesh_resolution_hint));
   DRAKE_THROW_UNLESS(std::isfinite(props.slab_thickness));
+  DRAKE_THROW_UNLESS(std::isfinite(props.hunt_crossley_dissipation));
+  DRAKE_THROW_UNLESS(std::isfinite(props.dynamic_friction));
+  DRAKE_THROW_UNLESS(std::isfinite(props.static_friction));
 
   DRAKE_THROW_UNLESS(props.hydroelastic_modulus > 0.0);
   DRAKE_THROW_UNLESS(props.mesh_resolution_hint > 0.0);
   DRAKE_THROW_UNLESS(props.slab_thickness > 0.0);
+  DRAKE_THROW_UNLESS(props.hunt_crossley_dissipation >= 0.0);
+  DRAKE_THROW_UNLESS(props.dynamic_friction >= 0.0);
+  DRAKE_THROW_UNLESS(props.static_friction >= 0.0);
+
+  // Since we can't conveniently use multibody::CoulombFriction, check now that
+  // the values are compatible.
+  DRAKE_THROW_UNLESS(props.static_friction >= props.dynamic_friction);
 }
 
 }  // namespace

@@ -65,23 +65,28 @@ void DoTestRemoveTooSmall(const Shape& shape) {
 }
 
 GTEST_TEST(HydroelasticateTest, RemoveTooSmallBox) {
-  DoTestRemoveTooSmall(Box(1e-5, 1e-5, 1e-5));
+  double small = 7.6e-6;
+  DoTestRemoveTooSmall(Box(small, small, small));
 }
 
 GTEST_TEST(HydroelasticateTest, RemoveTooSmallCapsule) {
-  DoTestRemoveTooSmall(Capsule(1e-5, 1e-5));
+  double small = 6.3e-6;
+  DoTestRemoveTooSmall(Capsule(small, small));
 }
 
 GTEST_TEST(HydroelasticateTest, RemoveTooSmallCylinder) {
-  DoTestRemoveTooSmall(Cylinder(1e-5, 1e-5));
+  double small = 1.2e-5;
+  DoTestRemoveTooSmall(Cylinder(small, small));
 }
 
 GTEST_TEST(HydroelasticateTest, RemoveTooSmallEllipsoid) {
-  DoTestRemoveTooSmall(Ellipsoid(1e-5, 1e-5, 1e-5));
+  double small = 6e-6;
+  DoTestRemoveTooSmall(Ellipsoid(small, small, small));
 }
 
 GTEST_TEST(HydroelasticateTest, RemoveTooSmallSphere) {
-  DoTestRemoveTooSmall(Sphere(1e-5));
+  double small = 6e-6;
+  DoTestRemoveTooSmall(Sphere(small));
 }
 
 void DoTestGetProps(const Shape& shape,
