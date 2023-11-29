@@ -37,4 +37,4 @@ GTEST_TEST(SceneGraphConfigTest, YamlTest) {
 
 }  // namespace
 }  // namespace geometry
-}  // namespace drake 
+}  // namespace drake
