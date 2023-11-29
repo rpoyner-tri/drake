@@ -305,7 +305,9 @@ GeometryId SceneGraph<T>::RegisterGeometry(
   auto geometry_id =
       g_state.RegisterGeometry(source_id, frame_id, std::move(geometry));
   const auto& config = scene_graph_config(*context);
-  if (has_proximity) {
+  bool want_hydro =
+      config.default_proximity_properties.compliance_type != "undefined";
+  if (want_hydro && has_proximity) {
     internal::Hydroelasticate(&g_state, config, geometry_id);
   }
   return geometry_id;
@@ -470,7 +472,11 @@ void SceneGraph<T>::AssignRole(Context<T>* context, SourceId source_id,
   auto& g_state = mutable_geometry_state(context);
   g_state.AssignRole(source_id, geometry_id, std::move(properties), assign);
   const auto& config = scene_graph_config(*context);
-  internal::Hydroelasticate(&g_state, config, geometry_id);
+  bool want_hydro =
+      config.default_proximity_properties.compliance_type != "undefined";
+  if (want_hydro) {
+    internal::Hydroelasticate(&g_state, config, geometry_id);
+  }
 }
 
 template <typename T>
@@ -560,8 +566,11 @@ void SceneGraph<T>::SetDefaultParameters(const Context<T>& context,
                                          Parameters<T>* parameters) const {
   LeafSystem<T>::SetDefaultParameters(context, parameters);
   const GeometryState<T>* from = &hub_.model();
-  // XXX ever skip this?
-  from = &hub_.hydroelasticated_model();
+  bool want_hydro =
+      hub_.config().default_proximity_properties.compliance_type != "undefined";
+  if (want_hydro) {
+    from = &hub_.hydroelasticated_model();
+  }
   parameters->template get_mutable_abstract_parameter<GeometryState<T>>(
       geometry_state_index_) = *from;
   parameters->template get_mutable_abstract_parameter<SceneGraphConfig>(

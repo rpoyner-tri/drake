@@ -49,7 +49,8 @@ GTEST_TEST(MultibodyPlantConfigFunctionsTest,
 
   drake::systems::DiagramBuilder<double> builder;
   auto result = AddMultibodyPlant(plant_config, scene_graph_config, &builder);
-  const auto& got_hydro = result.scene_graph.get_config().default_proximity_properties;
+  const auto& got_hydro =
+      result.scene_graph.get_config().default_proximity_properties;
   EXPECT_EQ(got_hydro.compliance_type, "compliant");
   EXPECT_EQ(got_hydro.hydroelastic_modulus, 2);
   EXPECT_EQ(got_hydro.mesh_resolution_hint, 3);
