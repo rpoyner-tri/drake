@@ -106,8 +106,10 @@ TEST_F(UrdfParserTest, BadXmlString) {
 
 TEST_F(UrdfParserTest, NoRobot) {
   EXPECT_EQ(AddModelFromUrdfString("<empty/>", ""), std::nullopt);
+  // EXPECT_THAT(TakeError(), MatchesRegex(
+  //                 ".*URDF does not contain a robot tag."));
   EXPECT_THAT(TakeError(), MatchesRegex(
-                  ".*URDF does not contain a robot tag."));
+                  ".*Expecting.*robot.*got.*empty.*"));
 }
 
 TEST_F(UrdfParserTest, NoName) {

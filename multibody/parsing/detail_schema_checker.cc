@@ -1,9 +1,11 @@
 #include "drake/multibody/parsing/detail_schema_checker.h"
 
+#include <cstring>
 #include <string>
 
 #include <libxml/parser.h>
 #include <libxml/relaxng.h>
+#include <libxml/uri.h>
 #include <libxml/xmlmemory.h>
 
 #include "drake/common/scope_exit.h"
@@ -56,8 +58,15 @@ class ErrorHandler {
   DiagnosticDetail Convert(xmlErrorPtr error) {
     DRAKE_DEMAND(error != nullptr);
     DRAKE_DEMAND(error->message != nullptr);
+    auto filename_convert = [](char* ptr) {
+      if (ptr == nullptr) { return std::string(); }
+      int len = strlen(ptr);
+      char target_buf[1 + len];
+      xmlURIUnescapeString(ptr, len, target_buf);
+      return std::string(target_buf);
+    };
     DiagnosticDetail detail;
-    detail.filename = std::string(error->file == nullptr ? "" : error->file);
+    detail.filename = filename_convert(error->file);
     detail.line = error->line;
     detail.message = std::string(error->message);
     return detail;
@@ -70,16 +79,13 @@ class ErrorHandler {
 int CheckDocumentAgainstRngParser(
     const DiagnosticPolicy& diagnostic,
     xmlRelaxNGParserCtxtPtr rngparser,
-    const std::filesystem::path& document) {
+    xmlDoc* doc) {
   DRAKE_DEMAND(rngparser != nullptr);
 
   ErrorHandler error_handler(diagnostic);
 
   xmlRelaxNGSetParserStructuredErrors(
       rngparser, ErrorHandler::ReceiveStructuredError, &error_handler);
-
-  xmlDoc *doc = xmlReadFile(document.c_str(), nullptr, 0);
-  ScopeExit doc_guard([&doc]() { xmlFreeDoc(doc); });
 
   xmlRelaxNGPtr schema = xmlRelaxNGParse(rngparser);
   ScopeExit schema_guard([&schema]() { xmlRelaxNGFree(schema); });
@@ -107,10 +113,14 @@ int CheckDocumentAgainstRngSchema(
   ScopeExit rngparser_guard([&rngparser]() {
     xmlRelaxNGFreeParserCtxt(rngparser);
   });
-  return CheckDocumentAgainstRngParser(diagnostic, rngparser, document);
+
+  xmlDoc *doc = xmlReadFile(document.c_str(), nullptr, 0);
+  ScopeExit doc_guard([&doc]() { xmlFreeDoc(doc); });
+
+  return CheckDocumentAgainstRngParser(diagnostic, rngparser, doc);
 }
 
-int CheckDocumentAgainstRngSchemaAsString(
+int CheckDocumentAgainstRngSchema(
     const DiagnosticPolicy& diagnostic,
     const std::string& rng_schema_string,
     const std::filesystem::path& document) {
@@ -120,7 +130,30 @@ int CheckDocumentAgainstRngSchemaAsString(
   ScopeExit rngparser_guard([&rngparser]() {
     xmlRelaxNGFreeParserCtxt(rngparser);
   });
-  return CheckDocumentAgainstRngParser(diagnostic, rngparser, document);
+
+  xmlDoc *doc = xmlReadFile(document.c_str(), nullptr, 0);
+  ScopeExit doc_guard([&doc]() { xmlFreeDoc(doc); });
+
+  return CheckDocumentAgainstRngParser(diagnostic, rngparser, doc);
+}
+
+int CheckDocumentAgainstRngSchema(
+    const DiagnosticPolicy& diagnostic,
+    const std::string& rng_schema_string,
+    const std::string& document,
+    const std::filesystem::path& document_filename) {
+  xmlRelaxNGParserCtxtPtr rngparser =
+      xmlRelaxNGNewMemParserCtxt(rng_schema_string.c_str(),
+                                 rng_schema_string.size());
+  ScopeExit rngparser_guard([&rngparser]() {
+    xmlRelaxNGFreeParserCtxt(rngparser);
+  });
+
+  xmlDoc *doc = xmlReadMemory(document.c_str(), document.size(),
+                              document_filename.c_str(), nullptr, 0);
+  ScopeExit doc_guard([&doc]() { xmlFreeDoc(doc); });
+
+  return CheckDocumentAgainstRngParser(diagnostic, rngparser, doc);
 }
 
 }  // namespace internal

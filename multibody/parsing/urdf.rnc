@@ -22,7 +22,7 @@ namespace drake = "http://drake.mit.edu"
 grammar {
    start = Robot
    Robot = element robot {
-      Name, attribute version { text }?,
+      Name?, attribute version { text }?,
       (Joint* &
          LinkE* &
          Frame* &
@@ -30,6 +30,7 @@ grammar {
          Transmission* &
          DrakeE* &
          Gazebo* &
+         ObsoleteLoopJoint* &
          Force*)
    }
 
@@ -37,6 +38,7 @@ grammar {
    Force = element force_element { Anything }
    # Extension back doors.
    Gazebo = element gazebo { Anything }
+   ObsoleteLoopJoint = element loop_joint { Anything }
    DrakeE = element drake:* { Anything }
    DrakeA = attribute drake:* { text }
 

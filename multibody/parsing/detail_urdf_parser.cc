@@ -20,10 +20,12 @@
 #include "drake/math/rotation_matrix.h"
 #include "drake/multibody/parsing/detail_make_model_name.h"
 #include "drake/multibody/parsing/detail_path_utils.h"
+#include "drake/multibody/parsing/detail_schema_checker.h"
 #include "drake/multibody/parsing/detail_tinyxml.h"
 #include "drake/multibody/parsing/detail_tinyxml2_diagnostic.h"
 #include "drake/multibody/parsing/detail_urdf_geometry.h"
 #include "drake/multibody/parsing/package_map.h"
+#include "drake/multibody/parsing/urdf_rng.h"
 #include "drake/multibody/plant/multibody_plant.h"
 #include "drake/multibody/tree/ball_rpy_joint.h"
 #include "drake/multibody/tree/fixed_offset_frame.h"
@@ -1135,6 +1137,27 @@ std::pair<std::optional<ModelInstanceIndex>, std::string> UrdfParser::Parse() {
   return std::make_pair(model_instance_, model_name);
 }
 
+int CheckDocumentAgainstUrdfSchema(
+    const ParsingWorkspace& workspace,
+    const DataSource& data_source) {
+  std::string schema(reinterpret_cast<char*>(multibody_parsing_urdf_rng),
+                     multibody_parsing_urdf_rng_len);
+  if (data_source.IsFilename()) {
+    return CheckDocumentAgainstRngSchema(
+        workspace.diagnostic,
+        schema,
+        data_source.GetAbsolutePath());
+  } else {
+    DRAKE_ASSERT(data_source.IsContents());
+    return CheckDocumentAgainstRngSchema(
+        workspace.diagnostic,
+        schema,
+        data_source.contents(),
+        data_source.GetStem() + ".urdf");
+  }
+  DRAKE_UNREACHABLE();
+}
+
 std::pair<std::optional<ModelInstanceIndex>, std::string>
 AddOrMergeModelFromUrdf(
     const DataSource& data_source, const std::string& model_name_in,
@@ -1162,6 +1185,11 @@ AddOrMergeModelFromUrdf(
                                       xml_doc.ErrorName()));
       return std::make_pair(std::nullopt, "");
     }
+  }
+
+  // Checks that the document is conforming Drake-flavored URDF.
+  if (CheckDocumentAgainstUrdfSchema(workspace, data_source) != 0) {
+    return std::make_pair(std::nullopt, "");
   }
 
   UrdfParser parser(&data_source, model_name_in, parent_model_name,

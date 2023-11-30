@@ -14,10 +14,21 @@ int CheckDocumentAgainstRngSchema(
     const std::filesystem::path& rng_schema,
     const std::filesystem::path& document);
 
-int CheckDocumentAgainstRncSchemaAsString(
+int CheckDocumentAgainstRngSchema(
     const drake::internal::DiagnosticPolicy& diagnostic,
     const std::string& rnc_schema_string,
     const std::filesystem::path& document);
+
+int CheckDocumentAgainstRngSchema(
+    const drake::internal::DiagnosticPolicy& diagnostic,
+    const std::string& rnc_schema_string,
+    const std::filesystem::path& document);
+
+int CheckDocumentAgainstRngSchema(
+    const drake::internal::DiagnosticPolicy& diagnostic,
+    const std::string& rnc_schema_string,
+    const std::string& document,
+    const std::filesystem::path& document_filename);
 
 }  // namespace internal
 }  // namespace multibody
