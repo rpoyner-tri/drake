@@ -56,8 +56,9 @@ grammar {
          Mimic?)
    }
    LinkE = element link {
-      Name, DrakeIgnore?,
-      (Inertial? & Visual* & Collision* & SelfCollisionChecking*)
+      (Name, DrakeIgnoreTrue, AnyE) |
+      (Name, DrakeIgnoreFalse? ,
+      (Inertial? & Visual* & Collision* & SelfCollisionChecking*))
    }
    MaterialGlobal = element material { Name, (Color? & Texture?) }
    Material = element material { Name?, (Color? & Texture?) }
@@ -123,7 +124,7 @@ grammar {
       attribute izz { text }?
    }
 
-   Box = element box { attribute size { text}? }
+   Box = element box { attribute size { text }? }
    Capsule = element capsule { attribute radius { text }, attribute length { text} }
    Cylinder = element cylinder { attribute radius { text }, attribute length { text} }
    Mesh = element mesh { attribute filename { text }, attribute scale { text }?, DrakeE* }
@@ -135,7 +136,8 @@ grammar {
    Verbose = element verbose { Value }
 
    # drake_ignore is dumb and should go away.
-   DrakeIgnore = attribute drake_ignore { text }
+   DrakeIgnoreFalse = attribute drake_ignore { string - "true" }
+   DrakeIgnoreTrue = attribute drake_ignore { "true" }
    LinkA = attribute link { text }
    Pose = attribute xyz { text }?, attribute rpy { text }?
    Name = attribute name { text }
@@ -143,4 +145,6 @@ grammar {
    Value = attribute value { text }
 
    Anything = ( element * { Anything } | attribute * { text } | text )*
+   AnyA = ( attribute * { Anything } )*
+   AnyE = ( element * { Anything } )*
 }
