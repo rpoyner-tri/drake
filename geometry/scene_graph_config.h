@@ -25,7 +25,9 @@ struct DefaultProximityProperties {
   }
   /** There are three valid options for `compliance_type`:
   - "undefined": hydroelastic contact will not be used.
-  - "rigid": the default hydroelastic compliance type will be rigid.
+  - "rigid": the default hydroelastic compliance type will be rigid;
+  note that rigid-rigid contact is not supported by the hydroelastic
+  contact model, but is supported by point contact.
   - "compliant": the default hydroelastic compliance type will be compliant;
   note that `compliance_type_rigid_fallback` offers a caveat for shapes
   that do not support compliant contact.

@@ -85,7 +85,11 @@ class GeometryStateValue final : public Value<GeometryState<T>> {
 // Throws if config values are invalid.
 void ValidateConfig(const SceneGraphConfig& config) {
   const auto& props = config.default_proximity_properties;
-  // XXX check compliance_type.
+
+  DRAKE_THROW_UNLESS(props.compliance_type == "undefined" ||
+                     props.compliance_type == "compliant" ||
+                     props.compliance_type == "rigid");
+
   DRAKE_THROW_UNLESS(std::isfinite(props.hydroelastic_modulus));
   DRAKE_THROW_UNLESS(std::isfinite(props.mesh_resolution_hint));
   DRAKE_THROW_UNLESS(std::isfinite(props.slab_thickness));
