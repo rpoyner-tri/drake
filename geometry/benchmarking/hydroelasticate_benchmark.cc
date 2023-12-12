@@ -8,12 +8,22 @@ namespace drake {
 namespace geometry {
 namespace internal {
 
+std::string ComplianceType(int arg) {
+  switch (arg) {
+    case 0: return "undefined";
+    case 1: return "compliant";
+    case 2: return "rigid";
+  };
+  DRAKE_UNREACHABLE();
+}
+
 class HydroelasticateBenchmark : public benchmark::Fixture {
  public:
   void SetupScene(const benchmark::State& state) {
+    DefaultProximityProperties dpp;
     SceneGraphConfig scene_graph_config;
     scene_graph_config.default_proximity_properties.compliance_type =
-        state.range(0);
+        ComplianceType(state.range(0));
     ProximityProperties props;
     if (scene_graph_config.default_proximity_properties.compliance_type ==
         "unknown") {
@@ -57,10 +67,12 @@ BENCHMARK_DEFINE_F(HydroelasticateBenchmark, CreateDefaultContext)
 
 BENCHMARK_REGISTER_F(HydroelasticateBenchmark, CreateDefaultContext)
     ->Unit(benchmark::kMillisecond)
-    ->Args({false, 1})
-    ->Args({true, 1})
-    ->Args({false, 100})
-    ->Args({true, 100});
+    ->Args({0, 1})
+    ->Args({1, 1})
+    ->Args({2, 1})
+    ->Args({0, 100})
+    ->Args({1, 100})
+    ->Args({2, 100});
 
 }  // namespace internal
 }  // namespace geometry

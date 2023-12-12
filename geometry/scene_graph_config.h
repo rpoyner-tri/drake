@@ -57,7 +57,7 @@ struct SceneGraphConfig {
   }
 
   /// Configures the SceneGraph hydroelastic feature.
-  DefaultProximityProperties default_proximity_properties{};
+  DefaultProximityProperties default_proximity_properties;
 };
 
 }  // namespace geometry
