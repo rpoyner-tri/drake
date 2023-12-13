@@ -61,9 +61,7 @@ DEFINE_double(penetration_allowance, 1.0e-2,
               "See MultibodyPlant::set_penetration_allowance().");
 DEFINE_double(v_stiction_tolerance, 1.0e-2,
               "The maximum slipping speed allowed during stiction. [m/s].");
-DEFINE_bool(hydroelasticate, false,
-            "Enable hydroelasticate. See https://drake.mit.edu/doxygen_cxx/"
-            "group__hydroelastic__user__guide.html#hug_hydroelasticate.");
+DEFINE_string(default_compliance_type, "undefined", "TBD.");
 
 // Pads parameters
 DEFINE_int32(ring_samples, 8,
@@ -172,7 +170,7 @@ int do_main() {
   plant_config.discrete_contact_approximation = FLAGS_contact_approximation;
   SceneGraphConfig scene_graph_config;
   scene_graph_config.default_proximity_properties.compliance_type =
-      FLAGS_hydroelasticate;
+      FLAGS_default_compliance_type;
   auto [plant, scene_graph] =
       multibody::AddMultibodyPlant(plant_config, scene_graph_config, &builder);
 

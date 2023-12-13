@@ -10,10 +10,13 @@ namespace internal {
 
 std::string ComplianceType(int arg) {
   switch (arg) {
-    case 0: return "undefined";
-    case 1: return "compliant";
-    case 2: return "rigid";
-  };
+    case 0:
+      return "undefined";
+    case 1:
+      return "compliant";
+    case 2:
+      return "rigid";
+  }
   DRAKE_UNREACHABLE();
 }
 
