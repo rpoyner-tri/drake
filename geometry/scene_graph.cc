@@ -11,6 +11,7 @@
 #include "drake/geometry/geometry_instance.h"
 #include "drake/geometry/geometry_state.h"
 #include "drake/geometry/internal_hydroelasticate.h"
+#include "drake/geometry/proximity_properties.h"
 #include "drake/systems/framework/context.h"
 
 namespace drake {
@@ -86,9 +87,8 @@ class GeometryStateValue final : public Value<GeometryState<T>> {
 void ValidateConfig(const SceneGraphConfig& config) {
   const auto& props = config.default_proximity_properties;
 
-  DRAKE_THROW_UNLESS(props.compliance_type == "undefined" ||
-                     props.compliance_type == "compliant" ||
-                     props.compliance_type == "rigid");
+  // This will throw if the type is invalid.
+  internal::GetHydroelasticTypeFromString(props.compliance_type);
 
   DRAKE_THROW_UNLESS(std::isfinite(props.hydroelastic_modulus));
   DRAKE_THROW_UNLESS(std::isfinite(props.mesh_resolution_hint));

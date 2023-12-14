@@ -8,17 +8,17 @@ namespace drake {
 namespace geometry {
 namespace internal {
 
-std::string ComplianceType(int arg) {
-  switch (arg) {
-    case 0:
-      return "undefined";
-    case 1:
-      return "compliant";
-    case 2:
-      return "rigid";
-  }
-  DRAKE_UNREACHABLE();
+namespace {
+
+int64_t e2i(HydroelasticType type) {
+  return static_cast<int64_t>(type);
 }
+
+HydroelasticType i2e(int64_t arg) {
+  return static_cast<HydroelasticType>(arg);
+}
+
+}  // namespace
 
 class HydroelasticateBenchmark : public benchmark::Fixture {
  public:
@@ -26,7 +26,7 @@ class HydroelasticateBenchmark : public benchmark::Fixture {
     DefaultProximityProperties dpp;
     SceneGraphConfig scene_graph_config;
     scene_graph_config.default_proximity_properties.compliance_type =
-        ComplianceType(state.range(0));
+        GetStringFromHydroelasticType(i2e(state.range(0)));
     ProximityProperties props;
     if (scene_graph_config.default_proximity_properties.compliance_type ==
         "unknown") {
@@ -70,12 +70,10 @@ BENCHMARK_DEFINE_F(HydroelasticateBenchmark, CreateDefaultContext)
 
 BENCHMARK_REGISTER_F(HydroelasticateBenchmark, CreateDefaultContext)
     ->Unit(benchmark::kMillisecond)
-    ->Args({0, 1})
-    ->Args({1, 1})
-    ->Args({2, 1})
-    ->Args({0, 100})
-    ->Args({1, 100})
-    ->Args({2, 100});
+    ->ArgsProduct({{e2i(HydroelasticType::kUndefined),
+                    e2i(HydroelasticType::kRigid),
+                    e2i(HydroelasticType::kSoft)},
+                   {1, 100}});
 
 }  // namespace internal
 }  // namespace geometry
