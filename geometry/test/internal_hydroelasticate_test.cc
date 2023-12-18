@@ -15,7 +15,7 @@ namespace internal {
 namespace {
 
 GTEST_TEST(HydroelasticateTest, TrivialGeometryState) {
-  // Feeding in an a empty scene graph does not crash.
+  // Feeding in an a empty state does not crash.
   GeometryState<double> geometry_state;
   SceneGraphConfig config;
   EXPECT_NO_THROW(Hydroelasticate(&geometry_state, config));
@@ -25,6 +25,7 @@ GTEST_TEST(HydroelasticateTest, NontrivialGeometryState) {
   // Feed in a few shapes; ensure that they get annotated.
   GeometryState<double> geometry_state;
   SceneGraphConfig config;
+  config.default_proximity_properties.compliance_type = "compliant";
   auto add_shape = [&](const Shape& shape, const std::string& name) {
     auto source_id = geometry_state.RegisterNewSource(name + "_source");
     auto frame_id = geometry_state.RegisterFrame(
@@ -102,6 +103,8 @@ void DoTestGetProps(const Shape& shape,
   auto geom_id = geometry_state.RegisterGeometry(
       source_id, frame_id, std::move(instance));
   SceneGraphConfig config;
+  config.default_proximity_properties.compliance_type =
+      internal::GetStringFromHydroelasticType(expected_type);
   EXPECT_NO_THROW(Hydroelasticate(&geometry_state, config, geom_id));
   auto* props = geometry_state.GetProximityProperties(geom_id);
   ASSERT_NE(props, nullptr);

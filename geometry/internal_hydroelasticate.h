@@ -23,9 +23,11 @@ void Hydroelasticate(GeometryState<T>* geometry_state,
    Specifically, ensure that either:
    - The geometry has sufficient, compatible hydro properties for contact.
      - The geometry has a defined compliance type.
-       - Almost all geometries will be made compliant(soft).
-       - Currently, there is no practical way to make an non-convex surface mesh
-         support compliant(soft) operation, so those will be marked rigid.
+       - All geometries will be given the requeested default compliance type,
+         except:
+       - Currently, there is no practical way to make an non-convex surface
+         mesh support compliant(soft) operation, so those will be marked rigid,
+         regardless of the requested default compliance type.
      - All necessary properties are populated.
    or:
    - The geometry's proximity role is removed.

@@ -22,12 +22,23 @@ void BackfillDefaults(ProximityProperties* properties,
     properties->UpdateProperty(group_name, name, default_value);
   };
 
+  backfill(kHydroGroup, kComplianceType,
+           internal::GetHydroelasticTypeFromString(
+               config.default_proximity_properties.compliance_type));
   backfill(kHydroGroup, kElastic,
            config.default_proximity_properties.hydroelastic_modulus);
   backfill(kHydroGroup, kRezHint,
            config.default_proximity_properties.mesh_resolution_hint);
   backfill(kHydroGroup, kSlabThickness,
            config.default_proximity_properties.slab_thickness);
+
+  backfill(kMaterialGroup, kHcDissipation,
+           config.default_proximity_properties.hunt_crossley_dissipation);
+  multibody::CoulombFriction friction{
+    config.default_proximity_properties.static_friction,
+    config.default_proximity_properties.dynamic_friction,
+  };
+  backfill(kMaterialGroup, kFriction, friction);
 }
 
 class ShapeAdjuster final : private ShapeReifier {
@@ -73,8 +84,12 @@ class ShapeAdjuster final : private ShapeReifier {
     // helper shape. Therefore, too-small checking should not be
     // necessary. TODO(rpoyner-tri): Revisit this if there are
     // counter-examples.
-    if (extension != ".vtk") {
-      // We have no prayer of making a soft geometry -- avoid it.
+
+    const auto& config = data->config;
+    if (config.default_proximity_properties.compliance_type_rigid_fallback &&
+        config.default_proximity_properties.compliance_type == "compliant" &&
+        extension != ".vtk") {
+      // Fall back to rigid geometry, if necessary and requested.
       data->props->UpdateProperty(kHydroGroup, kComplianceType,
                                   HydroelasticType::kRigid);
     }
@@ -163,11 +178,7 @@ void Hydroelasticate(GeometryState<T>* geometry_state,
   // If the compliance type is defined, leave the geometry untouched.
   if (type != HydroelasticType::kUndefined) { return; }
 
-  // Update proximity properties to a suitable hydro configuration.
-
-  // Start from the assumption that the shape can be declared soft.
-  props.UpdateProperty(kHydroGroup, kComplianceType,
-                       HydroelasticType::kSoft);
+  // Update proximity properties to provide defaults.
   BackfillDefaults(&props, config);
 
   // Shape adjuster will fix configurations that can't work.
