@@ -22,7 +22,7 @@ const char* const kSlabThickness = "slab_thickness";
 namespace {
 
 // Use a switch() statement here, to ensure the compiler sends us a reminder
-// when somebody add a new value to the enum. New values must be listed here
+// when somebody adds a new value to the enum. New values must be listed here
 // as well as in the list of kHydroelasticTypes below.
 constexpr const char* EnumToChars(HydroelasticType enum_value) {
   switch (enum_value) {
