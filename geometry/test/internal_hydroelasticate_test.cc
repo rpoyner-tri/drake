@@ -14,18 +14,23 @@ namespace geometry {
 namespace internal {
 namespace {
 
-GTEST_TEST(HydroelasticateTest, TrivialGeometryState) {
+class HydroelasticateTest : public testing::TestWithParam<HydroelasticType> {};
+
+TEST_P(HydroelasticateTest, TrivialGeometryState) {
   // Feeding in an a empty state does not crash.
   GeometryState<double> geometry_state;
   SceneGraphConfig config;
+  config.default_proximity_properties.compliance_type =
+      GetStringFromHydroelasticType(GetParam());
   EXPECT_NO_THROW(Hydroelasticate(&geometry_state, config));
 }
 
-GTEST_TEST(HydroelasticateTest, NontrivialGeometryState) {
+TEST_P(HydroelasticateTest, NontrivialGeometryState) {
   // Feed in a few shapes; ensure that they get annotated.
   GeometryState<double> geometry_state;
   SceneGraphConfig config;
-  config.default_proximity_properties.compliance_type = "compliant";
+  config.default_proximity_properties.compliance_type =
+      GetStringFromHydroelasticType(GetParam());
   auto add_shape = [&](const Shape& shape, const std::string& name) {
     auto source_id = geometry_state.RegisterNewSource(name + "_source");
     auto frame_id = geometry_state.RegisterFrame(
@@ -45,7 +50,7 @@ GTEST_TEST(HydroelasticateTest, NontrivialGeometryState) {
     ASSERT_NE(props, nullptr);
     EXPECT_EQ(
         props->GetProperty<HydroelasticType>(kHydroGroup, kComplianceType),
-        HydroelasticType::kSoft);
+        GetParam());
   }
 }
 
@@ -65,33 +70,37 @@ void DoTestRemoveTooSmall(const Shape& shape) {
   EXPECT_EQ(geometry_state.GetProximityProperties(geom_id), nullptr);
 }
 
-GTEST_TEST(HydroelasticateTest, RemoveTooSmallBox) {
+TEST_P(HydroelasticateTest, RemoveTooSmallBox) {
   double small = 7.6e-6;
   DoTestRemoveTooSmall(Box(small, small, small));
 }
 
-GTEST_TEST(HydroelasticateTest, RemoveTooSmallCapsule) {
+TEST_P(HydroelasticateTest, RemoveTooSmallCapsule) {
   double small = 6.3e-6;
   DoTestRemoveTooSmall(Capsule(small, small));
 }
 
-GTEST_TEST(HydroelasticateTest, RemoveTooSmallCylinder) {
+TEST_P(HydroelasticateTest, RemoveTooSmallCylinder) {
   double small = 1.2e-5;
   DoTestRemoveTooSmall(Cylinder(small, small));
 }
 
-GTEST_TEST(HydroelasticateTest, RemoveTooSmallEllipsoid) {
+TEST_P(HydroelasticateTest, RemoveTooSmallEllipsoid) {
   double small = 6e-6;
   DoTestRemoveTooSmall(Ellipsoid(small, small, small));
 }
 
-GTEST_TEST(HydroelasticateTest, RemoveTooSmallSphere) {
+TEST_P(HydroelasticateTest, RemoveTooSmallSphere) {
   double small = 6e-6;
   DoTestRemoveTooSmall(Sphere(small));
 }
 
 void DoTestGetProps(const Shape& shape,
-                    HydroelasticType expected_type) {
+                    HydroelasticType requested_type,
+                    std::optional<HydroelasticType> expected_type) {
+  if (!expected_type) {
+    expected_type = requested_type;
+  }
   // Geometries get their properties filled in.
   GeometryState<double> geometry_state;
   auto source_id = geometry_state.RegisterNewSource("test");
@@ -104,66 +113,68 @@ void DoTestGetProps(const Shape& shape,
       source_id, frame_id, std::move(instance));
   SceneGraphConfig config;
   config.default_proximity_properties.compliance_type =
-      internal::GetStringFromHydroelasticType(expected_type);
+      internal::GetStringFromHydroelasticType(requested_type);
   EXPECT_NO_THROW(Hydroelasticate(&geometry_state, config, geom_id));
   auto* props = geometry_state.GetProximityProperties(geom_id);
   ASSERT_NE(props, nullptr);
   EXPECT_EQ(props->GetProperty<HydroelasticType>(kHydroGroup, kComplianceType),
-            expected_type);
+            *expected_type);
   // TODO(rpoyner-tri): check more props.
 }
 
-void DoTestGetSoftProps(const Shape& shape) {
-  DoTestGetProps(shape, HydroelasticType::kSoft);
+TEST_P(HydroelasticateTest, GetPropsBox) {
+  DoTestGetProps(Box(1, 1, 1), GetParam(), {});
 }
 
-void DoTestGetRigidProps(const Shape& shape) {
-  DoTestGetProps(shape, HydroelasticType::kRigid);
+TEST_P(HydroelasticateTest, GetPropsCapsule) {
+  DoTestGetProps(Capsule(0.1, 0.1), GetParam(), {});
 }
 
-GTEST_TEST(HydroelasticateTest, GetSoftPropsBox) {
-  DoTestGetSoftProps(Box(1, 1, 1));
+TEST_P(HydroelasticateTest, GetPropsConvex) {
+  DoTestGetProps(
+      Convex(FindResourceOrThrow("drake/geometry/test/convex.obj"), 1.0),
+      GetParam(), {});
 }
 
-GTEST_TEST(HydroelasticateTest, GetSoftPropsCapsule) {
-  DoTestGetSoftProps(Capsule(0.1, 0.1));
+TEST_P(HydroelasticateTest, GetPropsCylinder) {
+  DoTestGetProps(Cylinder(0.1, 0.1), GetParam(), {});
 }
 
-GTEST_TEST(HydroelasticateTest, GetSoftPropsConvex) {
-  DoTestGetSoftProps(
-      Convex(FindResourceOrThrow("drake/geometry/test/convex.obj"), 1.0));
+TEST_P(HydroelasticateTest, GetPropsEllipsoid) {
+  DoTestGetProps(Ellipsoid(0.1, 0.1, 0.1), GetParam(), {});
 }
 
-GTEST_TEST(HydroelasticateTest, GetSoftPropsCylinder) {
-  DoTestGetSoftProps(Cylinder(0.1, 0.1));
+TEST_P(HydroelasticateTest, GetPropsHalfSpace) {
+  DoTestGetProps(HalfSpace(), GetParam(), {});
 }
 
-GTEST_TEST(HydroelasticateTest, GetSoftPropsEllipsoid) {
-  DoTestGetSoftProps(Ellipsoid(0.1, 0.1, 0.1));
-}
-
-GTEST_TEST(HydroelasticateTest, GetSoftPropsHalfSpace) {
-  DoTestGetSoftProps(HalfSpace());
-}
-
-GTEST_TEST(HydroelasticateTest, GetSoftPropsMesh) {
-  DoTestGetSoftProps(
+TEST_P(HydroelasticateTest, GetPropsVolumeMesh) {
+  DoTestGetProps(
       Mesh(FindResourceOrThrow(
           "drake/geometry/test/extruded_u_volume_mesh.vtk"),
-           1.0));
+           1.0), GetParam(), {});
 }
 
-GTEST_TEST(HydroelasticateTest, GetRigidPropsMesh) {
-  DoTestGetRigidProps(
+TEST_P(HydroelasticateTest, GetPropsSurfaceMesh) {
+  DoTestGetProps(
       Mesh(FindResourceOrThrow("drake/geometry/test/non_convex_mesh.obj"),
-           1.0));
+           1.0), GetParam(),
+      GetParam() == HydroelasticType::kSoft ?
+      HydroelasticType::kRigid : GetParam());
 }
 
-GTEST_TEST(HydroelasticateTest, GetSoftPropsSphere) {
-  DoTestGetSoftProps(Sphere(0.1));
+TEST_P(HydroelasticateTest, GetPropsSphere) {
+  DoTestGetProps(Sphere(0.1), GetParam(), {});
 }
 
+INSTANTIATE_TEST_SUITE_P(ComplianceTypes,
+                         HydroelasticateTest,
+                         testing::Values(
+                             HydroelasticType::kUndefined,
+                             HydroelasticType::kRigid,
+                             HydroelasticType::kSoft));
 
+// TODO(rpoyner-tri): test the fallback flag.
 
 }  // namespace
 }  // namespace internal
