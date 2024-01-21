@@ -27,6 +27,7 @@ cmake_configure_file(
     src = "expat/expat_config.h.cmake",
     out = "expat/expat_config.h",
     defines = [
+        "HAVE_ARC4RANDOM_BUF=1",
         "PACKAGE_NAME=\"expat\"",
         "XML_CONTEXT_BYTES=1024",
         "XML_GE=1",
@@ -51,11 +52,13 @@ cc_library(
         "-fvisibility=hidden",
     ],
     defines = [
+        "HAVE_ARC4RANDOM_BUF=1",
         "PACKAGE_NAME=\"expat\"",
         "XML_CONTEXT_BYTES=1024",
         "XML_GE=1",
     ],
     includes = [
+        "expat",
         "expat/lib",
     ],
     linkstatic = True,
