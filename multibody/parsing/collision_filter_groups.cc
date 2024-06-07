@@ -11,61 +11,54 @@ using internal::CollisionFilterGroupsImpl;
 
 CollisionFilterGroups::CollisionFilterGroups()
     : impl_(new CollisionFilterGroupsImpl<std::string>) {}
-CollisionFilterGroups::~CollisionFilterGroups() {}
+CollisionFilterGroups::~CollisionFilterGroups() = default;
 
 CollisionFilterGroups::CollisionFilterGroups(const CollisionFilterGroups&) =
     default;
 CollisionFilterGroups& CollisionFilterGroups::operator=(
     const CollisionFilterGroups&) = default;
-CollisionFilterGroups::CollisionFilterGroups(CollisionFilterGroups&&) = default;
+
+// Move operations must be careful to preserve the non-null invariant.
+CollisionFilterGroups::CollisionFilterGroups(CollisionFilterGroups&& other) {
+  impl_ = std::move(other.impl_);
+  other.impl_ = std::make_unique<CollisionFilterGroupsImpl<std::string>>();
+}
 CollisionFilterGroups& CollisionFilterGroups::operator=(
-    CollisionFilterGroups&&) = default;
+    CollisionFilterGroups&& other) {
+  std::swap(impl_, other.impl_);
+  return *this;
+}
 
 bool CollisionFilterGroups::operator==(
     const CollisionFilterGroups& that) const {
-  if (impl_.empty() != that.impl_.empty()) {
-    return false;
-  }
-  if (impl_.empty()) {
-    return true;
-  }
   return *impl_ == *that.impl_;
 }
 
 void CollisionFilterGroups::AddGroup(const std::string& name,
                                      const std::set<std::string>& members) {
-  DRAKE_THROW_UNLESS(!is_moved_from());
   impl_->AddGroup(name, members);
 }
 
 void CollisionFilterGroups::AddExclusionPair(
     const SortedPair<std::string>& pair) {
-  DRAKE_THROW_UNLESS(!is_moved_from());
   impl_->AddExclusionPair(pair);
 }
 
 bool CollisionFilterGroups::empty() const {
-  return impl_.empty() || impl_->empty();
+  return impl_->empty();
 }
 
 const std::map<std::string, std::set<std::string>>&
 CollisionFilterGroups::groups() const {
-  DRAKE_THROW_UNLESS(!is_moved_from());
   return impl_->groups();
 }
 
 const std::set<SortedPair<std::string>>&
 CollisionFilterGroups::exclusion_pairs() const {
-  DRAKE_THROW_UNLESS(!is_moved_from());
   return impl_->exclusion_pairs();
 }
 
-bool CollisionFilterGroups::is_moved_from() const {
-  return impl_.empty();
-}
-
 std::ostream& operator<<(std::ostream& os, const CollisionFilterGroups& g) {
-  DRAKE_THROW_UNLESS(!g.is_moved_from());
   os << *g.impl_;
   return os;
 }

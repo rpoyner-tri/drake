@@ -67,7 +67,6 @@ class CollisionFilterGroups {
   friend class Parser;
   friend std::ostream& operator<<(std::ostream& os,
                                   const CollisionFilterGroups& g);
-  bool is_moved_from() const;
   copyable_unique_ptr<internal::CollisionFilterGroupsImpl<std::string>> impl_;
 };
 
