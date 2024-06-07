@@ -1,5 +1,7 @@
 #include "drake/multibody/parsing/collision_filter_groups.h"
 
+#include <memory>
+
 #include "drake/multibody/parsing/detail_collision_filter_groups_impl.h"
 
 namespace drake {
@@ -28,16 +30,6 @@ bool CollisionFilterGroups::operator==(
     return true;
   }
   return *impl_ == *that.impl_;
-}
-std::weak_ordering CollisionFilterGroups::operator<=>(
-    const CollisionFilterGroups& that) const {
-  if (auto cmp = (!impl_.empty() <=> !that.impl_.empty()); cmp != 0) {
-    return cmp;
-  }
-  if (impl_.empty()) {
-    return std::weak_ordering::equivalent;
-  }
-  return *impl_ <=> *that.impl_;
 }
 
 void CollisionFilterGroups::AddGroup(const std::string& name,

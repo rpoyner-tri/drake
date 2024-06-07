@@ -1,8 +1,6 @@
 #pragma once
 
-#include <compare>
 #include <map>
-#include <memory>
 #include <set>
 #include <string>
 #include <utility>
@@ -40,7 +38,6 @@ class CollisionFilterGroups {
   ~CollisionFilterGroups();
 
   bool operator==(const CollisionFilterGroups&) const;
-  std::weak_ordering operator<=>(const CollisionFilterGroups&) const;
 
   /** Adds a new collision filter group.
   @param name the fully-qualified scoped name of the group being defined.

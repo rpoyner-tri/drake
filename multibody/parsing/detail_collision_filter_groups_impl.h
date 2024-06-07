@@ -26,7 +26,6 @@ class CollisionFilterGroupsImpl {
   CollisionFilterGroupsImpl() = default;
 
   bool operator==(const CollisionFilterGroupsImpl&) const = default;
-  auto operator<=>(const CollisionFilterGroupsImpl&) const = default;
 
   void AddGroup(const T& name, const std::set<T>& members) {
     DRAKE_DEMAND(!groups_.contains(name));
