@@ -1,5 +1,4 @@
 import subprocess
-import sys
 import time
 import unittest
 
@@ -34,7 +33,6 @@ class TestModelVisualizerReload(unittest.TestCase):
 
         # Remember the originally-created diagram.
         orig_diagram_id = id(dut._diagram)
-        print("1", file=sys.stderr)
 
         # Click the reload button.
         cli = FindResourceOrThrow("drake/geometry/meshcat_websocket_client")
@@ -63,11 +61,7 @@ class TestModelVisualizerReload(unittest.TestCase):
         # Ensure the reloaded slider and joint values are the same.
         slider_q = dut._sliders.get_output_port().Eval(
             dut._sliders.GetMyContextFromRoot(dut._context))
-        print("2", file=sys.stderr)
         self.assertListEqual(list(original_q), list(slider_q))
-        print("3", file=sys.stderr)
         joint_q = dut._diagram.plant().GetPositions(
             dut._diagram.plant().GetMyContextFromRoot(dut._context))
-        print("4", file=sys.stderr)
         self.assertListEqual(list(original_q), list(joint_q))
-        print("5", file=sys.stderr)
