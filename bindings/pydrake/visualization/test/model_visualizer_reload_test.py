@@ -57,6 +57,7 @@ class TestModelVisualizerReload(unittest.TestCase):
         original_q = [1.0, 2.0]
         dut.Run(position=original_q, loop_once=True)
         self.assertNotEqual(id(orig_diagram), id(dut._diagram))
+        import ipdb; ipdb.set_trace()
 
         # Ensure the reloaded slider and joint values are the same.
         slider_q = dut._sliders.get_output_port().Eval(
