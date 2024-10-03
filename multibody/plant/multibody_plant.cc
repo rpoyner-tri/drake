@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <iostream>
 #include <limits>
 #include <memory>
 #include <set>
@@ -346,6 +347,7 @@ MultibodyPlant<T>::MultibodyPlant(
 
   AddDeformableModel();
   DeclareSceneGraphPorts();
+  std::cerr << fmt::format("plant ctor {}\n", fmt::ptr(this));
 }
 
 template <typename T>
@@ -437,10 +439,13 @@ MultibodyPlant<T>::MultibodyPlant(const MultibodyPlant<U>& other)
     SetDiscreteUpdateManager(
         other.discrete_update_manager_->template CloneToScalar<T>());
   }
+  std::cerr << fmt::format("plant ctor {}\n", fmt::ptr(this));
 }
 
 template <typename T>
-MultibodyPlant<T>::~MultibodyPlant() = default;
+MultibodyPlant<T>::~MultibodyPlant() {
+  std::cerr << fmt::format("plant dtor {}\n", fmt::ptr(this));
+}
 
 template <typename T>
 void MultibodyPlant<T>::SetUseSampledOutputPorts(

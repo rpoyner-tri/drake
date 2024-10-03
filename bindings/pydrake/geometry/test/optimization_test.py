@@ -28,8 +28,7 @@ from pydrake.symbolic import Variable, Polynomial
 
 
 class TestGeometryOptimization(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def setUp(self, *args, **kwargs):
         self.A = np.eye(3)
         self.b = np.array([1.0, 1.0, 1.0])
         self.prog = MathematicalProgram()
@@ -1083,7 +1082,7 @@ class TestCspaceFreePolytope(unittest.TestCase):
 
         self.plant.Finalize()
 
-        diagram = builder.Build()
+        self.diagram = builder.Build()
 
         # Tests the constructor
         options = mut.CspaceFreePolytope.Options()

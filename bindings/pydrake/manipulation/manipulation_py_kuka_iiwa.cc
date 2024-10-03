@@ -179,9 +179,10 @@ void DefineManipulationKukaIiwa(py::module m) {
             py::arg("plant"), py::arg("iiwa_instance"),
             py::arg("controller_plant"), py::arg("ext_joint_filter_tau"),
             py::arg("desired_iiwa_kp_gains"), py::arg("control_mode"),
-            // Keep alive, ownership: `return` keeps `builder` alive.
-            py::keep_alive<0, 1>(),
+            // XXX
+            py::keep_alive<1, 0>(),
             // Keep alive, reference: `builder` keeps `controller_plant` alive.
+            // XXX
             py::keep_alive<1, 4>(), py_rvp::reference,
             cls_doc.AddToBuilder.doc);
   }

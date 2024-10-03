@@ -81,8 +81,8 @@ void DefineExamplesRimlessWheel(py::module m) {
               &RimlessWheelGeometry::AddToBuilder),
           py::arg("builder"), py::arg("floating_base_state_port"),
           py::arg("rimless_wheel_params"), py::arg("scene_graph"),
-          // Keep alive, ownership: `return` keeps `builder` alive.
-          py::keep_alive<0, 1>(),
+          // XXX
+          py::keep_alive<1, 0>(),
           // See #11531 for why `py_rvp::reference` is needed.
           py_rvp::reference, doc.RimlessWheelGeometry.AddToBuilder.doc_4args)
       .def_static("AddToBuilder",
@@ -92,8 +92,8 @@ void DefineExamplesRimlessWheel(py::module m) {
               &RimlessWheelGeometry::AddToBuilder),
           py::arg("builder"), py::arg("floating_base_state_port"),
           py::arg("scene_graph"),
-          // Keep alive, ownership: `return` keeps `builder` alive.
-          py::keep_alive<0, 1>(),
+          // XXX
+          py::keep_alive<1, 0>(),
           // See #11531 for why `py_rvp::reference` is needed.
           py_rvp::reference, doc.RimlessWheelGeometry.AddToBuilder.doc_3args);
 }

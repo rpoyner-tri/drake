@@ -129,8 +129,8 @@ void DoScalarDependentDefinitions(py::module m, T) {
                 ContactVisualizerParams>(&ContactVisualizer<T>::AddToBuilder),
             py::arg("builder"), py::arg("plant"), py::arg("meshcat"),
             py::arg("params") = ContactVisualizerParams{},
-            // Keep alive, ownership: `return` keeps `builder` alive.
-            py::keep_alive<0, 1>(),
+            // XXX
+            py::keep_alive<1, 0>(),
             // `meshcat` is a shared_ptr, so does not need a keep_alive.
             py_rvp::reference,
             cls_doc.AddToBuilder.doc_4args_builder_plant_meshcat_params)
@@ -142,8 +142,8 @@ void DoScalarDependentDefinitions(py::module m, T) {
             py::arg("builder"), py::arg("contact_results_port"),
             py::arg("query_object_port"), py::arg("meshcat"),
             py::arg("params") = ContactVisualizerParams{},
-            // Keep alive, ownership: `return` keeps `builder` alive.
-            py::keep_alive<0, 1>(),
+            // XXX
+            py::keep_alive<1, 0>(),
             // `meshcat` is a shared_ptr, so does not need a keep_alive.
             py_rvp::reference,
             cls_doc.AddToBuilder
@@ -155,8 +155,8 @@ void DoScalarDependentDefinitions(py::module m, T) {
                 &ContactVisualizer<T>::AddToBuilder),
             py::arg("builder"), py::arg("contact_results_port"),
             py::arg("meshcat"), py::arg("params") = ContactVisualizerParams{},
-            // Keep alive, ownership: `return` keeps `builder` alive.
-            py::keep_alive<0, 1>(),
+            // XXX
+            py::keep_alive<1, 0>(),
             // `meshcat` is a shared_ptr, so does not need a keep_alive.
             py_rvp::reference,
             cls_doc.AddToBuilder

@@ -442,6 +442,7 @@ PYBIND11_MODULE(primitives, m) {
               return SharedPointerSystem<T>::AddToBuilder(
                   builder, std::move(wrapped));
             },
+            // XXX -- ok?
             py::arg("builder"), py::arg("value_to_hold"),
             doc.SharedPointerSystem.AddToBuilder.doc)
         .def(
@@ -556,8 +557,8 @@ PYBIND11_MODULE(primitives, m) {
         py::overload_cast<const OutputPort<T>&, DiagramBuilder<T>*, double>(
             &LogVectorOutput<T>),
         py::arg("src"), py::arg("builder"), py::arg("publish_period") = 0.0,
-        // Keep alive, ownership: `return` keeps `builder` alive.
-        py::keep_alive<0, 2>(),
+        // XXX
+        py::keep_alive<2, 0>(),
         // See #11531 for why `py_rvp::reference` is needed.
         py_rvp::reference, doc.LogVectorOutput.doc_3args);
 
@@ -566,8 +567,8 @@ PYBIND11_MODULE(primitives, m) {
             const TriggerTypeSet&, double>(&LogVectorOutput<T>),
         py::arg("src"), py::arg("builder"), py::arg("publish_triggers"),
         py::arg("publish_period") = 0.0,
-        // Keep alive, ownership: `return` keeps `builder` alive.
-        py::keep_alive<0, 2>(),
+        // XXX
+        py::keep_alive<2, 0>(),
         // See #11531 for why `py_rvp::reference` is needed.
         py_rvp::reference, doc.LogVectorOutput.doc_4args);
 

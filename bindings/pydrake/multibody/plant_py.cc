@@ -1385,11 +1385,17 @@ void DoScalarDependentDefinitions(py::module m, T) {
         [cast_workaround](systems::DiagramBuilder<T>* builder,
             const AddMultibodyPlantSceneGraphResult<T>& pair) {
           py::object builder_py = py::cast(builder, py_rvp::reference);
-          // Keep alive, ownership: `plant` keeps `builder` alive.
-          py::object plant_py = cast_workaround(pair.plant, builder_py);
-          // Keep alive, ownership: `scene_graph` keeps `builder` alive.
+          // // Keep alive, ownership: `plant` keeps `builder` alive.
+          // py::object plant_py = cast_workaround(pair.plant, builder_py);
+          // // Keep alive, ownership: `scene_graph` keeps `builder` alive.
+          // py::object scene_graph_py =
+          //     cast_workaround(pair.scene_graph, builder_py);
+          py::object plant_py = py::cast(pair.plant, py_rvp::reference);
           py::object scene_graph_py =
-              cast_workaround(pair.scene_graph, builder_py);
+              py::cast(pair.scene_graph, py_rvp::reference);
+          // XXX?
+          py::detail::keep_alive_impl(builder_py, plant_py);
+          py::detail::keep_alive_impl(builder_py, scene_graph_py);
           return py::make_tuple(plant_py, scene_graph_py);
         };
 
@@ -1403,6 +1409,7 @@ void DoScalarDependentDefinitions(py::module m, T) {
           return result_to_tuple(builder, pair);
         },
         py::arg("builder"), py::arg("plant"), py::arg("scene_graph") = nullptr,
+        py::keep_alive<1, 2>(), py::keep_alive<1, 3>(),
         doc.AddMultibodyPlantSceneGraph
             .doc_3args_systemsDiagramBuilder_stduniqueptr_stduniqueptr);
 
@@ -1415,7 +1422,7 @@ void DoScalarDependentDefinitions(py::module m, T) {
           return result_to_tuple(builder, pair);
         },
         py::arg("builder"), py::arg("time_step"),
-        py::arg("scene_graph") = nullptr,
+        py::arg("scene_graph") = nullptr, py::keep_alive<1, 3>(),
         doc.AddMultibodyPlantSceneGraph
             .doc_3args_systemsDiagramBuilder_double_stduniqueptr);
 

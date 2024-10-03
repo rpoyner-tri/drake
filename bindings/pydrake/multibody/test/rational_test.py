@@ -28,7 +28,7 @@ class TestRationalForwardKinematics(unittest.TestCase):
         self.body0 = self.plant.GetBodyByName("rail_base")
         self.body1 = self.plant.GetBodyByName("pendulum")
 
-        diagram = builder.Build()
+        self.diagram = builder.Build()
 
         # test constructor
         self.rat_forward = rational.RationalForwardKinematics(plant=self.plant)

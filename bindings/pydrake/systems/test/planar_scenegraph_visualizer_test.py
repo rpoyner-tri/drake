@@ -151,19 +151,19 @@ class TestPlanarSceneGraphVisualizer(unittest.TestCase):
                 np.array([0.5, 0.5, 0.5, 1.]))
             mbp.Finalize()
 
-            return scene_graph
+            return builder, scene_graph
 
         # This mesh should load correctly.
         runfiles = CreateRunfiles()
         mesh_name = runfiles.Rlocation(
             "drake_models/iiwa_description/meshes/iiwa14/visual/"
             "link_0.gltf")
-        scene_graph = scene_graph_with_mesh(mesh_name)
+        builder, scene_graph = scene_graph_with_mesh(mesh_name)
         PlanarSceneGraphVisualizer(scene_graph)
 
         # This should load correctly, too, by substituting the .gltf.
         mesh_name_wrong_ext = os.path.splitext(mesh_name)[0] + ".STL"
-        scene_graph = scene_graph_with_mesh(mesh_name_wrong_ext)
+        builder, scene_graph = scene_graph_with_mesh(mesh_name_wrong_ext)
         PlanarSceneGraphVisualizer(scene_graph)
 
         # This should report that the file does not exist:
@@ -172,18 +172,18 @@ class TestPlanarSceneGraphVisualizer(unittest.TestCase):
                 scene_graph, substitute_collocated_mesh_files=False)
 
         # This should report that the file does not exist.
-        scene_graph = scene_graph_with_mesh("garbage.obj")
+        builder, scene_graph = scene_graph_with_mesh("garbage.obj")
         with self.assertRaises(FileNotFoundError):
             PlanarSceneGraphVisualizer(scene_graph)
 
         # This should report that the extension was wrong and no .obj was
         # found.
-        scene_graph = scene_graph_with_mesh("garbage.STL")
+        builder, scene_graph = scene_graph_with_mesh("garbage.STL")
         with self.assertRaises(RuntimeError):
             PlanarSceneGraphVisualizer(scene_graph)
 
         # This should load correctly and yield a very large patch.
-        scene_graph = scene_graph_with_mesh(mesh_name, 1e3)
+        builder, scene_graph = scene_graph_with_mesh(mesh_name, 1e3)
         visualizer = PlanarSceneGraphVisualizer(scene_graph)
         _, _, width, height = visualizer.ax.dataLim.bounds
         self.assertTrue(width > 10.0)

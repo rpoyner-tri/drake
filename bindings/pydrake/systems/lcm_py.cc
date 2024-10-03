@@ -255,6 +255,7 @@ PYBIND11_MODULE(lcm, m) {
               auto [scope, publisher] = LcmScopeSystem::AddToBuilder(
                   builder, lcm, signal, channel, publish_period);
               // Annotate the proper rvp on the tuple of pointers.
+              // XXX -- ok?
               py::object py_builder = py::cast(builder, py_rvp::reference);
               py::list result;
               result.append(

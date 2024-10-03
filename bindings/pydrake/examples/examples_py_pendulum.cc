@@ -105,8 +105,8 @@ void DefineExamplesPendulum(py::module m) {
       .def_static("AddToBuilder", &PendulumGeometry::AddToBuilder,
           py::arg("builder"), py::arg("pendulum_state_port"),
           py::arg("scene_graph"),
-          // Keep alive, ownership: `return` keeps `builder` alive.
-          py::keep_alive<0, 1>(),
+          // XXX
+          py::keep_alive<1, 0>(),
           // See #11531 for why `py_rvp::reference` is needed.
           py_rvp::reference, doc.PendulumGeometry.AddToBuilder.doc);
 }

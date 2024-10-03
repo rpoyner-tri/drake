@@ -36,7 +36,7 @@ class TestInverseKinematics(unittest.TestCase):
         Parser(self.plant).AddModels(FindResourceOrThrow(
                 "drake/bindings/pydrake/multibody/test/two_bodies.sdf"))
         self.plant.Finalize()
-        diagram = builder.Build()
+        self.diagram = diagram = builder.Build()
         diagram_context = diagram.CreateDefaultContext()
         plant_context = diagram.GetMutableSubsystemContext(
             self.plant, diagram_context)
@@ -492,8 +492,8 @@ class TestConstraints(unittest.TestCase):
         Parser(self.plant_f).AddModels(FindResourceOrThrow(
                 "drake/bindings/pydrake/multibody/test/two_bodies.sdf"))
         self.plant_f.Finalize()
-        diagram_f = builder_f.Build()
-        diagram_ad = diagram_f.ToAutoDiffXd()
+        self.diagram_f = diagram_f = builder_f.Build()
+        self.diagram_ad = diagram_ad = diagram_f.ToAutoDiffXd()
         plant_ad = diagram_ad.GetSubsystemByName(self.plant_f.get_name())
 
         TypeVariables = namedtuple(
