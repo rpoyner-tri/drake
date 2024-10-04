@@ -92,6 +92,19 @@ drake_cc_library(
     deps = ["//:drake_shared_library"],
 )
 
+drake_cc_library(
+    name = "ref_cycle_pybind",
+    srcs = ["ref_cycle_pybind.cc"],
+    hdrs = ["ref_cycle_pybind.h"],
+    declare_installed_headers = 0,
+    visibility = ["//visibility:public"],
+    deps = [
+        ":pydrake_pybind",
+        "//common:essential",
+        "@pybind11",
+    ],
+)
+
 drake_py_library(
     name = "forwarddiff_py",
     srcs = [
