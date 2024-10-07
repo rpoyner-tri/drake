@@ -1097,7 +1097,7 @@ void DoScalarIndependentDefinitions(py::module m) {
     using Class = SystemBase;
     constexpr auto& cls_doc = doc.SystemBase;
     // TODO(eric.cousineau): Bind remaining methods.
-    py::class_<Class> cls(m, "SystemBase", py::dynamic_attr(), cls_doc.doc);
+    py::class_<Class> cls(m, "SystemBase", cls_doc.doc);
     {
       using Nested = SystemBase::GraphvizFragment;
       constexpr auto& nested_doc = doc.SystemBase.GraphvizFragment;

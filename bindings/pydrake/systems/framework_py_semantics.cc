@@ -601,7 +601,7 @@ void DoDefineFrameworkDiagramBuilder(py::module m) {
           },
           py::arg("system"),
           // XXX
-          internal::ref_cycle<2, 1>(), doc.DiagramBuilder.AddSystem.doc)
+          internal::ref_cycle<1, 2>(), doc.DiagramBuilder.AddSystem.doc)
       .def(
           "AddNamedSystem",
           [](DiagramBuilder<T>* self, std::string& name,
@@ -610,7 +610,7 @@ void DoDefineFrameworkDiagramBuilder(py::module m) {
           },
           py::arg("name"), py::arg("system"),
           // XXX
-          internal::ref_cycle<3, 1>(), doc.DiagramBuilder.AddNamedSystem.doc)
+          internal::ref_cycle<1, 3>(), doc.DiagramBuilder.AddNamedSystem.doc)
       .def("RemoveSystem", &DiagramBuilder<T>::RemoveSystem, py::arg("system"),
           doc.DiagramBuilder.RemoveSystem.doc)
       .def("empty", &DiagramBuilder<T>::empty, doc.DiagramBuilder.empty.doc)

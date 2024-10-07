@@ -10,8 +10,10 @@ import argparse
 import dataclasses
 import functools
 import gc
+import resource
 import sys
 import textwrap
+import weakref
 
 from pydrake.planning import RobotDiagramBuilder
 from pydrake.systems.analysis import Simulator
@@ -46,21 +48,41 @@ class RepetitionDetail:
     the count of allocated memory blocks."""
     i: int
     blocks: int | None = None
+    maxrss: int | None = None
+
+
+def make_sentinel(obj, name):
+    print(f"made {name} {hex(id(obj))}")
+
+    def done(oid):
+        print(f"unmade {name} {hex(oid)}")
+    return weakref.finalize(obj, done, id(obj))
 
 
 def _dut_simple_source():
     """A device under test that creates and destroys a leaf system."""
     source = ConstantVectorSource([1.0])
+    return {make_sentinel(source, "simple source")}
 
 
 def _dut_trivial_simulator():
     """A device under test that creates and destroys a simulator that contains
     only a single, simple subsystem."""
     builder = DiagramBuilder()
-    builder.AddSystem(ConstantVectorSource([1.0]))
-    diagram = builder.Build()
-    simulator = Simulator(system=diagram)
-    simulator.AdvanceTo(1.0)
+    print(f"just made referrers {gc.get_referrers(builder)}")
+    print(f"just made referents {gc.get_referents(builder)}")
+    got = builder.AddSystem(ConstantVectorSource([1.0]))
+    print(f"added: builder referrers {gc.get_referrers(builder)}")
+    print(f"added: builder referents {gc.get_referents(builder)}")
+    print(f"added: got referrers {gc.get_referrers(got)}")
+    print(f"added: got referents {gc.get_referents(got)}")
+    result = {make_sentinel(builder, "trivial builder"),
+              make_sentinel(got, "trivial source")}
+    del builder, got
+    return result
+    # diagram = builder.Build()
+    # simulator = Simulator(system=diagram)
+    # simulator.AdvanceTo(1.0)
 
 
 def _dut_mixed_language_simulator():
@@ -75,6 +97,7 @@ def _dut_mixed_language_simulator():
     plant = diagram.plant()
     plant_context = plant.GetMyContextFromRoot(context)
     plant.EvalSceneGraphInspector(plant_context)
+    return {make_sentinel(simulator, "mixed simulator")}
 
 
 @functools.cache
@@ -192,6 +215,11 @@ def _dut_full_example():
     random = RandomGenerator(22)
     diagram.SetRandomContext(simulator.get_mutable_context(), random)
     simulator.AdvanceTo(0.5)
+    return {make_sentinel(simulator, "full simulator")}
+
+
+def get_maxrss():
+    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
 
 def _repeat(*, dut: callable, count: int) -> list[RepetitionDetail]:
@@ -199,12 +227,24 @@ def _repeat(*, dut: callable, count: int) -> list[RepetitionDetail]:
     # Pre-allocate all of our return values.
     details = [RepetitionDetail(i=i) for i in range(count)]
     gc.collect()
+    # gc.set_debug(gc.DEBUG_LEAK)  # doesn't help much.
     tare_blocks = sys.getallocatedblocks()
+    tare_maxrss = get_maxrss()
     # Call the dut repeatedly, keeping stats as we go.
     for i in range(count):
-        dut()
+        sentinels = dut()
+        for sentinel in sentinels:
+            print(f"before collect sentinel alive? {sentinel.alive}")
         gc.collect()
+        print(f"garbage {gc.garbage}")
+        for sentinel in sentinels:
+            print(f"after collect sentinel alive? {sentinel.alive}")
+            if sentinel.alive:
+                print(f"referrers: {gc.get_referrers(sentinel.peek()[0])}")
+                print(f"referents: {gc.get_referents(sentinel.peek()[0])}")
+                print(f"is_tracked: {gc.is_tracked(sentinel.peek()[0])}")
         details[i].blocks = sys.getallocatedblocks() - tare_blocks
+        details[i].maxrss = get_maxrss() - tare_maxrss
     return details
 
 

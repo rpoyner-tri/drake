@@ -1,5 +1,9 @@
 #include "drake/bindings/pydrake/ref_cycle_pybind.h"
 
+#include <iostream>
+
+#include <fmt/format.h>
+
 #include "drake/common/drake_assert.h"
 
 using pybind11::handle;
@@ -29,15 +33,22 @@ void do_ref_cycle_impl(handle p0, handle p1) {
       peers = a.attr(refcycle_peers);
     } else {
       peers = PySet_New(nullptr);
-      auto typ = Py_TYPE(peers.ptr());
-      DRAKE_DEMAND(PyType_IS_GC(typ));
+      DRAKE_DEMAND(PyType_IS_GC(Py_TYPE(a.ptr())));
+      DRAKE_DEMAND(PyType_IS_GC(Py_TYPE(b.ptr())));
+      DRAKE_DEMAND(PyType_IS_GC(Py_TYPE(peers.ptr())));
       a.attr(refcycle_peers) = peers;
     }
     // XXX are ref counts correct here?
+    std::cerr << fmt::format("adding peer ref {} to set on {}\n",
+                             fmt::ptr(b.ptr()), fmt::ptr(a.ptr()));
     PySet_Add(peers.ptr(), b.ptr());
   };
+  std::cerr << fmt::format("before: p0cnt {} p1cnt {}\n",
+                           Py_REFCNT(p0.ptr()), Py_REFCNT(p1.ptr()));
   make_link(p0, p1);
   make_link(p1, p0);
+  std::cerr << fmt::format("after: p0cnt {} p1cnt {}\n",
+                           Py_REFCNT(p0.ptr()), Py_REFCNT(p1.ptr()));
 }
 }  // namespace
 
