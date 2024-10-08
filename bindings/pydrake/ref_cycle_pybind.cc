@@ -37,6 +37,7 @@ void do_ref_cycle_impl(handle p0, handle p1) {
       DRAKE_DEMAND(PyType_IS_GC(Py_TYPE(b.ptr())));
       DRAKE_DEMAND(PyType_IS_GC(Py_TYPE(peers.ptr())));
       a.attr(refcycle_peers) = peers;
+      Py_DECREF(peers.ptr());  // XXX WTF!?!
     }
     std::cerr << fmt::format("just made peers set: cnt {}\n",
                              Py_REFCNT(peers.ptr()));
@@ -44,7 +45,6 @@ void do_ref_cycle_impl(handle p0, handle p1) {
     std::cerr << fmt::format("adding peer ref {} to set on {}\n",
                              fmt::ptr(b.ptr()), fmt::ptr(a.ptr()));
     PySet_Add(peers.ptr(), b.ptr());
-    Py_DECREF(peers.ptr());  // XXX WTF!?!
     std::cerr << fmt::format("done peers set: cnt {}\n",
                              Py_REFCNT(peers.ptr()));
   };
