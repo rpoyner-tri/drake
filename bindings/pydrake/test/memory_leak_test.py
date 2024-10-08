@@ -51,18 +51,44 @@ class RepetitionDetail:
     maxrss: int | None = None
 
 
+@dataclasses.dataclass(frozen=True)
+class Sentinel:
+    finalizer: weakref.finalize
+    name: str
+
+
+def get_maxrss():
+    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+
+
+def object_generation(o):
+    for gen in range(3):
+        gen_list = gc.get_objects(generation=gen)
+        gen_id_list = [id(x) for x in gen_list]
+        if id(o) in gen_id_list:
+            return gen
+    assert False
+
+
 def make_sentinel(obj, name):
     print(f"made {name} {hex(id(obj))}")
 
     def done(oid):
         print(f"unmade {name} {hex(oid)}")
-    return weakref.finalize(obj, done, id(obj))
+    return Sentinel(finalizer=weakref.finalize(obj, done, id(obj)),
+                    name=name)
 
 
 def _dut_simple_source():
     """A device under test that creates and destroys a leaf system."""
     source = ConstantVectorSource([1.0])
     return {make_sentinel(source, "simple source")}
+
+
+def counts_for_cycle_parts(o, name):
+    print(f"{name}: o cnt {sys.getrefcount(o)}"
+          f" dict cnt {sys.getrefcount(o.__dict__)}"
+          f" set cnt {sys.getrefcount(o._pydrake_ref_cycle_peers)}")
 
 
 def _dut_trivial_simulator():
@@ -72,6 +98,8 @@ def _dut_trivial_simulator():
     print(f"just made referrers {gc.get_referrers(builder)}")
     print(f"just made referents {gc.get_referents(builder)}")
     got = builder.AddSystem(ConstantVectorSource([1.0]))
+    counts_for_cycle_parts(builder, "builder")
+    counts_for_cycle_parts(got, "source")
     print(f"added: builder referrers {gc.get_referrers(builder)}")
     print(f"added: builder referents {gc.get_referents(builder)}")
     print(f"added: got referrers {gc.get_referrers(got)}")
@@ -218,8 +246,18 @@ def _dut_full_example():
     return {make_sentinel(simulator, "full simulator")}
 
 
-def get_maxrss():
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+def report_sentinels(sentinels, time_message):
+    print(time_message)
+    for sentinel in sentinels:
+        print(f"sentinel for {sentinel.name}")
+        finalizer = sentinel.finalizer
+        print(f"sentinel alive? {finalizer.alive}")
+        if finalizer.alive:
+            o = finalizer.peek()[0]
+            print(f"generation: {object_generation(o)}")
+            print(f"referrers: {gc.get_referrers(o)}")
+            print(f"referents: {gc.get_referents(o)}")
+            print(f"is_tracked: {gc.is_tracked(o)}")
 
 
 def _repeat(*, dut: callable, count: int) -> list[RepetitionDetail]:
@@ -233,16 +271,10 @@ def _repeat(*, dut: callable, count: int) -> list[RepetitionDetail]:
     # Call the dut repeatedly, keeping stats as we go.
     for i in range(count):
         sentinels = dut()
-        for sentinel in sentinels:
-            print(f"before collect sentinel alive? {sentinel.alive}")
+        report_sentinels(sentinels, "before collect")
         gc.collect()
         print(f"garbage {gc.garbage}")
-        for sentinel in sentinels:
-            print(f"after collect sentinel alive? {sentinel.alive}")
-            if sentinel.alive:
-                print(f"referrers: {gc.get_referrers(sentinel.peek()[0])}")
-                print(f"referents: {gc.get_referents(sentinel.peek()[0])}")
-                print(f"is_tracked: {gc.is_tracked(sentinel.peek()[0])}")
+        report_sentinels(sentinels, "after collect")
         details[i].blocks = sys.getallocatedblocks() - tare_blocks
         details[i].maxrss = get_maxrss() - tare_maxrss
     return details
