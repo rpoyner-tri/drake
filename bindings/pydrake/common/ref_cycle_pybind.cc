@@ -9,8 +9,6 @@ namespace drake {
 namespace pydrake {
 namespace internal {
 
-namespace {
-
 void do_ref_cycle_impl(handle p0, handle p1) {
   if (!p0 || !p1) {
     pybind11::pybind11_fail("Could not activate ref_cycle!");
@@ -45,8 +43,6 @@ void do_ref_cycle_impl(handle p0, handle p1) {
   make_link(p0, p1);
   make_link(p1, p0);
 }
-
-}  // namespace
 
 void ref_cycle_impl(
     size_t Peer0, size_t Peer1, const function_call& call, handle ret) {

@@ -17,8 +17,13 @@ namespace internal {
 template <size_t Peer0, size_t Peer1>
 struct ref_cycle {};
 
+/* This function is used in the template below to select peers by call/return
+ index. */
 void ref_cycle_impl(size_t Peer0, size_t Peer1,
     const pybind11::detail::function_call& call, pybind11::handle ret);
+
+/* This function creates the cycle, given peers as pybind11::handles. */
+void do_ref_cycle_impl(pybind11::handle p0, pybind11::handle p1);
 
 }  // namespace internal
 }  // namespace pydrake
