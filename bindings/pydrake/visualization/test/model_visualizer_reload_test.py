@@ -1,10 +1,17 @@
+import gc
 import subprocess
+import sys
 import time
 import unittest
+import weakref
 
 from pydrake.common import FindResourceOrThrow
 from pydrake.geometry import Meshcat
 import pydrake.visualization as mut
+
+
+def shout(msg):
+    print(msg, file=sys.stderr)
 
 
 class TestModelVisualizerReload(unittest.TestCase):
@@ -32,7 +39,12 @@ class TestModelVisualizerReload(unittest.TestCase):
         self.assertEqual(meshcat.GetButtonClicks(button), 0)
 
         # Remember the originally-created diagram.
-        orig_diagram = dut._diagram
+        orig_diagram_id = id(dut._diagram)
+
+        # Observe the life cycle of the originally-created diagram.
+        def done():
+            shout(f"original diagram {hex(orig_diagram_id)} is finalized")
+        ender = weakref.finalize(dut._diagram, done)
 
         # Click the reload button.
         cli = FindResourceOrThrow("drake/geometry/meshcat_websocket_client")
@@ -56,7 +68,7 @@ class TestModelVisualizerReload(unittest.TestCase):
         # Use a non-default position so we can check that it is maintained.
         original_q = [1.0, 2.0]
         dut.Run(position=original_q, loop_once=True)
-        self.assertNotEqual(id(orig_diagram), id(dut._diagram))
+        self.assertNotEqual(orig_diagram_id, id(dut._diagram))
 
         # Ensure the reloaded slider and joint values are the same.
         slider_q = dut._sliders.get_output_port().Eval(
