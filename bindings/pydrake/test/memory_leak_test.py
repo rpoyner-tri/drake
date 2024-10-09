@@ -10,8 +10,10 @@ import argparse
 import dataclasses
 import functools
 import gc
+import resource
 import sys
 import textwrap
+import weakref
 
 from pydrake.planning import RobotDiagramBuilder
 from pydrake.systems.analysis import Simulator
@@ -46,21 +48,73 @@ class RepetitionDetail:
     the count of allocated memory blocks."""
     i: int
     blocks: int | None = None
+    maxrss: int | None = None
+
+
+@dataclasses.dataclass(frozen=True)
+class Sentinel:
+    finalizer: weakref.finalize
+    name: str
+
+
+def _get_maxrss():
+    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+
+
+def _object_generation(o):
+    for gen in range(3):
+        gen_list = gc.get_objects(generation=gen)
+        gen_id_list = [id(x) for x in gen_list]
+        if id(o) in gen_id_list:
+            return gen
+    assert False  # Provided a non GC object handle.
+
+
+def _make_sentinel(obj, name):
+    print(f"made {name} {hex(id(obj))}")
+
+    def done(oid):
+        print(f"unmade {name} {hex(oid)}")
+    return Sentinel(finalizer=weakref.finalize(obj, done, id(obj)),
+                    name=name)
 
 
 def _dut_simple_source():
     """A device under test that creates and destroys a leaf system."""
     source = ConstantVectorSource([1.0])
+    return {_make_sentinel(source, "simple source")}
+
+
+def _counts_for_cycle_parts(o, name):
+    o_count = sys.getrefcount(o)
+    dict_count = sys.getrefcount(o.__dict__)
+    if hasattr(o, "_pydrake_ref_cycle_peers"):
+        set_count = sys.getrefcount(o._pydrake_ref_cycle_peers)
+    else:
+        set_count = 0
+    print(f"{name}: o count {o_count} dict count {dict_count}"
+          f" set count {set_count}")
 
 
 def _dut_trivial_simulator():
     """A device under test that creates and destroys a simulator that contains
     only a single, simple subsystem."""
     builder = DiagramBuilder()
-    builder.AddSystem(ConstantVectorSource([1.0]))
+    got = builder.AddSystem(ConstantVectorSource([1.0]))
+    got2 = builder.AddSystem(ConstantVectorSource([1.0]))
     diagram = builder.Build()
     simulator = Simulator(system=diagram)
     simulator.AdvanceTo(1.0)
+    _counts_for_cycle_parts(builder, "builder")
+    _counts_for_cycle_parts(got, "source")
+    _counts_for_cycle_parts(got2, "source2")
+    _counts_for_cycle_parts(diagram, "diagram")
+    _counts_for_cycle_parts(simulator, "simulator")
+    return {_make_sentinel(builder, "trivial builder"),
+            _make_sentinel(got, "trivial source"),
+            _make_sentinel(got2, "trivial source2"),
+            _make_sentinel(diagram, "trivial diagram"),
+            _make_sentinel(simulator, "trivial simulator")}
 
 
 def _dut_mixed_language_simulator():
@@ -75,6 +129,7 @@ def _dut_mixed_language_simulator():
     plant = diagram.plant()
     plant_context = plant.GetMyContextFromRoot(context)
     plant.EvalSceneGraphInspector(plant_context)
+    return {_make_sentinel(simulator, "mixed simulator")}
 
 
 @functools.cache
@@ -192,6 +247,21 @@ def _dut_full_example():
     random = RandomGenerator(22)
     diagram.SetRandomContext(simulator.get_mutable_context(), random)
     simulator.AdvanceTo(0.5)
+    return {_make_sentinel(simulator, "full simulator")}
+
+
+def _report_sentinels(sentinels, message):
+    print(message)
+    for sentinel in sentinels:
+        print(f"sentinel for {sentinel.name}")
+        finalizer = sentinel.finalizer
+        print(f"sentinel alive? {finalizer.alive}")
+        if finalizer.alive:
+            o = finalizer.peek()[0]
+            print(f"generation: {_object_generation(o)}")
+            print(f"referrers: {gc.get_referrers(o)}")
+            print(f"referents: {gc.get_referents(o)}")
+            print(f"is_tracked: {gc.is_tracked(o)}")
 
 
 def _repeat(*, dut: callable, count: int) -> list[RepetitionDetail]:
@@ -200,11 +270,15 @@ def _repeat(*, dut: callable, count: int) -> list[RepetitionDetail]:
     details = [RepetitionDetail(i=i) for i in range(count)]
     gc.collect()
     tare_blocks = sys.getallocatedblocks()
+    tare_maxrss = _get_maxrss()
     # Call the dut repeatedly, keeping stats as we go.
     for i in range(count):
-        dut()
+        sentinels = dut()
+        _report_sentinels(sentinels, "before collect")
         gc.collect()
+        _report_sentinels(sentinels, "after collect")
         details[i].blocks = sys.getallocatedblocks() - tare_blocks
+        details[i].maxrss = _get_maxrss() - tare_maxrss
     return details
 
 
