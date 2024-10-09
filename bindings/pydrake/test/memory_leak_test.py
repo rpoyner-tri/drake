@@ -67,7 +67,7 @@ def _object_generation(o):
         gen_id_list = [id(x) for x in gen_list]
         if id(o) in gen_id_list:
             return gen
-    assert False  # Provided a non GC object handle.
+    return -99
 
 
 def _make_sentinel(obj, name):
@@ -87,7 +87,10 @@ def _dut_simple_source():
 
 def _counts_for_cycle_parts(o, name):
     o_count = sys.getrefcount(o)
-    dict_count = sys.getrefcount(o.__dict__)
+    if hasattr(o, "__dict__"):
+        dict_count = sys.getrefcount(o.__dict__)
+    else:
+        dict_count = 0
     if hasattr(o, "_pydrake_ref_cycle_peers"):
         set_count = sys.getrefcount(o._pydrake_ref_cycle_peers)
     else:
