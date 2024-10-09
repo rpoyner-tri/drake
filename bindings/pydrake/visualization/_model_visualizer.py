@@ -1,5 +1,6 @@
 import copy
 from enum import Enum
+import gc
 import logging
 import os
 from pathlib import Path
@@ -447,6 +448,9 @@ class ModelVisualizer:
         self._sliders = None
         self._context = None
         self._remove_traffic_cone()
+        # Ensure that the old owners of sliders and buttons on Meshcat are
+        # fully evicted.
+        gc.collect()
 
         # Populate the diagram builder again with the same packages and models.
         self._builder = RobotDiagramBuilder()
