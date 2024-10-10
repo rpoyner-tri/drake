@@ -116,6 +116,14 @@ drake_jupyter_py_binary(
     ],
 )
 
+drake_py_binary(
+    name = "hydroelastic_contact_basics_py",
+    srcs = ["hydroelastic_contact_basics.py"],
+    deps = [
+        "//bindings/pydrake",
+    ],
+)
+
 drake_jupyter_py_binary(
     name = "hydroelastic_contact_nonconvex_mesh",
     add_test_rule = 1,
@@ -131,9 +139,25 @@ drake_jupyter_py_binary(
     ],
 )
 
+drake_py_binary(
+    name = "hydroelastic_contact_nonconvex_mesh_py",
+    srcs = ["hydroelastic_contact_nonconvex_mesh.py"],
+    deps = [
+        "//bindings/pydrake",
+    ],
+)
+
 drake_jupyter_py_binary(
     name = "rendering_multibody_plant",
     add_test_rule = 1,
+    deps = [
+        "//bindings/pydrake",
+    ],
+)
+
+drake_py_binary(
+    name = "rendering_multibody_plant_py",
+    srcs = ["rendering_multibody_plant.py"],
     deps = [
         "//bindings/pydrake",
     ],
