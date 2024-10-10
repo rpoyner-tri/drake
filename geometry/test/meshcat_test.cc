@@ -863,9 +863,9 @@ GTEST_TEST(MeshcatTest, Buttons) {
   DRAKE_EXPECT_THROWS_MESSAGE(meshcat.GetButtonClicks("alice"),
                               "Meshcat does not have any button named alice.*");
 
-  // Removing a non-existent button is an error.
-  DRAKE_EXPECT_THROWS_MESSAGE(meshcat.DeleteButton("alice"),
-                              "Meshcat does not have any button named alice.*");
+  // Removing a non-existent button issues a warning. Not tested here; see
+  // console output.
+  meshcat.DeleteButton("alice");
 
   // Adding the button anew starts with a zero count again.
   meshcat.AddButton("alice");

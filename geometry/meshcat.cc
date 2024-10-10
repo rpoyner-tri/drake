@@ -58,16 +58,37 @@ using math::RigidTransformd;
 using math::RotationMatrixd;
 
 template <typename Mapping>
-[[noreturn]] void ThrowThingNotFound(std::string_view thing,
-                                     std::string_view name, Mapping thing_map) {
+void ComplainThingNotFound(std::string_view thing, std::string_view name,
+                           Mapping thing_map,
+                           std::function<void(const std::string&)> action) {
   std::vector<std::string> keys;
   for (const auto& map_pair : thing_map) {
     keys.push_back(map_pair.first);
   }
-  throw std::logic_error(
-      fmt::format("Meshcat does not have any {} named {}.  The "
-                  "registered {} names are ({}).",
-                  thing, name, thing, fmt::join(keys, ", ")));
+  std::string message = fmt::format(
+      "Meshcat does not have any {} named {}.  The "
+      "registered {} names are ({}).",
+      thing, name, thing, fmt::join(keys, ", "));
+  action(message);
+}
+
+template <typename Mapping>
+[[noreturn]] void ThrowThingNotFound(std::string_view thing,
+                                     std::string_view name, Mapping thing_map) {
+  auto do_throw = [](const std::string& message) {
+    throw std::logic_error(message);
+  };
+  ComplainThingNotFound(thing, name, thing_map, do_throw);
+  DRAKE_UNREACHABLE();
+}
+
+template <typename Mapping>
+void WarnThingNotFound(std::string_view thing, std::string_view name,
+                       Mapping thing_map) {
+  auto do_warn = [](const std::string& message) {
+    drake::log()->warn(message);
+  };
+  ComplainThingNotFound(thing, name, thing_map, do_warn);
 }
 
 constexpr static bool kSsl = false;
@@ -1609,7 +1630,8 @@ class Meshcat::Impl {
       std::lock_guard<std::mutex> lock(controls_mutex_);
       auto iter = buttons_.find(name);
       if (iter == buttons_.end()) {
-        ThrowThingNotFound("button", name, buttons_);
+        WarnThingNotFound("button", name, buttons_);
+        return;
       }
       buttons_.erase(iter);
       auto c_iter = std::find(controls_.begin(), controls_.end(), name);
@@ -1743,7 +1765,8 @@ class Meshcat::Impl {
       std::lock_guard<std::mutex> lock(controls_mutex_);
       auto iter = sliders_.find(name);
       if (iter == sliders_.end()) {
-        ThrowThingNotFound("slider", name, sliders_);
+        WarnThingNotFound("slider", name, sliders_);
+        return;
       }
       sliders_.erase(iter);
       auto c_iter = std::find(controls_.begin(), controls_.end(), name);

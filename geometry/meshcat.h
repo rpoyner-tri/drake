@@ -767,7 +767,7 @@ class Meshcat {
   int GetButtonClicks(std::string_view name) const;
 
   /** Removes the button `name` from the GUI.
-   @throws std::exception if `name` is not a registered button. */
+   Warns if `name` is not a registered button. */
   void DeleteButton(std::string name);
 
   /** Adds a slider with the label `name` to the meshcat browser controls GUI.
@@ -802,7 +802,7 @@ class Meshcat {
   std::vector<std::string> GetSliderNames() const;
 
   /** Removes the slider `name` from the GUI.
-   @throws std::exception if `name` is not a registered slider. */
+   Warns if `name` is not a registered slider. */
   void DeleteSlider(std::string name);
 
   /** Removes all buttons and sliders from the GUI that have been registered by
