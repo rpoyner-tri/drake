@@ -1,7 +1,7 @@
 default-jdk
 file
 gfortran
-libclang-16-dev
+libclang-17-dev
 libgl-dev
 libglib2.0-dev
 libglx-dev

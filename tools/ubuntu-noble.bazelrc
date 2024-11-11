@@ -1,10 +1,10 @@
 # Options for explicitly using Clang.
 # Keep this in sync with doc/_pages/from_source.md.
-common:clang --repo_env=CC=clang-16
-common:clang --repo_env=CXX=clang++-16
-build:clang --action_env=CC=clang-16
-build:clang --action_env=CXX=clang++-16
-build:clang --host_action_env=CC=clang-16
-build:clang --host_action_env=CXX=clang++-16
+common:clang --repo_env=CC=clang-17
+common:clang --repo_env=CXX=clang++-17
+build:clang --action_env=CC=clang-17
+build:clang --action_env=CXX=clang++-17
+build:clang --host_action_env=CC=clang-17
+build:clang --host_action_env=CXX=clang++-17
 
 build --define=UBUNTU_VERSION=24.04
