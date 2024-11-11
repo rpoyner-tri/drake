@@ -1,4 +1,4 @@
-clang-format-15
+clang-format-18
 curl
 libstdc++6-10-dbg
 python3-dateutil
