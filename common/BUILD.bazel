@@ -68,11 +68,9 @@ drake_cc_package_library(
 
 drake_cc_library(
     name = "fmt",
-    srcs = [
-        "fmt_eigen.cc",
-    ],
     hdrs = [
         "fmt.h",
+        "fmt_eigen.cc",
         "fmt_eigen.h",
         "fmt_ostream.h",
     ],

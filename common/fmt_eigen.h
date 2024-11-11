@@ -86,4 +86,6 @@ struct formatter<drake::internal::fmt_eigen_ref<Scalar>>
   }
 };
 }  // namespace fmt
+
+#include "drake/common/fmt_eigen.cc"
 #endif
