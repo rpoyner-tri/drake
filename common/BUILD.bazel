@@ -741,6 +741,13 @@ drake_cc_googletest(
 )
 
 drake_cc_googletest(
+    name = "clang16_link_fail_test",
+    deps = [
+        "//common/test_utilities:eigen_matrix_compare",
+    ],
+)
+
+drake_cc_googletest(
     name = "ssize_test",
     deps = [
         ":essential",
