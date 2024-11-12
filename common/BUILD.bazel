@@ -117,6 +117,14 @@ drake_cc_library(
     hdrs = ["bit_cast.h"],
 )
 
+drake_cc_library(
+    name = "clang16_link_fail",
+    hdrs = ["clang16_link_fail.h"],
+    deps = [
+        ":essential",
+    ],
+)
+
 # Specific traits and operators that are relevant to all ScalarTypes.
 drake_cc_library(
     name = "cond",
@@ -737,6 +745,14 @@ drake_cc_googletest(
     name = "bit_cast_test",
     deps = [
         ":bit_cast",
+    ],
+)
+
+drake_cc_googletest(
+    name = "clang16_link_fail_test",
+    deps = [
+        ":clang16_link_fail",
+        "//common/test_utilities:eigen_matrix_compare",
     ],
 )
 
