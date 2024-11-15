@@ -78,7 +78,7 @@ class EventCollection {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(EventCollection);
 
-  virtual ~EventCollection() {}
+  virtual ~EventCollection();
 
   /**
    * Clears all the events maintained by `this` then adds all of the events in
@@ -155,6 +155,8 @@ class DiagramEventCollection final : public EventCollection<EventType> {
       : EventCollection<EventType>(),
         subevent_collection_(num_subsystems),
         owned_subevent_collection_(num_subsystems) {}
+
+  ~DiagramEventCollection() final;
 
   /**
    * Throws if called, because no events should be added at the Diagram level.
@@ -294,6 +296,8 @@ class LeafEventCollection final : public EventCollection<EventType> {
     Reserve(kDefaultCapacity);
   }
 
+  ~LeafEventCollection() final;
+
   /**
    * Static method that generates a LeafEventCollection with exactly
    * one event with no optional attribute, data or callback, and trigger type
@@ -425,7 +429,7 @@ class CompositeEventCollection {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(CompositeEventCollection);
 
-  virtual ~CompositeEventCollection() {}
+  virtual ~CompositeEventCollection();
 
   /**
    * Clears all the events.
@@ -637,6 +641,8 @@ class LeafCompositeEventCollection final : public CompositeEventCollection<T> {
             std::make_unique<
                 LeafEventCollection<UnrestrictedUpdateEvent<T>>>()) {}
 
+  ~LeafCompositeEventCollection() final;
+
   /**
    * Returns a const reference to the collection of publish events.
    */
@@ -723,6 +729,8 @@ class DiagramCompositeEventCollection final
                    ->get_mutable_unrestricted_update_events()));
     }
   }
+
+  ~DiagramCompositeEventCollection() final;
 
   /**
    * Returns the number of subsystems for which this object contains event

@@ -1,5 +1,16 @@
 #include "drake/systems/framework/event_collection.h"
 
+namespace drake {
+namespace systems {
+EventCollection::~EventCollection() {}
+LeafEventCollection::~LeafEventCollection() {}
+DiagramEventCollection::~DiagramEventCollection() {}
+CompositeEventCollection::~CompositeEventCollection() {}
+LeafCompositeEventCollection::~LeafCompositeEventCollection() {}
+DiagramCompositeEventCollection::~DiagramCompositeEventCollection() {}
+}  // namespace systems
+}  // namespace drake
+
 DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_SCALARS(
     class ::drake::systems::CompositeEventCollection);
 
