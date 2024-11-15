@@ -41,6 +41,7 @@ drake_cc_package_library(
         ":identifier",
         ":is_approx_equal_abstol",
         ":is_cloneable",
+        ":is_dynamic_castable",
         ":is_less_than_comparable",
         ":memory_file",
         ":name_value",
@@ -258,6 +259,14 @@ drake_cc_library(
 )
 
 DRAKE_RESOURCE_SENTINEL = "//:.drake-find_resource-sentinel"
+
+drake_cc_library(
+    name = "is_dynamic_castable",
+    hdrs = ["is_dynamic_castable.h"],
+    deps = [
+        "//common:nice_type_name",
+    ],
+)
 
 drake_cc_library(
     name = "is_less_than_comparable",

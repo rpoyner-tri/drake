@@ -531,6 +531,7 @@ drake_cc_library(
         ":system_scalar_converter",
         ":value_producer",
         "//common:default_scalars",
+        "//common:is_dynamic_castable",
         "//common:essential",
         "//common:unused",
     ],

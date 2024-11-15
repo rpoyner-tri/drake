@@ -5,7 +5,9 @@
 
 #include "absl/container/inlined_vector.h"
 
+#include "drake/common/is_dynamic_castable.h"
 #include "drake/common/pointer_cast.h"
+#include "drake/common/text_logging.h"
 #include "drake/systems/framework/system_symbolic_inspector.h"
 #include "drake/systems/framework/value_checker.h"
 
@@ -771,8 +773,13 @@ template <typename T>
 EventStatus LeafSystem<T>::DispatchPublishHandler(
     const Context<T>& context,
     const EventCollection<PublishEvent<T>>& events) const {
-  const LeafEventCollection<PublishEvent<T>>& leaf_events =
-     dynamic_cast<const LeafEventCollection<PublishEvent<T>>&>(events);
+  auto msg = is_dynamic_castable<LeafEventCollection<PublishEvent<T>>,
+				 EventCollection<PublishEvent<T>>>(&events);
+  if (!msg.empty()) { throw std::runtime_error(msg); }
+  const LeafEventCollection<PublishEvent<T>>* pleaf_events =
+     dynamic_cast<const LeafEventCollection<PublishEvent<T>>*>(&events);
+  DRAKE_DEMAND(pleaf_events != nullptr);
+  auto& leaf_events = *pleaf_events;
   // This function shouldn't have been called if no publish events.
   DRAKE_DEMAND(leaf_events.HasEvents());
 
