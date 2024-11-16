@@ -7,6 +7,7 @@
 
 #include "drake/common/default_scalars.h"
 #include "drake/common/drake_copyable.h"
+#include "drake/common/drake_export.h"
 #include "drake/common/pointer_cast.h"
 #include "drake/systems/framework/context.h"
 #include "drake/systems/framework/event.h"
@@ -141,7 +142,8 @@ class EventCollection {
  * internal use only.
  */
 template <typename EventType>
-class DiagramEventCollection final : public EventCollection<EventType> {
+class DRAKE_EXPORT DiagramEventCollection final
+    : public EventCollection<EventType> {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(DiagramEventCollection);
 
@@ -278,7 +280,8 @@ class DiagramEventCollection final : public EventCollection<EventType> {
  * internal use only.
  */
 template <typename EventType>
-class LeafEventCollection final : public EventCollection<EventType> {
+class DRAKE_EXPORT LeafEventCollection final
+    : public EventCollection<EventType> {
  public:
   /**
    * The default capacity of event storage allocation, expressed as a number of
@@ -425,7 +428,7 @@ class LeafEventCollection final : public EventCollection<EventType> {
  * @tparam_default_scalar
  */
 template <typename T>
-class CompositeEventCollection {
+class DRAKE_EXPORT CompositeEventCollection {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(CompositeEventCollection);
 
@@ -630,7 +633,8 @@ class CompositeEventCollection {
  * </pre>
  */
 template <typename T>
-class LeafCompositeEventCollection final : public CompositeEventCollection<T> {
+class DRAKE_EXPORT LeafCompositeEventCollection final
+    : public CompositeEventCollection<T> {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(LeafCompositeEventCollection);
 
@@ -677,7 +681,7 @@ class LeafCompositeEventCollection final : public CompositeEventCollection<T> {
  * internal use only.
  */
 template <typename T>
-class DiagramCompositeEventCollection final
+class DRAKE_EXPORT DiagramCompositeEventCollection final
     : public CompositeEventCollection<T> {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(DiagramCompositeEventCollection);

@@ -7,6 +7,7 @@
 #include <variant>
 
 #include "drake/common/drake_copyable.h"
+#include "drake/common/drake_export.h"
 #include "drake/common/value.h"
 #include "drake/systems/framework/context.h"
 #include "drake/systems/framework/continuous_state.h"
@@ -222,15 +223,15 @@ class WitnessFunction;
 // Forward declaration of the event container classes.
 // -- Containers for homogeneous events.
 template <typename EventType>
-class EventCollection;
+class DRAKE_EXPORT EventCollection;
 template <typename EventType>
-class LeafEventCollection;
+class DRAKE_EXPORT LeafEventCollection;
 
 // -- Containers for heterogeneous events.
 template <typename T>
-class CompositeEventCollection;
+class DRAKE_EXPORT CompositeEventCollection;
 template <typename T>
-class LeafCompositeEventCollection;
+class DRAKE_EXPORT LeafCompositeEventCollection;
 
 /**
  * An event data variant describing an event that recurs on a fixed period. The
@@ -419,7 +420,7 @@ small buffer optimization and cause heap allocations when scheduling events.
 when particular event types are handled is described in the class documentation
 for Simulator. */
 template <typename T>
-class Event {
+class DRAKE_EXPORT Event {
  public:
   virtual ~Event() = default;
 
@@ -569,7 +570,7 @@ struct PeriodicEventDataComparator {
  * Declare*PublishEvent() methods.
  */
 template <typename T>
-class PublishEvent final : public Event<T> {
+class DRAKE_EXPORT PublishEvent final : public Event<T> {
  public:
   DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(PublishEvent);
   bool is_discrete_update() const override { return false; }
@@ -635,7 +636,7 @@ class PublishEvent final : public Event<T> {
  * methods.
  */
 template <typename T>
-class DiscreteUpdateEvent final : public Event<T> {
+class DRAKE_EXPORT DiscreteUpdateEvent final : public Event<T> {
  public:
   DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(DiscreteUpdateEvent);
   bool is_discrete_update() const override { return true; }
@@ -705,7 +706,7 @@ class DiscreteUpdateEvent final : public Event<T> {
  * Declare*UnrestrictedUpdateEvent() methods.
  */
 template <typename T>
-class UnrestrictedUpdateEvent final : public Event<T> {
+class DRAKE_EXPORT UnrestrictedUpdateEvent final : public Event<T> {
  public:
   DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(UnrestrictedUpdateEvent);
   bool is_discrete_update() const override { return false; }

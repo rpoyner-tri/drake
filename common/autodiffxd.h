@@ -23,6 +23,7 @@
 
 #include <Eigen/Dense>
 
+#include "drake/common/drake_export.h"
 #include "drake/common/fmt_ostream.h"
 
 namespace Eigen {
@@ -76,7 +77,7 @@ namespace Eigen {
 // will function with uninitialized AutoDiffXd objects, just as it should not
 // with any other Eigen::AutoDiffScalar.
 template <>
-class AutoDiffScalar<VectorXd>
+class DRAKE_EXPORT AutoDiffScalar<VectorXd>
     : public internal::auto_diff_special_op<VectorXd, false> {
  public:
   typedef internal::auto_diff_special_op<VectorXd, false> Base;

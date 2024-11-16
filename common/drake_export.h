@@ -37,3 +37,12 @@ For the related CMake module, see:
 https://cmake.org/cmake/help/latest/module/GenerateExportHeader.html
 */
 #define DRAKE_NO_EXPORT __attribute__((visibility("hidden")))
+
+#if defined(__clang__)
+
+#define DRAKE_EXPORT __attribute__((visibility("default")))     \
+  __attribute__((type_visibility("default")))
+
+#else
+#define DRAKE_EXPORT __attribute__((visibility("default")))
+#endif
