@@ -188,6 +188,7 @@ drake_cc_library(
         ":context",
         ":system_base",
         "//common:default_scalars",
+        "//common:drake_export",
         "//common:essential",
         "//common:value",
     ],
