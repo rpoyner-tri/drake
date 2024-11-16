@@ -1,8 +1,9 @@
 #pragma once
 
 #include <memory>
-#include <sstream>
 #include <string>
+
+#include <fmt/format.h>
 
 #include "drake/common/nice_type_name.h"
 
@@ -36,20 +37,20 @@ template <typename ToType, typename FromType>
   if (ptr == nullptr) {
     const std::string from_name{NiceTypeName::Get<FromType>()};
     const std::string to_name{NiceTypeName::Get<ToType>()};
-    std::stringstream message;
-    message << "is_dynamic_castable<" << to_name << ">(" << from_name
-	    << "* ptr)" << " failed because ptr was already nullptr.";
-    return message.str();
+    return fmt::format("is_dynamic_castable<{}>({}* ptr) failed because"
+		       " ptr was already nullptr.",
+		       to_name, from_name);
   }
   if (dynamic_cast<const ToType* const>(ptr) == nullptr) {
     const std::string from_name{NiceTypeName::Get<FromType>()};
     const std::string to_name{NiceTypeName::Get<ToType>()};
+    const void* to_ptr = &typeid(ToType);
     const std::string dynamic_name{NiceTypeName::Get(*ptr)};
-    std::stringstream message;
-    message << "is_dynamic_castable<" << to_name << ">(" << from_name
-	    << "* ptr)" << " failed because ptr is of dynamic type "
-	    << dynamic_name << ".";
-    return message.str();
+    const void* dynamic_ptr = &typeid(*ptr);
+    return fmt::format("is_dynamic_castable<{}@{}>({}* ptr) failed"
+		       " because ptr is of dynamic type {}@{}.",
+		       to_name, fmt::ptr(to_ptr), from_name,
+		       dynamic_name, dynamic_ptr);
   }
   return {};
 }

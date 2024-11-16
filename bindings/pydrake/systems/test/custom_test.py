@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import copy
+import ctypes
 import sys
 from types import SimpleNamespace
 import unittest
 import warnings
+
+dlopen_flags = sys.getdlopenflags()
+sys.setdlopenflags(dlopen_flags | ctypes.RTLD_GLOBAL)
 
 import numpy as np
 
