@@ -75,7 +75,8 @@ class AcrobotPlant : public systems::LeafSystem<T> {
 
   static const AcrobotState<T>& get_state(
       const systems::ContinuousState<T>& cstate) {
-    return dynamic_cast<const AcrobotState<T>&>(cstate.get_vector());
+    DRAKE_ASSERT(typeid(cstate) == typeid(const AcrobotState<T>));
+    return static_cast<const AcrobotState<T>&>(cstate.get_vector());
   }
 
   static const AcrobotState<T>& get_state(const systems::Context<T>& context) {
@@ -84,7 +85,8 @@ class AcrobotPlant : public systems::LeafSystem<T> {
 
   static AcrobotState<T>& get_mutable_state(
       systems::ContinuousState<T>* cstate) {
-    return dynamic_cast<AcrobotState<T>&>(cstate->get_mutable_vector());
+    DRAKE_ASSERT(typeid(cstate) == typeid(AcrobotState<T>));
+    return static_cast<AcrobotState<T>&>(cstate->get_mutable_vector());
   }
 
   static AcrobotState<T>& get_mutable_state(systems::Context<T>* context) {

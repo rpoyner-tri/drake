@@ -140,6 +140,7 @@ void AcrobotPlant<T>::DoCalcImplicitTimeDerivativesResidual(
 template <typename T>
 T AcrobotPlant<T>::DoCalcKineticEnergy(
     const systems::Context<T>& context) const {
+  DRAKE_DEMAND(false);
   const AcrobotState<T>& state = dynamic_cast<const AcrobotState<T>&>(
       context.get_continuous_state_vector());
 
