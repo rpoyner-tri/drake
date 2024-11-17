@@ -24,6 +24,7 @@ drake_pybind_library(
     name = "examples",
     cc_deps = [
         "//bindings/pydrake:documentation_pybind",
+        "//bindings/pydrake:polymorphic_types_pybind",
         "//bindings/pydrake/common:deprecation_pybind",
     ],
     cc_so_name = "__init__",
