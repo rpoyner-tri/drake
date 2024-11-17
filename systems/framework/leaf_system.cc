@@ -773,13 +773,16 @@ template <typename T>
 EventStatus LeafSystem<T>::DispatchPublishHandler(
     const Context<T>& context,
     const EventCollection<PublishEvent<T>>& events) const {
-  auto msg = is_dynamic_castable<LeafEventCollection<PublishEvent<T>>,
-				 EventCollection<PublishEvent<T>>>(&events);
-  if (!msg.empty()) { throw std::runtime_error(msg); }
-  const LeafEventCollection<PublishEvent<T>>* pleaf_events =
-     dynamic_cast<const LeafEventCollection<PublishEvent<T>>*>(&events);
-  DRAKE_DEMAND(pleaf_events != nullptr);
-  auto& leaf_events = *pleaf_events;
+  // auto msg = is_dynamic_castable<LeafEventCollection<PublishEvent<T>>,
+  // 				 EventCollection<PublishEvent<T>>>(&events);
+  // if (!msg.empty()) { throw std::runtime_error(msg); }
+  // const LeafEventCollection<PublishEvent<T>>* pleaf_events =
+  //    dynamic_cast<const LeafEventCollection<PublishEvent<T>>*>(&events);
+  // DRAKE_DEMAND(pleaf_events != nullptr);
+  DRAKE_ASSERT(typeid(events) ==
+	       typeid(const LeafEventCollection<PublishEvent<T>>));
+  auto& leaf_events =
+    static_cast<const LeafEventCollection<PublishEvent<T>>&>(events);
   // This function shouldn't have been called if no publish events.
   DRAKE_DEMAND(leaf_events.HasEvents());
 

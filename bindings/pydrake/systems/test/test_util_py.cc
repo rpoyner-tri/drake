@@ -94,7 +94,6 @@ PYBIND11_MODULE(test_util, m) {
       auto events =
           LeafEventCollection<PublishEvent<T>>::MakeForcedEventCollection();
       const EventStatus status = system.Publish(*context, *events);
-      throw std::runtime_error("here!");
       DRAKE_DEMAND(status.did_nothing());
     }
     {
