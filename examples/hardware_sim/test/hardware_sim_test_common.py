@@ -86,7 +86,7 @@ class HardwareSimTest:
         self._run(self._example_scenarios, "Demo")
 
     def test_graphviz(self):
-        out_file = f"{os.environ['TEST_TMPDIR']}/graph.dot"
+        out_file = f"{os.environ.get('TEST_TMPDIR', '/tmp')}/graph.dot"
         self.assertFalse(os.path.exists(out_file))
         self._run(self._test_scenarios, "Defaults", graphviz=out_file)
         with open(out_file, encoding="utf-8") as f:

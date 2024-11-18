@@ -11,9 +11,10 @@ template <typename itype>
 struct polymorphic_type_hook<itype,
     std::enable_if_t<std::is_polymorphic<itype>::value>> {
   static const void* get(const itype* src, const std::type_info*& type) {
-    DRAKE_DEMAND(false);
     type = src ? &typeid(*src) : nullptr;
-    return dynamic_cast<const void*>(src);
+    const void* most = dynamic_cast<const void*>(src);
+    DRAKE_DEMAND((most == nullptr) == (src == nullptr));
+    return most;
   }
 };
 
