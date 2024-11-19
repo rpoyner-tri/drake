@@ -22,6 +22,12 @@ SpongControllerParamsIndices::GetCoordinateNames() {
   return coordinates.access();
 }
 
+template <typename T>
+SpongControllerParams<T>::~SpongControllerParams() {}
+
 }  // namespace acrobot
 }  // namespace examples
 }  // namespace drake
+
+DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_SCALARS(
+    class ::drake::examples::acrobot::SpongControllerParams);

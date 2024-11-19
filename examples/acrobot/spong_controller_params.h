@@ -82,6 +82,8 @@ class SpongControllerParams final : public drake::systems::BasicVector<T> {
   }
   //@}
 
+  ~SpongControllerParams() override;
+
   /// Create a symbolic::Variable for each element with the known variable
   /// name.  This is only available for T == symbolic::Expression.
   template <typename U = T>

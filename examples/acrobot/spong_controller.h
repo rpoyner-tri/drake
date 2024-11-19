@@ -74,6 +74,8 @@ class AcrobotSpongController : public systems::LeafSystem<T> {
     K_ = lqr_result.K;
   }
 
+  ~AcrobotSpongController() override;
+
   const SpongControllerParams<T>& get_parameters(
       const systems::Context<T>& context) const {
     return this->template GetNumericParameter<SpongControllerParams>(context,
