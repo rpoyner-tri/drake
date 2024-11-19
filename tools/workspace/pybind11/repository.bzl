@@ -20,6 +20,7 @@ def pybind11_repository(
         repository = _REPOSITORY,
         commit = _COMMIT,
         sha256 = _SHA256,
+	local_repository_override = "/Users/ricopoyner/third/pybind11",
         build_file = ":package.BUILD.bazel",
         mirrors = mirrors,
     )
