@@ -195,11 +195,10 @@ class LeafSystem : public System<T> {
     static_assert(std::is_base_of_v<BasicVector<T>, U<T>>,
                   "U must be a subclass of BasicVector.");
     const auto& leaf_context =
-        dynamic_cast<const systems::LeafContext<T>&>(context);
-    const auto* const params =
-        dynamic_cast<const U<T>*>(&leaf_context.get_numeric_parameter(index));
-    DRAKE_ASSERT(params != nullptr);
-    return *params;
+        static_cast<const systems::LeafContext<T>&>(context);
+    const auto& params = leaf_context.get_numeric_parameter(index);
+    DRAKE_ASSERT(typeid(params) == typeid(const U<T>&));
+    return static_cast<const U<T>&>(params);
   }
 
   /** Extracts the numeric parameters of type U from the @p context at @p index.
@@ -210,12 +209,11 @@ class LeafSystem : public System<T> {
     this->ValidateContext(context);
     static_assert(std::is_base_of_v<BasicVector<T>, U<T>>,
                   "U must be a subclass of BasicVector.");
-    auto* leaf_context = dynamic_cast<systems::LeafContext<T>*>(context);
+    auto* leaf_context = static_cast<systems::LeafContext<T>*>(context);
     DRAKE_ASSERT(leaf_context != nullptr);
-    auto* const params = dynamic_cast<U<T>*>(
-        &leaf_context->get_mutable_numeric_parameter(index));
-    DRAKE_ASSERT(params != nullptr);
-    return *params;
+    auto& params = leaf_context->get_mutable_numeric_parameter(index);
+    DRAKE_ASSERT(typeid(params) == typeid(U<T>&));
+    return static_cast<U<T>&>(params);
   }
 
   /** Declares an abstract parameter using the given @p model_value.
@@ -278,7 +276,8 @@ class LeafSystem : public System<T> {
                             const System<T>& system,
                             const Context<T>& context,
                             const PublishEvent<T>&) {
-          const auto& sys = dynamic_cast<const MySystem&>(system);
+          DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+          const auto& sys = static_cast<const MySystem&>(system);
           return (sys.*publish)(context);
         }));
   }
@@ -305,7 +304,8 @@ class LeafSystem : public System<T> {
             [publish](const System<T>& system,
                       const Context<T>& context,
                       const PublishEvent<T>&) {
-              const auto& sys = dynamic_cast<const MySystem&>(system);
+              DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+              const auto& sys = static_cast<const MySystem&>(system);
               (sys.*publish)(context);
               return EventStatus::Succeeded();
             }));
@@ -347,7 +347,8 @@ class LeafSystem : public System<T> {
                      const Context<T>& context,
                      const DiscreteUpdateEvent<T>&,
                      DiscreteValues<T>* xd) {
-              const auto& sys = dynamic_cast<const MySystem&>(system);
+              DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+              const auto& sys = static_cast<const MySystem&>(system);
               return (sys.*update)(context, &*xd);
             }));
   }
@@ -376,7 +377,8 @@ class LeafSystem : public System<T> {
                      const Context<T>& context,
                      const DiscreteUpdateEvent<T>&,
                      DiscreteValues<T>* xd) {
-              const auto& sys = dynamic_cast<const MySystem&>(system);
+              DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+              const auto& sys = static_cast<const MySystem&>(system);
               (sys.*update)(context, &*xd);
               return EventStatus::Succeeded();
             }));
@@ -415,7 +417,8 @@ class LeafSystem : public System<T> {
             [update](const System<T>& system,
                      const Context<T>& context,
                      const UnrestrictedUpdateEvent<T>&, State<T>* x) {
-              const auto& sys = dynamic_cast<const MySystem&>(system);
+              DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+              const auto& sys = static_cast<const MySystem&>(system);
               return (sys.*update)(context, &*x);
             }));
   }
@@ -441,7 +444,8 @@ class LeafSystem : public System<T> {
             TriggerType::kPeriodic,
             [update](const System<T>& system, const Context<T>& context,
                      const UnrestrictedUpdateEvent<T>&, State<T>* x) {
-              const auto& sys = dynamic_cast<const MySystem&>(system);
+              DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+              const auto& sys = static_cast<const MySystem&>(system);
               (sys.*update)(context, &*x);
               return EventStatus::Succeeded();
             }));
@@ -561,7 +565,8 @@ class LeafSystem : public System<T> {
         TriggerType::kPerStep,
         [publish](const System<T>& system, const Context<T>& context,
                   const PublishEvent<T>&) {
-          const auto& sys = dynamic_cast<const MySystem&>(system);
+          DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+          const auto& sys = static_cast<const MySystem&>(system);
           return (sys.*publish)(context);
         }));
   }
@@ -598,7 +603,8 @@ class LeafSystem : public System<T> {
             TriggerType::kPerStep,
             [update](const System<T>& system, const Context<T>& context,
                      const DiscreteUpdateEvent<T>&, DiscreteValues<T>* xd) {
-              const auto& sys = dynamic_cast<const MySystem&>(system);
+              DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+              const auto& sys = static_cast<const MySystem&>(system);
               return (sys.*update)(context, &*xd);
             }));
   }
@@ -634,7 +640,8 @@ class LeafSystem : public System<T> {
         TriggerType::kPerStep,
         [update](const System<T>& system, const Context<T>& context,
                  const UnrestrictedUpdateEvent<T>&, State<T>* x) {
-          const auto& sys = dynamic_cast<const MySystem&>(system);
+          DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+          const auto& sys = static_cast<const MySystem&>(system);
           return (sys.*update)(context, &*x);
         }));
   }
@@ -723,7 +730,8 @@ class LeafSystem : public System<T> {
         TriggerType::kInitialization,
         [publish](const System<T>& system, const Context<T>& context,
                   const PublishEvent<T>&) {
-          const auto& sys = dynamic_cast<const MySystem&>(system);
+          DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+          const auto& sys = static_cast<const MySystem&>(system);
           return (sys.*publish)(context);
         }));
   }
@@ -761,7 +769,8 @@ class LeafSystem : public System<T> {
         TriggerType::kInitialization,
         [update](const System<T>& system, const Context<T>& context,
                  const DiscreteUpdateEvent<T>&, DiscreteValues<T>* xd) {
-          const auto& sys = dynamic_cast<const MySystem&>(system);
+          DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+          const auto& sys = static_cast<const MySystem&>(system);
           return (sys.*update)(context, &*xd);
         }));
   }
@@ -799,7 +808,8 @@ class LeafSystem : public System<T> {
         TriggerType::kInitialization,
         [update](const System<T>& system, const Context<T>& context,
                  const UnrestrictedUpdateEvent<T>&, State<T>* x) {
-          const auto& sys = dynamic_cast<const MySystem&>(system);
+          DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+          const auto& sys = static_cast<const MySystem&>(system);
           return (sys.*update)(context, &*x);
         }));
   }
@@ -893,7 +903,8 @@ class LeafSystem : public System<T> {
         TriggerType::kForced,
         [publish](const System<T>& system, const Context<T>& context,
                   const PublishEvent<T>&) {
-          const auto& sys = dynamic_cast<const MySystem&>(system);
+          DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+          const auto& sys = static_cast<const MySystem&>(system);
           return (sys.*publish)(context);
         });
 
@@ -933,7 +944,8 @@ class LeafSystem : public System<T> {
         [update](const System<T>& system, const Context<T>& context,
                  const DiscreteUpdateEvent<T>&,
                  DiscreteValues<T>* discrete_state) {
-          const auto& sys = dynamic_cast<const MySystem&>(system);
+          DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+          const auto& sys = static_cast<const MySystem&>(system);
           return (sys.*update)(context, discrete_state);
         });
 
@@ -973,7 +985,8 @@ class LeafSystem : public System<T> {
         TriggerType::kForced,
         [update](const System<T>& system, const Context<T>& context,
                  const UnrestrictedUpdateEvent<T>&, State<T>* state) {
-          const auto& sys = dynamic_cast<const MySystem&>(system);
+          DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+          const auto& sys = static_cast<const MySystem&>(system);
           return (sys.*update)(context, state);
         });
 
@@ -1290,8 +1303,8 @@ class LeafSystem : public System<T> {
         // Calculator function downcasts to specific vector type and invokes
         // the given member function.
         [this_ptr, calc](const Context<T>& context, BasicVector<T>* result) {
-          auto typed_result = dynamic_cast<BasicVectorSubtype*>(result);
-          DRAKE_DEMAND(typed_result != nullptr);
+          DRAKE_ASSERT(typeid(result) == typeid(BasicVectorSubtype*));
+          auto typed_result = static_cast<BasicVectorSubtype*>(result);
           (this_ptr->*calc)(context, typed_result);
         },
         std::move(prerequisites_of_calc));
@@ -1561,7 +1574,8 @@ class LeafSystem : public System<T> {
         TriggerType::kWitness,
         [publish_callback](const System<T>& system, const Context<T>& context,
                            const PublishEvent<T>& callback_event) {
-          const auto& sys = dynamic_cast<const MySystem&>(system);
+          DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+          const auto& sys = static_cast<const MySystem&>(system);
           (sys.*publish_callback)(context, callback_event);
           return EventStatus::Succeeded();
         });
@@ -1590,7 +1604,8 @@ class LeafSystem : public System<T> {
         [du_callback](const System<T>& system, const Context<T>& context,
                       const DiscreteUpdateEvent<T>& callback_event,
                       DiscreteValues<T>* values) {
-          const auto& sys = dynamic_cast<const MySystem&>(system);
+          DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+          const auto& sys = static_cast<const MySystem&>(system);
           (sys.*du_callback)(context, callback_event, values);
           return EventStatus::Succeeded();
         });
@@ -1619,7 +1634,8 @@ class LeafSystem : public System<T> {
         [uu_callback](const System<T>& system, const Context<T>& context,
                       const UnrestrictedUpdateEvent<T>& callback_event,
                       State<T>* state) {
-          const auto& sys = dynamic_cast<const MySystem&>(system);
+          DRAKE_ASSERT(typeid(system) == typeid(const MySystem&));
+          const auto& sys = static_cast<const MySystem&>(system);
           (sys.*uu_callback)(context, callback_event, state);
           return EventStatus::Succeeded();
         });
@@ -1686,8 +1702,8 @@ class LeafSystem : public System<T> {
   SystemConstraintIndex DeclareEqualityConstraint(
       void (MySystem::*calc)(const Context<T>&, VectorX<T>*) const,
       int count, std::string description) {
-    auto this_ptr = dynamic_cast<const MySystem*>(this);
-    DRAKE_DEMAND(this_ptr != nullptr);
+    DRAKE_ASSERT(typeid(this) == typeid(const MySystem*));
+    auto this_ptr = static_cast<const MySystem*>(this);
     return DeclareEqualityConstraint(
         [this_ptr, calc](const Context<T>& context, VectorX<T>* value) {
           DRAKE_DEMAND(value != nullptr);
@@ -1733,8 +1749,8 @@ class LeafSystem : public System<T> {
       void (MySystem::*calc)(const Context<T>&, VectorX<T>*) const,
       SystemConstraintBounds bounds,
       std::string description) {
-    auto this_ptr = dynamic_cast<const MySystem*>(this);
-    DRAKE_DEMAND(this_ptr != nullptr);
+    DRAKE_ASSERT(typeid(this) == typeid(const MySystem*));
+    auto this_ptr = static_cast<const MySystem*>(this);
     return DeclareInequalityConstraint(
         [this_ptr, calc](const Context<T>& context, VectorX<T>* value) {
           DRAKE_DEMAND(value != nullptr);
