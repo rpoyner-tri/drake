@@ -7,7 +7,7 @@ digraph G {
 }
 {
  node [shape=plaintext, fontname="Courier"];
- controller_plant; builder; controller;
+ controller_plant; builder; controller; diagram;
 }
 
 pymbp [label="MultibodyPlant"];
@@ -16,23 +16,28 @@ pydb [label="DiagramBuilder"];
 cdb [label="DiagramBuilder"];
 pyidc [label="InverseDynamicsController"];
 cidc [label="InverseDynamicsController"];
+pydgm [label="Diagram"];
+cdgm [label="Diagram"];
 
-{ rank = same; variables; builder; controller; controller_plant; }
-{ rank = same; Python; pymbp; pydb; pyidc; }
-{ rank = same; "C++"; cmbp; cdb; cidc; }
+{ rank = same; variables; controller_plant; builder; controller; diagram; }
+{ rank = same; Python; pymbp; pydb; pyidc; pydgm; }
+{ rank = same; "C++"; cmbp; cdb; cidc; cdgm; }
 
  controller_plant -> pymbp [label="ref"];
  pymbp -> cmbp [label="owns"];
 
  builder -> pydb [label="ref"];
  pydb -> cdb [label="owns"];
- cdb -> cidc [label="owns"];
- pydb -> cdb [label="life support", dir=back];
+
+ diagram -> pydgm [label="ref"];
+ pydgm -> cdgm [label="owns"];
+ cdgm -> cidc [label="owns"];
 
  controller -> pyidc [label="ref"];
  pyidc -> cidc [label="alias"];
  pyidc -> pydb [label="ref_cycle", constraint=false, dir=both];
- pyidc -> pymbp [label="keep_alive"];
+ pyidc -> pymbp [label="keep_alive", constraint=false];
+ pydgm -> pydb [label="ref_cycle", constraint=false, dir=both];
 
  cidc -> cmbp [label="alias"];
 }
