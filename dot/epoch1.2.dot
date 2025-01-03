@@ -1,40 +1,51 @@
 digraph G {
-
-{
- node [shape=plaintext];
- edge [style=invis];
- variables -> Python -> "C++";
-}
-{
- node [shape=plaintext, fontname="Courier"];
- diagram;
-}
-
-pymbp [label="MultibodyPlant"];
-cmbp [label="MultibodyPlant"];
-pydb [label="DiagramBuilder"];
-cdb [label="DiagramBuilder"];
-pyidc [label="InverseDynamicsController"];
-cidc [label="InverseDynamicsController"];
-pydgm [label="Diagram"];
-cdgm [label="Diagram"];
-
-{ rank = same; variables; diagram; }
-{ rank = same; Python; pymbp; pydb; pyidc; pydgm; }
-{ rank = same; "C++"; cmbp; cdb; cidc; cdgm; }
-
- pydb -> cdb [label="owns"];
- pymbp -> cmbp [label="owns"];
-
- diagram -> pydgm [label="ref"];
- pydgm -> cdgm [label="owns"];
- cdgm -> cidc [label="owns"];
-
- pyidc -> cidc [label="alias"];
- pyidc -> pydb [label="keep_alive", constraint=false];
- pydb -> pyidc [label="keep_alive", constraint=false];
- pyidc -> pymbp [label="keep_alive", constraint=false];
- pydgm -> pydb [label="keep_alive", constraint=false];
-
- cidc -> cmbp [label="alias"];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    diagram;
+  }
+  
+  pymbp [label="MultibodyPlant"];
+  cmbp [label="MultibodyPlant"];
+  pydb [label="DiagramBuilder"];
+  cdb [label="DiagramBuilder"];
+  pyidc [label="InverseDynamicsController"];
+  cidc [label="InverseDynamicsController"];
+  pydgm [label="Diagram"];
+  cdgm [label="Diagram"];
+  
+  { rank = same; variables; diagram; }
+  { rank = same; Python; pymbp; pydb; pyidc; pydgm; }
+  { rank = same; "C++"; cmbp; cdb; cidc; cdgm; }
+  
+  {
+    edge [color="#1F77B4", style=bold];
+    diagram -> pydgm;
+  }
+  
+  {
+    edge [color="#FF7F0E", style=bold];
+    pydb -> cdb;
+    pymbp -> cmbp;
+    pydgm -> cdgm;
+    cdgm -> cidc;
+  }
+  
+  {
+    edge [color="#2CA02C", style=bold constraint=false];
+    pyidc -> pydb;
+    pydb -> pyidc;
+    pyidc -> pymbp;
+    pydgm -> pydb;
+  }
+  
+  {
+    edge [color="#D62728", style=dotted];
+    pyidc -> cidc;
+    cidc -> cmbp;
+  }
 }
