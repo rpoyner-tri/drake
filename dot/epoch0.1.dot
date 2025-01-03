@@ -1,6 +1,5 @@
 digraph G {
   edge [minlen=2];
-  concentrate=true;
   {
     node [shape=plaintext];
     edge [style=invis];
