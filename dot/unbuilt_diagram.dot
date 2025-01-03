@@ -1,0 +1,31 @@
+digraph G {
+
+cbuilder [label = "DiagramBuilder"];
+cinvdycon [label = "InverseDynamicsController"];
+cconplant [label = "MultibodyPlant"];
+
+pybuilder [label = "DiagramBuilder"];
+pyinvdycon [label = "InverseDynamicsController"];
+pyconplant [label = "MultibodyPlant"];
+
+vbuilder [label = "builder", fontname="Courier"];
+vbuilder -> pybuilder [lable="ref"];
+vconplant [label = "controller_plant", fontname="Courier"];
+vconplant -> pyconplant [lable="ref"];
+
+pybuilder -> cbuilder [label="owns"];
+pyconplant -> cconplant [label="owns"];
+
+cbuilder -> cinvdycon [label="owns"];
+
+cinvdycon -> cconplant [label="alias", style=dotted];
+
+pybuilder -> pyinvdycon;
+pyinvdycon -> pybuilder;
+
+pyinvdycon -> pyconplant [label="keep_alive"];
+
+subgraph "cluster_C++" { label="C++"; cbuilder; cinvdycon; cconplant; }
+subgraph "cluster_Python" { label="Python"; pybuilder; pyinvdycon; pyconplant; }
+subgraph "cluster_scope" { label="variables"; vbuilder; vconplant; }
+}
