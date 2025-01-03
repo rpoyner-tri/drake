@@ -1,0 +1,44 @@
+digraph G {
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    diagram;
+  }
+  
+  pydb [label="DiagramBuilder"];
+  cdb [label="DiagramBuilder"];
+  cidc [label="InverseDynamicsController"];
+  pydgm [label="Diagram"];
+  cdgm [label="Diagram"];
+  X [label="Oops!?", color="fuchsia", fontcolor="fuchsia"];
+  
+  { rank = same; variables; diagram; }
+  { rank = same; Python; pydb; pydgm; }
+  { rank = same; "C++"; cdb; cidc; cdgm; X; }
+  
+  {
+    edge [color="#1F77B4", style=bold];
+    diagram -> pydgm [label="ref"];
+  }
+
+  {
+    edge [color="#FF7F0E", style=bold];
+    pydb -> cdb;
+    pydgm -> cdgm;
+    cdgm -> cidc;
+  }
+  
+  {
+    edge [color="#2CA02C", style=bold];
+    pydgm -> pydb;
+  }
+
+  {
+    edge [color="#D62728", style=dotted];
+    cidc -> X [label="alias"];
+  }
+}

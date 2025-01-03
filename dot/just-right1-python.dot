@@ -1,0 +1,43 @@
+digraph G {
+
+{
+ node [shape=plaintext];
+ edge [style=invis];
+ variables -> Python -> "C++";
+}
+{
+ node [shape=plaintext, fontname="Courier"];
+ controller_plant; builder; controller; diagram;
+}
+
+pymbp [label="MultibodyPlant"];
+cmbp [label="MultibodyPlant"];
+pydb [label="DiagramBuilder"];
+cdb [label="DiagramBuilder"];
+pyidc [label="InverseDynamicsController"];
+cidc [label="InverseDynamicsController"];
+pydgm [label="Diagram"];
+cdgm [label="Diagram"];
+
+{ rank = same; variables; controller_plant; builder; controller; diagram; }
+{ rank = same; Python; pymbp; pydb; pyidc; pydgm; }
+{ rank = same; "C++"; cmbp; cdb; cidc; cdgm; }
+
+ controller_plant -> pymbp [label="ref"];
+ pymbp -> cmbp [label="owns"];
+
+ builder -> pydb [label="ref"];
+ pydb -> cdb [label="owns"];
+
+ diagram -> pydgm [label="ref"];
+ pydgm -> cdgm [label="owns"];
+ cdgm -> cidc [label="owns"];
+
+ controller -> pyidc [label="ref"];
+ pyidc -> cidc [label="alias"];
+ pyidc -> pydb [label="ref_cycle", constraint=false, dir=both];
+ pyidc -> pymbp [label="keep_alive", constraint=false];
+ pydgm -> pydb [label="ref_cycle", constraint=false, dir=both];
+
+ cidc -> cmbp [label="alias"];
+}

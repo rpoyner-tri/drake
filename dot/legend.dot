@@ -1,0 +1,32 @@
+digraph G {
+  label="Legend";
+  node [style=invis];
+  
+  {
+    edge [color="#1F77B4", style=bold, label="ref (Python)", constraint=false];
+    r1 -> r2;
+  }
+  
+  {
+    edge [color="#2CA02C", style=bold, label="keep_alive (pybind11)", constraint=false];
+    ka1 -> ka2;
+  }
+  
+  {
+    edge [color="#FF7F0E", style=bold, label="owns", constraint=false];
+    o1 -> o2;
+  }
+  
+  {
+    edge [color="#D62728", style=dotted,label="alias", constraint=false];
+    a1 -> a2;
+  }
+
+  edge [style=invis];
+  r1 -> ka1;
+  ka1 -> o1;
+  o1 -> a1;
+  r2 -> ka2;
+  ka2 -> o2;
+  o2 -> a2;
+}
