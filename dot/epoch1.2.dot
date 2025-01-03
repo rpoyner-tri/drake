@@ -1,4 +1,5 @@
 digraph G {
+  edge [minlen=2];
   {
     node [shape=plaintext];
     edge [style=invis];
