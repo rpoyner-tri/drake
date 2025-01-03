@@ -18,15 +18,30 @@ digraph G {
   }
   
   {
-    edge [color="#D62728", style=dotted,label="alias", constraint=false];
+    edge [color="#D62728", style=dotted, label="alias", constraint=false];
     a1 -> a2;
+  }
+
+  {
+    edge [color="#9467BD", style=bold, label="ref_cycle (pydrake)", constraint=false, dir=both];
+    rc1 -> rc2;
+  }
+
+  {
+    edge [color="#8C564B", style=bold, label="life support (pydrake)", constraint=false];
+    ls1 -> ls2;
   }
 
   edge [style=invis];
   r1 -> ka1;
   ka1 -> o1;
   o1 -> a1;
+  a1 -> rc1;
+  rc1 -> ls1;
+  
   r2 -> ka2;
   ka2 -> o2;
   o2 -> a2;
+  a2 -> rc2;
+  rc2 -> ls2;
 }

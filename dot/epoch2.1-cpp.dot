@@ -1,40 +1,53 @@
 digraph G {
-
-{
- node [shape=plaintext];
- edge [style=invis];
- "Python variables" -> Python -> "C++" -> "C++ variables";
-}
-{
- node [shape=plaintext, fontname="Courier"];
-  cvdiagram [label="diagram"];
-}
-
-pymbp [label="MultibodyPlant"];
-cmbp [label="MultibodyPlant"];
-pydb [label="DiagramBuilder"];
-cdb [label="DiagramBuilder"];
-pyidc [label="InverseDynamicsController"];
-cidc [label="InverseDynamicsController"];
-cdgm [label="Diagram"];
-
-{ rank = same; "Python variables"; }
-{ rank = same; Python; pymbp; pydb; pyidc; }
-{ rank = same; "C++"; cmbp; cdb; cidc; cdgm; }
-{ rank = same; "C++ variables"; cvdiagram; }
-
- pymbp -> cmbp [label="owns"];
-
- pydb -> cdb [label="owns"];
-
- cdgm -> cidc [label="owns"];
- pydb -> cdgm [label="life support", dir=back];
-
- pyidc -> cidc [label="alias"];
- pyidc -> pydb [label="ref_cycle", constraint=false, dir=both];
- pyidc -> pymbp [label="keep_alive", constraint=false];
-
- cidc -> cmbp [label="alias"];
-
- cvdiagram -> cdgm [label="owns", constraint=false];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    "Python variables" -> Python -> "C++" -> "C++ variables";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    cvdiagram [label="diagram"];
+  }
+  
+  pymbp [label="MultibodyPlant"];
+  cmbp [label="MultibodyPlant"];
+  pydb [label="DiagramBuilder"];
+  cdb [label="DiagramBuilder"];
+  pyidc [label="InverseDynamicsController"];
+  cidc [label="InverseDynamicsController"];
+  cdgm [label="Diagram"];
+  
+  { rank = same; "Python variables"; }
+  { rank = same; Python; pymbp; pydb; pyidc; }
+  { rank = same; "C++"; cmbp; cdb; cidc; cdgm; }
+  { rank = same; "C++ variables"; cvdiagram; }
+  
+  {
+    edge [color="#FF7F0E", style=bold];
+    pymbp -> cmbp;
+    pydb -> cdb;
+    cdgm -> cidc;
+    cvdiagram -> cdgm [constraint=false];
+  }
+  
+  {
+    edge [color="#2CA02C", style=bold, constraint=false];
+    pyidc -> pymbp;
+  }
+  
+  {
+    edge [color="#9467BD", style=bold, constraint=false, dir=both];
+    pyidc -> pydb;
+  }
+  
+  {
+    edge [color="#D62728", style=dotted];
+    pyidc -> cidc;
+    cidc -> cmbp;
+  }
+  
+  {
+    edge [color="#8C564B", style=bold, constraint=false, dir=back];
+    pydb -> cdgm;
+  }
 }
