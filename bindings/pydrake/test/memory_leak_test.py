@@ -43,7 +43,7 @@ from pydrake.visualization import ApplyVisualizationConfig, VisualizationConfig
 
 
 # Developer-only configuration.
-VERBOSE = False
+VERBOSE = True
 
 
 @functools.cache
@@ -296,6 +296,11 @@ class MyAdder(LeafSystem):
         output.SetFromVector(a - b)
 
 
+def _dut_myadder():
+    adder = MyAdder()
+    return _make_sentinels_from_locals("myadder", locals())
+
+
 def _dut_example_with_leaf_system():
     builder = DiagramBuilder()
     plant, scene_graph = AddMultibodyPlant(
@@ -476,3 +481,7 @@ class TestMemoryLeaks(unittest.TestCase):
     def test_example_with_leaf_system(self):
         # Note: this test doesn't invoke the #14355 deliberate cycle.
         self.do_test(dut=_dut_example_with_leaf_system, count=1)
+
+    def test_myadder(self):
+        # Note: this test doesn't invoke the #14355 deliberate cycle.
+        self.do_test(dut=_dut_myadder, count=1)
