@@ -492,6 +492,7 @@ class TemplateMethod(TemplateBase):
 
     class _Bound:
         def __init__(self, template, obj):
+            assert False
             self._tpl = template
             self._obj = obj
 

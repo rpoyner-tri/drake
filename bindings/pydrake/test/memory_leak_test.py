@@ -17,7 +17,7 @@ import weakref
 from pydrake.planning import RobotDiagramBuilder
 from pydrake.systems.analysis import Simulator
 from pydrake.systems.framework import DiagramBuilder, LeafSystem
-from pydrake.systems.primitives import ConstantVectorSource
+from pydrake.systems.primitives import ConstantVectorSource, Adder
 
 from pydrake.common import RandomGenerator
 from pydrake.common.schema import Rotation, Transform
@@ -272,154 +272,39 @@ def _dut_full_example():
 class MyAdder(LeafSystem):
     def __init__(self):
         super().__init__()  # Don't forget to initialize the base class.
+        # Comment/uncomment this one line to turn leak off or on.
         self._a_port = self.DeclareVectorInputPort(name="a", size=2)
-        self._b_port = self.DeclareVectorInputPort(name="b", size=2)
-        self.DeclareVectorOutputPort(name="sum", size=2, calc=self.CalcSum)
-        self.DeclareVectorOutputPort(name="difference",
-                                     size=2,
-                                     calc=self.CalcDifference)
+        # self._b_port = self.DeclareVectorInputPort(name="b", size=2)
+        # self.DeclareVectorOutputPort(name="sum", size=2, calc=self.CalcSum)
+        # self.DeclareVectorOutputPort(name="difference",
+        #                              size=2,
+        #                              calc=self.CalcDifference)
 
-    def CalcSum(self, context, output):
-        # Evaluate the input ports to obtain the 2x1 vectors.
-        a = self._a_port.Eval(context)
-        b = self._b_port.Eval(context)
+    # def CalcSum(self, context, output):
+    #     # Evaluate the input ports to obtain the 2x1 vectors.
+    #     a = self._a_port.Eval(context)
+    #     b = self._b_port.Eval(context)
 
-        # Write the sum into the output vector.
-        output.SetFromVector(a + b)
+    #     # Write the sum into the output vector.
+    #     output.SetFromVector(a + b)
 
-    def CalcDifference(self, context, output):
-        # Evaluate the input ports to obtain the 2x1 vectors.
-        a = self._a_port.Eval(context)
-        b = self._b_port.Eval(context)
+    # def CalcDifference(self, context, output):
+    #     # Evaluate the input ports to obtain the 2x1 vectors.
+    #     a = self._a_port.Eval(context)
+    #     b = self._b_port.Eval(context)
 
-        # Write the difference into output vector.
-        output.SetFromVector(a - b)
+    #     # Write the difference into output vector.
+    #     output.SetFromVector(a - b)
 
 
 def _dut_myadder():
-    adder = MyAdder()
+    myadder = MyAdder()
     return _make_sentinels_from_locals("myadder", locals())
 
 
-def _dut_example_with_leaf_system():
-    builder = DiagramBuilder()
-    plant, scene_graph = AddMultibodyPlant(
-        plant_config=MultibodyPlantConfig(
-            time_step=0.01,
-        ),
-        scene_graph_config=SceneGraphConfig(),
-        builder=builder,
-    )
-    directives = LoadModelDirectivesFromString(textwrap.dedent("""  # noqa
-    directives:
-    - add_model:
-        name: amazon_table
-        file: package://drake_models/manipulation_station/amazon_table_simplified.sdf
-    - add_weld:
-        parent: world
-        child: amazon_table::amazon_table
-    - add_model:
-        name: iiwa
-        file: package://drake_models/iiwa_description/urdf/iiwa14_primitive_collision.urdf
-        default_joint_positions:
-          iiwa_joint_1: [-0.2]
-          iiwa_joint_2: [0.79]
-          iiwa_joint_3: [0.32]
-          iiwa_joint_4: [-1.76]
-          iiwa_joint_5: [-0.36]
-          iiwa_joint_6: [0.64]
-          iiwa_joint_7: [-0.73]
-    - add_frame:
-        name: iiwa_on_world
-        X_PF:
-          base_frame: world
-          translation: [0, -0.7, 0.1]
-          rotation: !Rpy { deg: [0, 0, 90] }
-    - add_weld:
-        parent: iiwa_on_world
-        child: iiwa::base
-    - add_model:
-        name: wsg
-        file: package://drake_models/wsg_50_description/sdf/schunk_wsg_50_with_tip.sdf
-        default_joint_positions:
-          left_finger_sliding_joint: [-0.02]
-          right_finger_sliding_joint: [0.02]
-    - add_frame:
-        name: wsg_on_iiwa
-        X_PF:
-          base_frame: iiwa_link_7
-          translation: [0, 0, 0.114]
-          rotation: !Rpy { deg: [90, 0, 90] }
-    - add_weld:
-        parent: wsg_on_iiwa
-        child: wsg::body
-    - add_model:
-        name: bell_pepper
-        file: package://drake_models/veggies/yellow_bell_pepper_no_stem_low.sdf
-        default_free_body_pose:
-          flush_bottom_center__z_up:
-            base_frame: amazon_table::amazon_table
-            translation: [0, 0.10, 0.20]
-    """))
-    added_models = ProcessModelDirectives(
-        plant=plant,
-        directives=directives,
-    )
-    plant.Finalize()
-
-    # adds a leaf system
-    adder = builder.AddSystem(MyAdder())
-    builder.ExportOutput(adder.GetOutputPort("sum"), "adder_output")
-    builder.ExportInput(adder.GetInputPort("a"), "adder_a")
-    builder.ExportInput(adder.GetInputPort("b"), "adder_b")
-
-    lcm_buses = ApplyLcmBusConfig(
-        builder=builder,
-        lcm_buses={
-            "default": DrakeLcmParams(),
-        },
-    )
-    ApplyDriverConfigs(
-        builder=builder,
-        sim_plant=plant,
-        models_from_directives=added_models,
-        lcm_buses=lcm_buses,
-        driver_configs={
-            "iiwa": IiwaDriver(
-                hand_model_name="wsg",
-            ),
-        },
-    )
-    ApplyCameraConfig(
-        builder=builder,
-        lcm_buses=lcm_buses,
-        config=CameraConfig(
-            name="camera_0",
-            X_PB=Transform(
-                translation=[1.5, 0.8, 1.25],
-                rotation=Rotation(value=Rotation.Rpy(deg=[-120, 5, 125])),
-            ),
-        ),
-    )
-    ApplyVisualizationConfig(
-        builder=builder,
-        lcm_buses=lcm_buses,
-        config=VisualizationConfig(),
-        meshcat=_get_meshcat_singleton(),
-    )
-    diagram = builder.Build()
-    simulator = Simulator(system=diagram)
-    ApplySimulatorConfig(
-        simulator=simulator,
-        config=SimulatorConfig(),
-    )
-    random = RandomGenerator(22)
-    diagram.SetRandomContext(simulator.get_mutable_context(), random)
-    simulator.AdvanceTo(0.5)
-    return _make_sentinels_from_locals("example_with_leaf_system", locals())
-
-# I have leaks=0 when testing an example without leaf systems, and leaks > 0 for an example with a leaf system.
-
+def _dut_adder():
+    adder = Adder(1, 1)
+    return _make_sentinels_from_locals("adder", locals())
 
 
 def _repeat(*, dut: callable, count: int):
@@ -478,10 +363,11 @@ class TestMemoryLeaks(unittest.TestCase):
         # Note: this test doesn't invoke the #14355 deliberate cycle.
         self.do_test(dut=_dut_full_example, count=1)
 
-    def test_example_with_leaf_system(self):
-        # Note: this test doesn't invoke the #14355 deliberate cycle.
-        self.do_test(dut=_dut_example_with_leaf_system, count=1)
-
     def test_myadder(self):
         # Note: this test doesn't invoke the #14355 deliberate cycle.
         self.do_test(dut=_dut_myadder, count=1)
+
+    def test_adder(self):
+        # Note: this test doesn't invoke the #14355 deliberate cycle.
+        self.do_test(dut=_dut_adder, count=1)
+
