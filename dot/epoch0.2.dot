@@ -23,7 +23,7 @@ digraph G {
   
   {
     edge [color="#1F77B4", style=bold];
-    diagram -> pydgm [label="ref"];
+    diagram -> pydgm;
   }
 
   {
