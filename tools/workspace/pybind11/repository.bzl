@@ -17,6 +17,7 @@ def pybind11_repository(
         mirrors = None):
     github_archive(
         name = name,
+        local_repository_override = "/home/rico/checkout/pybind11",
         repository = _REPOSITORY,
         commit = _COMMIT,
         sha256 = _SHA256,
