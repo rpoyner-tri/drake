@@ -418,7 +418,13 @@ void DoScalarIndependentDefinitions(py::module m) {
     DefCopyAndDeepCopy(&cls);
   }
 
-  m.def("MakeRenderEngineVtk", &MakeRenderEngineVtk, py::arg("params"),
+  m.def(
+      "MakeRenderEngineVtk",
+      [](const RenderEngineVtkParams& params) -> RenderEngine* {
+        auto got = MakeRenderEngineVtk(params);
+        return got.release();
+      },
+      py::arg("params"), py_rvp::take_ownership,
       doc_geometry.MakeRenderEngineVtk.doc);
 
   {
@@ -432,8 +438,13 @@ void DoScalarIndependentDefinitions(py::module m) {
     DefCopyAndDeepCopy(&cls);
   }
 
-  m.def("MakeRenderEngineGl", &MakeRenderEngineGl,
-      py::arg("params") = RenderEngineGlParams(),
+  m.def(
+      "MakeRenderEngineGl",
+      [](const RenderEngineGlParams& params) -> RenderEngine* {
+        auto got = MakeRenderEngineGl(params);
+        return got.release();
+      },
+      py::arg("params") = RenderEngineGlParams(), py_rvp::take_ownership,
       doc_geometry.MakeRenderEngineGl.doc);
 
   {
@@ -447,9 +458,14 @@ void DoScalarIndependentDefinitions(py::module m) {
     DefCopyAndDeepCopy(&cls);
   }
 
-  m.def("MakeRenderEngineGltfClient", &MakeRenderEngineGltfClient,
+  m.def(
+      "MakeRenderEngineGltfClient",
+      [](const RenderEngineGltfClientParams& params) -> RenderEngine* {
+        auto got = MakeRenderEngineGltfClient(params);
+        return got.release();
+      },
       py::arg("params") = RenderEngineGltfClientParams(),
-      doc_geometry.MakeRenderEngineGltfClient.doc);
+      py_rvp::take_ownership, doc_geometry.MakeRenderEngineGltfClient.doc);
 
   AddValueInstantiation<RenderLabel>(m);
 }
