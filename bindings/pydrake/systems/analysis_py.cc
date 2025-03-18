@@ -267,7 +267,20 @@ PYBIND11_MODULE(analysis, m) {
         }),
             py::arg("system"), py::arg("context") = nullptr,
             // Keep alive, reference: `self` keeps `system` alive.
-            py::keep_alive<1, 2>())
+            py::keep_alive<1, 2>(),
+            []() {
+              std::string new_doc = doc.Simulator.ctor.doc;
+              new_doc += R"""(
+
+(Python only) If a Context is provided at construction, its lifetime will
+be managed by Python reference counting. Note, however, that the
+simulator logically "owns" the context; it will modify the context in
+most of its methods. Therefore, sharing a Context object among Simulators
+will likely lead to incorrect results.
+)""";
+              return new_doc;
+            }()
+                .c_str())
         .def("Initialize", &Simulator<T>::Initialize,
             doc.Simulator.Initialize.doc,
             py::arg("params") = InitializeParams{})
