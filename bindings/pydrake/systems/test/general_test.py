@@ -642,13 +642,11 @@ class TestGeneral(unittest.TestCase):
         # The python implementation of reset_context uses reference counting,
         # so the evicted context will still be alive if python still has a live
         # variable referring to it.
-        self.assertIsInstance(
-            context_default.get_continuous_state(), ContinuousState)
+        self.assertTrue(context_default.is_stateless())
         self.assertIs(context, simulator.get_mutable_context())
         simulator.reset_context(None)
         # Similar to the case above, `context` is still alive.
-        self.assertIsInstance(
-            context.get_continuous_state(), ContinuousState)
+        self.assertTrue(context.is_stateless())
         self.assertFalse(simulator.has_context())
 
     def test_simulator_flags(self):

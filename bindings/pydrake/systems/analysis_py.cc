@@ -252,6 +252,15 @@ PYBIND11_MODULE(analysis, m) {
         m, "Simulator", GetPyParam<T>(), doc.Simulator.doc);
     cls  // BR
         .def(py::init([](const System<T>& system, Context<T>* context) {
+          // Expand the default-context request here, so that it gets a
+          // python-compatible lifetime.
+          if (context == nullptr) {
+            std::unique_ptr<Context<T>> context_ptr =
+                system.CreateDefaultContext();
+            // Python ownership will be created below by
+            // make_shared_ptr_from_py_object.
+            context = context_ptr.release();
+          }
           auto py_context = py::cast(context);
           return Simulator<T>::MakeWithSharedContext(
               system, make_shared_ptr_from_py_object<Context<T>>(py_context));
