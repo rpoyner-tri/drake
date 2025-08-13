@@ -115,6 +115,7 @@ use_repo(
     #
     "eigen",
     "fmt",
+    "nanobind",
     "spdlog",
     #
     # Aliases for C++ dependencies that are used by our implementation.

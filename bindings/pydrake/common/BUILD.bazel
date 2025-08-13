@@ -135,6 +135,7 @@ drake_cc_library(
         ":type_pack",
         ":wrap_pybind",
         "//bindings/pydrake:pydrake_pybind",
+        "@nanobind",
         "@pybind11",
     ],
 )

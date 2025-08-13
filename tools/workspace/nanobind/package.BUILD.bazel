@@ -1,0 +1,27 @@
+# -*- bazel -*-
+
+load("@drake//tools/install:install.bzl", "install", "install_files")
+load("@drake//tools/skylark:cc.bzl", "cc_library")
+
+licenses(["notice"])  # BSD-3-Clause
+
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "nanobind",
+    hdrs = glob([
+        "include/nanobind/*.h",
+        "include/nanobind/stl/*.h",
+        "include/nanobind/eigen/*.h",
+    ]),
+    includes = [
+        "include",
+    ],
+    copts = [
+        "-fexceptions",
+        "-fvisibility=hidden",
+    ],
+    deps = [
+        "@drake//tools/workspace/python:cc_libs",
+    ],
+)
