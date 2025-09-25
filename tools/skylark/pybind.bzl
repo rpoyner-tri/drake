@@ -70,7 +70,10 @@ def pybind_py_library(
         copts = cc_copts + EXTRA_PYBIND_COPTS,
         # Always link to pybind11.
         deps = [
-            "@drake//tools/workspace/pybind11",
+            # "@drake//tools/workspace/pybind11",
+            "@drake//tools/workspace/nanobind",
+            "@drake//tools/workspace/python:cc_headers",
+            "@drake//tools/workspace/python:cc_libs",
         ] + cc_deps,
         **kwargs
     )
@@ -295,7 +298,10 @@ def drake_pybind_cc_googletest(
             "//:drake_shared_library",
             "//bindings/pydrake:pydrake_pybind",
             "//tools/workspace/python:cc_libpython",
-            "@pybind11",
+            # "@pybind11",
+            "@drake//tools/workspace/nanobind",
+            "@drake//tools/workspace/python:cc_headers",
+            "@drake//tools/workspace/python:cc_libs",
         ],
         copts = cc_copts,
         use_default_main = False,

@@ -16,6 +16,7 @@
 namespace drake {
 namespace pydrake {
 
+#if 0  // XXX porting
 #ifndef DRAKE_DOXYGEN_CXX
 namespace internal {
 
@@ -113,6 +114,7 @@ struct type_caster_wrapped {
 
 }  // namespace internal
 #endif  // DRAKE_DOXYGEN_CXX
+#endif  // XXX porting
 
 /// Ensures that any `std::function<>` arguments are wrapped such that any `T&`
 /// (which can infer for `T = const U`) is wrapped as `U*` (and conversely
@@ -125,7 +127,9 @@ struct type_caster_wrapped {
 /// For more information, see: https://github.com/pybind/pybind11/issues/1241
 template <typename Func>
 auto WrapCallbacks(Func&& func) {
-  return WrapFunction<internal::wrap_callback, false>(std::forward<Func>(func));
+  // XXX porting
+  // return WrapFunction<internal::wrap_callback, false>(
+  // std::forward<Func>(func));
 }
 
 /// Idempotent to pybind11's `def_readwrite()`, with the exception that the

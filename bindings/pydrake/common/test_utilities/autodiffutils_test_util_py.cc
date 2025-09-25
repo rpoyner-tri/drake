@@ -6,7 +6,7 @@
 namespace drake {
 namespace pydrake {
 
-PYBIND11_MODULE(autodiffutils_test_util, m) {
+NB_MODULE(autodiffutils_test_util, m) {
   m.doc() = "Utilities for testing Eigen AutoDiff Scalars";
 
   py::module::import("pydrake.autodiffutils");

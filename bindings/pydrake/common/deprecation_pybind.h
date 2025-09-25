@@ -25,7 +25,7 @@ namespace pydrake {
 inline void DeprecateAttribute(py::object cls, py::str name, py::str message,
     std::optional<std::string> date = {}) {
   py::object deprecated =
-      py::module::import("pydrake.common.deprecation").attr("deprecated");
+      py::module_::import_("pydrake.common.deprecation").attr("deprecated");
   py::object original = cls.attr(name);
   cls.attr(name) = deprecated(message, py::arg("date") = date)(original);
 }
@@ -39,7 +39,7 @@ inline void WarnDeprecated(
     const std::string& message, std::optional<std::string> date = {}) {
   py::gil_scoped_acquire guard;
   py::object warn_deprecated =
-      py::module::import("pydrake.common.deprecation").attr("_warn_deprecated");
+      py::module_::import_("pydrake.common.deprecation").attr("_warn_deprecated");
   warn_deprecated(message, py::arg("date") = date);
 }
 
@@ -98,19 +98,19 @@ auto py_init_deprecated(std::string message, Func&& func) {
 }
 
 /// The deprecated flavor of ParamInit<>.
-template <typename Class>
-auto DeprecatedParamInit(std::string message) {
-  return py::init(WrapDeprecated(std::move(message), [](py::kwargs kwargs) {
-    // N.B. We use `Class` here because `pybind11` strongly requires that we
-    // return the instance itself, not just `py::object`.
-    // TODO(eric.cousineau): This may hurt `keep_alive` behavior, as this
-    // reference may evaporate by the time the true holding pybind11 record is
-    // constructed. Would be alleviated using old-style pybind11 init :(
-    Class obj{};
-    py::object py_obj = py::cast(&obj, py_rvp::reference);
-    py::module::import("pydrake").attr("_setattr_kwargs")(py_obj, kwargs);
-    return obj;
-  }));
+template <typename Visitor, typename Class>
+nb::def_visitor<Visitor> DeprecatedParamInit(std::string) {
+  // return py::init(WrapDeprecated(std::move(message), [](py::kwargs kwargs) {
+  //   // N.B. We use `Class` here because `pybind11` strongly requires that we
+  //   // return the instance itself, not just `py::object`.
+  //   // TODO(eric.cousineau): This may hurt `keep_alive` behavior, as this
+  //   // reference may evaporate by the time the true holding pybind11 record is
+  //   // constructed. Would be alleviated using old-style pybind11 init :(
+  //   Class obj{};
+  //   py::object py_obj = py::cast(&obj, py_rvp::reference);
+  //   py::module_::import_("pydrake").attr("_setattr_kwargs")(py_obj, kwargs);
+  //   return obj;
+  // }));
 }
 
 }  // namespace pydrake

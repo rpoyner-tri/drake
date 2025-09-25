@@ -50,8 +50,9 @@ struct ref_cycle {};
 
 /* This function is used in the template below to select peers by call/return
  index. */
-void ref_cycle_impl(size_t peer0, size_t peer1,
-    const py::detail::function_call& call, py::handle ret);
+// XXX porting see nb_attr.h maybe?
+// void ref_cycle_impl(size_t peer0, size_t peer1,
+//     const py::detail::function_call& call, py::handle ret);
 
 /* This function constructs a reference cycle from arbitrary handles. It may be
  needed in special cases where the ordinary call-policy annotations won't work.
@@ -67,6 +68,7 @@ void make_arbitrary_ref_cycle(
 namespace pybind11 {
 namespace detail {
 
+#if 0 // XXX porting
 // Provide a specialization of the pybind11 internal process_attribute
 // template; this allows writing an annotation that works seamlessly in
 // bindings definitions.
@@ -97,6 +99,25 @@ class process_attribute<drake::pydrake::internal::ref_cycle<Peer0, Peer1>>
     return Peer0 == 0 || Peer1 == 0;
   }
 };
+#endif  // 0  XXX porting
 
 }  // namespace detail
 }  // namespace pybind11
+
+namespace nanobind {
+namespace detail {
+
+// Provide specializations of the pybind11 internal templates for return value
+// policies; this allows writing an annotation that works seamlessly in
+// bindings definitions.
+
+// XXX porting TODO
+template <typename F, size_t Peer0, size_t Peer1>
+NB_INLINE void func_extra_apply(
+    F&, drake::pydrake::internal::ref_cycle<Peer0, Peer1>, size_t&) {
+  // XXX porting TODO
+}
+
+}  // namespace detail
+}  // namespace nanobind
+

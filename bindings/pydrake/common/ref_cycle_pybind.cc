@@ -8,6 +8,7 @@
 namespace drake {
 namespace pydrake {
 
+#if 0  // XXX porting
 using py::handle;
 using py::detail::function_call;
 
@@ -117,5 +118,6 @@ void make_arbitrary_ref_cycle(
 }
 
 }  // namespace internal
+#endif  // XXX porting
 }  // namespace pydrake
 }  // namespace drake

@@ -10,13 +10,15 @@
 // as ADL headers (e.g., operators.h). Headers that are unused by pydrake
 // (e.g., complex.h) are omitted, as are headers that do not specialize anything
 // (e.g., eval.h).
-#include "pybind11/eigen.h"
-#include "pybind11/functional.h"
-#include "pybind11/numpy.h"
-#include "pybind11/operators.h"
-#include "pybind11/pybind11.h"
-#include "pybind11/stl.h"
-#include "pybind11/stl/filesystem.h"
+// #include "pybind11/eigen.h"
+// #include "pybind11/functional.h"
+// #include "pybind11/numpy.h"
+// #include "pybind11/operators.h"
+// #include "pybind11/pybind11.h"
+// #include "pybind11/stl.h"
+// #include "pybind11/stl/filesystem.h"
+
+#include "nanobind/nanobind.h"
 
 namespace drake {
 
@@ -36,11 +38,11 @@ namespace pydrake {
 
 // Note: Doxygen apparently doesn't process comments for namespace aliases. If
 // you put Doxygen comments here they will apply instead to py_rvp.
-namespace py = pybind11;
+namespace py = nanobind;
 
 /// Shortened alias for py::return_value_policy. For more information, see
 /// the @ref PydrakeReturnValuePolicy "Return Value Policy" section.
-using py_rvp = py::return_value_policy;
+using py_rvp = py::rv_policy;
 
 // Implementation for `overload_cast_explicit`. We must use this structure so
 // that we can constrain what is inferred. Otherwise, the ambiguity confuses
@@ -130,7 +132,7 @@ auto ParamInit() {
     // constructed. Would be alleviated using old-style pybind11 init :(
     Class obj{};
     py::object py_obj = py::cast(&obj, py_rvp::reference);
-    py::module::import("pydrake").attr("_setattr_kwargs")(py_obj, kwargs);
+    py::module_::import_("pydrake").attr("_setattr_kwargs")(py_obj, kwargs);
     return obj;
   });
 }
@@ -139,8 +141,8 @@ auto ParamInit() {
 /// For a module with local name `{name}` and use_subdir=False, the code
 /// executed will be `_{name}_extra.py`; with use_subdir=True, it will be
 /// `{name}/_{name}_extra.py`. See #9599 for relevant background.
-inline void ExecuteExtraPythonCode(py::module m, bool use_subdir = false) {
-  py::module::import("pydrake").attr("_execute_extra_python_code")(
+inline void ExecuteExtraPythonCode(py::module_ m, bool use_subdir = false) {
+  py::module_::import_("pydrake").attr("_execute_extra_python_code")(
       m, use_subdir);
 }
 
@@ -193,5 +195,7 @@ std::shared_ptr<T> make_shared_ptr_from_py_object(py::object py_object) {
 }  // namespace pydrake
 }  // namespace drake
 
-#define DRAKE_PYBIND11_NUMPY_OBJECT_DTYPE(Type) \
-  PYBIND11_NUMPY_OBJECT_DTYPE(Type)
+// XXX porting needed
+/* #define DRAKE_PYBIND11_NUMPY_OBJECT_DTYPE(Type)      \
+   PYBIND11_NUMPY_OBJECT_DTYPE(Type)
+*/
