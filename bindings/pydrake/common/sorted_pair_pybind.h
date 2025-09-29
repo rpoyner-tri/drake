@@ -3,7 +3,7 @@
 #include "drake/bindings/pydrake/pydrake_pybind.h"
 #include "drake/common/sorted_pair.h"
 
-namespace pybind11 {
+namespace nanobind {
 namespace detail {
 
 // Casts `SortedPair<T>` as `Tuple[T]` comprised of `(first, second)`.

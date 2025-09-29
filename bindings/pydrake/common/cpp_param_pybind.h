@@ -101,9 +101,10 @@ py::object GetPyParamScalarImpl(const std::type_info& tinfo);
 // Gets Python type for a C++ type (base case).
 template <typename T>
 inline py::object GetPyParamScalarImpl(type_pack<T> = {}) {
-  static_assert(!py::detail::is_pyobject<T>::value,
-      "You cannot use `pybind11` types (e.g. `py::object`). Use a publicly "
-      "visible replacement type instead (e.g. `drake::pydrake::Object`).");
+  // XXX porting
+  // static_assert(!py::detail::is_pyobject<T>::value,
+  //     "You cannot use `pybind11` types (e.g. `py::object`). Use a publicly "
+  //     "visible replacement type instead (e.g. `drake::pydrake::Object`).");
   return GetPyParamScalarImpl(typeid(T));
 }
 
@@ -120,7 +121,7 @@ template <typename T>
 inline py::object GetPyParamScalarImpl(type_pack<std::vector<T>> = {}) {
   // Get inner type for validation.
   py::object py_T = GetPyParamScalarImpl(type_pack<T>{});
-  if constexpr (!internal::is_generic_pybind_v<std::vector<T>>) {
+  if constexpr (!internal::is_generic_nanobind_v<std::vector<T>>) {
     return py::module::import("pydrake.common.cpp_param").attr("List")[py_T];
   } else {
     return GetPyParamScalarImpl(typeid(std::vector<T>));

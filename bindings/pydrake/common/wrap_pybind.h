@@ -144,11 +144,11 @@ auto WrapCallbacks(Func&& func) {
 template <typename PyClass, typename Class, typename T>
 void DefReadWriteKeepAlive(
     PyClass* cls, const char* name, T Class::* member, const char* doc = "") {
-  auto getter = [member](const Class* obj) { return obj->*member; };
-  auto setter = [member](Class* obj, const T& value) { obj->*member = value; };
-  cls->def_prop_rw(name,  // BR
-      py::cpp_function(getter),
-      py::cpp_function(setter,
+  cls->def_prop_rw(
+      name,  // BR
+      [member](const Class* obj) { return obj->*member; },
+      py::cpp_function<void(Class*, const T&)>(
+          [member](Class* obj, const T& value) { obj->*member = value; },
           // Keep alive, reference: `self` keeps `value` alive.
           py::keep_alive<1, 2>()),
       doc);

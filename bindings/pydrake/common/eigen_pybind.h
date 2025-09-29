@@ -94,8 +94,8 @@ struct type_caster<drake::EigenPtr<T>> {
   using InnerCaster = type_caster<RefType>;
 
  public:
-  PYBIND11_TYPE_CASTER(
-      PtrType, const_name("Optional[") + InnerCaster::name + const_name("]"));
+  NB_TYPE_CASTER(
+      PtrType, const_name("Optional[") + InnerCaster::Name + const_name("]"));
 
   bool load(handle src, bool convert) {
     value = PtrType(nullptr);
