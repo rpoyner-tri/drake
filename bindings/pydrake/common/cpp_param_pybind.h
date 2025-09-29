@@ -50,7 +50,7 @@ class Object {
   /// Converts to a pybind11 Python type, using py::reinterpret_borrow.
   template <typename T>
   T to_pyobject() const {
-    return py::reinterpret_borrow<T>(ptr());
+    return py::borrow<T>(ptr());
   }
 
   /// Converts from a pybind11 Python type, using py::reinterpret_borrow.

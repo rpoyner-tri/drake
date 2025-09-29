@@ -74,7 +74,7 @@ inline py::object WrapToMatchInputShape(py::handle func) {
 }  // namespace pydrake
 }  // namespace drake
 
-namespace pybind11 {
+namespace nanobind {
 namespace detail {
 
 /**

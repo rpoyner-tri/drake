@@ -16,10 +16,10 @@
 namespace drake {
 namespace pydrake {
 
-#if 0  // XXX porting
 #ifndef DRAKE_DOXYGEN_CXX
 namespace internal {
 
+#if 0  // XXX porting
 // Determines if a type will go through pybind11's generic caster. This
 // implies that the type has been declared using `py::class_`, and can have
 // a reference passed through. Otherwise, the type uses type-conversion:
@@ -28,12 +28,16 @@ template <typename T>
 constexpr inline bool is_generic_pybind_v =
     std::is_base_of_v<py::detail::type_caster_generic,
         py::detail::make_caster<T>>;
+#endif  // XXX porting
+template <typename T>
+constexpr inline bool is_generic_nanobind_v =
+    py::detail::is_base_caster_v<py::detail::make_caster<T>>;
 
 template <typename T, typename = void>
 struct wrap_ref_ptr : public wrap_arg_default<T> {};
 
 template <typename T>
-struct wrap_ref_ptr<T&, std::enable_if_t<is_generic_pybind_v<T>>> {
+struct wrap_ref_ptr<T&, std::enable_if_t<is_generic_nanobind_v<T>>> {
   // NOLINTNEXTLINE[runtime/references]: Intentional.
   static T* wrap(T& arg) { return &arg; }
   static T& unwrap(T* arg_wrapped) { return *arg_wrapped; }
@@ -84,16 +88,16 @@ struct type_caster_wrapped {
   }
 
   template <typename T>
-  using cast_op_type = py::detail::movable_cast_op_type<T>;
+  using cast_op_type = py::detail::movable_cast_t<T>;
 
   static constexpr auto name = Wrapper::wrapped_name;
 
   // C++ to Python.
   template <typename TType>
   static py::handle cast(
-      TType&& src, py::return_value_policy policy, py::handle parent) {
-    if (policy == py::return_value_policy::reference ||
-        policy == py::return_value_policy::reference_internal) {
+      TType&& src, py::rv_policy policy, py::handle parent) {
+    if (policy == py::rv_policy::reference ||
+        policy == py::rv_policy::reference_internal) {
       // N.B. We must declare a local `static constexpr` here to prevent
       // linking errors. This does not appear achievable with
       // `constexpr char[]`, so we use `py::detail::descr`.
@@ -114,7 +118,6 @@ struct type_caster_wrapped {
 
 }  // namespace internal
 #endif  // DRAKE_DOXYGEN_CXX
-#endif  // XXX porting
 
 /// Ensures that any `std::function<>` arguments are wrapped such that any `T&`
 /// (which can infer for `T = const U`) is wrapped as `U*` (and conversely
@@ -127,9 +130,8 @@ struct type_caster_wrapped {
 /// For more information, see: https://github.com/pybind/pybind11/issues/1241
 template <typename Func>
 auto WrapCallbacks(Func&& func) {
-  // XXX porting
-  // return WrapFunction<internal::wrap_callback, false>(
-  // std::forward<Func>(func));
+  return WrapFunction<internal::wrap_callback, false>(
+  std::forward<Func>(func));
 }
 
 /// Idempotent to pybind11's `def_readwrite()`, with the exception that the
@@ -144,7 +146,7 @@ void DefReadWriteKeepAlive(
     PyClass* cls, const char* name, T Class::* member, const char* doc = "") {
   auto getter = [member](const Class* obj) { return obj->*member; };
   auto setter = [member](Class* obj, const T& value) { obj->*member = value; };
-  cls->def_property(name,  // BR
+  cls->def_prop_rw(name,  // BR
       py::cpp_function(getter),
       py::cpp_function(setter,
           // Keep alive, reference: `self` keeps `value` alive.
@@ -165,7 +167,7 @@ void DefReadUniquePtr(PyClass* cls, const char* name,
   auto getter = py::cpp_function(
       [member](const Class* obj) { return (obj->*member).get(); },
       py_rvp::reference_internal);
-  cls->def_property_readonly(name, getter, doc);
+  cls->def_prop_ro(name, getter, doc);
 }
 
 // Variant of DefReadUniquePtr() for copyable_unique_ptr.
@@ -175,7 +177,7 @@ void DefReadUniquePtr(PyClass* cls, const char* name,
   auto getter = py::cpp_function(
       [member](const Class* obj) { return (obj->*member).get(); },
       py_rvp::reference_internal);
-  cls->def_property_readonly(name, getter, doc);
+  cls->def_prop_ro(name, getter, doc);
 }
 
 }  // namespace pydrake

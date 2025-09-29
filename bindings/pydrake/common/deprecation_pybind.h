@@ -78,6 +78,14 @@ auto WrapDeprecated(std::string message, Func&& func) {
       internal::infer_function_info(std::forward<Func>(func)));
 }
 
+#if 0  // XXX porting
+
+
+// Porting of py::init lambda hijinks to nanobind: None of this is supported
+// any more. Maybe we can get this to work by porting it to the nanobind
+// def_visitor mechanism. That will give us a widget we can hand to .def(),
+// that turns around and does completely custom stuff internally.
+
 /// Deprecated wrapping of `py::init<>`.
 /// @note Only for `unique_ptr` holders. If using `shared_ptr`, talk to Eric.
 template <typename Class, typename... Args>
@@ -98,20 +106,22 @@ auto py_init_deprecated(std::string message, Func&& func) {
 }
 
 /// The deprecated flavor of ParamInit<>.
-template <typename Visitor, typename Class>
-nb::def_visitor<Visitor> DeprecatedParamInit(std::string) {
-  // return py::init(WrapDeprecated(std::move(message), [](py::kwargs kwargs) {
-  //   // N.B. We use `Class` here because `pybind11` strongly requires that we
-  //   // return the instance itself, not just `py::object`.
-  //   // TODO(eric.cousineau): This may hurt `keep_alive` behavior, as this
-  //   // reference may evaporate by the time the true holding pybind11 record is
-  //   // constructed. Would be alleviated using old-style pybind11 init :(
-  //   Class obj{};
-  //   py::object py_obj = py::cast(&obj, py_rvp::reference);
-  //   py::module_::import_("pydrake").attr("_setattr_kwargs")(py_obj, kwargs);
-  //   return obj;
-  // }));
+template <typename Class>
+auto DeprecatedParamInit(std::string message) {
+  return py::init(WrapDeprecated(std::move(message), [](py::kwargs kwargs) {
+    // N.B. We use `Class` here because `pybind11` strongly requires that we
+    // return the instance itself, not just `py::object`.
+    // TODO(eric.cousineau): This may hurt `keep_alive` behavior, as this
+    // reference may evaporate by the time the true holding pybind11 record is
+    // constructed. Would be alleviated using old-style pybind11 init :(
+    Class obj{};
+    py::object py_obj = py::cast(&obj, py_rvp::reference);
+    py::module_::import_("pydrake").attr("_setattr_kwargs")(py_obj, kwargs);
+    return obj;
+  }));
 }
+
+#endif  // XXX porting
 
 }  // namespace pydrake
 }  // namespace drake

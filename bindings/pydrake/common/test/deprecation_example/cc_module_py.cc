@@ -26,6 +26,7 @@ NB_MODULE(cc_module, m) {
     WarnDeprecated("Example emitting of deprecation", "2038-01-19");
   });
 
+#if 0  // XXX porting
   // Example: Deprecating a constructor bound with ParamInit. Typical when
   // deprecating a C++ struct with no explicit constructor.
   {
@@ -40,6 +41,7 @@ NB_MODULE(cc_module, m) {
         .def_rw("j", &Class::j);
 #pragma GCC diagnostic pop
   }
+#endif  // XXX porting
 
   {
     using Class = ExampleCppClass;
@@ -49,6 +51,7 @@ NB_MODULE(cc_module, m) {
         .def(py::init(), cls_doc.ctor.doc_0args)
         .def_rw("prop", &Class::prop, cls_doc.prop.doc);
 
+#if 0  // XXX porting
     // Example: Deprecation of constructor previously bound with `py::init<>`.
     // Can be used to deprecate a class (if all constructor overloads are
     // deprecated) or only deprecate an overloaded constructor.
@@ -70,6 +73,7 @@ NB_MODULE(cc_module, m) {
                 [](double arg) { return Class(arg); }),
         py::arg("y"), cls_doc.ctor.doc_deprecated_deprecated_1args_y);
 #pragma GCC diagnostic pop
+#endif  // XXX porting
 
     cls  // BR
         .def("overload", py::overload_cast<>(&Class::overload),
@@ -132,7 +136,8 @@ NB_MODULE(cc_module, m) {
         cls_doc.DeprecatedMethod.doc_deprecated);
 #pragma GCC diagnostic pop
     DeprecateAttribute(
-        cls, "DeprecatedMethod", cls_doc.DeprecatedMethod.doc_deprecated);
+        cls, py::str("DeprecatedMethod"),
+        py::str(cls_doc.DeprecatedMethod.doc_deprecated));
   }
 }
 
