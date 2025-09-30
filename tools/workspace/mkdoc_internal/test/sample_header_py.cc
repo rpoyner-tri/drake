@@ -5,12 +5,12 @@
 namespace namespace_1 {
 namespace namespace_2 {
 
-PYBIND11_MODULE(dummy_module, m) {
+NB_MODULE(dummy_module, m) {
   // NOLINTNEXTLINE(build/namespaces): Emulate placement in namespace.
   using namespace namespace_1::namespace_2;
   constexpr auto& doc = sample_header_doc.namespace_1.namespace_2;
 
-  py::module::import("namespace_1.namespace_2.Struct2");
+  py::module_::import_("namespace_1.namespace_2.Struct2");
 
   constexpr auto& cls_doc = doc.DummyClass;
   py::class_<DummyClass>(m, "DummyClass", cls_doc.doc)

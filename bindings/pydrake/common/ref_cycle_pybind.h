@@ -65,7 +65,7 @@ void make_arbitrary_ref_cycle(
 }  // namespace pydrake
 }  // namespace drake
 
-namespace pybind11 {
+namespace nanobind {
 namespace detail {
 
 #if 0 // XXX porting
@@ -102,7 +102,7 @@ class process_attribute<drake::pydrake::internal::ref_cycle<Peer0, Peer1>>
 #endif  // 0  XXX porting
 
 }  // namespace detail
-}  // namespace pybind11
+}  // namespace nanobind
 
 namespace nanobind {
 namespace detail {

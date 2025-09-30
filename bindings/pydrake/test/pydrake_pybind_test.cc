@@ -21,19 +21,19 @@ namespace {
 
 GTEST_TEST(PydrakePybindTest, PyReturnValuePolicy) {
   static_assert(
-      std::is_same_v<py_rvp, py::return_value_policy>, "Alias is wrong?");
+      std::is_same_v<py_rvp, py_rvp>, "Alias is wrong?");
 }
 
 // Expects that a given Python expression `expr` evaluates to true, using
 // globals and the variables available in `m`.
-void PyExpectTrue(py::module m, const char* expr) {
+void PyExpectTrue(py::module_ m, const char* expr) {
   py::object locals = m.attr("__dict__");
   const bool value = py::eval(expr, py::globals(), locals).cast<bool>();
   EXPECT_TRUE(value) << expr;
 }
 
 template <typename T>
-void PyExpectEq(py::module m, const std::string& expr, const T& expected) {
+void PyExpectEq(py::module_ m, const std::string& expr, const T& expected) {
   SCOPED_TRACE("Python expression:\n  " + expr);
   py::object locals = m.attr("__dict__");
   const T actual = py::eval(expr, py::globals(), locals).cast<T>();
@@ -54,8 +54,8 @@ class ExamplePyKeepAlive {
 };
 
 GTEST_TEST(PydrakePybindTest, PyKeepAlive) {
-  py::module m =
-      py::module::create_extension_module("test", "", new PyModuleDef());
+  py::module_ m =
+      py::module_::create_extension_module("test", "", new PyModuleDef());
   {
     using Class = Item;
     py::class_<Class>(m, "Item").def_readonly("value", &Class::value);
@@ -91,8 +91,8 @@ struct ExampleDefCopyAndDeepCopy {
 };
 
 GTEST_TEST(PydrakePybindTest, DefCopyAndDeepCopy) {
-  py::module m =
-      py::module::create_extension_module("test", "", new PyModuleDef());
+  py::module_ m =
+      py::module_::create_extension_module("test", "", new PyModuleDef());
   {
     using Class = ExampleDefCopyAndDeepCopy;
     py::class_<Class> cls(m, "ExampleDefCopyAndDeepCopy");
@@ -130,8 +130,8 @@ class ExampleDefClone {
 };
 
 GTEST_TEST(PydrakePybindTest, DefClone) {
-  py::module m =
-      py::module::create_extension_module("test", "", new PyModuleDef());
+  py::module_ m =
+      py::module_::create_extension_module("test", "", new PyModuleDef());
   {
     using Class = ExampleDefClone;
     py::class_<Class> cls(m, "ExampleDefClone");
@@ -154,8 +154,8 @@ struct ExampleParamInit {
 };
 
 GTEST_TEST(PydrakePybindTest, ParamInit) {
-  py::module m =
-      py::module::create_extension_module("test", "", new PyModuleDef());
+  py::module_ m =
+      py::module_::create_extension_module("test", "", new PyModuleDef());
   {
     using Class = ExampleParamInit;
     py::class_<Class>(m, "ExampleParamInit")
@@ -181,7 +181,7 @@ int DoMain(int argc, char** argv) {
   py::scoped_interpreter guard;
   // Define nominal scope, and use a useful name for `ExecuteExtraPythonCode`
   // below.
-  py::module m = py::module::create_extension_module(
+  py::module_ m = py::module_::create_extension_module(
       "pydrake.test.pydrake_pybind_test", "", new PyModuleDef());
   // Test coverage and use this method for `check_copy`.
   ExecuteExtraPythonCode(m);

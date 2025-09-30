@@ -441,6 +441,7 @@ drake_pybind_library(
         ":deprecation_example_class",
         ":deprecation_example_class_documentation",
         ":deprecation_pybind",
+        "@nanobind",
     ],
     cc_so_name = "test/deprecation_example/cc_module",
     cc_srcs = [

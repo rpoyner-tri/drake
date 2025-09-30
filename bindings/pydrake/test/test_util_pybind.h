@@ -11,7 +11,7 @@ namespace test {
 /// pybind11's Python3 implementation seems to disconnect the `globals()` from
 /// an embedded interpreter's `__main__` module. To remedy this, we must
 /// manually synchronize these variables.
-inline void SynchronizeGlobalsForPython3(py::module m) {
+inline void SynchronizeGlobalsForPython3(py::module_ m) {
   py::globals().attr("update")(m.attr("__dict__"));
 }
 

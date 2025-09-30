@@ -26,9 +26,9 @@ namespace pydrake {
 /// @returns Reference to the registered Python type.
 template <typename T, typename Class = drake::Value<T>>
 py::class_<Class, drake::AbstractValue> AddValueInstantiation(
-    py::module scope) {
+    py::module_ scope) {
   static_assert(!py::detail::is_pyobject<T>::value, "See docs for GetPyParam");
-  py::module py_common = py::module::import("pydrake.common.value");
+  py::module_ py_common = py::module_::import_("pydrake.common.value");
   py::class_<Class, drake::AbstractValue> py_class(
       scope, TemporaryClassName<Class>().c_str());
   // Register instantiation.
@@ -41,9 +41,11 @@ py::class_<Class, drake::AbstractValue> AddValueInstantiation(
   py_class.def(py::init<const T&>());
   // Define emplace constructor.
   py::object py_T = param[0];
-  py_class.def(py::init([py_T](py::args args, py::kwargs kwargs) {
+  py_class.def("__init__",
+               [py_T](Class* place, py::args args, py::kwargs kwargs) {
     // Use Python constructor for the bound type.
     py::object py_v = py_T(*args, **kwargs);
+#if 0  // XXX porting
     // TODO(eric.cousineau): Use `unique_ptr` for custom types if it's ever a
     // performance concern.
     // Use `type_caster` so that we are not forced to copy T, which is not
@@ -51,20 +53,23 @@ py::class_<Class, drake::AbstractValue> AddValueInstantiation(
     // `cpp_function` accepting a reference. However, that may cause the Python
     // instance to be double-initialized.
     py::detail::type_caster<T> caster;
-    DRAKE_THROW_UNLESS(caster.load(py_v, false));
+    DRAKE_THROW_UNLESS(caster.from_python(py_v, 0, nullptr));
     const T& v = caster;  // Use implicit conversion from `type_caster<>`.
-    return new Class(v);
-  }));
+#endif  // XXX porting
+    static_assert(!py::detail::is_pyobject<T>::value, " XXX porting ");
+    py::detail::type_caster<T> caster;
+    return new (place) Class(caster.operator T&());
+  });
   // If the type is registered via `py::class_`, or is of type `Object`
   // (`py::object`), then we can obtain a mutable view into the value.
   constexpr bool has_get_mutable_value =
-      internal::is_generic_pybind_v<T> || std::is_same_v<T, Object>;
+      internal::is_generic_nanobind_v<T> || std::is_same_v<T, Object>;
   if constexpr (has_get_mutable_value) {
-    py::return_value_policy return_policy = py_rvp::reference_internal;
+    py::rv_policy return_policy = py_rvp::reference_internal;
     if (std::is_same_v<T, Object>) {
       // N.B. This implies that `Object` will be copied by value; however, it
       // is only a shallow copy of the pointer, not a deep copy of the object.
-      return_policy = py::return_value_policy::copy;
+      return_policy = py::rv_policy::copy;
     }
     std::string set_value_docstring = "Replaces stored value with a new one.";
     if (!std::is_copy_constructible_v<T>) {
@@ -89,7 +94,7 @@ be destroyed when it is replaced, since it is stored using `unique_ptr<>`.
               throw std::logic_error(
                   fmt::format("Cannot get mutable value (or reference) for a "
                               "type-conversion type: {}",
-                      py::str(py_T).cast<std::string>()));
+                              py::cast<std::string>(py::str(py_T))));
             })
         .def("set_value", &Class::set_value);
   }

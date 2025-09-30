@@ -40,12 +40,14 @@ void trigger_an_assertion_failure() {
   DRAKE_DEMAND(false);
 }
 
+#if 0   // XXX porting
 // Resolves to a Python handle given a type erased pointer. If the instance or
 // lowest-level RTTI type are unregistered, returns an empty handle.
 py::handle ResolvePyObject(const type_erased_ptr& ptr) {
   auto py_type_info = py::detail::get_type_info(ptr.info);
   return py::detail::get_object_handle(ptr.raw, py_type_info);
 }
+#endif  // XXX porting
 
 // Override for SetNiceTypeNamePtrOverride, to ensure that instances that are
 // registered (along with their types) can use their Python class's name.
@@ -53,12 +55,20 @@ std::string PyNiceTypeNamePtrOverride(const type_erased_ptr& ptr) {
   DRAKE_DEMAND(ptr.raw != nullptr);
   const std::string cc_name = NiceTypeName::Get(ptr.info);
   if (cc_name.find("pydrake::") != std::string::npos) {
+#if 0  // XXX porting
     py::handle obj = ResolvePyObject(ptr);
     if (obj) {
       py::handle cls = obj.get_type();
+#else  // XXX porting
+    auto py_type_info = py::detail::nb_type_lookup(&ptr.info);
+    if (py_type_info) {
+      py::handle cls = py::handle(py_type_info);
+#endif  // XXX porting
       const bool use_qualname = true;
-      return py::str("{}.{}").format(
-          cls.attr("__module__"), internal::PrettyClassName(cls, use_qualname));
+      return std::string(py::str("{}.{}")
+                             .format(cls.attr("__module__"),
+                                 internal::PrettyClassName(cls, use_qualname))
+                             .c_str());
     }
   }
   return cc_name;
@@ -75,7 +85,7 @@ class UnregisteredType {};
 // Unregistered type, but with a registered base.
 class UnregisteredDerivedType : public RegisteredType {};
 
-void def_testing(py::module m) {
+void def_testing(py::module_ m) {
   py::class_<RegisteredType>(m, "RegisteredType").def(py::init());
   // See comments in `module_test.py`.
   m.def("get_nice_type_name_cc_registered_instance",
@@ -93,9 +103,9 @@ void def_testing(py::module m) {
 }  // namespace testing
 
 namespace {
-// We put the work of PYBIND11_MODULE into a function so that we can easily
+// We put the work of NB_MODULE into a function so that we can easily
 // catch exceptions.
-void InitLowLevelModules(py::module m) {
+void InitLowLevelModules(py::module_ m) {
   m.doc() = "Bindings for //common:common";
   PYDRAKE_PREVENT_PYTHON3_MODULE_REIMPORT(m);
   constexpr auto& doc = pydrake_doc_common.drake;
@@ -157,12 +167,12 @@ void InitLowLevelModules(py::module m) {
         .def(py::self == py::self)
         .def(py::self != py::self)
         .def(py::self < py::self)
-        .def(py::pickle([](const Sha256& self) { return self.to_string(); },
-            [](const std::string& ascii_hash) {
-              std::optional<Sha256> sha_maybe = Sha256::Parse(ascii_hash);
-              DRAKE_THROW_UNLESS(sha_maybe.has_value());
-              return *sha_maybe;
-            }));
+        .def("__getstate__", [](const Class& self) { return self.to_string(); })
+        .def("__setstate__", [](Class& self, const std::string& ascii_hash) {
+          std::optional<Sha256> sha_maybe = Sha256::Parse(ascii_hash);
+          DRAKE_THROW_UNLESS(sha_maybe.has_value());
+          new (&self) Class(*sha_maybe);
+        });
     DefCopyAndDeepCopy(&cls);
   }
 
@@ -178,7 +188,9 @@ void InitLowLevelModules(py::module m) {
             cls_doc.ctor.doc_3args)
         .def(
             "contents",
-            [](const Class& self) { return py::bytes(self.contents()); },
+            [](const Class& self) {
+              return py::bytes(self.contents().c_str());
+            },
             cls_doc.contents.doc)
         .def("extension", &Class::extension, py_rvp::reference_internal,
             cls_doc.extension.doc)
@@ -187,22 +199,27 @@ void InitLowLevelModules(py::module m) {
         .def("filename_hint", &Class::filename_hint, py_rvp::reference_internal,
             cls_doc.filename_hint.doc)
         .def_static("Make", &Class::Make, py::arg("path"), cls_doc.Make.doc)
-        .def(py::pickle(
+        .def("__getstate__",
             [](const MemoryFile& self) {
-              return py::dict(py::arg("contents") = self.contents(),
-                  py::arg("extension") = self.extension(),
-                  py::arg("filename_hint") = self.filename_hint());
-            },
-            [ctor](const py::dict& kwargs) {
-              return ctor(**kwargs).cast<MemoryFile>();
-            }));
+              py::dict result;
+              result["contents"] = self.contents();
+              result["extension"] = self.extension();
+              result["filename_hint"] = self.filename_hint();
+              return result;
+            })
+        .def("__setstate__", [](MemoryFile& self, const py::dict& kwargs) {
+          new (&self) MemoryFile(py::cast<std::string>(kwargs["contents"]),
+              py::cast<std::string>(kwargs["extension"]),
+              py::cast<std::string>(kwargs["filename_hint"]));
+        });
     // Note: __repr__ is defined in _common_extra.py.
     DefCopyAndDeepCopy(&cls);
     // Add the same __fields__ that DefAttributesUsingSerialize would have.
-    cls.def_property_readonly_static("__fields__", [](py::object /* cls */) {
+    cls.def_prop_ro_static("__fields__", [](py::object /* cls */) {
       auto str_ctor = py::eval("str");
       auto bytes_ctor = py::eval("bytes");
-      auto make_namespace = py::module::import("types").attr("SimpleNamespace");
+      auto make_namespace =
+          py::module_::import_("types").attr("SimpleNamespace");
       auto contents = make_namespace();
       py::setattr(contents, "name", py::str("contents"));
       py::setattr(contents, "type", bytes_ctor);
@@ -224,27 +241,29 @@ void InitLowLevelModules(py::module m) {
     cls.def_static("_rewrite_yaml_dump_attr_name",
         [](std::string_view name) { return fmt::format("_{}", name); });
     cls.def("__setattr__", [](Class& self, py::str name, py::object value) {
-      const std::string name_str{name};
+      const std::string name_str{name.c_str()};
       if (name_str == "contents" || name_str == "extension" ||
           name_str == "filename_hint") {
-        name = py::str(fmt::format("_{}", name_str));
+        name = py::str(fmt::format("_{}", name_str).c_str());
       }
       py::eval("object.__setattr__")(self, name, value);
     });
     // Provide properties for use by yaml_{dump,load}_typed.
-    cls.def_property(
+    cls.def_prop_rw(
         "_contents",
-        [](const Class& self) -> py::bytes { return self.contents(); },
+        [](const Class& self) -> py::bytes {
+          return py::bytes(self.contents().c_str());
+        },
         [](Class& self, const py::bytes& contents) {
-          self = MemoryFile{
-              std::string{contents}, self.extension(), self.filename_hint()};
+          self = MemoryFile{std::string{contents.c_str()}, self.extension(),
+              self.filename_hint()};
         });
-    cls.def_property(
+    cls.def_prop_rw(
         "_extension", [](const Class& self) { return self.extension(); },
         [](Class& self, const std::string& extension) {
           self = MemoryFile{self.contents(), extension, self.filename_hint()};
         });
-    cls.def_property(
+    cls.def_prop_rw(
         "_filename_hint",
         [](const Class& self) { return self.filename_hint(); },
         [](Class& self, const std::string& filename_hint) {
@@ -286,10 +305,10 @@ deterministic given the C++ random seed (see drake issue #12632 for the
 discussion), use e.g.
 
 .. code-block:: python
-    
+
    generator = pydrake.common.RandomGenerator()
    random_state = numpy.random.RandomState(generator())
-   
+
    my_random_value = random_state.uniform()
    ...
 
@@ -307,7 +326,7 @@ discussion), use e.g.
   // Admittedly, it's unusual for a python library like pydrake to raise
   // SystemExit, but for now its better than C++ ::abort() taking down the
   // whole interpreter with a worse diagnostic message.
-  py::register_exception_translator([](std::exception_ptr p) {
+  py::register_exception_translator([](const std::exception_ptr& p, void*) {
     try {
       if (p) {
         std::rethrow_exception(p);
@@ -339,7 +358,7 @@ discussion), use e.g.
       []() {
         py::object result;
         if (auto optional_result = MaybeGetDrakePath()) {
-          result = py::str(*optional_result);
+          result = py::str(optional_result->c_str());
         }
         return result;
       },
@@ -359,30 +378,32 @@ discussion), use e.g.
   // =========================================================================
 
   // Define `_testing` submodule.
-  py::module pydrake_top = py::eval("sys.modules['pydrake']");
-  py::module pydrake_common = py::eval("sys.modules['pydrake.common']");
+  py::module_ pydrake_top =
+      py::cast<py::module_>(py::eval("sys.modules['pydrake']"));
+  py::module_ pydrake_common =
+      py::cast<py::module_>(py::eval("sys.modules['pydrake.common']"));
 
-  py::module testing = pydrake_common.def_submodule("_testing");
+  py::module_ testing = pydrake_common.def_submodule("_testing");
   testing::def_testing(testing);
 
   // Install NumPy warning filters.
   // N.B. This may interfere with other code, but until that is a confirmed
   // issue, we should aggressively try to avoid these warnings.
-  py::module::import("pydrake.common.deprecation")
+  py::module_::import_("pydrake.common.deprecation")
       .attr("install_numpy_warning_filters")();
 
   // Install NumPy formatters patch.
-  py::module::import("pydrake.common.compatibility")
+  py::module_::import_("pydrake.common.compatibility")
       .attr("maybe_patch_numpy_formatters")();
 
   // Define `autodiffutils` top-level module.
-  py::module autodiffutils = pydrake_top.def_submodule("autodiffutils");
+  py::module_ autodiffutils = pydrake_top.def_submodule("autodiffutils");
   autodiffutils.doc() = "Bindings for Eigen AutoDiff Scalars";
   internal::DefineAutodiffutils(autodiffutils);
   ExecuteExtraPythonCode(autodiffutils, true);
 
   // Define `symbolic` top-level module.
-  py::module symbolic = pydrake_top.def_submodule("symbolic");
+  py::module_ symbolic = pydrake_top.def_submodule("symbolic");
   symbolic.doc() =
       "Symbolic variable, variables, monomial, expression, polynomial, and "
       "formula";
@@ -390,18 +411,18 @@ discussion), use e.g.
   ExecuteExtraPythonCode(symbolic, true);
 
   // Define `value` submodule.
-  py::module value = pydrake_common.def_submodule("value");
+  py::module_ value = pydrake_common.def_submodule("value");
   value.doc() = "Bindings for //common:value";
   internal::DefineModuleValue(value);
 
   // Define `eigen_geometry` submodule.
-  py::module eigen_geometry = pydrake_common.def_submodule("eigen_geometry");
+  py::module_ eigen_geometry = pydrake_common.def_submodule("eigen_geometry");
   eigen_geometry.doc() = "Bindings for Eigen geometric types.";
   internal::DefineModuleEigenGeometry(eigen_geometry);
   ExecuteExtraPythonCode(eigen_geometry, false);
 
   // Define `math` top-level module.
-  py::module math = pydrake_top.def_submodule("math");
+  py::module_ math = pydrake_top.def_submodule("math");
   // N.B. Docstring contained in `_math_extra.py`.
   internal::DefineMathOperators(math);
   internal::DefineMathMatmul(math);
@@ -409,13 +430,13 @@ discussion), use e.g.
   ExecuteExtraPythonCode(math, true);
 
   // Define `schema` submodule.
-  py::module schema = pydrake_common.def_submodule("schema");
+  py::module_ schema = pydrake_common.def_submodule("schema");
   schema.doc() = "Bindings for the common.schema package.";
   internal::DefineModuleSchema(schema);
 }
 }  // namespace
 
-PYBIND11_MODULE(common, m) {
+NB_MODULE(common, m) {
   try {
     InitLowLevelModules(m);
   } catch (const std::exception& e) {

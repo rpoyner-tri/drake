@@ -82,7 +82,8 @@ struct type_caster_wrapped {
   // garbage values.
   operator Type&() {
     if (!loaded_) {
-      throw py::cast_error("Internal error: value not loaded?");
+      // throw py::cast_error("Internal error: value not loaded?");
+      throw py::cast_error();
     }
     return value_;
   }

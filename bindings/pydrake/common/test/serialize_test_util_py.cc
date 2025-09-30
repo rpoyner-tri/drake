@@ -82,13 +82,15 @@ struct MyData3 {
 
 }  // namespace
 
-PYBIND11_MODULE(serialize_test_util, m) {
+NB_MODULE(serialize_test_util, m) {
   // Bind MyData1 with no documentation.
   py::class_<MyData1> cls1(m, "MyData1");
   cls1  // BR
-      .def(py::init())
+      .def(py::init());
+#if 0  // XXX porting
       .def(ParamInit<MyData1>());
   DefAttributesUsingSerialize(&cls1);
+#endif  // XXX porting
   DefReprUsingSerialize(&cls1);
   DefCopyAndDeepCopy(&cls1);
 
@@ -96,9 +98,11 @@ PYBIND11_MODULE(serialize_test_util, m) {
   constexpr MyData2Docs cls2_doc;
   py::class_<MyData2> cls2(m, "MyData2", cls2_doc.doc);
   cls2  // BR
-      .def(py::init())
+      .def(py::init());
+#if 0  // XXX porting
       .def(ParamInit<MyData2>());
   DefAttributesUsingSerialize(&cls2, cls2_doc);
+#endif  // XXX porting
   DefReprUsingSerialize(&cls2);
   DefCopyAndDeepCopy(&cls2);
 
@@ -107,8 +111,10 @@ PYBIND11_MODULE(serialize_test_util, m) {
     using Class = MyData3<double>;
     py::class_<Class> cls(m, TemporaryClassName<Class>().c_str());
     AddTemplateClass(m, "MyData3", cls, GetPyParam<double>());
+#if 0  // XXX porting
     cls.def(ParamInit<Class>());
     DefAttributesUsingSerialize(&cls);
+#endif  // XXX porting
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }
@@ -116,8 +122,10 @@ PYBIND11_MODULE(serialize_test_util, m) {
     using Class = MyData3<int>;
     py::class_<Class> cls(m, TemporaryClassName<Class>().c_str());
     AddTemplateClass(m, "MyData3", cls, GetPyParam<int>());
+#if 0  // XXX porting
     cls.def(ParamInit<Class>());
     DefAttributesUsingSerialize(&cls);
+#endif  // XXX porting
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }

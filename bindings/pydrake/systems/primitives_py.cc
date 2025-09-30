@@ -54,15 +54,15 @@ using symbolic::Variable;
 
 namespace pydrake {
 
-PYBIND11_MODULE(primitives, m) {
+NB_MODULE(primitives, m) {
   // NOLINTNEXTLINE(build/namespaces): Emulate placement in namespace.
   using namespace drake::systems;
 
   m.doc() = "Bindings for the primitives portion of the Systems framework.";
   constexpr auto& doc = pydrake_doc_systems_primitives.drake.systems;
 
-  py::module::import("pydrake.systems.framework");
-  py::module::import("pydrake.trajectories");
+  py::module_::import_("pydrake.systems.framework");
+  py::module_::import_("pydrake.trajectories");
 
   py::enum_<PerceptronActivationType>(
       m, "PerceptronActivationType", doc.PerceptronActivationType.doc)
@@ -582,7 +582,7 @@ PYBIND11_MODULE(primitives, m) {
 
     DefineTemplateClassWithDefault<VectorLog<T>>(
         m, "VectorLog", GetPyParam<T>(), doc.VectorLog.doc)
-        .def_property_readonly_static("kDefaultCapacity",
+        .def_prop_ro_static("kDefaultCapacity",
             [](py::object) { return VectorLog<T>::kDefaultCapacity; })
         .def(py::init<int>(), py::arg("input_size"), doc.VectorLog.ctor.doc)
         .def("num_samples", &VectorLog<T>::num_samples,

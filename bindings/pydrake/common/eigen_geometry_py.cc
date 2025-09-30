@@ -87,7 +87,7 @@ void CheckQuaternion(const Eigen::Quaternion<Expression>&) {}
 void CheckAngleAxis(const Eigen::AngleAxis<Expression>&) {}
 
 template <typename T>
-void DoScalarDependentDefinitions(py::module m, T) {
+void DoScalarDependentDefinitions(py::module_ m, T) {
   // Do not return references to matrices (e.g. `Eigen::Ref<>`) so that we have
   // tighter control over validation.
 
@@ -101,36 +101,42 @@ void DoScalarDependentDefinitions(py::module m, T) {
         "Provides bindings of Eigen::Isometry3<> that only admit SE(3) "
         "(no reflections).");
     cls  // BR
-        .def(py::init([]() { return Class::Identity(); }))
+        .def("__init__",
+            [](Class* self) { new (self) Class(Class::Identity()); })
         .def_static("Identity", []() { return Class::Identity(); })
-        .def(py::init([](const Matrix4<T>& matrix) {
-          Class out(matrix);
-          CheckSe3(out);
-          return out;
-        }),
+        .def(
+            "__init__",
+            [](Class* self, const Matrix4<T>& matrix) {
+              new (self) Class(matrix);
+              CheckSe3(*self);
+            },
             py::arg("matrix"))
-        .def(py::init(
-                 [](const Matrix3<T>& rotation, const Vector3<T>& translation) {
-                   CheckRotMat(rotation);
-                   Class out = Class::Identity();
-                   out.linear() = rotation;
-                   out.translation() = translation;
-                   return out;
-                 }),
+        .def(
+            "__init__",
+            [](Class* self, const Matrix3<T>& rotation,
+                const Vector3<T>& translation) {
+              CheckRotMat(rotation);
+              new (self) Class(Class::Identity());
+              self->linear() = rotation;
+              self->translation() = translation;
+            },
             py::arg("rotation"), py::arg("translation"))
-        .def(py::init([](const Eigen::Quaternion<T>& q,
-                          const Vector3<T>& translation) {
-          CheckQuaternion(q);
-          Class out = Class::Identity();
-          out.linear() = q.toRotationMatrix();
-          out.translation() = translation;
-          return out;
-        }),
+        .def(
+            "__init__",
+            [](Class* self, const Eigen::Quaternion<T>& q,
+                const Vector3<T>& translation) {
+              CheckQuaternion(q);
+              new (self) Class(Class::Identity());
+              self->linear() = q.toRotationMatrix();
+              self->translation() = translation;
+            },
             py::arg("quaternion"), py::arg("translation"))
-        .def(py::init([](const Class& other) {
-          CheckSe3(other);
-          return other;
-        }),
+        .def(
+            "__init__",
+            [](Class* self, const Class& other) {
+              CheckSe3(other);
+              new (self) Class(other);
+            },
             py::arg("other"))
         .def("matrix",
             [](const Class* self) -> Matrix4<T> { return self->matrix(); })
@@ -181,8 +187,10 @@ void DoScalarDependentDefinitions(py::module m, T) {
             },
             py::arg("position"), "Position vector list multiplication")
         .def("inverse", [](const Class* self) { return self->inverse(); })
-        .def(py::pickle([](const Class& self) { return self.matrix(); },
-            [](const Matrix4<T>& matrix) { return Class(matrix); }));
+        .def("__getstate__", [](const Class& self) { return self.matrix(); })
+        .def("__setstate__", [](Class& self, const Matrix4<T>& matrix) {
+          new (&self) Class(matrix);
+        });
     cls.attr("multiply") = WrapToMatchInputShape(cls.attr("multiply"));
     cls.attr("__matmul__") = cls.attr("multiply");
     py::implicitly_convertible<Matrix4<T>, Class>();
@@ -299,12 +307,12 @@ void DoScalarDependentDefinitions(py::module m, T) {
             "Multiplication by a list of vectors expressed in the same frame")
         .def("inverse", [](const Class* self) { return self->inverse(); })
         .def("conjugate", [](const Class* self) { return self->conjugate(); })
-        .def(py::pickle(
+        .def("__getstate__",
             // Leverage Python API so we can easily use `wxyz` form.
-            [](py::object self) { return self.attr("wxyz")(); },
-            [py_class_obj](py::object wxyz) -> Class {
-              return py_class_obj(wxyz).cast<Class>();
-            }));
+            [](py::object self) { return self.attr("wxyz")(); })
+        .def("__setstate__", [py_class_obj](Class& self, py::object wxyz) {
+          new (&self) Class(py::cast<Class>(py_class_obj(wxyz)));
+        });
     cls.attr("multiply") = WrapToMatchInputShape(cls.attr("multiply"));
     cls.attr("__matmul__") = cls.attr("multiply");
     DefCopyAndDeepCopy(&cls);
@@ -393,14 +401,14 @@ void DoScalarDependentDefinitions(py::module m, T) {
             [](const Class& self, const Class& other) { return self * other; },
             py::arg("other"))
         .def("inverse", [](const Class* self) { return self->inverse(); })
-        .def(py::pickle(
+        .def("__getstate__",
             [](const Class& self) {
               return py::make_tuple(self.angle(), self.axis());
-            },
-            [](py::tuple t) {
-              DRAKE_THROW_UNLESS(t.size() == 2);
-              return Class(t[0].cast<T>(), t[1].cast<Vector3<T>>());
-            }));
+            })
+        .def("__setstate__", [](Class& self, py::tuple t) {
+          DRAKE_THROW_UNLESS(t.size() == 2);
+          new (&self) Class(py::cast<T>(t[0]), py::cast<Vector3<T>>(t[1]));
+        });
     // N.B. This class does not support multiplication with vectors, so we do
     // not use `WrapToMatchInputShape` here.
     cls.attr("__matmul__") = cls.attr("multiply");
@@ -411,7 +419,7 @@ void DoScalarDependentDefinitions(py::module m, T) {
 
 }  // namespace
 
-void DefineModuleEigenGeometry(py::module m) {
+void DefineModuleEigenGeometry(py::module_ m) {
   m.doc() = "Bindings for Eigen geometric types.";
 
   type_visit([m](auto dummy) { DoScalarDependentDefinitions(m, dummy); },

@@ -15,7 +15,7 @@ using drake::symbolic::FormulaKind;
 // Given the pydrake.symbolic module as "m" and an expression "e", returns
 // the callable object (i.e., factory function or constructor) that would
 // be able to re-construct the same expression, given appropriate arguments.
-py::object MakeConstructor(py::module m, const Expression& e) {
+py::object MakeConstructor(py::module_ m, const Expression& e) {
   // This list of cases is in alphabetical order.
   switch (e.get_kind()) {
     case ExpressionKind::Abs:
@@ -164,7 +164,7 @@ py::list MakeArgs(const Expression& e) {
 // Given the pydrake.symbolic module as "m" and a formula "f", returns
 // the callable object (i.e., factory function or constructor) that would
 // be able to re-construct the same formula, given appropriate arguments.
-py::object MakeConstructor(py::module m, const Formula& f) {
+py::object MakeConstructor(py::module_ m, const Formula& f) {
   switch (f.get_kind()) {
     case FormulaKind::False:
       return m.attr("Formula").attr("False_");
@@ -254,11 +254,11 @@ py::list MakeArgs(const Formula& f) {
 
 }  // namespace
 
-py::object Unapply(py::module m, const Expression& e) {
+py::object Unapply(py::module_ m, const Expression& e) {
   return py::make_tuple(MakeConstructor(m, e), MakeArgs(e));
 }
 
-py::object Unapply(py::module m, const symbolic::Formula& f) {
+py::object Unapply(py::module_ m, const symbolic::Formula& f) {
   return py::make_tuple(MakeConstructor(m, f), MakeArgs(f));
 }
 

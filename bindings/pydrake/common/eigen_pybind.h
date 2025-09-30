@@ -128,4 +128,4 @@ struct type_caster<drake::EigenPtr<T>> {
 };
 
 }  // namespace detail
-}  // namespace pybind11
+}  // namespace nanobind

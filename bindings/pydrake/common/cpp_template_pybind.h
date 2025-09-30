@@ -22,7 +22,7 @@ inline py::object GetOrInitTemplate(  // BR
     const std::string& template_cls_name,  // BR
     py::tuple args = py::tuple(), py::dict kwargs = py::dict()) {
   const char module_name[] = "pydrake.common.cpp_template";
-  py::handle m = py::module::import(module_name);
+  py::handle m = py::module_::import_(module_name);
   return m.attr("get_or_init")(
       scope, name, m.attr(template_cls_name.c_str()), *args, **kwargs);
 }
@@ -43,7 +43,7 @@ inline std::string GetInstantiationName(
 // C++ wrapper around pydrake.common.pretty_class_name.
 inline py::object PrettyClassName(py::handle cls, bool use_qualname = false) {
   py::handle py_func =
-      py::module::import("pydrake.common").attr("pretty_class_name");
+      py::module_::import_("pydrake.common").attr("pretty_class_name");
   return py_func(cls, py::arg("use_qualname") = use_qualname);
 }
 
@@ -154,7 +154,7 @@ py::object AddTemplateMethod(  // BR
   const std::string instantiation_name =
       internal::GetInstantiationName(py_template, param, mangle);
   py::object py_func = py::cpp_function(std::forward<Method>(method),
-      py::name(instantiation_name.c_str()), py::is_method(scope),
+      py::name(instantiation_name.c_str()), py::is_method(),
       std::forward<Extra>(extra)...);
   internal::AddInstantiation(py_template, py_func, param);
   return py_template;

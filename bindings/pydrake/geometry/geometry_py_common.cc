@@ -40,7 +40,7 @@ constexpr auto& doc = pydrake_doc_geometry.drake.geometry;
 // TODO(jwnimmer-tri) Reformat this entire file to remove the unnecessary
 // indentation.
 
-void DefineCollisionFilterScope(py::module m) {
+void DefineCollisionFilterScope(py::module_ m) {
   {
     using Class = CollisionFilterScope;
     constexpr auto& cls_doc = doc.CollisionFilterScope;
@@ -51,7 +51,7 @@ void DefineCollisionFilterScope(py::module m) {
   }
 }
 
-void DefineCollisionFilterDeclaration(py::module m) {
+void DefineCollisionFilterDeclaration(py::module_ m) {
   {
     using Class = CollisionFilterDeclaration;
     constexpr auto& cls_doc = doc.CollisionFilterDeclaration;
@@ -71,7 +71,7 @@ void DefineCollisionFilterDeclaration(py::module m) {
   }
 }
 
-void DefineCollisionFilterManager(py::module m) {
+void DefineCollisionFilterManager(py::module_ m) {
   {
     using Class = CollisionFilterManager;
     constexpr auto& cls_doc = doc.CollisionFilterManager;
@@ -88,7 +88,7 @@ void DefineCollisionFilterManager(py::module m) {
   }
 }
 
-void DefineGeometryFrame(py::module m) {
+void DefineGeometryFrame(py::module_ m) {
   {
     using Class = GeometryFrame;
     constexpr auto& cls_doc = doc.GeometryFrame;
@@ -103,7 +103,7 @@ void DefineGeometryFrame(py::module m) {
   }
 }
 
-void DefineGeometryInstance(py::module m) {
+void DefineGeometryInstance(py::module_ m) {
   {
     using Class = GeometryInstance;
     constexpr auto& cls_doc = doc.GeometryInstance;
@@ -146,12 +146,12 @@ void DefineGeometryInstance(py::module m) {
   }
 }
 
-void DefineGeometryProperties(py::module m) {
+void DefineGeometryProperties(py::module_ m) {
   {
     using Class = GeometryProperties;
     constexpr auto& cls_doc = doc.GeometryProperties;
     py::handle abstract_value_cls =
-        py::module::import("pydrake.common.value").attr("AbstractValue");
+        py::module_::import_("pydrake.common.value").attr("AbstractValue");
     py::class_<Class>(m, "GeometryProperties", cls_doc.doc)
         .def("HasGroup", &Class::HasGroup, py::arg("group_name"),
             cls_doc.HasGroup.doc)
@@ -232,7 +232,7 @@ void DefineGeometryProperties(py::module m) {
   }
 }
 
-void DefineGeometrySet(py::module m) {
+void DefineGeometrySet(py::module_ m) {
   {
     using Class = GeometrySet;
     constexpr auto& cls_doc = doc.GeometrySet;
@@ -288,7 +288,7 @@ void DefineGeometrySet(py::module m) {
   }
 }
 
-void DefineGeometryVersion(py::module m) {
+void DefineGeometryVersion(py::module_ m) {
   {
     using Class = GeometryVersion;
     constexpr auto& cls_doc = doc.GeometryVersion;
@@ -302,7 +302,7 @@ void DefineGeometryVersion(py::module m) {
   }
 }
 
-void DefineIdentifiers(py::module m) {
+void DefineIdentifiers(py::module_ m) {
   {
     BindIdentifier<FilterId>(m, "FilterId", doc.FilterId.doc);
     BindIdentifier<SourceId>(m, "SourceId", doc.SourceId.doc);
@@ -311,7 +311,7 @@ void DefineIdentifiers(py::module m) {
   }
 }
 
-void DefineInMemoryMesh(py::module m) {
+void DefineInMemoryMesh(py::module_ m) {
   {
     using Class = InMemoryMesh;
     constexpr auto& cls_doc = doc.InMemoryMesh;
@@ -335,7 +335,7 @@ void DefineInMemoryMesh(py::module m) {
   }
 }
 
-void DefineGeometryPropertiesSubclasses(py::module m) {
+void DefineGeometryPropertiesSubclasses(py::module_ m) {
   {
     py::class_<IllustrationProperties, GeometryProperties> cls(
         m, "IllustrationProperties", doc.IllustrationProperties.doc);
@@ -365,7 +365,7 @@ void DefineGeometryPropertiesSubclasses(py::module m) {
   }
 }
 
-void DefineMeshSource(py::module m) {
+void DefineMeshSource(py::module_ m) {
   {
     using Class = MeshSource;
     constexpr auto& cls_doc = doc.MeshSource;
@@ -403,7 +403,7 @@ void DefineMeshSource(py::module m) {
   }
 }
 
-void DefineRgba(py::module m) {
+void DefineRgba(py::module_ m) {
   {
     using Class = Rgba;
     constexpr auto& cls_doc = doc.Rgba;
@@ -438,7 +438,7 @@ void DefineRgba(py::module m) {
               .format(self.r(), self.g(), self.b(), self.a());
         });
     DefAttributesUsingSerialize(&cls);
-    cls.def_property("rgba",
+    cls.def_prop_rw("rgba",
         // The Serialize-based binding skips the validity checking; we'll
         // add it back here by re-binding the property getter and setter.
         &Class::rgba,
@@ -450,7 +450,7 @@ void DefineRgba(py::module m) {
   }
 }
 
-void DefineRole(py::module m) {
+void DefineRole(py::module_ m) {
   {
     constexpr auto& cls_doc = doc.Role;
     py::enum_<Role>(m, "Role", py::arithmetic(), cls_doc.doc)
@@ -461,7 +461,7 @@ void DefineRole(py::module m) {
   }
 }
 
-void DefineRoleAssign(py::module m) {
+void DefineRoleAssign(py::module_ m) {
   {
     constexpr auto& cls_doc = doc.RoleAssign;
     using Class = RoleAssign;
@@ -471,7 +471,7 @@ void DefineRoleAssign(py::module m) {
   }
 }
 
-void DefineShapes(py::module m) {
+void DefineShapes(py::module_ m) {
   // Shape constructors.
   {
     py::class_<Shape> shape_cls(m, "Shape", doc.Shape.doc);
@@ -658,7 +658,7 @@ void DefineShapes(py::module m) {
   }
 }
 
-void DefineMiscFunctions(py::module m) {
+void DefineMiscFunctions(py::module_ m) {
   m.def("CalcVolume", &CalcVolume, py::arg("shape"), doc.CalcVolume.doc);
 
   m.def("MakePhongIllustrationProperties", &MakePhongIllustrationProperties,
@@ -693,7 +693,7 @@ void DefineMiscFunctions(py::module m) {
 namespace testing {
 // For use with `test_geometry_properties_cpp_types`.
 template <typename T>
-void DefGetPropertyCpp(py::module m) {
+void DefGetPropertyCpp(py::module_ m) {
   auto func = [](const geometry::GeometryProperties& properties,
                   const std::string& group, const std::string& name) {
     return properties.GetProperty<T>(group, name);
@@ -720,7 +720,7 @@ bool PropertiesIndicateCompliantHydro(
   return hydro_type == HydroelasticType::kSoft;
 }
 
-void def_testing_module(py::module m) {
+void def_testing_module(py::module_ m) {
   // The get_constant_id() returns a fresh object every time, but always with
   // the same underlying get_value().
   const auto constant_id = geometry::FilterId::get_new_id();
@@ -737,7 +737,7 @@ void def_testing_module(py::module m) {
 
 }  // namespace
 
-void DefineGeometryCommon(py::module m) {
+void DefineGeometryCommon(py::module_ m) {
   m.doc() = "Bindings for `drake::geometry`";
 
   // This list must remain in topological dependency order.

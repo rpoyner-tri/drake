@@ -126,7 +126,7 @@ void builder_life_support_stash_impl(size_t builder_index,
 }  // namespace pydrake
 }  // namespace drake
 
-namespace pybind11 {
+namespace nanobind {
 namespace detail {
 
 // Provide a specialization of the pybind11 internal process_attribute
@@ -146,4 +146,4 @@ class process_attribute<
 };
 
 }  // namespace detail
-}  // namespace pybind11
+}  // namespace nanobind

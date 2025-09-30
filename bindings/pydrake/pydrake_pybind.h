@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <type_traits>
 #include <utility>
 
 // Here we include a lot of the pybind11 API, to ensure that all code in pydrake
@@ -19,6 +20,19 @@
 // #include "pybind11/stl/filesystem.h"
 
 #include "nanobind/nanobind.h"
+#include "nanobind/eval.h"
+#include "nanobind/ndarray.h"
+#include "nanobind/operators.h"
+
+// XXX porting shim-fest
+namespace nanobind {
+namespace detail {
+
+template <typename T>
+using is_pyobject = std::is_base_of<api_tag, std::remove_reference_t<T>>;
+
+}  // namespace detail
+}  // namespace nanobind
 
 namespace drake {
 
@@ -73,7 +87,7 @@ constexpr auto overload_cast_explicit = overload_cast_impl<Return, Args...>{};
 /// copy.
 template <typename PyClass>
 void DefCopyAndDeepCopy(PyClass* ppy_class) {
-  using Class = typename PyClass::type;
+  using Class = typename PyClass::Type;
   PyClass& py_class = *ppy_class;
   py_class.def("__copy__", [](const Class* self) { return Class{*self}; })
       .def("__deepcopy__",
@@ -93,7 +107,7 @@ void DefClone(PyClass* ppy_class) {
   // take_ownership return value policy. The take_ownership
   // policy would be the default policy in this case, but it
   // seems safer and more clear to apply it explicitly.
-  using Class = typename PyClass::type;
+  using Class = typename PyClass::Type;
   PyClass& py_class = *ppy_class;
   py_class  // BR
       .def(
@@ -122,6 +136,8 @@ void DefClone(PyClass* ppy_class) {
 /// @endcode
 ///
 /// @tparam Class The C++ class. Must have a default constructor.
+#if 0  // XXX porting
+// This likely needs a def_visitor rewrite.
 template <typename Class>
 auto ParamInit() {
   return py::init([](py::kwargs kwargs) {
@@ -136,6 +152,7 @@ auto ParamInit() {
     return obj;
   });
 }
+#endif  // XXX porting
 
 /// Executes Python code to introduce additional symbols for a given module.
 /// For a module with local name `{name}` and use_subdir=False, the code
@@ -157,7 +174,7 @@ inline void ExecuteExtraPythonCode(py::module_ m, bool use_subdir = false) {
     static py::handle variable##_original;                                \
     if (variable##_original) {                                            \
       variable##_original.inc_ref();                                      \
-      variable = py::reinterpret_borrow<py::module>(variable##_original); \
+      variable = py::borrow<py::module_>(variable##_original); \
       return;                                                             \
     } else {                                                              \
       variable##_original = variable;                                     \
@@ -196,6 +213,17 @@ std::shared_ptr<T> make_shared_ptr_from_py_object(py::object py_object) {
 }  // namespace drake
 
 // XXX porting needed
-/* #define DRAKE_PYBIND11_NUMPY_OBJECT_DTYPE(Type)      \
+/*
+#define DRAKE_PYBIND11_NUMPY_OBJECT_DTYPE(Type)       \
    PYBIND11_NUMPY_OBJECT_DTYPE(Type)
 */
+#define DRAKE_NANOBIND_NUMPY_OBJECT_DTYPE(Type) \
+namespace nanobind::detail {                    \
+template <> struct dtype_traits<Type>{          \
+  static constexpr dlpack::dtype value {        \
+    0,                                          \
+    sizeof(Type) * 8,                           \
+    0,                                          \
+  };                                            \
+};                                              \
+}  // nanobind::detail

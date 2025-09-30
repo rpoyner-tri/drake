@@ -18,7 +18,7 @@ namespace drake {
 namespace pydrake {
 namespace internal {
 
-void DefinePlanningCollisionCheckerInterfaceTypes(py::module m) {
+void DefinePlanningCollisionCheckerInterfaceTypes(py::module_ m) {
   // NOLINTNEXTLINE(build/namespaces): Emulate placement in namespace.
   using namespace drake::planning;
   constexpr auto& doc = pydrake_doc_planning.drake.planning;
@@ -112,7 +112,7 @@ void DefinePlanningCollisionCheckerInterfaceTypes(py::module m) {
     cls  // BR
         .def(py::init<>())
         .def(ParamInit<Class>())
-        .def_property(
+        .def_prop_rw(
             "model",
             [](const Class& self) -> const RobotDiagram<double>* {
               return self.model.get();
