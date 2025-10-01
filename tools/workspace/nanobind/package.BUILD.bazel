@@ -14,6 +14,7 @@ cc_library(
         "include/nanobind/stl/*.h",
         "include/nanobind/eigen/*.h",
     ]),
+    srcs = glob(["src/*.cpp", "src/*.h"], exclude=["src/nb_combined.cpp"]),
     includes = [
         "include",
     ],
@@ -22,6 +23,8 @@ cc_library(
         "-fvisibility=hidden",
     ],
     deps = [
+        "@drake//tools/workspace/python:cc_headers",
         "@drake//tools/workspace/python:cc_libs",
+        "@robin_map",
     ],
 )

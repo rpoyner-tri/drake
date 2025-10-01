@@ -189,8 +189,8 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     cls  // BR
         .def(ParamInit<Class>());
     cls  // BR
-        .def_readwrite("p", &Class::p, cls_doc.p.doc)
-        .def_readwrite("d", &Class::d, cls_doc.d.doc);
+        .def_rw("p", &Class::p, cls_doc.p.doc)
+        .def_rw("d", &Class::d, cls_doc.d.doc);
     DefCopyAndDeepCopy(&cls);
   }
 }

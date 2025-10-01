@@ -101,11 +101,11 @@ void DefineConvexSetBaseClassAndSubclasses(py::module_ m) {
   // ConvexSet depend on this struct.
   {
     py::class_<SampledVolume>(m, "SampledVolume", doc.SampledVolume.doc)
-        .def_readwrite(
+        .def_rw(
             "volume", &SampledVolume::volume, doc.SampledVolume.volume.doc)
-        .def_readwrite("rel_accuracy", &SampledVolume::rel_accuracy,
+        .def_rw("rel_accuracy", &SampledVolume::rel_accuracy,
             doc.SampledVolume.rel_accuracy.doc)
-        .def_readwrite("num_samples", &SampledVolume::num_samples,
+        .def_rw("num_samples", &SampledVolume::num_samples,
             doc.SampledVolume.num_samples.doc);
   }
   // ConvexSet
@@ -560,21 +560,21 @@ void DefineIris(py::module_ m) {
     const auto& cls_doc = doc.IrisOptions;
     py::class_<IrisOptions> iris_options(m, "IrisOptions", cls_doc.doc);
     iris_options.def(ParamInit<IrisOptions>())
-        .def_readwrite("require_sample_point_is_contained",
+        .def_rw("require_sample_point_is_contained",
             &IrisOptions::require_sample_point_is_contained,
             cls_doc.require_sample_point_is_contained.doc)
-        .def_readwrite("iteration_limit", &IrisOptions::iteration_limit,
+        .def_rw("iteration_limit", &IrisOptions::iteration_limit,
             cls_doc.iteration_limit.doc)
-        .def_readwrite("termination_threshold",
+        .def_rw("termination_threshold",
             &IrisOptions::termination_threshold,
             cls_doc.termination_threshold.doc)
-        .def_readwrite("relative_termination_threshold",
+        .def_rw("relative_termination_threshold",
             &IrisOptions::relative_termination_threshold,
             cls_doc.relative_termination_threshold.doc)
-        .def_readwrite("configuration_space_margin",
+        .def_rw("configuration_space_margin",
             &IrisOptions::configuration_space_margin,
             cls_doc.configuration_space_margin.doc)
-        .def_readwrite("num_collision_infeasible_samples",
+        .def_rw("num_collision_infeasible_samples",
             &IrisOptions::num_collision_infeasible_samples,
             cls_doc.num_collision_infeasible_samples.doc)
         .def_prop_rw(
@@ -594,21 +594,21 @@ void DefineIris(py::module_ m) {
               self.configuration_obstacles = CloneConvexSets(sets);
             },
             cls_doc.configuration_obstacles.doc)
-        .def_readwrite("starting_ellipse", &IrisOptions::starting_ellipse,
+        .def_rw("starting_ellipse", &IrisOptions::starting_ellipse,
             cls_doc.starting_ellipse.doc)
-        .def_readwrite("bounding_region", &IrisOptions::bounding_region,
+        .def_rw("bounding_region", &IrisOptions::bounding_region,
             cls_doc.bounding_region.doc)
-        .def_readwrite("verify_domain_boundedness",
+        .def_rw("verify_domain_boundedness",
             &IrisOptions::verify_domain_boundedness,
             cls_doc.verify_domain_boundedness.doc)
-        .def_readwrite("num_additional_constraint_infeasible_samples",
+        .def_rw("num_additional_constraint_infeasible_samples",
             &IrisOptions::num_additional_constraint_infeasible_samples,
             cls_doc.num_additional_constraint_infeasible_samples.doc)
-        .def_readwrite(
+        .def_rw(
             "random_seed", &IrisOptions::random_seed, cls_doc.random_seed.doc)
-        .def_readwrite("mixing_steps", &IrisOptions::mixing_steps,
+        .def_rw("mixing_steps", &IrisOptions::mixing_steps,
             cls_doc.mixing_steps.doc)
-        .def_readwrite("solver_options", &IrisOptions::solver_options,
+        .def_rw("solver_options", &IrisOptions::solver_options,
             cls_doc.solver_options.doc)
         .def("__repr__", [](const IrisOptions& self) {
           return py::str(
@@ -713,21 +713,21 @@ void DefineGraphOfConvexSetsAndRelated(py::module_ m) {
     py::class_<GraphOfConvexSetsOptions> gcs_options(
         m, "GraphOfConvexSetsOptions", cls_doc.doc);
     gcs_options.def(py::init<>())
-        .def_readwrite("convex_relaxation",
+        .def_rw("convex_relaxation",
             &GraphOfConvexSetsOptions::convex_relaxation,
             cls_doc.convex_relaxation.doc)
-        .def_readwrite("preprocessing",
+        .def_rw("preprocessing",
             &GraphOfConvexSetsOptions::preprocessing, cls_doc.preprocessing.doc)
-        .def_readwrite("max_rounded_paths",
+        .def_rw("max_rounded_paths",
             &GraphOfConvexSetsOptions::max_rounded_paths,
             cls_doc.max_rounded_paths.doc)
-        .def_readwrite("max_rounding_trials",
+        .def_rw("max_rounding_trials",
             &GraphOfConvexSetsOptions::max_rounding_trials,
             cls_doc.max_rounding_trials.doc)
-        .def_readwrite("flow_tolerance",
+        .def_rw("flow_tolerance",
             &GraphOfConvexSetsOptions::flow_tolerance,
             cls_doc.flow_tolerance.doc)
-        .def_readwrite("rounding_seed",
+        .def_rw("rounding_seed",
             &GraphOfConvexSetsOptions::rounding_seed, cls_doc.rounding_seed.doc)
         .def_prop_rw("solver_options",
             py::cpp_function(
@@ -766,7 +766,7 @@ void DefineGraphOfConvexSetsAndRelated(py::module_ m) {
                       std::move(preprocessing_solver_options);
                 }),
             cls_doc.preprocessing_solver_options.doc)
-        .def_readwrite("parallelism", &GraphOfConvexSetsOptions::parallelism)
+        .def_rw("parallelism", &GraphOfConvexSetsOptions::parallelism)
         .def("__repr__", [](const GraphOfConvexSetsOptions& self) {
           return py::str(
               "GraphOfConvexSetsOptions("
@@ -1251,15 +1251,15 @@ void DefineCspaceFreeStructs(py::module_ m) {
         py::class_<FindSeparationCertificateOptions>(
             m, "FindSeparationCertificateOptions", find_options_doc.doc)
             .def(py::init<>())
-            .def_readwrite(
+            .def_rw(
                 "parallelism", &FindSeparationCertificateOptions::parallelism)
-            .def_readwrite(
+            .def_rw(
                 "verbose", &FindSeparationCertificateOptions::verbose)
-            .def_readwrite(
+            .def_rw(
                 "solver_id", &FindSeparationCertificateOptions::solver_id)
-            .def_readwrite("terminate_at_failure",
+            .def_rw("terminate_at_failure",
                 &FindSeparationCertificateOptions::terminate_at_failure)
-            .def_readwrite("solver_options",
+            .def_rw("solver_options",
                 &FindSeparationCertificateOptions::solver_options);
   }
 }
@@ -1286,7 +1286,7 @@ void DefineCspaceFreePolytopeAndRelated(py::module_ m) {
           cspace_free_polytope_base_cls, "Options", options_cls_doc.doc);
       options_cls  // BR
           .def(py::init<>(), options_cls_doc.ctor.doc)
-          .def_readwrite("with_cross_y", &BaseClass::Options::with_cross_y,
+          .def_rw("with_cross_y", &BaseClass::Options::with_cross_y,
               options_cls_doc.with_cross_y.doc);
       DefReprUsingSerialize(&options_cls);
     }
@@ -1342,9 +1342,9 @@ void DefineCspaceFreePolytopeAndRelated(py::module_ m) {
             py::arg("plane_index"), py::arg("a"), py::arg("b"),
             py::arg("plane_decision_vars"), py::arg("result"),
             cls_doc.SeparationCertificate.GetSolution.doc)
-        .def_readwrite("positive_side_rational_lagrangians",
+        .def_rw("positive_side_rational_lagrangians",
             &Class::SeparationCertificate::positive_side_rational_lagrangians)
-        .def_readwrite("negative_side_rational_lagrangians",
+        .def_rw("negative_side_rational_lagrangians",
             &Class::SeparationCertificate::negative_side_rational_lagrangians);
 
     py::class_<Class::SeparationCertificateProgram,
@@ -1362,7 +1362,7 @@ void DefineCspaceFreePolytopeAndRelated(py::module_ m) {
         "FindSeparationCertificateGivenPolytopeOptions",
         cls_doc.FindSeparationCertificateGivenPolytopeOptions.doc)
         .def(py::init<>())
-        .def_readwrite("ignore_redundant_C",
+        .def_rw("ignore_redundant_C",
             &Class::FindSeparationCertificateGivenPolytopeOptions::
                 ignore_redundant_C);
 
@@ -1375,21 +1375,21 @@ void DefineCspaceFreePolytopeAndRelated(py::module_ m) {
         cspace_free_polytope_cls, "FindPolytopeGivenLagrangianOptions",
         cls_doc.FindPolytopeGivenLagrangianOptions.doc)
         .def(py::init<>())
-        .def_readwrite("backoff_scale",
+        .def_rw("backoff_scale",
             &Class::FindPolytopeGivenLagrangianOptions::backoff_scale)
-        .def_readwrite("ellipsoid_margin_epsilon",
+        .def_rw("ellipsoid_margin_epsilon",
             &Class::FindPolytopeGivenLagrangianOptions::
                 ellipsoid_margin_epsilon)
-        .def_readwrite(
+        .def_rw(
             "solver_id", &Class::FindPolytopeGivenLagrangianOptions::solver_id)
-        .def_readwrite("solver_options",
+        .def_rw("solver_options",
             &Class::FindPolytopeGivenLagrangianOptions::solver_options)
-        .def_readwrite("s_inner_pts",
+        .def_rw("s_inner_pts",
             &Class::FindPolytopeGivenLagrangianOptions::s_inner_pts)
-        .def_readwrite("search_s_bounds_lagrangians",
+        .def_rw("search_s_bounds_lagrangians",
             &Class::FindPolytopeGivenLagrangianOptions::
                 search_s_bounds_lagrangians)
-        .def_readwrite("ellipsoid_margin_cost",
+        .def_rw("ellipsoid_margin_cost",
             &Class::FindPolytopeGivenLagrangianOptions::ellipsoid_margin_cost);
 
     py::class_<Class::SearchResult>(
@@ -1407,28 +1407,28 @@ void DefineCspaceFreePolytopeAndRelated(py::module_ m) {
     py::class_<Class::BilinearAlternationOptions>(cspace_free_polytope_cls,
         "BilinearAlternationOptions", cls_doc.BilinearAlternationOptions.doc)
         .def(py::init<>())
-        .def_readwrite("max_iter", &Class::BilinearAlternationOptions::max_iter,
+        .def_rw("max_iter", &Class::BilinearAlternationOptions::max_iter,
             cls_doc.BilinearAlternationOptions.max_iter.doc)
-        .def_readwrite("convergence_tol",
+        .def_rw("convergence_tol",
             &Class::BilinearAlternationOptions::convergence_tol,
             cls_doc.BilinearAlternationOptions.convergence_tol.doc)
-        .def_readwrite("find_polytope_options",
+        .def_rw("find_polytope_options",
             &Class::BilinearAlternationOptions::find_polytope_options,
             cls_doc.BilinearAlternationOptions.find_polytope_options.doc)
         .def_readonly("find_lagrangian_options",
             &Class::BilinearAlternationOptions::find_lagrangian_options,
             cls_doc.BilinearAlternationOptions.find_lagrangian_options.doc)
-        .def_readwrite("ellipsoid_scaling",
+        .def_rw("ellipsoid_scaling",
             &Class::BilinearAlternationOptions::ellipsoid_scaling,
             cls_doc.BilinearAlternationOptions.ellipsoid_scaling.doc);
 
     py::class_<Class::BinarySearchOptions>(cspace_free_polytope_cls,
         "BinarySearchOptions", cls_doc.BinarySearchOptions.doc)
         .def(py::init<>())
-        .def_readwrite("scale_max", &Class::BinarySearchOptions::scale_max)
-        .def_readwrite("scale_min", &Class::BinarySearchOptions::scale_min)
-        .def_readwrite("max_iter", &Class::BinarySearchOptions::max_iter)
-        .def_readwrite(
+        .def_rw("scale_max", &Class::BinarySearchOptions::scale_max)
+        .def_rw("scale_min", &Class::BinarySearchOptions::scale_min)
+        .def_rw("max_iter", &Class::BinarySearchOptions::max_iter)
+        .def_rw(
             "convergence_tol", &Class::BinarySearchOptions::convergence_tol)
         .def_readonly("find_lagrangian_options",
             &Class::BinarySearchOptions::find_lagrangian_options);

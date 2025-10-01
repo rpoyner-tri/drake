@@ -43,7 +43,7 @@ class DefAttributesArchive {
     DRAKE_DEMAND((std::is_same_v<Docs, void>) == (cls_docs == nullptr));
   }
 
-  // Creates a class property for one instance field, akin to def_readwrite
+  // Creates a class property for one instance field, akin to def_rw
   // but using `nvp` created by the CxxClass's Serialize function to specify
   // the field to be bound.
   template <typename NameValuePair>
@@ -57,20 +57,16 @@ class DefAttributesArchive {
     const int offset = CalcClassOffset(prototype_value);
 
     // Define property functions to get and set this particular field.
-    auto getter = py::cpp_function(
-        [offset](const CxxClass& self) -> const T& {
+    auto getter = [offset](const CxxClass& self) -> const T& {
           const T* const field_in_self = reinterpret_cast<const T*>(
               reinterpret_cast<const char*>(&self) + offset);
           return *field_in_self;
-        },
-        py::is_method());
-    auto setter = py::cpp_function(
-        [offset](CxxClass& self, const T& value) {
+    };
+    auto setter = [offset](CxxClass& self, const T& value) {
           T* const field_in_self =
               reinterpret_cast<T*>(reinterpret_cast<char*>(&self) + offset);
           *field_in_self = value;
-        },
-        py::is_method());
+    };
 
     // Fetch the docstring (or the empty string, if we aren't using docstrings).
     const char* doc = "";
@@ -244,7 +240,7 @@ class DefAttributesArchive {
 /// `dataclass`.
 template <typename PyClass, typename Docs>
 void DefAttributesUsingSerialize(PyClass* ppy_class, const Docs& cls_docs) {
-  using CxxClass = typename PyClass::type;
+  using CxxClass = typename PyClass::Type;
   CxxClass prototype{};
   internal::DefAttributesArchive archive(ppy_class, &prototype, &cls_docs);
   prototype.Serialize(&archive);

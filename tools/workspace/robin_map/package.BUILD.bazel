@@ -1,0 +1,18 @@
+# -*- bazel -*-
+
+load("@drake//tools/install:install.bzl", "install", "install_files")
+load("@drake//tools/skylark:cc.bzl", "cc_library")
+
+licenses(["notice"])  # MIT
+
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "robin_map",
+    hdrs = glob([
+        "include/tsl/*.h",
+    ]),
+    includes = [
+        "include",
+    ],
+)

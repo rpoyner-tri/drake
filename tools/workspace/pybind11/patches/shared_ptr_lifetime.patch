@@ -229,7 +229,7 @@ Co-Author: Dustin Spicuzza <dustin@virtualroadside.com>
 +        .def("has_instance", &SpBaseTester::has_instance)
 +        .def("has_python_instance", &SpBaseTester::has_python_instance)
 +        .def("set_nonpython_instance", &SpBaseTester::set_nonpython_instance)
-+        .def_readwrite("obj", &SpBaseTester::m_obj);
++        .def_rw("obj", &SpBaseTester::m_obj);
 +
 +    // For testing that a C++ class without an alias does not retain the python
 +    // portion of the object
@@ -238,7 +238,7 @@ Co-Author: Dustin Spicuzza <dustin@virtualroadside.com>
 +
 +    py::class_<SpGoAwayTester>(m, "SpGoAwayTester")
 +        .def(py::init<>())
-+        .def_readwrite("obj", &SpGoAwayTester::m_obj);
++        .def_rw("obj", &SpGoAwayTester::m_obj);
 +}
 --- /dev/null
 +++ tests/test_trampoline_shared_ptr_cpp_arg.py

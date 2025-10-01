@@ -21,24 +21,24 @@ NB_MODULE(dummy_module, m) {
 
   py::class_<Struct1>(
       m, "Struct1", cls_doc.doc)
-      .def_readwrite(
+      .def_rw(
           "var_1", &Struct1::var_1, cls_doc.var_1.doc)
-      .def_readwrite("var_2", &Struct1::var_2,
+      .def_rw("var_2", &Struct1::var_2,
           cls_doc.
           var_2.doc)
-      .def_readwrite("var_3", &Struct1::var_3,
+      .def_rw("var_3", &Struct1::var_3,
           cls_doc.var_3
           .doc)
-      .def_readwrite("var_4", &Struct1::var_4,
+      .def_rw("var_4", &Struct1::var_4,
           cls_doc.var_4.doc)
-      .def_readwrite("var_5", &Struct1::var_5,
+      .def_rw("var_5", &Struct1::var_5,
           cls_doc.  // BR Comment to test
           var_5.doc)
-      .def_readwrite("var_6", &Struct1::var_6,
+      .def_rw("var_6", &Struct1::var_6,
           cls_doc.var_6.doc)
-      .def_readwrite("var_7", &Struct1::var_7,
+      .def_rw("var_7", &Struct1::var_7,
           cls_doc.var_7.doc)
-      .def_readwrite("var_8", &Struct1::var_8,
+      .def_rw("var_8", &Struct1::var_8,
           cls_doc.var_8.doc)
   AddValueInstantiation<Struct1>(m);
 }

@@ -74,6 +74,7 @@ def pybind_py_library(
             "@drake//tools/workspace/nanobind",
             "@drake//tools/workspace/python:cc_headers",
             "@drake//tools/workspace/python:cc_libs",
+            "@nanobind",
         ] + cc_deps,
         **kwargs
     )
@@ -300,6 +301,7 @@ def drake_pybind_cc_googletest(
             "//bindings/pydrake:pydrake_pybind",
             "//tools/workspace/python:cc_libpython",
             # "@pybind11",
+            "@nanobind",
             "@drake//tools/workspace/nanobind",
             "@drake//tools/workspace/python:cc_headers",
             "@drake//tools/workspace/python:cc_libs",

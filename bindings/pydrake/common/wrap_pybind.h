@@ -135,7 +135,7 @@ auto WrapCallbacks(Func&& func) {
   std::forward<Func>(func));
 }
 
-/// Idempotent to pybind11's `def_readwrite()`, with the exception that the
+/// Idempotent to pybind11's `def_rw()`, with the exception that the
 /// setter is protected with keep_alive on a `member` variable that is a bare
 /// pointer.  Should not be used for unique_ptr members.
 ///

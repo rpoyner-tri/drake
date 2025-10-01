@@ -143,13 +143,13 @@ NB_MODULE(optimization, m) {
     py::class_<SpatialVelocityConstraint::AngularVelocityBounds>(
         cls, "AngularVelocityBounds", avb_doc.doc)
         .def(py::init<>(), cls_doc.ctor.doc)
-        .def_readwrite("magnitude_lower", &Avb::magnitude_lower,
+        .def_rw("magnitude_lower", &Avb::magnitude_lower,
             avb_doc.magnitude_lower.doc)
-        .def_readwrite("magnitude_upper", &Avb::magnitude_upper,
+        .def_rw("magnitude_upper", &Avb::magnitude_upper,
             avb_doc.magnitude_upper.doc)
-        .def_readwrite("reference_direction", &Avb::reference_direction,
+        .def_rw("reference_direction", &Avb::reference_direction,
             avb_doc.reference_direction.doc)
-        .def_readwrite(
+        .def_rw(
             "theta_bound", &Avb::theta_bound, avb_doc.theta_bound.doc);
   }
 

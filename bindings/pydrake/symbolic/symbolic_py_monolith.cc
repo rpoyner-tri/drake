@@ -265,7 +265,8 @@ void DefineSymbolicMonolith(py::module_ m) {
       .def(
           "__iter__",
           [](const Variables& vars) {
-            return py::make_iterator(vars.begin(), vars.end());
+            return py::make_iterator(
+                py::type<Variables>(), "iterator", vars.begin(), vars.end());
           },
           // Keep alive, reference: `return` keeps `self` alive
           py::keep_alive<0, 1>())
@@ -531,9 +532,9 @@ void DefineSymbolicMonolith(py::module_ m) {
       .def(py::init<Variable, Variable, SinCosSubstitutionType>(), py::arg("s"),
           py::arg("c"), py::arg("type") = SinCosSubstitutionType::kAngle,
           doc.SinCos.ctor.doc)
-      .def_readwrite("s", &SinCos::s, doc.SinCos.s.doc)
-      .def_readwrite("c", &SinCos::c, doc.SinCos.c.doc)
-      .def_readwrite("type", &SinCos::type, doc.SinCos.type.doc);
+      .def_rw("s", &SinCos::s, doc.SinCos.s.doc)
+      .def_rw("c", &SinCos::c, doc.SinCos.c.doc)
+      .def_rw("type", &SinCos::type, doc.SinCos.type.doc);
 
   m.def(
       "Substitute",
@@ -799,10 +800,11 @@ void DefineSymbolicMonolith(py::module_ m) {
       .def(py::init<const Expression&, const Variables&>(), py::arg("e"),
           py::arg("indeterminates"),
           doc.Polynomial.ctor.doc_2args_e_indeterminates)
-      .def(py::init([](const Expression& e,
-                        const Eigen::Ref<const VectorX<Variable>>& vars) {
-        return Polynomial{e, Variables{vars}};
-      }),
+      .def("__init__",
+          [](Polynomial* self, const Expression& e,
+              const Eigen::Ref<const VectorX<Variable>>& vars) {
+            new (self) Polynomial{e, Variables{vars}};
+          },
           py::arg("e"), py::arg("indeterminates"),
           doc.Polynomial.ctor.doc_2args_e_indeterminates)
       .def("indeterminates", &Polynomial::indeterminates,

@@ -15,6 +15,7 @@
 #include "drake/common/constants.h"
 #include "drake/common/drake_assert.h"
 #include "drake/common/drake_assertion_error.h"
+#include "drake/common/drake_copyable.h"
 #include "drake/common/drake_path.h"
 #include "drake/common/find_resource.h"
 #include "drake/common/memory_file.h"
@@ -78,6 +79,8 @@ namespace testing {
 // Registered type. Also a base class for UnregisteredDerivedType.
 class RegisteredType {
  public:
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RegisteredType);
+  RegisteredType() = default;
   virtual ~RegisteredType() {}
 };
 // Completely unregistered type.

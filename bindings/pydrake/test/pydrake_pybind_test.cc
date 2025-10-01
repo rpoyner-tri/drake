@@ -147,7 +147,7 @@ GTEST_TEST(PydrakePybindTest, DefClone) {
 }
 
 // Struct which defines attributes which are to be exposed with
-// `.def_readwrite`, for testing `ParamInit`.
+// `.def_rw`, for testing `ParamInit`.
 struct ExampleParamInit {
   int a{0};
   int b{1};
@@ -160,8 +160,8 @@ GTEST_TEST(PydrakePybindTest, ParamInit) {
     using Class = ExampleParamInit;
     py::class_<Class>(m, "ExampleParamInit")
         .def(ParamInit<Class>())
-        .def_readwrite("a", &Class::a)
-        .def_readwrite("b", &Class::b)
+        .def_rw("a", &Class::a)
+        .def_rw("b", &Class::b)
         // This is purely a sugar method for testing the values.
         .def("compare_values", [](const Class& self, int a, int b) {
           return self.a == a && self.b == b;

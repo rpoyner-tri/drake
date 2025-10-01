@@ -19,11 +19,11 @@ void DefineSolversSemidefiniteRelaxation(py::module_ m) {
     py::class_<SemidefiniteRelaxationOptions> options(
         m, "SemidefiniteRelaxationOptions", cls_doc.doc);
     options.def(ParamInit<SemidefiniteRelaxationOptions>())
-        .def_readwrite("add_implied_linear_equality_constraints",
+        .def_rw("add_implied_linear_equality_constraints",
             &SemidefiniteRelaxationOptions::
                 add_implied_linear_equality_constraints,
             cls_doc.add_implied_linear_equality_constraints.doc)
-        .def_readwrite("add_implied_linear_constraints",
+        .def_rw("add_implied_linear_constraints",
             &SemidefiniteRelaxationOptions::add_implied_linear_constraints,
             cls_doc.add_implied_linear_constraints.doc);
     options

@@ -149,10 +149,12 @@ void DefineRigidTransform(py::module_ m, py::class_<PyClass<T>>& cls) {
             },
             py::arg("p_BoQ_B"),
             cls_doc.operator_mul.doc_1args_constEigenMatrixBase)
-        .def(py::pickle([](const Class& self) { return self.GetAsMatrix34(); },
-            [](const Eigen::Matrix<T, 3, 4>& matrix) {
-              return Class::MakeUnchecked(matrix);
-            }));
+        .def("__getstate__",
+            [](const Class& self) { return self.GetAsMatrix34(); })
+        .def("__setstate__",
+            [](Class& self, const Eigen::Matrix<T, 3, 4>& matrix) {
+              new (&self) Class(Class::MakeUnchecked(matrix));
+            });
     cls.attr("multiply") = WrapToMatchInputShape(cls.attr("multiply"));
     cls.attr("__matmul__") = cls.attr("multiply");
     DefCopyAndDeepCopy(&cls);
@@ -241,10 +243,10 @@ void DefineRotationMatrix(py::module_ m, py::class_<PyClass<T>>& cls) {
             overload_cast_explicit<Eigen::Quaternion<T>>(&Class::ToQuaternion),
             cls_doc.ToQuaternion.doc_0args)
         .def("ToAngleAxis", &Class::ToAngleAxis, cls_doc.ToAngleAxis.doc)
-        .def(py::pickle([](const Class& self) { return self.matrix(); },
-            [](const Matrix3<T>& matrix) {
-              return Class::MakeUnchecked(matrix);
-            }));
+        .def("__getstate__", [](const Class& self) { return self.matrix(); })
+        .def("__setstate__", [](Class& self, const Matrix3<T>& matrix) {
+          new (&self) Class(Class::MakeUnchecked(matrix));
+        });
     cls.attr("multiply") = WrapToMatchInputShape(cls.attr("multiply"));
     cls.attr("__matmul__") = cls.attr("multiply");
     DefCopyAndDeepCopy(&cls);
@@ -278,9 +280,11 @@ void DefineRollPitchYaw(py::class_<PyClass<T>>& cls) {
             cls_doc.ctor.doc_1args_R)
         .def(py::init<const Eigen::Quaternion<T>&>(), py::arg("quaternion"),
             cls_doc.ctor.doc_1args_quaternion)
-        .def(py::init([](const Matrix3<T>& matrix) {
-          return Class(RotationMatrix<T>(matrix));
-        }),
+        .def(
+            "__init__",
+            [](Class* self, const Matrix3<T>& matrix) {
+              new (self) Class(RotationMatrix<T>(matrix));
+            },
             py::arg("matrix"),
             "Construct from raw rotation matrix. See RotationMatrix overload "
             "for more information.")
@@ -313,8 +317,9 @@ void DefineRollPitchYaw(py::class_<PyClass<T>>& cls) {
             &Class::CalcRpyDDtFromAngularAccelInChild, py::arg("rpyDt"),
             py::arg("alpha_AD_D"),
             cls_doc.CalcRpyDDtFromAngularAccelInChild.doc)
-        .def(py::pickle([](const Class& self) { return self.vector(); },
-            [](const Vector3<T>& rpy) { return Class(rpy); }));
+        .def("__getstate__", [](const Class& self) { return self.vector(); })
+        .def("__setstate__",
+            [](Class& self, const Vector3<T>& rpy) { new (&self) Class(rpy); });
     DefCopyAndDeepCopy(&cls);
     // N.B. `RollPitchYaw::cast` is not defined in C++.
   }
@@ -428,13 +433,14 @@ void DoMiscScalarDependentDefinitions(py::module_ m, T) {
         .def("EvaluateBasisFunctionI", &Class::EvaluateBasisFunctionI,
             py::arg("i"), py::arg("parameter_value"),
             cls_doc.EvaluateBasisFunctionI.doc)
-        .def(py::pickle(
+        .def("__getstate__",
             [](const Class& self) {
               return std::make_pair(self.order(), self.knots());
-            },
-            [](std::pair<int, std::vector<T>> args) {
-              return Class(std::get<0>(args), std::get<1>(args));
-            }));
+            })
+        .def("__setstate__",
+            [](Class& self, std::pair<int, std::vector<T>> args) {
+              new (&self) Class(std::get<0>(args), std::get<1>(args));
+            });
   }
 
   m.def("wrap_to", &wrap_to<T, T>, py::arg("value"), py::arg("low"),
@@ -533,7 +539,7 @@ void DoScalarIndependentDefinitions(py::module_ m) {
   {
     using Class = KnotVectorType;
     constexpr auto& cls_doc = doc.KnotVectorType;
-    py::enum_<Class>(m, "KnotVectorType", py::arithmetic(), cls_doc.doc)
+    py::enum_<Class>(m, "KnotVectorType", py::is_arithmetic(), cls_doc.doc)
         .value("kUniform", Class::kUniform, cls_doc.kUniform.doc)
         .value("kClampedUniform", Class::kClampedUniform,
             cls_doc.kClampedUniform.doc);
@@ -655,7 +661,7 @@ void DoScalarIndependentDefinitions(py::module_ m) {
               // In the future, we should enhance this to display all of the
               // information.
               return fmt::format("<NumericalGradientOption({})>",
-                  fmt_streamed(py::repr(method)));
+                                 fmt_streamed(py::repr(method).c_str()));
             });
   }
 
