@@ -67,9 +67,9 @@ std::string PyNiceTypeNamePtrOverride(const type_erased_ptr& ptr) {
 #endif  // XXX porting
       const bool use_qualname = true;
       return std::string(py::str("{}.{}")
-                             .format(cls.attr("__module__"),
-                                 internal::PrettyClassName(cls, use_qualname))
-                             .c_str());
+              .format(cls.attr("__module__"),
+                  internal::PrettyClassName(cls, use_qualname))
+              .c_str());
     }
   }
   return cc_name;

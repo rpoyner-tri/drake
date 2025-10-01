@@ -63,7 +63,7 @@ void BindTemplateWithDefault(py::module_ m) {
 }
 
 GTEST_TEST(CppTemplateTest, TemplateClass) {
-#if 0  // XXX porting
+#if 0   // XXX porting
   py::module_ m =
       py::module_::create_extension_module("__main__", "", new PyModuleDef());
 
@@ -115,7 +115,7 @@ vector<string> SimpleFunction() {
 }
 
 GTEST_TEST(CppTemplateTest, TemplateFunction) {
-#if 0  // XXX porting
+#if 0   // XXX porting
   py::module_ m =
       py::module_::create_extension_module("__main__", "", new PyModuleDef());
 
@@ -132,7 +132,7 @@ GTEST_TEST(CppTemplateTest, TemplateFunction) {
 #endif  // XXX porting
 }
 
-#if 0  // XXX porting
+#if 0   // XXX porting
 std::string Callee(int) {
   return "int";
 }
@@ -142,7 +142,7 @@ std::string Callee(double) {
 #endif  // XXX porting
 
 GTEST_TEST(CppTemplateTest, Call) {
-#if 0  // XXX porting
+#if 0   // XXX porting
   py::module_ m =
       py::module_::create_extension_module("__main__", "", new PyModuleDef());
 
@@ -167,7 +167,7 @@ struct SimpleType {
 };
 
 GTEST_TEST(CppTemplateTest, TemplateMethod) {
-#if 0  // XXX porting
+#if 0   // XXX porting
   py::module_ m =
       py::module_::create_extension_module("__main__", "", new PyModuleDef());
 
@@ -188,7 +188,7 @@ GTEST_TEST(CppTemplateTest, TemplateMethod) {
 }
 
 int main(int argc, char** argv) {
-#if 0  // XXX porting
+#if 0   // XXX porting
   // Reconstructing `scoped_interpreter` multiple times (e.g. via `SetUp()`)
   // while *also* importing `numpy` wreaks havoc.
   py::scoped_interpreter guard;

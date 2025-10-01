@@ -68,7 +68,7 @@ void make_arbitrary_ref_cycle(
 namespace nanobind {
 namespace detail {
 
-#if 0 // XXX porting
+#if 0   // XXX porting
 // Provide a specialization of the pybind11 internal process_attribute
 // template; this allows writing an annotation that works seamlessly in
 // bindings definitions.
@@ -120,4 +120,3 @@ NB_INLINE void func_extra_apply(
 
 }  // namespace detail
 }  // namespace nanobind
-

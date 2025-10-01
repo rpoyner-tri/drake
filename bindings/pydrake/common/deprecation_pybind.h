@@ -39,7 +39,8 @@ inline void WarnDeprecated(
     const std::string& message, std::optional<std::string> date = {}) {
   py::gil_scoped_acquire guard;
   py::object warn_deprecated =
-      py::module_::import_("pydrake.common.deprecation").attr("_warn_deprecated");
+      py::module_::import_("pydrake.common.deprecation")
+          .attr("_warn_deprecated");
   warn_deprecated(message, py::arg("date") = date);
 }
 

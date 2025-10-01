@@ -19,7 +19,7 @@ namespace pydrake {
 #ifndef DRAKE_DOXYGEN_CXX
 namespace internal {
 
-#if 0  // XXX porting
+#if 0   // XXX porting
 // Determines if a type will go through pybind11's generic caster. This
 // implies that the type has been declared using `py::class_`, and can have
 // a reference passed through. Otherwise, the type uses type-conversion:
@@ -95,8 +95,7 @@ struct type_caster_wrapped {
 
   // C++ to Python.
   template <typename TType>
-  static py::handle cast(
-      TType&& src, py::rv_policy policy, py::handle parent) {
+  static py::handle cast(TType&& src, py::rv_policy policy, py::handle parent) {
     if (policy == py::rv_policy::reference ||
         policy == py::rv_policy::reference_internal) {
       // N.B. We must declare a local `static constexpr` here to prevent
@@ -131,8 +130,7 @@ struct type_caster_wrapped {
 /// For more information, see: https://github.com/pybind/pybind11/issues/1241
 template <typename Func>
 auto WrapCallbacks(Func&& func) {
-  return WrapFunction<internal::wrap_callback, false>(
-  std::forward<Func>(func));
+  return WrapFunction<internal::wrap_callback, false>(std::forward<Func>(func));
 }
 
 /// Idempotent to pybind11's `def_rw()`, with the exception that the

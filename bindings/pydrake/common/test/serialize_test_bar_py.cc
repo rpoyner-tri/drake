@@ -23,7 +23,7 @@ NB_MODULE(serialize_test_bar, m) {
   // that `import bar` raises an exception.
 
   py::class_<Bar> cls(m, "Bar");
-#if 0  // XXX porting
+#if 0   // XXX porting
   DefAttributesUsingSerialize(&cls);
 #endif  // XXX porting
 }

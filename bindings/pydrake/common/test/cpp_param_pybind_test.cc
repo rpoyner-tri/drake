@@ -6,9 +6,9 @@
 #include <stdexcept>
 #include <string>
 
-#include "drake/bindings/pydrake/pydrake_pybind.h"
 #include <gtest/gtest.h>
 
+#include "drake/bindings/pydrake/pydrake_pybind.h"
 #include "drake/bindings/pydrake/test/test_util_pybind.h"
 
 using std::string;
@@ -88,7 +88,7 @@ GTEST_TEST(CppParamTest, Typing) {
 }
 
 int main(int argc, char** argv) {
-#if 0  // XXX porting
+#if 0   // XXX porting
   // Embedding is no longer a thing. This test may need a full rewrite.
 
   // Reconstructing `scoped_interpreter` multiple times (e.g. via `SetUp()`)

@@ -36,7 +36,7 @@ void PyExpectTrue(py::module_ m, const char* expr) {
 }
 
 GTEST_TEST(CppParamTest, PrimitiveTypes) {
-#if 0  // XXX porting
+#if 0   // XXX porting
   py::module_ m =
       py::module_::create_extension_module("test", "", new PyModuleDef());
   m.def("PassThrough", &PassThrough);
@@ -53,7 +53,7 @@ GTEST_TEST(CppParamTest, PrimitiveTypes) {
 }
 
 int main(int argc, char** argv) {
-#if 0  // XXX porting
+#if 0   // XXX porting
   // Reconstructing `scoped_interpreter` multiple times (e.g. via `SetUp()`)
   // while *also* importing `numpy` wreaks havoc.
   py::scoped_interpreter guard;

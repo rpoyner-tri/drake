@@ -58,14 +58,14 @@ class DefAttributesArchive {
 
     // Define property functions to get and set this particular field.
     auto getter = [offset](const CxxClass& self) -> const T& {
-          const T* const field_in_self = reinterpret_cast<const T*>(
-              reinterpret_cast<const char*>(&self) + offset);
-          return *field_in_self;
+      const T* const field_in_self = reinterpret_cast<const T*>(
+          reinterpret_cast<const char*>(&self) + offset);
+      return *field_in_self;
     };
     auto setter = [offset](CxxClass& self, const T& value) {
-          T* const field_in_self =
-              reinterpret_cast<T*>(reinterpret_cast<char*>(&self) + offset);
-          *field_in_self = value;
+      T* const field_in_self =
+          reinterpret_cast<T*>(reinterpret_cast<char*>(&self) + offset);
+      *field_in_self = value;
     };
 
     // Fetch the docstring (or the empty string, if we aren't using docstrings).

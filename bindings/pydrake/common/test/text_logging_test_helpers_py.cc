@@ -8,7 +8,6 @@
 #include "drake/common/drake_throw.h"
 #include "drake/common/text_logging.h"
 
-
 namespace drake {
 namespace pydrake {
 namespace {

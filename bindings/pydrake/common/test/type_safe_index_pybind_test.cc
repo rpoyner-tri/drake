@@ -27,7 +27,7 @@ void CheckValue(const string& expr, const T& expected) {
   EXPECT_EQ(py::cast<T>(py::eval(py::str(expr.c_str()))), expected);
 }
 
-#if 0  // XXX porting
+#if 0   // XXX porting
 GTEST_TEST(TypeSafeIndexTest, CheckCasting) {
   py::module_ m =
       py::module_::create_extension_module("__main__", "", new PyModuleDef());
@@ -97,7 +97,7 @@ GTEST_TEST(TypeSafeIndexTest, CheckCasting) {
 #endif  // XXX porting
 
 int main(int argc, char** argv) {
-#if 0  // XXX porting
+#if 0   // XXX porting
   // Reconstructing `scoped_interpreter` multiple times (e.g. via `SetUp()`)
   // while *also* importing `numpy` wreaks havoc.
   py::scoped_interpreter guard;

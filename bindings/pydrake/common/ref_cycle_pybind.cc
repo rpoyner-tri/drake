@@ -8,7 +8,7 @@
 namespace drake {
 namespace pydrake {
 
-#if 0  // XXX porting
+#if 0   // XXX porting
 using py::handle;
 using py::detail::function_call;
 
