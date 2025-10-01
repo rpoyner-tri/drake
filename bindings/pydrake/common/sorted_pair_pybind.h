@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tuple>
+
 #include "drake/bindings/pydrake/pydrake_pybind.h"
 #include "drake/common/sorted_pair.h"
 

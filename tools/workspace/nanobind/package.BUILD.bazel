@@ -14,7 +14,7 @@ cc_library(
         "include/nanobind/stl/*.h",
         "include/nanobind/eigen/*.h",
     ]),
-    srcs = glob(["src/*.cpp", "src/*.h"], exclude=["src/nb_combined.cpp"]),
+    srcs = glob(["src/*.cpp", "src/*.h"], exclude = ["src/nb_combined.cpp"]),
     includes = [
         "include",
     ],
