@@ -411,11 +411,11 @@ Co-Author: Mmanu Chaturvedi <mmanu.chaturvedi@kitware.com>
              return false;
          }
  
-         auto obj = borrow<object>(src);
--        object sparse_module = module_::import_("scipy.sparse");
+         auto obj = reinterpret_borrow<object>(src);
+-        object sparse_module = module_::import("scipy.sparse");
 +        object sparse_module;
 +        try {
-+            sparse_module = module_::import_("scipy.sparse");
++            sparse_module = module_::import("scipy.sparse");
 +        } catch (const error_already_set &) {
 +            // As a Drake-specific amendment, we skip Eigen::Sparse overloads
 +            // when scipy is not available, instead of raising an import error.
@@ -441,7 +441,7 @@ Co-Author: Mmanu Chaturvedi <mmanu.chaturvedi@kitware.com>
 +    enum { value = npy_api::NPY_OBJECT_ };
 +    static pybind11::dtype dtype() {
 +        if (auto ptr = npy_api::get().PyArray_DescrFromType_(value)) {
-+            return borrow<pybind11::dtype>(ptr);
++            return reinterpret_borrow<pybind11::dtype>(ptr);
 +        }
 +        pybind11_fail("Unsupported buffer format!");
 +    }
@@ -449,7 +449,7 @@ Co-Author: Mmanu Chaturvedi <mmanu.chaturvedi@kitware.com>
 +};
 +
 +#define PYBIND11_NUMPY_OBJECT_DTYPE(Type)   \
-+    namespace nanobind { namespace detail { \
++    namespace pybind11 { namespace detail { \
 +        template <> struct npy_format_descriptor<Type> : \
 +            public npy_format_descriptor_object {}; \
 +    }}
@@ -511,13 +511,13 @@ Co-Author: Mmanu Chaturvedi <mmanu.chaturvedi@kitware.com>
      // Different ways of passing via Eigen::Ref; the first and second are the Eigen-recommended
 @@ -153,6 +164,12 @@ TEST_SUBMODULE(eigen_matrix, m) {
          },
-         py_rvp::reference);
+         py::return_value_policy::reference);
  
 +    // Increments ADScalar Matrix
 +    m.def("incr_adscalar_matrix", [](Eigen::Ref<DenseADScalarMatrixC> m, double v) {
 +      m += DenseADScalarMatrixC::Constant(m.rows(), m.cols(), v);
 +      return m;
-+    }, py_rvp::reference);
++    }, py::return_value_policy::reference);
 +
      // Same, but accepts a matrix of any strides
      m.def(

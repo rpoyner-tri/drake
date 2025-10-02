@@ -18,10 +18,6 @@ cc_library(
     includes = [
         "include",
     ],
-    copts = [
-        "-fexceptions",
-        "-fvisibility=hidden",
-    ],
     deps = [
         "@drake//tools/workspace/python:cc_headers",
         "@drake//tools/workspace/python:cc_libs",
