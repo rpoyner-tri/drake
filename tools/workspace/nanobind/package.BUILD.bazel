@@ -18,6 +18,7 @@ cc_library(
     includes = [
         "include",
     ],
+    linkstatic = True,
     deps = [
         "@drake//tools/workspace/python:cc_headers",
         "@drake//tools/workspace/python:cc_libs",
