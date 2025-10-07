@@ -28,7 +28,8 @@ bool PyEquals(py::object lhs, py::object rhs) {
 template <typename... Ts>
 bool CheckPyParam(const string& py_expr_expected, type_pack<Ts...> param = {}) {
   py::object actual = GetPyParam(param);
-  py::object expected = py::eval(py::str(py_expr_expected.c_str()));
+  py::object expected =
+      py::eval(py::str(py_expr_expected.c_str()), py::globals());
   return PyEquals(actual, expected);
 }
 

@@ -416,7 +416,7 @@ Co-Author: Mmanu Chaturvedi <mmanu.chaturvedi@kitware.com>
 +        object sparse_module;
 +        try {
 +            sparse_module = module_::import("scipy.sparse");
-+        } catch (const error_already_set &) {
++        } catch (const python_error &) {
 +            // As a Drake-specific amendment, we skip Eigen::Sparse overloads
 +            // when scipy is not available, instead of raising an import error.
 +            return false;
@@ -429,7 +429,7 @@ Co-Author: Mmanu Chaturvedi <mmanu.chaturvedi@kitware.com>
 +            }
              try {
                  obj = matrix_type(obj);
-             } catch (const error_already_set &) {
+             } catch (const python_error &) {
 --- include/pybind11/numpy.h
 +++ include/pybind11/numpy.h
 @@ -1680,6 +1680,24 @@ private:

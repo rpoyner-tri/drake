@@ -70,22 +70,22 @@ void DefineCspaceSeparatingPlane(py::module_ m) {
         auto cls = DefineTemplateClassWithDefault<Class>(
             m, "CSpaceSeparatingPlane", param, base_cls_doc.doc);
         cls  // BR
-            .def_readonly("a", &Class::a,
+            .def_ro("a", &Class::a,
                 // Use py_rvp::copy here because numpy.ndarray with
                 // dtype=object arrays must be copied, and cannot be
                 // referenced.
                 py_rvp::copy, base_cls_doc.a.doc)
-            .def_readonly("b", &Class::b, base_cls_doc.b.doc)
-            .def_readonly("positive_side_geometry",
+            .def_ro("b", &Class::b, base_cls_doc.b.doc)
+            .def_ro("positive_side_geometry",
                 &Class::positive_side_geometry,
                 base_cls_doc.positive_side_geometry.doc)
-            .def_readonly("negative_side_geometry",
+            .def_ro("negative_side_geometry",
                 &Class::negative_side_geometry,
                 base_cls_doc.negative_side_geometry.doc)
-            .def_readonly("expressed_body", &Class::expressed_body,
+            .def_ro("expressed_body", &Class::expressed_body,
                 base_cls_doc.expressed_body.doc)
-            .def_readonly("plane_degree", &Class::plane_degree)
-            .def_readonly("decision_variables", &Class::decision_variables,
+            .def_ro("plane_degree", &Class::plane_degree)
+            .def_ro("decision_variables", &Class::decision_variables,
                 // Use py_rvp::copy here because numpy.ndarray with
                 // dtype=object arrays must be copied, and cannot be
                 // referenced.
@@ -1233,18 +1233,18 @@ void DefineCspaceFreeStructs(py::module_ m) {
                               return self->prog.get();
                             },
                             py_rvp::reference_internal)
-                        .def_readonly("plane_index",
+                        .def_ro("plane_index",
                             &SeparationCertificateProgramBase::plane_index);
 
     constexpr auto& result_doc = doc.SeparationCertificateResultBase;
     auto result_cls =
         py::class_<SeparationCertificateResultBase>(
             m, "SeparationCertificateResultBase", result_doc.doc)
-            .def_readonly("a", &SeparationCertificateResultBase::a)
-            .def_readonly("b", &SeparationCertificateResultBase::b)
-            .def_readonly("plane_decision_var_vals",
+            .def_ro("a", &SeparationCertificateResultBase::a)
+            .def_ro("b", &SeparationCertificateResultBase::b)
+            .def_ro("plane_decision_var_vals",
                 &SeparationCertificateResultBase::plane_decision_var_vals)
-            .def_readonly("result", &SeparationCertificateResultBase::result);
+            .def_ro("result", &SeparationCertificateResultBase::result);
 
     constexpr auto& find_options_doc = doc.FindSeparationCertificateOptions;
     auto find_options_cls =
@@ -1313,27 +1313,27 @@ void DefineCspaceFreePolytopeAndRelated(py::module_ m) {
     using SepCertClass = Class::SeparationCertificateResult;
     py::class_<SepCertClass>(cspace_free_polytope_cls,
         "SeparationCertificateResult", cls_doc.SeparationCertificateResult.doc)
-        .def_readonly("plane_index", &SepCertClass::plane_index)
-        .def_readonly("positive_side_rational_lagrangians",
+        .def_ro("plane_index", &SepCertClass::plane_index)
+        .def_ro("positive_side_rational_lagrangians",
             &Class::SeparationCertificateResult::
                 positive_side_rational_lagrangians,
             cls_doc.SeparationCertificateResult
                 .positive_side_rational_lagrangians.doc)
-        .def_readonly("negative_side_rational_lagrangians",
+        .def_ro("negative_side_rational_lagrangians",
             &Class::SeparationCertificateResult::
                 negative_side_rational_lagrangians,
             cls_doc.SeparationCertificateResult
                 .negative_side_rational_lagrangians.doc)
         // Use py_rvp::copy here because numpy.ndarray with dtype=object
         // arrays must be copied, and cannot be referenced.
-        .def_readonly("a", &SepCertClass::a, py_rvp::copy,
+        .def_ro("a", &SepCertClass::a, py_rvp::copy,
             doc.SeparationCertificateResultBase.a.doc)
-        .def_readonly(
+        .def_ro(
             "b", &SepCertClass::b, doc.SeparationCertificateResultBase.b.doc)
-        .def_readonly("result", &SepCertClass::result)
+        .def_ro("result", &SepCertClass::result)
         // Use py_rvp::copy here because numpy.ndarray with dtype=object
         // arrays must be copied, and cannot be referenced.
-        .def_readonly("plane_decision_var_vals",
+        .def_ro("plane_decision_var_vals",
             &SepCertClass::plane_decision_var_vals, py_rvp::copy);
 
     py::class_<Class::SeparationCertificate>(cspace_free_polytope_cls,
@@ -1352,9 +1352,9 @@ void DefineCspaceFreePolytopeAndRelated(py::module_ m) {
         "SeparationCertificateProgram",
         cls_doc.SeparationCertificateProgram.doc)
         .def(py::init<>())
-        .def_readonly(
+        .def_ro(
             "plane_index", &Class::SeparationCertificateProgram::plane_index)
-        .def_readonly(
+        .def_ro(
             "certificate", &Class::SeparationCertificateProgram::certificate);
 
     py::class_<Class::FindSeparationCertificateGivenPolytopeOptions,
@@ -1415,7 +1415,7 @@ void DefineCspaceFreePolytopeAndRelated(py::module_ m) {
         .def_rw("find_polytope_options",
             &Class::BilinearAlternationOptions::find_polytope_options,
             cls_doc.BilinearAlternationOptions.find_polytope_options.doc)
-        .def_readonly("find_lagrangian_options",
+        .def_ro("find_lagrangian_options",
             &Class::BilinearAlternationOptions::find_lagrangian_options,
             cls_doc.BilinearAlternationOptions.find_lagrangian_options.doc)
         .def_rw("ellipsoid_scaling",
@@ -1430,7 +1430,7 @@ void DefineCspaceFreePolytopeAndRelated(py::module_ m) {
         .def_rw("max_iter", &Class::BinarySearchOptions::max_iter)
         .def_rw(
             "convergence_tol", &Class::BinarySearchOptions::convergence_tol)
-        .def_readonly("find_lagrangian_options",
+        .def_ro("find_lagrangian_options",
             &Class::BinarySearchOptions::find_lagrangian_options);
 
     cspace_free_polytope_cls

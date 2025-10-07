@@ -36,8 +36,10 @@ void DefineSensorsImageIo(py::module_ m) {
     {
       py::class_<Class::Metadata> metadata_cls(
           cls, "Metadata", cls_doc.Metadata.doc);
+#if 0  // XXX porting
       metadata_cls.def(ParamInit<Class::Metadata>());
       DefAttributesUsingSerialize(&metadata_cls, cls_doc.Metadata);
+#endif  // XXX porting
       DefReprUsingSerialize(&metadata_cls);
       DefCopyAndDeepCopy(&metadata_cls);
     }
@@ -51,9 +53,8 @@ void DefineSensorsImageIo(py::module_ m) {
         .def(
             "LoadMetadata",
             [](const Class& self, py::bytes buffer) {
-              const std::string_view view{buffer};
               return self.LoadMetadata(
-                  Class::ByteSpan{view.data(), view.size()});
+                  Class::ByteSpan{buffer.data(), buffer.size()});
             },
             py::arg("buffer"), cls_doc.LoadMetadata.doc_1args_buffer)
         .def(
@@ -68,9 +69,8 @@ void DefineSensorsImageIo(py::module_ m) {
             "Load",
             [](const Class& self, py::bytes buffer,
                 std::optional<ImageFileFormat> format) {
-              const std::string_view view{buffer};
               return self.Load(
-                  Class::ByteSpan{view.data(), view.size()}, format);
+                  Class::ByteSpan{buffer.data(), buffer.size()}, format);
             },
             py::arg("buffer"), py::arg("format") = std::nullopt,
             cls_doc.Load.doc_2args_buffer_format)

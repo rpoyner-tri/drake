@@ -105,6 +105,7 @@ void DefineAutodiffutils(py::module_ m) {
   autodiff.attr("arccos") = autodiff.attr("acos");
   autodiff.attr("arctan2") = autodiff.attr("atan2");
 
+#if 0  // XXX porting
   m.def(
       "InitializeAutoDiff",
       [](const Eigen::MatrixXd& value, std::optional<int> num_derivatives,
@@ -114,6 +115,7 @@ void DefineAutodiffutils(py::module_ m) {
       py::arg("value"), py::arg("num_derivatives") = std::nullopt,
       py::arg("deriv_num_start") = std::nullopt,
       doc.InitializeAutoDiff.doc_just_value);
+#endif  // XXX porting
 
   m.def(
       "InitializeAutoDiff",

@@ -45,26 +45,26 @@ namespace {
 
 class PyRenderEngine : public RenderEngine {
  public:
+  NB_TRAMPOLINE(RenderEngine, 100);
   using Base = RenderEngine;
   PyRenderEngine() : Base() {}
 
   void UpdateViewpoint(RigidTransformd const& X_WR) override {
-    PYBIND11_OVERLOAD_PURE(void, Base, UpdateViewpoint, X_WR);
+    NB_OVERLOAD_PURE(&UpdateViewpoint, X_WR);
   }
 
   bool DoRegisterVisual(GeometryId id, Shape const& shape,
       PerceptionProperties const& properties,
       RigidTransformd const& X_WG) override {
-    PYBIND11_OVERLOAD_PURE(
-        bool, Base, DoRegisterVisual, id, shape, properties, X_WG);
+    NB_OVERLOAD_PURE(DoRegisterVisual, id, shape, properties, X_WG);
   }
 
   void DoUpdateVisualPose(GeometryId id, RigidTransformd const& X_WG) override {
-    PYBIND11_OVERLOAD_PURE(void, Base, DoUpdateVisualPose, id, X_WG);
+    NB_OVERLOAD_PURE(DoUpdateVisualPose, id, X_WG);
   }
 
   bool DoRemoveGeometry(GeometryId id) override {
-    PYBIND11_OVERLOAD_PURE(bool, Base, DoRemoveGeometry, id);
+    NB_OVERLOAD_PURE(DoRemoveGeometry, id);
   }
 
   std::unique_ptr<RenderEngine> DoClone() const override {
@@ -84,7 +84,7 @@ class PyRenderEngine : public RenderEngine {
     // embeds a conditional `return ...;` statement, we must wrap it in lambda
     // so that we can post-process the return value in case it does return.
     auto make_python_deepcopy = [&]() -> py::object {
-      PYBIND11_OVERLOAD_INT(py::object, Base, "DoClone");
+      NB_OVERLOAD_INT("DoClone");
       auto deepcopy = py::module_::import_("copy").attr("deepcopy");
       py::object copied = deepcopy(this);
       if (copied.is_none()) {
@@ -99,28 +99,25 @@ class PyRenderEngine : public RenderEngine {
 
   void DoRenderColorImage(ColorRenderCamera const& camera,
       ImageRgba8U* color_image_out) const override {
-    PYBIND11_OVERLOAD_PURE(
-        void, Base, DoRenderColorImage, camera, color_image_out);
+    NB_OVERLOAD_PURE(DoRenderColorImage, camera, color_image_out);
   }
 
   void DoRenderDepthImage(DepthRenderCamera const& camera,
       ImageDepth32F* depth_image_out) const override {
-    PYBIND11_OVERLOAD_PURE(
-        void, Base, DoRenderDepthImage, camera, depth_image_out);
+    NB_OVERLOAD_PURE(DoRenderDepthImage, camera, depth_image_out);
   }
 
   void DoRenderLabelImage(ColorRenderCamera const& camera,
       ImageLabel16I* label_image_out) const override {
-    PYBIND11_OVERLOAD_PURE(
-        void, Base, DoRenderLabelImage, camera, label_image_out);
+    NB_OVERLOAD_PURE(DoRenderLabelImage, camera, label_image_out);
   }
 
   std::string DoGetParameterYaml() const override {
-    PYBIND11_OVERLOAD(std::string, Base, DoGetParameterYaml);
+    NB_OVERLOAD(DoGetParameterYaml);
   }
 
   void SetDefaultLightPosition(Vector3d const& X_DL) override {
-    PYBIND11_OVERLOAD(void, Base, SetDefaultLightPosition, X_DL);
+    NB_OVERLOAD(SetDefaultLightPosition, X_DL);
   }
 
   // Expose these protected methods (which are either virtual methods with

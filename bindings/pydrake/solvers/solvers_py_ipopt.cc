@@ -20,14 +20,14 @@ void DefineSolversIpopt(py::module_ m) {
 
   py::class_<IpoptSolverDetails>(
       m, "IpoptSolverDetails", doc.IpoptSolverDetails.doc)
-      .def_readonly("status", &IpoptSolverDetails::status,
+      .def_ro("status", &IpoptSolverDetails::status,
           doc.IpoptSolverDetails.status.doc)
-      .def_readonly(
+      .def_ro(
           "z_L", &IpoptSolverDetails::z_L, doc.IpoptSolverDetails.z_L.doc)
-      .def_readonly(
+      .def_ro(
           "z_U", &IpoptSolverDetails::z_U, doc.IpoptSolverDetails.z_U.doc)
-      .def_readonly("g", &IpoptSolverDetails::g, doc.IpoptSolverDetails.g.doc)
-      .def_readonly("lambda_val", &IpoptSolverDetails::lambda,
+      .def_ro("g", &IpoptSolverDetails::g, doc.IpoptSolverDetails.g.doc)
+      .def_ro("lambda_val", &IpoptSolverDetails::lambda,
           doc.IpoptSolverDetails.lambda.doc)
       .def("ConvertStatusToString", &IpoptSolverDetails::ConvertStatusToString,
           doc.IpoptSolverDetails.ConvertStatusToString.doc);

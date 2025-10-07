@@ -58,7 +58,7 @@ void RegisterType(
     py::module_ m, py::object param_aliases, const std::string& canonical_str) {
   // Create an object that is a unique hash.
   py::object canonical =
-      py::eval(py::str(canonical_str.c_str()), m.attr("__dict__"));
+      py::eval(py::str(canonical_str.c_str()), m.attr("__dict__"), m);
   py::list aliases;
   aliases.append(GetPyHash(typeid(T)));
   param_aliases.attr("register")(canonical, aliases);

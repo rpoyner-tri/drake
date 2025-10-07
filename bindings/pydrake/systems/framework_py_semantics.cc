@@ -120,9 +120,12 @@ void DoScalarIndependentDefinitions(py::module_ m) {
   DefClone(&abstract_values);
   abstract_values  // BR
       .def(py::init<>(), doc.AbstractValues.ctor.doc_0args)
-      .def(py::init([](const std::vector<const AbstractValue*>& data) {
-        return std::make_unique<AbstractValues>(CloneVectorOfPointers(data));
-      }),
+      .def(
+          "__init__",
+          [](AbstractValues* self,
+              const std::vector<const AbstractValue*>& data) {
+            new (self) AbstractValues(CloneVectorOfPointers(data));
+          },
           py::arg("data"), doc.AbstractValues.ctor.doc_1args)
       .def("size", &AbstractValues::size, doc.AbstractValues.size.doc)
       .def("get_value", &AbstractValues::get_value, py::arg("index"),
@@ -195,7 +198,7 @@ void DoScalarIndependentDefinitions(py::module_ m) {
               // TODO(jwnimmer-tri) With major surgery to the bindings we could
               // change the order of operations to work around this, but at the
               // moment that's too much churn to for the payoff.
-              const SystemBase* system_base = system.cast<SystemBase*>();
+              const SystemBase* system_base = py::cast<SystemBase*>(system);
               return EventStatus::ReachedTermination(
                   system_base, std::move(message));
             },
@@ -209,7 +212,7 @@ void DoScalarIndependentDefinitions(py::module_ m) {
               // TODO(jwnimmer-tri) With major surgery to the bindings we could
               // change the order of operations to work around this, but at the
               // moment that's too much churn to for the payoff.
-              const SystemBase* system_base = system.cast<SystemBase*>();
+              const SystemBase* system_base = py::cast<SystemBase*>(system);
               return EventStatus::Failed(system_base, std::move(message));
             },
             py::arg("system"), py::arg("message"), cls_doc.Failed.doc)
@@ -260,12 +263,14 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = ValueProducer;
     constexpr auto& cls_doc = doc.ValueProducer;
     py::class_<Class>(m, "ValueProducer", cls_doc.doc)
+#if 0  // XXX porting
         .def(py::init([](py::function allocate,
                           std::function<void(py::object, py::object)> calc) {
           return Class(MakeCppCompatibleAllocateCallback(std::move(allocate)),
               MakeCppCompatibleCalcCallback(std::move(calc)));
         }),
             py::arg("allocate"), py::arg("calc"), cls_doc.ctor.doc_overload_5d)
+#endif  // XXX porting
         .def_static("NoopCalc", &Class::NoopCalc, cls_doc.NoopCalc.doc);
   }
 

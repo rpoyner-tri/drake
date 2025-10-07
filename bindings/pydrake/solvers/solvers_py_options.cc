@@ -36,11 +36,11 @@ void DefineSolversOptions(py::module_ m) {
     using NestedOptionsDict = decltype(SolverOptions{}.options);
     py::class_<SolverOptions> cls(m, "SolverOptions", doc.SolverOptions.doc);
     cls  // BR
-        .def(py::init([](NestedOptionsDict& options) {
-          auto result = std::make_unique<SolverOptions>();
-          result->options = std::move(options);
-          return result;
-        }),
+        .def("__init__",
+             [](SolverOptions* self, NestedOptionsDict& options) {
+               new (self) SolverOptions;
+               self->options = std::move(options);
+             },
             py::kw_only(), py::arg("options") = NestedOptionsDict{})
         .def("SetOption",
             py::overload_cast<const SolverId&, std::string,

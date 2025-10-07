@@ -132,9 +132,11 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = DoorHingeConfig;
     constexpr auto& cls_doc = doc.DoorHingeConfig;
     py::class_<Class> cls(m, "DoorHingeConfig", cls_doc.doc);
+#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>(), cls_doc.ctor.doc);
     DefAttributesUsingSerialize(&cls, cls_doc);
+#endif  // XXX porting
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }
@@ -173,8 +175,8 @@ void DoScalarIndependentDefinitions(py::module_ m) {
             cls_doc.set_element.doc)
         .def("__str__", &Class::to_string, cls_doc.to_string.doc)
         .def("__repr__", [](const Class& self) {
-          py::str py_namespace = std::string{self.get_namespace()};
-          py::str py_element = std::string{self.get_element()};
+          py::str py_namespace = self.get_namespace();
+          py::str py_element = self.get_element();
           return fmt::format("ScopedName({}, {})",
               fmt_streamed(py::repr(py_namespace)),
               fmt_streamed(py::repr(py_element)));
@@ -1062,7 +1064,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
     auto cls = DefineTemplateClassWithDefault<Class, ForceElement<T>>(
         m, "UniformGravityFieldElement", param, cls_doc.doc);
     cls  // BR
-        .def_readonly_static("kDefaultStrength", &Class::kDefaultStrength)
+        .def_ro_static("kDefaultStrength", &Class::kDefaultStrength)
         .def(py::init<>(), cls_doc.ctor.doc_0args)
         .def(
             py::init<Vector3<double>>(), py::arg("g_W"), cls_doc.ctor.doc_1args)

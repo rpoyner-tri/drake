@@ -20,15 +20,15 @@ namespace pydrake {
 namespace {
 
 GTEST_TEST(PydrakePybindTest, PyReturnValuePolicy) {
-  static_assert(
-      std::is_same_v<py_rvp, py_rvp>, "Alias is wrong?");
+  static_assert(std::is_same_v<py_rvp, py_rvp>, "Alias is wrong?");
 }
 
 // Expects that a given Python expression `expr` evaluates to true, using
 // globals and the variables available in `m`.
 void PyExpectTrue(py::module_ m, const char* expr) {
   py::object locals = m.attr("__dict__");
-  const bool value = py::eval(expr, py::globals(), locals).cast<bool>();
+  const bool value =
+      py::cast<bool>(py::eval(py::str(expr), py::globals(), locals));
   EXPECT_TRUE(value) << expr;
 }
 
@@ -36,7 +36,7 @@ template <typename T>
 void PyExpectEq(py::module_ m, const std::string& expr, const T& expected) {
   SCOPED_TRACE("Python expression:\n  " + expr);
   py::object locals = m.attr("__dict__");
-  const T actual = py::eval(expr, py::globals(), locals).cast<T>();
+  const T actual = py::cast<T>(py::eval(expr, py::globals(), locals));
   EXPECT_EQ(actual, expected);
 }
 
@@ -58,7 +58,7 @@ GTEST_TEST(PydrakePybindTest, PyKeepAlive) {
       py::module_::create_extension_module("test", "", new PyModuleDef());
   {
     using Class = Item;
-    py::class_<Class>(m, "Item").def_readonly("value", &Class::value);
+    py::class_<Class>(m, "Item").def_ro("value", &Class::value);
   }
   {
     using Class = ExamplePyKeepAlive;

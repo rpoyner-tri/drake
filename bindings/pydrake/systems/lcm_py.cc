@@ -57,7 +57,7 @@ class PySerializerInterface : public SerializerInterface {
           py::object, SerializerInterface, CreateDefaultValue);
     }();
     DRAKE_THROW_UNLESS(!default_value.is_none());
-    return default_value.template cast<const AbstractValue*>()->Clone();
+    return py::cast<const AbstractValue*>(default_value)->Clone();
   }
 
   void Deserialize(const void* message_bytes, int message_length,
@@ -78,9 +78,9 @@ class PySerializerInterface : public SerializerInterface {
       PYBIND11_OVERLOAD_PURE(
           py::bytes, SerializerInterface, Serialize, &abstract_value);
     };
-    std::string str = wrapped();
+    py::bytes str = wrapped();
     message_bytes->resize(str.size());
-    std::copy(str.data(), str.data() + str.size(), message_bytes->data());
+    std::copy(str.c_str(), str.c_str() + str.size(), message_bytes->data());
   }
 };
 
@@ -134,12 +134,13 @@ NB_MODULE(lcm, m) {
   {
     using Class = SerializerInterface;
     constexpr auto& cls_doc = doc.SerializerInterface;
-    py::class_<Class, PySerializerInterface, std::shared_ptr<Class>> cls(
-        m, "SerializerInterface");
+    py::class_<Class, PySerializerInterface
+        /*, std::shared_ptr<Class> XXX porting */>
+        cls(m, "SerializerInterface");
     cls  // BR
          // Adding a constructor permits implementing this interface in Python.
-        .def(py::init(
-                 []() { return std::make_unique<PySerializerInterface>(); }),
+        .def(
+            "__init__", [](Class* self) { new (self) PySerializerInterface(); },
             cls_doc.ctor.doc);
     // The following bindings are present to allow Python to call C++
     // implementations of this interface. Python implementations of the
@@ -151,8 +152,8 @@ NB_MODULE(lcm, m) {
             "Deserialize",
             [](const Class& self, py::bytes message_bytes,
                 AbstractValue* abstract_value) {
-              std::string str = message_bytes;
-              self.Deserialize(str.data(), str.size(), abstract_value);
+              self.Deserialize(
+                  message_bytes.data(), message_bytes.size(), abstract_value);
             },
             py::arg("message_bytes"), py::arg("abstract_value"),
             cls_doc.Deserialize.doc)
@@ -173,7 +174,7 @@ NB_MODULE(lcm, m) {
     constexpr auto& cls_doc = doc.LcmBuses;
     py::class_<Class> cls(m, "LcmBuses");
     cls  // BR
-        .def_readonly_static("kLcmUrlMemqNull", &Class::kLcmUrlMemqNull
+        .def_ro_static("kLcmUrlMemqNull", &Class::kLcmUrlMemqNull
             // TODO(jwnimmer-tri) The `cls_doc.kLcmUrlMemqNull.doc` docstring
             // constant is absent for some unknown reason, but it wouldn't help
             // anyway because pybind11 throws away docs on static constants:

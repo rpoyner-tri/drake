@@ -175,9 +175,11 @@ void DefineDrakeVisualizerParams(py::module_ m) {
     constexpr auto& cls_doc = doc.DrakeVisualizerParams;
     py::class_<Class> cls(
         m, "DrakeVisualizerParams", py::dynamic_attr(), cls_doc.doc);
+#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
     DefAttributesUsingSerialize(&cls, cls_doc);
+#endif  // XXX porting
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }
@@ -187,15 +189,17 @@ void DefineMeshcatParams(py::module_ m) {
   {
     using Class = MeshcatParams;
     constexpr auto& cls_doc = doc.MeshcatParams;
-    py::class_<Class, std::shared_ptr<Class>> cls(
+    py::class_<Class/*, std::shared_ptr<Class> XXX porting */> cls(
         m, "MeshcatParams", py::dynamic_attr(), cls_doc.doc);
     // MeshcatParams::PropertyTuple
     {
       using Nested = MeshcatParams::PropertyTuple;
       constexpr auto& nested_doc = doc.MeshcatParams.PropertyTuple;
       py::class_<Nested> nested(cls, "PropertyTuple", nested_doc.doc);
+#if 0  // XXX porting
       nested.def(ParamInit<Nested>());
       DefAttributesUsingSerialize(&nested, nested_doc);
+#endif  // XXX porting
       DefReprUsingSerialize(&nested);
       DefCopyAndDeepCopy(&nested);
     }

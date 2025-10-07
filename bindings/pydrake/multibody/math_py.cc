@@ -15,15 +15,16 @@ using math::RotationMatrix;
 template <typename T, typename PyClass>
 void BindSpatialVectorMixin(PyClass* pcls) {
   constexpr auto& doc = pydrake_doc_multibody_math.drake.multibody;
-  using Class = typename PyClass::type;
+  using Class = typename PyClass::Type;
   auto& cls = *pcls;
   cls  // BR
-      .def(py::init([]() {
-        // See #14086 for more details.
-        Class out;
-        out.SetNaN();
-        return out;
-      }),
+      .def(
+          "__init__",
+          [](Class* self) {
+            // See #14086 for more details.
+            new (self) Class;
+            self->SetNaN();
+          },
           R"""(
       Constructs to all NaNs.
 
@@ -73,8 +74,10 @@ void BindSpatialVectorMixin(PyClass* pcls) {
               not disambiguate against the definitions of
               ``RotationMatrix.__matmul__``.
           )""")
-      .def(py::pickle([](const Class& self) { return self.get_coeffs(); },
-          [](const Vector6<T>& coeffs) { return Class(coeffs); }));
+      .def("__getstate__", [](const Class& self) { return self.get_coeffs(); })
+      .def("__setstate__", [](Class* self, const Vector6<T>& coeffs) {
+        new (self) Class(coeffs);
+      });
   DefCopyAndDeepCopy(&cls);
 }
 

@@ -153,7 +153,7 @@ void DefReadWriteKeepAlive(
       doc);
 }
 
-/// Idempotent to pybind11's `def_readonly()`, which works for unique_ptr
+/// Idempotent to pybind11's `def_ro()`, which works for unique_ptr
 /// elements; the getter is protected with keep_alive on a `member` variable
 /// that is a unique_ptr.
 ///

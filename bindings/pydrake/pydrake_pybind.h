@@ -20,10 +20,12 @@
 // #include "pybind11/stl/filesystem.h"
 
 #include "nanobind/nanobind.h"
+#include "nanobind/eigen/dense.h"
 #include "nanobind/eval.h"
 #include "nanobind/make_iterator.h"
 #include "nanobind/ndarray.h"
 #include "nanobind/operators.h"
+#include "nanobind/trampoline.h"
 
 // XXX porting shim-fest
 namespace nanobind {

@@ -119,14 +119,14 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             &Class::ShiftToThenAwayFromCenterOfMass, py::arg("mass"),
             py::arg("p_PBcm_E"), py::arg("p_QBcm_E"),
             cls_doc.ShiftToThenAwayFromCenterOfMass.doc)
-        .def(py::pickle(
-            [](const Class& self) { return self.CopyToFullMatrix3(); },
-            [](const Matrix3<T>& I) {
-              // Invoke 6-argument constructor by specifying full (upper
-              // diagonal) inertia matrix.
-              return Class(
-                  I(0, 0), I(1, 1), I(2, 2), I(0, 1), I(0, 2), I(1, 2));
-            }));
+        .def("__getstate__",
+            [](const Class& self) { return self.CopyToFullMatrix3(); })
+        .def("__setstate__", [](Class* self, const Matrix3<T>& I) {
+          // Invoke 6-argument constructor by specifying full (upper
+          // diagonal) inertia matrix.
+          new (self)
+              Class(I(0, 0), I(1, 1), I(2, 2), I(0, 1), I(0, 2), I(1, 2));
+        });
     DefCopyAndDeepCopy(&cls);
   }
 
@@ -143,7 +143,11 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
                  const T&>(),
             py::arg("Ixx"), py::arg("Iyy"), py::arg("Izz"), py::arg("Ixy"),
             py::arg("Ixz"), py::arg("Iyz"), cls_doc.ctor.doc_6args)
-        .def(py::init([](const RotationalInertia<T>& I) { return Class(I); }),
+        .def(
+            "__init__",
+            [](Class* self, const RotationalInertia<T>& I) {
+              new (self) Class(I);
+            },
             py::arg("I"), cls_doc.ctor.doc_1args)
         .def("SetFromRotationalInertia", &Class::SetFromRotationalInertia,
             py::arg("I"), py::arg("mass"), py_rvp::reference,
@@ -184,14 +188,14 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py::arg("unit_vector"), cls_doc.ThinRod.doc)
         .def_static("TriaxiallySymmetric", &Class::TriaxiallySymmetric,
             py::arg("I_triaxial"), cls_doc.TriaxiallySymmetric.doc)
-        .def(py::pickle(
-            [](const Class& self) { return self.CopyToFullMatrix3(); },
-            [](const Matrix3<T>& I) {
-              // Invoke 6-argument constructor by specifying full (upper
-              // diagonal) inertia matrix.
-              return Class(
-                  I(0, 0), I(1, 1), I(2, 2), I(0, 1), I(0, 2), I(1, 2));
-            }));
+        .def("__getstate__",
+            [](const Class& self) { return self.CopyToFullMatrix3(); })
+        .def("__setstate__", [](Class* self, const Matrix3<T>& I) {
+          // Invoke 6-argument constructor by specifying full (upper
+          // diagonal) inertia matrix.
+          new (self)
+              Class(I(0, 0), I(1, 1), I(2, 2), I(0, 1), I(0, 2), I(1, 2));
+        });
     DefCopyAndDeepCopy(&cls);
   }
 
@@ -295,18 +299,18 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
                   return py::str("SpatialInertia.Zero()");
                 }
               }
-              return py::eval("object.__repr__")(self);
+              return py::eval("object.__repr__", py::globals())(self);
             })
-        .def(py::pickle(
+        .def("__getstate__",
             [](const Class& self) {
               return py::make_tuple(
                   self.get_mass(), self.get_com(), self.get_unit_inertia());
-            },
-            [](py::tuple t) {
-              DRAKE_THROW_UNLESS(t.size() == 3);
-              return Class(t[0].cast<T>(), t[1].cast<Vector3<T>>(),
-                  t[2].cast<UnitInertia<T>>());
-            }));
+            })
+        .def("__setstate__", [](Class* self, py::tuple t) {
+          DRAKE_THROW_UNLESS(t.size() == 3);
+          new (self) Class(py::cast<T>(t[0]), py::cast<Vector3<T>>(t[1]),
+              py::cast<UnitInertia<T>>(t[2]));
+        });
     DefCopyAndDeepCopy(&cls);
   }
 }

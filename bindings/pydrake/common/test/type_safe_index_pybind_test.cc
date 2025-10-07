@@ -24,7 +24,8 @@ using test::SynchronizeGlobalsForPython3;
 template <typename T>
 void CheckValue(const string& expr, const T& expected) {
   SCOPED_TRACE("Python expression:\n  " + expr);
-  EXPECT_EQ(py::cast<T>(py::eval(py::str(expr.c_str()))), expected);
+  EXPECT_EQ(
+      py::cast<T>(py::eval(py::str(expr.c_str()), py::globals())), expected);
 }
 
 #if 0   // XXX porting
@@ -46,7 +47,7 @@ GTEST_TEST(TypeSafeIndexTest, CheckCasting) {
   CheckValue("pass_thru_int(10)", 10);
   CheckValue("pass_thru_int(Index(10))", 10);
   // TypeSafeIndex<> is not implicitly constructible from an int.
-  py::object py_int = py::eval("10");
+  py::object py_int = py::eval("10", m);
   ASSERT_THROW(py_int.cast<Index>(), std::runtime_error);
 
   m.def("pass_thru_index", [](Index x) {
@@ -59,7 +60,7 @@ GTEST_TEST(TypeSafeIndexTest, CheckCasting) {
   // TypeSafeIndex<> is not implicitly constructible from an int.
   // TODO(eric.cousineau): Consider relaxing this to *only* accept `int`s, and
   // puke if another `TypeSafeIndex<U>` is encountered.
-  ASSERT_THROW(py::eval("pass_thru_index(10)"), py::error_already_set);
+  ASSERT_THROW(py::eval("pass_thru_index(10)", m), py::python_error);
   CheckValue("pass_thru_index(Index(10))", 10);
   CheckValue("pass_thru_index(Index(10))", Index{10});
 
@@ -68,8 +69,8 @@ GTEST_TEST(TypeSafeIndexTest, CheckCasting) {
   BindTypeSafeIndex<OtherIndex>(m, "OtherIndex");
 
   ASSERT_THROW(
-      py::eval("pass_thru_index(OtherIndex(10))"), py::error_already_set);
-  py::object py_index = py::eval("Index(10)");
+      py::eval("pass_thru_index(OtherIndex(10))", m), py::python_error);
+  py::object py_index = py::eval("Index(10)", m);
   ASSERT_THROW(py_index.cast<OtherIndex>(), std::runtime_error);
 
   // Check basic comparison.

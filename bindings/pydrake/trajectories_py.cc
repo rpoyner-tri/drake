@@ -86,12 +86,12 @@ void BindPiecewisePolynomialSerialize(PyClass* cls) {
   // users so we'll respell the name during setattr to add a leading underscore,
   // and bind the properties using the private name.
   cls->def("__setattr__", [](Class& self, py::str name, py::object value) {
-    if (std::string(name) == "breaks") {
+    if (name == "breaks") {
       name = py::str("_breaks");
     } else if (std::string(name) == "polynomials") {
       name = py::str("_polynomials");
     }
-    py::eval("object.__setattr__")(self, name, value);
+    py::eval("object.__setattr__", py::globals())(self, name, value);
   });
   // Define a property setter for "_breaks" (the getter is never called).
   // Setting the breaks resets all of the polynomials; this is fine because

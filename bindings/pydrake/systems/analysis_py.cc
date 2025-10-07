@@ -35,7 +35,7 @@ namespace {
 void ThrowIfPythonHasPendingSignals() {
   py::gil_scoped_acquire guard;
   if (PyErr_CheckSignals() != 0) {
-    throw py::error_already_set();
+    throw py::python_error();
   }
 }
 }  // namespace
@@ -58,9 +58,11 @@ NB_MODULE(analysis, m) {
     using Class = SimulatorConfig;
     constexpr auto& cls_doc = doc.SimulatorConfig;
     py::class_<Class> cls(m, "SimulatorConfig", cls_doc.doc);
+#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
     DefAttributesUsingSerialize(&cls, cls_doc);
+#endif  // XXX porting
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }
@@ -98,9 +100,12 @@ NB_MODULE(analysis, m) {
     constexpr auto& cls_doc = doc.InitializeParams;
     using Class = InitializeParams;
     py::class_<Class> cls(m, "InitializeParams", cls_doc.doc);
+#if 0  // XXX porting
+
     cls  // BR
         .def(ParamInit<Class>());
     DefAttributesUsingSerialize(&cls, cls_doc);
+#endif  // XXX porting
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }
@@ -289,6 +294,8 @@ NB_MODULE(analysis, m) {
     auto cls = DefineTemplateClassWithDefault<Simulator<T>>(
         m, "Simulator", GetPyParam<T>(), doc.Simulator.doc);
     cls  // BR
+#if 0  // XXX porting
+        // Need c++ support for placement new with shared context.
         .def(py::init([](const System<T>& system, Context<T>* context) {
           // Expand the default-context request here, so that it gets a
           // python-compatible lifetime.
@@ -319,6 +326,7 @@ a Context object among Simulators will likely lead to incorrect results.
               return new_doc;
             }()
                 .c_str())
+#endif  // XXX porting
         .def("Initialize", &Simulator<T>::Initialize,
             doc.Simulator.Initialize.doc,
             py::arg("params") = InitializeParams{})
@@ -545,7 +553,7 @@ Parameter ``interruptible``:
   {
     using Class = RegionOfAttractionOptions;
     constexpr auto& cls_doc = doc.analysis.RegionOfAttractionOptions;
-    py::class_<Class, std::shared_ptr<Class>> cls(
+    py::class_ < Class /*, std::shared_ptr<Class> XXX porting */> cls(
         m, "RegionOfAttractionOptions", cls_doc.doc);
     cls.def(py::init<>(), cls_doc.ctor.doc)
         // TODO(jeremy.nimmer): replace the def_rw with
