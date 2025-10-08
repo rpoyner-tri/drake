@@ -54,6 +54,7 @@ void DefineSolversBranchAndBound(py::module_ m) {
             },
             py::arg("mip_var"), py::arg("nth_best_solution") = 0,
             cls_doc.GetSolution.doc_2args_mip_var_nth_best_solution)
+#if 0  // XXX porting
         .def(
             "GetSolution",
             [](const Class& self, const VectorXDecisionVariable& mip_vars,
@@ -69,7 +70,9 @@ void DefineSolversBranchAndBound(py::module_ m) {
               return self.GetSolution(mip_vars, nth_best_solution);
             },
             py::arg("mip_vars"), py::arg("nth_best_solution") = 0,
-            cls_doc.GetSolution.doc_2args_constEigenMatrixBase_int);
+            cls_doc.GetSolution.doc_2args_constEigenMatrixBase_int)
+#endif  // XXX porting
+        ;
   }
 }
 

@@ -22,7 +22,8 @@ namespace internal {
 void DefineAutodiffutils(py::module_ m) {
   // NOLINTNEXTLINE(build/namespaces): Emulate placement in namespace.
   using namespace drake::math;
-  constexpr auto& doc = pydrake_doc_math.drake.math;
+  // XXX porting unused
+  // constexpr auto& doc = pydrake_doc_math.drake.math;
 
   // TODO(m-chaturvedi) Add Pybind11 documentation.
   py::class_<AutoDiffXd> autodiff(m, "AutoDiffXd");
@@ -115,7 +116,6 @@ void DefineAutodiffutils(py::module_ m) {
       py::arg("value"), py::arg("num_derivatives") = std::nullopt,
       py::arg("deriv_num_start") = std::nullopt,
       doc.InitializeAutoDiff.doc_just_value);
-#endif  // XXX porting
 
   m.def(
       "InitializeAutoDiff",
@@ -138,6 +138,7 @@ void DefineAutodiffutils(py::module_ m) {
         return ExtractGradient(auto_diff_matrix);
       },
       py::arg("auto_diff_matrix"), doc.ExtractGradient.doc);
+#endif  // XXX porting
 }
 
 }  // namespace internal

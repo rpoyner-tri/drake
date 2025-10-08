@@ -101,7 +101,6 @@ NB_MODULE(analysis, m) {
     using Class = InitializeParams;
     py::class_<Class> cls(m, "InitializeParams", cls_doc.doc);
 #if 0  // XXX porting
-
     cls  // BR
         .def(ParamInit<Class>());
     DefAttributesUsingSerialize(&cls, cls_doc);
@@ -113,6 +112,7 @@ NB_MODULE(analysis, m) {
   auto bind_scalar_types = [&m](auto dummy) {
     using T = decltype(dummy);
 
+#if 0  // XXX porting
     m.def("BatchEvalUniquePeriodicDiscreteUpdate",
         &BatchEvalUniquePeriodicDiscreteUpdate<T>, py::arg("system"),
         py::arg("context"), py::arg("times"), py::arg("states"),
@@ -131,6 +131,7 @@ NB_MODULE(analysis, m) {
         py::arg("parallelize") = Parallelism::Max(),
         py::call_guard<py::gil_scoped_release>(),
         doc.BatchEvalTimeDerivatives.doc);
+#endif  // XXX porting
 
     {
       using Class = IntegratorBase<T>;
@@ -563,10 +564,12 @@ Parameter ``interruptible``:
         .def_rw("lyapunov_candidate",
             &RegionOfAttractionOptions::lyapunov_candidate,
             cls_doc.lyapunov_candidate.doc)
+#if 0  // XXX porting
         .def_rw("state_variables",
             &RegionOfAttractionOptions::state_variables,
             // dtype = object arrays must be copied, and cannot be referenced.
             py_rvp::copy, cls_doc.state_variables.doc)
+#endif  // XXX porting
         .def_rw("use_implicit_dynamics",
             &RegionOfAttractionOptions::use_implicit_dynamics,
             cls_doc.use_implicit_dynamics.doc)

@@ -14,6 +14,7 @@
 #include "drake/bindings/pydrake/common/serialize_pybind.h"
 #include "drake/bindings/pydrake/common/value_pybind.h"
 #include "drake/bindings/pydrake/geometry/geometry_py.h"
+#include "drake/bindings/pydrake/pydrake_pybind.h"
 #include "drake/geometry/render/light_parameter.h"
 #include "drake/geometry/render/render_engine.h"
 #include "drake/geometry/render/render_label.h"
@@ -51,21 +52,21 @@ class PyRenderEngine : public RenderEngine {
   PyRenderEngine() : Base() {}
 
   void UpdateViewpoint(RigidTransformd const& X_WR) override {
-    NB_OVERLOAD_PURE(&UpdateViewpoint, X_WR);
+    NB_OVERRIDE_PURE(UpdateViewpoint, X_WR);
   }
 
   bool DoRegisterVisual(GeometryId id, Shape const& shape,
       PerceptionProperties const& properties,
       RigidTransformd const& X_WG) override {
-    NB_OVERLOAD_PURE(DoRegisterVisual, id, shape, properties, X_WG);
+    NB_OVERRIDE_PURE(DoRegisterVisual, id, shape, properties, X_WG);
   }
 
   void DoUpdateVisualPose(GeometryId id, RigidTransformd const& X_WG) override {
-    NB_OVERLOAD_PURE(DoUpdateVisualPose, id, X_WG);
+    NB_OVERRIDE_PURE(DoUpdateVisualPose, id, X_WG);
   }
 
   bool DoRemoveGeometry(GeometryId id) override {
-    NB_OVERLOAD_PURE(DoRemoveGeometry, id);
+    NB_OVERRIDE_PURE(DoRemoveGeometry, id);
   }
 
   std::unique_ptr<RenderEngine> DoClone() const override {
@@ -75,17 +76,19 @@ class PyRenderEngine : public RenderEngine {
         "it needs to be updated to call using shared_ptr instead.");
   }
 
+#if 0   // XXX porting
+  // Need to unwind a bunch of smart pointer issues.
   std::shared_ptr<RenderEngine> DoCloneShared() const override {
     py::gil_scoped_acquire guard;
     // RenderEngine subclasses in Python must implement cloning by defining
     // either a __deepcopy__ (preferred) or DoClone (legacy) method. We'll try
     // DoClone first so it has priority, but if it doesn't exist we'll fall back
     // to __deepcopy__ and just let the "no such method deepcopy" error message
-    // propagate if both were missing. Because the PYBIND11_OVERLOAD_INT macro
+    // propagate if both were missing. Because the PYBIND11_OVERRIDE_INT macro
     // embeds a conditional `return ...;` statement, we must wrap it in lambda
     // so that we can post-process the return value in case it does return.
     auto make_python_deepcopy = [&]() -> py::object {
-      NB_OVERLOAD_INT("DoClone");
+      NB_OVERRIDE(DoClone);
       auto deepcopy = py::module_::import_("copy").attr("deepcopy");
       py::object copied = deepcopy(this);
       if (copied.is_none()) {
@@ -97,28 +100,29 @@ class PyRenderEngine : public RenderEngine {
     py::object result = make_python_deepcopy();
     return make_shared_ptr_from_py_object<RenderEngine>(result);
   }
+#endif  // XXX porting
 
   void DoRenderColorImage(ColorRenderCamera const& camera,
       ImageRgba8U* color_image_out) const override {
-    NB_OVERLOAD_PURE(DoRenderColorImage, camera, color_image_out);
+    NB_OVERRIDE_PURE(DoRenderColorImage, camera, color_image_out);
   }
 
   void DoRenderDepthImage(DepthRenderCamera const& camera,
       ImageDepth32F* depth_image_out) const override {
-    NB_OVERLOAD_PURE(DoRenderDepthImage, camera, depth_image_out);
+    NB_OVERRIDE_PURE(DoRenderDepthImage, camera, depth_image_out);
   }
 
   void DoRenderLabelImage(ColorRenderCamera const& camera,
       ImageLabel16I* label_image_out) const override {
-    NB_OVERLOAD_PURE(DoRenderLabelImage, camera, label_image_out);
+    NB_OVERRIDE_PURE(DoRenderLabelImage, camera, label_image_out);
   }
 
   std::string DoGetParameterYaml() const override {
-    NB_OVERLOAD(DoGetParameterYaml);
+    NB_OVERRIDE(DoGetParameterYaml);
   }
 
   void SetDefaultLightPosition(Vector3d const& X_DL) override {
-    NB_OVERLOAD(SetDefaultLightPosition, X_DL);
+    NB_OVERRIDE(SetDefaultLightPosition, X_DL);
   }
 
   // Expose these protected methods (which are either virtual methods with
@@ -282,8 +286,9 @@ void DoScalarIndependentDefinitions(py::module_ m) {
   {
     using Class = RenderEngine;
     const auto& cls_doc = doc.RenderEngine;
-    py::class_<Class, PyRenderEngine, std::shared_ptr<Class>> cls(
-        m, "RenderEngine");
+    py::class_<Class, PyRenderEngine
+        /*, std::shared_ptr<Class> XXX porting */>
+        cls(m, "RenderEngine");
     cls  // BR
         .def(py::init<>(), cls_doc.ctor.doc)
         .def("Clone",
@@ -370,8 +375,10 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = geometry::NullTexture;
     constexpr auto& cls_doc = doc_vtk.NullTexture;
     py::class_<Class> cls(m, "NullTexture", cls_doc.doc);
+#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
+#endif  // XXX porting
     DefAttributesUsingSerialize(&cls);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -381,8 +388,10 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = geometry::EquirectangularMap;
     constexpr auto& cls_doc = doc_vtk.EquirectangularMap;
     py::class_<Class> cls(m, "EquirectangularMap", cls_doc.doc);
+#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
+#endif  // XXX porting
     DefAttributesUsingSerialize(&cls);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -392,8 +401,10 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = geometry::EnvironmentMap;
     constexpr auto& cls_doc = doc_vtk.EnvironmentMap;
     py::class_<Class> cls(m, "EnvironmentMap", cls_doc.doc);
+#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
+#endif  // XXX porting
     DefAttributesUsingSerialize(&cls);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -403,8 +414,10 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = geometry::GltfExtension;
     constexpr auto& cls_doc = doc_vtk.GltfExtension;
     py::class_<Class> cls(m, "GltfExtension", cls_doc.doc);
+#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
+#endif  // XXX porting
     DefAttributesUsingSerialize(&cls);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -414,8 +427,10 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = geometry::render::LightParameter;
     constexpr auto& cls_doc = doc.LightParameter;
     py::class_<Class> cls(m, "LightParameter", cls_doc.doc);
+#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
+#endif  // XXX porting
     DefAttributesUsingSerialize(&cls);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -425,8 +440,10 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = geometry::SsaoParameter;
     constexpr auto& cls_doc = doc_vtk.SsaoParameter;
     py::class_<Class> cls(m, "SsaoParameter", cls_doc.doc);
+#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
+#endif  // XXX porting
     DefAttributesUsingSerialize(&cls);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -436,8 +453,10 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = RenderEngineVtkParams;
     constexpr auto& cls_doc = doc_vtk.RenderEngineVtkParams;
     py::class_<Class> cls(m, "RenderEngineVtkParams", cls_doc.doc);
+#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
+#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -464,8 +483,10 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = RenderEngineGlParams;
     constexpr auto& cls_doc = doc_gl.RenderEngineGlParams;
     py::class_<Class> cls(m, "RenderEngineGlParams", cls_doc.doc);
+#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
+#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -492,8 +513,10 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = RenderEngineGltfClientParams;
     constexpr auto& cls_doc = doc_gltf_client.RenderEngineGltfClientParams;
     py::class_<Class> cls(m, "RenderEngineGltfClientParams", cls_doc.doc);
+#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
+#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);

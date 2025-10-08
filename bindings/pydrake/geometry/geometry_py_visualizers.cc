@@ -61,10 +61,12 @@ void DefineDrakeVisualizer(py::module_ m, T) {
             py::arg("params") = DrakeVisualizerParams{},
             // `return` and `builder` join ref cycle.
             internal::ref_cycle<0, 1>(),
+#if 0  // XXX porting
             // Using builder_life_support_stash makes the builder temporarily
             // immortal (uncollectible self cycle). This will be resolved by
             // the Build() step. See BuilderLifeSupport for rationale.
             internal::builder_life_support_stash<T, 1>(),
+#endif  // XXX porting
             // Keep alive, reference: `return` keeps `lcm` alive.
             py::keep_alive<0, 3>(), py_rvp::reference,
             cls_doc.AddToBuilder.doc_4args_builder_scene_graph_lcm_params)
@@ -77,10 +79,12 @@ void DefineDrakeVisualizer(py::module_ m, T) {
             py::arg("params") = DrakeVisualizerParams{},
             // `return` and `builder` join ref cycle.
             internal::ref_cycle<0, 1>(),
+#if 0  // XXX porting
             // Using builder_life_support_stash makes the builder temporarily
             // immortal (uncollectible self cycle). This will be resolved by
             // the Build() step. See BuilderLifeSupport for rationale.
             internal::builder_life_support_stash<T, 1>(),
+#endif  // XXX porting
             // Keep alive, reference: `return` keeps `lcm` alive.
             py::keep_alive<0, 3>(), py_rvp::reference,
             cls_doc.AddToBuilder.doc_4args_builder_query_object_port_lcm_params)
@@ -203,8 +207,10 @@ void DefineMeshcatParams(py::module_ m) {
       DefReprUsingSerialize(&nested);
       DefCopyAndDeepCopy(&nested);
     }
+#if 0  // XXX porting
     cls.def(ParamInit<Class>());
     DefAttributesUsingSerialize(&cls, cls_doc);
+#endif  // XXX porting
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }
@@ -214,7 +220,7 @@ void DefineMeshcat(py::module_ m) {
   {
     using Class = Meshcat;
     constexpr auto& cls_doc = doc.Meshcat;
-    py::class_<Class, std::shared_ptr<Class>> meshcat(
+    py::class_<Class/*, std::shared_ptr<Class> XXX porting */> meshcat(
         m, "Meshcat", cls_doc.doc);
 
     // Meshcat::SideOfFaceToRender enumeration
@@ -231,8 +237,10 @@ void DefineMeshcat(py::module_ m) {
     const auto& perspective_camera_doc = doc.Meshcat.PerspectiveCamera;
     py::class_<Meshcat::PerspectiveCamera> perspective_camera_cls(
         meshcat, "PerspectiveCamera", perspective_camera_doc.doc);
+#if 0  // XXX porting
     perspective_camera_cls  // BR
         .def(ParamInit<Meshcat::PerspectiveCamera>());
+#endif  // XXX porting
     DefAttributesUsingSerialize(
         &perspective_camera_cls, perspective_camera_doc);
     DefReprUsingSerialize(&perspective_camera_cls);
@@ -241,8 +249,10 @@ void DefineMeshcat(py::module_ m) {
     const auto& orthographic_camera_doc = doc.Meshcat.OrthographicCamera;
     py::class_<Meshcat::OrthographicCamera> orthographic_camera_cls(
         meshcat, "OrthographicCamera", orthographic_camera_doc.doc);
+#if 0  // XXX porting
     orthographic_camera_cls  // BR
         .def(ParamInit<Meshcat::OrthographicCamera>());
+#endif  // XXX porting
     DefAttributesUsingSerialize(
         &orthographic_camera_cls, orthographic_camera_doc);
     DefReprUsingSerialize(&orthographic_camera_cls);
@@ -251,8 +261,10 @@ void DefineMeshcat(py::module_ m) {
     const auto& gamepad_doc = doc.Meshcat.Gamepad;
     py::class_<Meshcat::Gamepad> gamepad_cls(
         meshcat, "Gamepad", gamepad_doc.doc);
+#if 0  // XXX porting
     gamepad_cls  // BR
         .def(ParamInit<Meshcat::Gamepad>());
+#endif  // XXX porting
     DefAttributesUsingSerialize(&gamepad_cls, gamepad_doc);
     DefReprUsingSerialize(&gamepad_cls);
     DefCopyAndDeepCopy(&gamepad_cls);
@@ -431,7 +443,7 @@ void DefineMeshcat(py::module_ m) {
               py::gil_scoped_release unlock;
               result = (self.*member_func)(args...);
             }
-            return py::bytes(result);
+            return py::bytes(result.c_str());
           };
         };  // NOLINT(readability/braces)
 
@@ -448,7 +460,7 @@ void DefineMeshcat(py::module_ m) {
         .def(
             "_InjectWebsocketMessage",
             [](Class& self, py::bytes message) {
-              std::string_view message_view = message;
+              std::string_view message_view(message.c_str(), message.size());
               // This call blocks on a worker thread so must release the GIL.
               py::gil_scoped_release unlock;
               self.InjectWebsocketMessage(message_view);
@@ -525,9 +537,11 @@ void DefineMeshcatVisualizerParams(py::module_ m) {
     constexpr auto& cls_doc = doc.MeshcatVisualizerParams;
     py::class_<Class> cls(
         m, "MeshcatVisualizerParams", py::dynamic_attr(), cls_doc.doc);
+#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
     DefAttributesUsingSerialize(&cls, cls_doc);
+#endif  // XXX porting
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }

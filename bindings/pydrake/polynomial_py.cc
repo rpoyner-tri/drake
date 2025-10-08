@@ -25,8 +25,10 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
           cls_doc.GetNumberOfCoefficients.doc)
       .def("GetDegree", &Class::GetDegree, cls_doc.GetDegree.doc)
       .def("IsAffine", &Class::IsAffine, cls_doc.IsAffine.doc)
+#if 0  // XXX porting
       .def("GetCoefficients", &Class::GetCoefficients,
           cls_doc.GetCoefficients.doc)
+#endif  // XXX porting
       .def(
           "EvaluateUnivariate",
           [](const Class* self, const T& x, int derivative_order) {

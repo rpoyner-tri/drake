@@ -32,8 +32,10 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     constexpr auto& cls_doc = doc.ContactVisualizerParams;
     py::class_<Class> cls(
         m, "ContactVisualizerParams", py::dynamic_attr(), cls_doc.doc);
+#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
+#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);

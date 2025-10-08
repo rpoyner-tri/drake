@@ -50,10 +50,10 @@ class PySerializerInterface : public SerializerInterface {
     // Our required unique_ptr return type cannot be directly fulfilled by a
     // Python override, so we only ask the Python override for a py::object and
     // then just Clone it to obtain the necessary C++ signature. Because the
-    // PYBIND11_OVERLOAD_PURE macro embeds a `return ...;` statement, we must
+    // PYBIND11_OVERRIDE_PURE macro embeds a `return ...;` statement, we must
     // wrap it in lambda so that we can post-process the return value.
     py::object default_value = [this]() -> py::object {
-      PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERRIDE_PURE(
           py::object, SerializerInterface, CreateDefaultValue);
     }();
     DRAKE_THROW_UNLESS(!default_value.is_none());
@@ -65,7 +65,7 @@ class PySerializerInterface : public SerializerInterface {
     py::gil_scoped_acquire guard;
     py::bytes buffer(
         reinterpret_cast<const char*>(message_bytes), message_length);
-    PYBIND11_OVERLOAD_PURE(
+    PYBIND11_OVERRIDE_PURE(
         void, SerializerInterface, Deserialize, buffer, abstract_value);
   }
 
@@ -75,7 +75,7 @@ class PySerializerInterface : public SerializerInterface {
     auto wrapped = [&]() -> py::bytes {
       // N.B. We must pass `abstract_value` as a pointer to prevent `pybind11`
       // from copying it.
-      PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERRIDE_PURE(
           py::bytes, SerializerInterface, Serialize, &abstract_value);
     };
     py::bytes str = wrapped();

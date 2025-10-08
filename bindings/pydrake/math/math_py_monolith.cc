@@ -60,6 +60,7 @@ void DefineRigidTransform(py::module_ m, py::class_<PyClass<T>>& cls) {
     cls  // BR
         .def(py::init(), cls_doc.ctor.doc_0args)
         .def(py::init<const Class&>(), py::arg("other"))
+#if 0  // XXX porting
         .def(py::init<const RotationMatrix<T>&, const Vector3<T>&>(),
             py::arg("R"), py::arg("p"), cls_doc.ctor.doc_2args_R_p)
         .def(py::init<const RollPitchYaw<T>&, const Vector3<T>&>(),
@@ -70,8 +71,10 @@ void DefineRigidTransform(py::module_ m, py::class_<PyClass<T>>& cls) {
         .def(py::init<const Eigen::AngleAxis<T>&, const Vector3<T>&>(),
             py::arg("theta_lambda"), py::arg("p"),
             cls_doc.ctor.doc_2args_theta_lambda_p)
+#endif  // XXX porting
         .def(py::init<const RotationMatrix<T>&>(), py::arg("R"),
             cls_doc.ctor.doc_1args_R)
+#if 0  // XXX porting
         .def(py::init<const Vector3<T>&>(), py::arg("p"),
             cls_doc.ctor.doc_1args_p)
         .def(py::init<const Isometry3<T>&>(), py::arg("pose"),
@@ -83,6 +86,7 @@ void DefineRigidTransform(py::module_ m, py::class_<PyClass<T>>& cls) {
         .def("set", &Class::set, py::arg("R"), py::arg("p"), cls_doc.set.doc)
         .def("SetFromIsometry3", &Class::SetFromIsometry3, py::arg("pose"),
             cls_doc.SetFromIsometry3.doc)
+#endif  // XXX porting
         .def_static("Identity", &Class::Identity, cls_doc.Identity.doc)
         .def("rotation", &Class::rotation, py_rvp::reference_internal,
             cls_doc.rotation.doc)
@@ -100,6 +104,7 @@ void DefineRigidTransform(py::module_ m, py::class_<PyClass<T>>& cls) {
             py::overload_cast<const Eigen::AngleAxis<T>&>(&Class::set_rotation),
             py::arg("theta_lambda"),
             cls_doc.set_rotation.doc_1args_theta_lambda)
+#if 0  // XXX porting
         .def("translation", &Class::translation,
             return_value_policy_for_scalar_type<T>(), cls_doc.translation.doc)
         .def("set_translation", &Class::set_translation, py::arg("p"),
@@ -108,6 +113,7 @@ void DefineRigidTransform(py::module_ m, py::class_<PyClass<T>>& cls) {
         .def("GetAsMatrix34", &Class::GetAsMatrix34, cls_doc.GetAsMatrix34.doc)
         .def("GetAsIsometry3", &Class::GetAsIsometry3,
             cls_doc.GetAsIsometry3.doc)
+#endif  // XXX porting
         .def("SetIdentity", &Class::SetIdentity, cls_doc.SetIdentity.doc)
         .def("IsExactlyIdentity", &Class::IsExactlyIdentity,
             cls_doc.IsExactlyIdentity.doc)
@@ -130,6 +136,7 @@ void DefineRigidTransform(py::module_ m, py::class_<PyClass<T>>& cls) {
             "multiply",
             [](const Class* self, const Class& other) { return *self * other; },
             py::arg("other"), cls_doc.operator_mul.doc_1args_other)
+#if 0  // XXX porting
         .def(
             "multiply",
             [](const Class* self, const Vector3<T>& p_BoQ_B) {
@@ -154,7 +161,9 @@ void DefineRigidTransform(py::module_ m, py::class_<PyClass<T>>& cls) {
         .def("__setstate__",
             [](Class& self, const Eigen::Matrix<T, 3, 4>& matrix) {
               new (&self) Class(Class::MakeUnchecked(matrix));
-            });
+            })
+#endif  // XXX porting
+        ;
     cls.attr("multiply") = WrapToMatchInputShape(cls.attr("multiply"));
     cls.attr("__matmul__") = cls.attr("multiply");
     DefCopyAndDeepCopy(&cls);
@@ -180,38 +189,49 @@ void DefineRotationMatrix(py::module_ m, py::class_<PyClass<T>>& cls) {
     cls  // BR
         .def(py::init(), cls_doc.ctor.doc_0args)
         .def(py::init<const Class&>(), py::arg("other"))
+#if 0  // XXX porting
         .def(py::init<const Matrix3<T>&>(), py::arg("R"),
             cls_doc.ctor.doc_1args_R)
+#endif  // XXX porting
         .def(py::init<Eigen::Quaternion<T>>(), py::arg("quaternion"),
             cls_doc.ctor.doc_1args_quaternion)
         .def(py::init<const Eigen::AngleAxis<T>&>(), py::arg("theta_lambda"),
             cls_doc.ctor.doc_1args_theta_lambda)
         .def(py::init<const RollPitchYaw<T>&>(), py::arg("rpy"),
             cls_doc.ctor.doc_1args_rpy)
+#if 0  // XXX porting
         .def_static("MakeUnchecked", &Class::MakeUnchecked, py::arg("R"),
             cls_doc.MakeUnchecked.doc)
+#endif  // XXX porting
         .def_static("MakeXRotation", &Class::MakeXRotation, py::arg("theta"),
             cls_doc.MakeXRotation.doc)
         .def_static("MakeYRotation", &Class::MakeYRotation, py::arg("theta"),
             cls_doc.MakeYRotation.doc)
         .def_static("MakeZRotation", &Class::MakeZRotation, py::arg("theta"),
             cls_doc.MakeZRotation.doc)
+#if 0  // XXX porting
         .def_static("MakeFromOneVector", &Class::MakeFromOneVector,
             py::arg("b_A"), py::arg("axis_index"),
             cls_doc.MakeFromOneVector.doc)
+#endif  // XXX porting
         .def_static("Identity", &Class::Identity, cls_doc.Identity.doc)
+#if 0  // XXX porting
         .def("set", &Class::set, py::arg("R"), cls_doc.set.doc)
+#endif  // XXX porting
         .def("inverse", &Class::inverse, cls_doc.inverse.doc)
         .def("InvertAndCompose", &Class::InvertAndCompose, py::arg("other"),
             cls_doc.InvertAndCompose.doc)
         .def("transpose", &Class::transpose, cls_doc.transpose.doc)
+#if 0  // XXX porting
         .def("matrix", &Class::matrix, cls_doc.matrix.doc)
+#endif  // XXX porting
         .def("row", &Class::row, py::arg("index"), cls_doc.row.doc)
         .def("col", &Class::col, py::arg("index"), cls_doc.col.doc)
         .def(
             "multiply",
             [](const Class& self, const Class& other) { return self * other; },
             py::arg("other"), cls_doc.operator_mul.doc_1args_other)
+#if 0  // XXX porting
         .def(
             "multiply",
             [](const Class& self, const Vector3<T>& v_B) { return self * v_B; },
@@ -222,6 +242,7 @@ void DefineRotationMatrix(py::module_ m, py::class_<PyClass<T>>& cls) {
               return self * v_B;
             },
             py::arg("v_B"), cls_doc.operator_mul.doc_1args_constEigenMatrixBase)
+#endif  // XXX porting
         .def("IsValid", overload_cast_explicit<boolean<T>>(&Class::IsValid),
             cls_doc.IsValid.doc_0args)
         .def("IsExactlyIdentity", &Class::IsExactlyIdentity,
@@ -230,6 +251,7 @@ void DefineRotationMatrix(py::module_ m, py::class_<PyClass<T>>& cls) {
             py::arg("tolerance") =
                 Class::get_internal_tolerance_for_orthonormality(),
             cls_doc.IsNearlyIdentity.doc)
+#if 0  // XXX porting
         // Does not return the quality_factor
         .def_static(
             "ProjectToRotationMatrix",
@@ -237,16 +259,20 @@ void DefineRotationMatrix(py::module_ m, py::class_<PyClass<T>>& cls) {
               return RotationMatrix<T>::ProjectToRotationMatrix(M);
             },
             py::arg("M"), cls_doc.ProjectToRotationMatrix.doc)
+#endif  // XXX porting
         .def("ToRollPitchYaw", &Class::ToRollPitchYaw,
             cls_doc.ToRollPitchYaw.doc)
         .def("ToQuaternion",
             overload_cast_explicit<Eigen::Quaternion<T>>(&Class::ToQuaternion),
             cls_doc.ToQuaternion.doc_0args)
         .def("ToAngleAxis", &Class::ToAngleAxis, cls_doc.ToAngleAxis.doc)
+#if 0  // XXX porting
         .def("__getstate__", [](const Class& self) { return self.matrix(); })
         .def("__setstate__", [](Class& self, const Matrix3<T>& matrix) {
           new (&self) Class(Class::MakeUnchecked(matrix));
-        });
+        })
+#endif  // XXX porting
+        ;
     cls.attr("multiply") = WrapToMatchInputShape(cls.attr("multiply"));
     cls.attr("__matmul__") = cls.attr("multiply");
     DefCopyAndDeepCopy(&cls);
@@ -271,8 +297,10 @@ void DefineRollPitchYaw(py::class_<PyClass<T>>& cls) {
     constexpr auto& cls_doc = doc.RollPitchYaw;
     cls  // BR
         .def(py::init<const Class&>(), py::arg("other"))
+#if 0  // XXX porting
         .def(py::init<const Vector3<T>>(), py::arg("rpy"),
             cls_doc.ctor.doc_1args_rpy)
+#endif  // XXX porting
         .def(py::init<const T&, const T&, const T&>(), py::arg("roll"),
             py::arg("pitch"), py::arg("yaw"),
             cls_doc.ctor.doc_3args_roll_pitch_yaw)
@@ -280,6 +308,7 @@ void DefineRollPitchYaw(py::class_<PyClass<T>>& cls) {
             cls_doc.ctor.doc_1args_R)
         .def(py::init<const Eigen::Quaternion<T>&>(), py::arg("quaternion"),
             cls_doc.ctor.doc_1args_quaternion)
+#if 0  // XXX porting
         .def(
             "__init__",
             [](Class* self, const Matrix3<T>& matrix) {
@@ -289,12 +318,14 @@ void DefineRollPitchYaw(py::class_<PyClass<T>>& cls) {
             "Construct from raw rotation matrix. See RotationMatrix overload "
             "for more information.")
         .def("vector", &Class::vector, cls_doc.vector.doc)
+#endif  // XXX porting
         .def("roll_angle", &Class::roll_angle, cls_doc.roll_angle.doc)
         .def("pitch_angle", &Class::pitch_angle, cls_doc.pitch_angle.doc)
         .def("yaw_angle", &Class::yaw_angle, cls_doc.yaw_angle.doc)
         .def("ToQuaternion", &Class::ToQuaternion, cls_doc.ToQuaternion.doc)
         .def("ToRotationMatrix", &Class::ToRotationMatrix,
             cls_doc.ToRotationMatrix.doc)
+#if 0  // XXX porting
         .def("CalcRotationMatrixDt", &Class::CalcRotationMatrixDt,
             py::arg("rpyDt"), cls_doc.CalcRotationMatrixDt.doc)
         .def("CalcAngularVelocityInParentFromRpyDt",
@@ -319,7 +350,9 @@ void DefineRollPitchYaw(py::class_<PyClass<T>>& cls) {
             cls_doc.CalcRpyDDtFromAngularAccelInChild.doc)
         .def("__getstate__", [](const Class& self) { return self.vector(); })
         .def("__setstate__",
-            [](Class& self, const Vector3<T>& rpy) { new (&self) Class(rpy); });
+            [](Class& self, const Vector3<T>& rpy) { new (&self) Class(rpy); })
+#endif  // XXX porting
+        ;
     DefCopyAndDeepCopy(&cls);
     // N.B. `RollPitchYaw::cast` is not defined in C++.
   }
@@ -419,6 +452,7 @@ void DoMiscScalarDependentDefinitions(py::module_ m, T) {
                 &Class::ComputeActiveBasisFunctionIndices),
             py::arg("parameter_value"),
             cls_doc.ComputeActiveBasisFunctionIndices.doc_1args_parameter_value)
+#if 0  // XXX porting
         .def(
             "EvaluateCurve",
             [](Class* self, const std::vector<VectorX<T>>& control_points,
@@ -430,6 +464,7 @@ void DoMiscScalarDependentDefinitions(py::module_ m, T) {
         .def("EvaluateLinearInControlPoints",
             &Class::EvaluateLinearInControlPoints, py::arg("parameter_value"),
             cls_doc.EvaluateLinearInControlPoints.doc)
+#endif  // XXX porting
         .def("EvaluateBasisFunctionI", &Class::EvaluateBasisFunctionI,
             py::arg("i"), py::arg("parameter_value"),
             cls_doc.EvaluateBasisFunctionI.doc)
@@ -446,6 +481,7 @@ void DoMiscScalarDependentDefinitions(py::module_ m, T) {
   m.def("wrap_to", &wrap_to<T, T>, py::arg("value"), py::arg("low"),
       py::arg("high"), doc.wrap_to.doc);
 
+#if 0  // XXX porting
   // Cross product
   m.def(
       "VectorToSkewSymmetric",
@@ -453,6 +489,7 @@ void DoMiscScalarDependentDefinitions(py::module_ m, T) {
         return VectorToSkewSymmetric(p);
       },
       py::arg("p"), doc.VectorToSkewSymmetric.doc);
+#endif  // XXX porting
 
   // Quaternion.
   m  // BR
@@ -469,6 +506,7 @@ void DoMiscScalarDependentDefinitions(py::module_ m, T) {
           &AreQuaternionsEqualForOrientation<T>, py::arg("quat1"),
           py::arg("quat2"), py::arg("tolerance"),
           doc.AreQuaternionsEqualForOrientation.doc)
+#if 0  // XXX porting
       .def("CalculateQuaternionDtFromAngularVelocityExpressedInB",
           &CalculateQuaternionDtFromAngularVelocityExpressedInB<T>,
           py::arg("quat_AB"), py::arg("w_AB_B"),
@@ -480,12 +518,16 @@ void DoMiscScalarDependentDefinitions(py::module_ m, T) {
       .def("CalculateQuaternionDtConstraintViolation",
           &CalculateQuaternionDtConstraintViolation<T>, py::arg("quat"),
           py::arg("quatDt"), doc.CalculateQuaternionDtConstraintViolation.doc)
+#endif  // XXX porting
       .def("IsQuaternionValid", &IsQuaternionValid<T>, py::arg("quat"),
           py::arg("tolerance"), doc.IsQuaternionValid.doc)
+#if 0  // XXX porting
       .def("IsBothQuaternionAndQuaternionDtOK",
           &IsBothQuaternionAndQuaternionDtOK<T>, py::arg("quat"),
           py::arg("quatDt"), py::arg("tolerance"),
-          doc.IsBothQuaternionAndQuaternionDtOK.doc);
+          doc.IsBothQuaternionAndQuaternionDtOK.doc)
+#endif  // XXX porting
+      ;
   // TODO(russt): Bind
   // IsQuaternionAndQuaternionDtEqualAngularVelocityExpressedInB, but this
   // requires additional support for T=Expression (e.g. if_then_else(Formula,

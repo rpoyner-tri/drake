@@ -49,7 +49,9 @@ NB_MODULE(rational, m) {
             cls_doc.ConvertMultilinearPolynomialToRationalFunction.doc)
         .def("plant", &Class::plant, py_rvp::reference_internal,
             cls_doc.plant.doc)
+#if 0  // XXX porting
         .def("s", &Class::s, py_rvp::copy, cls_doc.s.doc)
+#endif  // XXX porting
         .def(
             "ComputeSValue",
             [](const Class& self, const Eigen::VectorXd& q_val,
@@ -59,6 +61,7 @@ NB_MODULE(rational, m) {
             },
             py::arg("q_val"), py::arg("q_star_val"),
             py::arg("angles_wrap_to_inf") = false, cls_doc.ComputeSValue.doc)
+#if 0  // XXX porting
         .def(
             "ComputeSValue",
             [](const Class& self, const AutoDiffVecXd& q_val,
@@ -73,6 +76,7 @@ NB_MODULE(rational, m) {
               return self.ComputeSValue(q_val, q_star_val);
             },
             py::arg("q_val"), py::arg("q_star_val"), cls_doc.ComputeSValue.doc)
+#endif  // XXX porting
         .def(
             "ComputeQValue",
             [](const Class& self, const Eigen::VectorXd& s_val,
@@ -80,6 +84,7 @@ NB_MODULE(rational, m) {
               return self.ComputeQValue(s_val, q_star_val);
             },
             py::arg("s_val"), py::arg("q_star_val"), cls_doc.ComputeQValue.doc)
+#if 0  // XXX porting
         .def(
             "ComputeQValue",
             [](const Class& self, const AutoDiffVecXd& s_val,
@@ -93,7 +98,9 @@ NB_MODULE(rational, m) {
                 const Eigen::Ref<const Eigen::VectorXd>& q_star_val) {
               return self.ComputeQValue(s_val, q_star_val);
             },
-            py::arg("s_val"), py::arg("q_star_val"), cls_doc.ComputeQValue.doc);
+            py::arg("s_val"), py::arg("q_star_val"), cls_doc.ComputeQValue.doc)
+#endif  // XXX porting
+        ;
   }
 }
 }  // namespace

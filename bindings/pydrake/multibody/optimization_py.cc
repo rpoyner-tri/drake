@@ -34,9 +34,11 @@ NB_MODULE(optimization, m) {
     using Class = CalcGridPointsOptions;
     constexpr auto& cls_doc = doc.CalcGridPointsOptions;
     py::class_<Class> cls(m, "CalcGridPointsOptions", cls_doc.doc);
+#if 0   // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
     DefAttributesUsingSerialize(&cls, cls_doc);
+#endif  // XXX porting
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }
@@ -44,17 +46,19 @@ NB_MODULE(optimization, m) {
   {
     using Class = CentroidalMomentumConstraint;
     constexpr auto& cls_doc = doc.CentroidalMomentumConstraint;
-    using Ptr = std::shared_ptr<Class>;
-    py::class_<Class, solvers::Constraint, Ptr>(
+    // XXX porting unused
+    // using Ptr = std::shared_ptr<Class>;
+    py::class_<Class, solvers::Constraint /*, Ptr XXX porting */>(
         m, "CentroidalMomentumConstraint", cls_doc.doc)
-        .def(py::init([](const MultibodyPlant<AutoDiffXd>* plant,
-                          std::optional<std::vector<ModelInstanceIndex>>
-                              model_instances,
-                          systems::Context<AutoDiffXd>* plant_context,
-                          bool angular_only) {
-          return std::make_unique<Class>(
-              plant, model_instances, plant_context, angular_only);
-        }),
+        .def(
+            "__init__",
+            [](Class* self, const MultibodyPlant<AutoDiffXd>* plant,
+                std::optional<std::vector<ModelInstanceIndex>> model_instances,
+                systems::Context<AutoDiffXd>* plant_context,
+                bool angular_only) {
+              new (self)
+                  Class(plant, model_instances, plant_context, angular_only);
+            },
             py::arg("plant"), py::arg("model_instances"),
             py::arg("plant_context"), py::arg("angular_only"),
             // Keep alive, reference: `self` keeps `plant` alive.
@@ -66,14 +70,18 @@ NB_MODULE(optimization, m) {
   {
     using Class = ContactWrenchFromForceInWorldFrameEvaluator;
     constexpr auto& cls_doc = doc.ContactWrenchFromForceInWorldFrameEvaluator;
-    using Ptr = std::shared_ptr<Class>;
-    py::class_<Class, solvers::EvaluatorBase, Ptr>(
+    // XXX porting unused
+    // using Ptr = std::shared_ptr<Class>;
+    py::class_<Class, solvers::EvaluatorBase/*, Ptr XXX porting */>(
         m, "ContactWrenchFromForceInWorldFrameEvaluator", cls_doc.doc)
+#if 0  // XXX porting
         .def(py::init<const MultibodyPlant<AutoDiffXd>*,
                  systems::Context<AutoDiffXd>*,
                  const SortedPair<geometry::GeometryId>&>(),
             py::arg("plant"), py::arg("context"), py::arg("geometry_id_pair"),
-            cls_doc.ctor.doc);
+            cls_doc.ctor.doc)
+#endif  // XXX porting
+        ;
   }
 
   {
@@ -84,16 +92,16 @@ NB_MODULE(optimization, m) {
             doc.ContactWrench.bodyB_index.doc)
         .def_ro(
             "p_WCb_W", &ContactWrench::p_WCb_W, doc.ContactWrench.p_WCb_W.doc)
-        .def_ro(
-            "F_Cb_W", &ContactWrench::F_Cb_W, doc.ContactWrench.F_Cb_W.doc);
+        .def_ro("F_Cb_W", &ContactWrench::F_Cb_W, doc.ContactWrench.F_Cb_W.doc);
     AddValueInstantiation<ContactWrench>(m);
   }
 
   {
     using Class = QuaternionEulerIntegrationConstraint;
     constexpr auto& cls_doc = doc.QuaternionEulerIntegrationConstraint;
-    using Ptr = std::shared_ptr<Class>;
-    py::class_<Class, solvers::Constraint, Ptr>(
+    // XXX porting unused
+    // using Ptr = std::shared_ptr<Class>;
+    py::class_<Class, solvers::Constraint/*, Ptr XXX porting */>(
         m, "QuaternionEulerIntegrationConstraint", cls_doc.doc)
         .def(py::init<bool>(), py::arg("allow_quaternion_negation"),
             cls_doc.ctor.doc)
@@ -102,21 +110,25 @@ NB_MODULE(optimization, m) {
         .def("ComposeVariable", &Class::ComposeVariable<double>,
             py::arg("quat1"), py::arg("quat2"), py::arg("angular_vel"),
             py::arg("h"), cls_doc.ComposeVariable.doc)
+#if 0  // XXX porting
         .def("ComposeVariable", &Class::ComposeVariable<symbolic::Variable>,
             py::arg("quat1"), py::arg("quat2"), py::arg("angular_vel"),
             py::arg("h"), cls_doc.ComposeVariable.doc)
         .def("ComposeVariable", &Class::ComposeVariable<symbolic::Expression>,
             py::arg("quat1"), py::arg("quat2"), py::arg("angular_vel"),
-            py::arg("h"), cls_doc.ComposeVariable.doc);
+            py::arg("h"), cls_doc.ComposeVariable.doc)
+#endif  // XXX porting
+        ;
   }
 
   {
     using Class = SpatialVelocityConstraint;
     constexpr auto& cls_doc = doc.SpatialVelocityConstraint;
-    using Ptr = std::shared_ptr<Class>;
-    py::class_<Class, solvers::Constraint, Ptr> cls(
+    // XXX porting unused
+    // using Ptr = std::shared_ptr<Class>;
+    py::class_<Class, solvers::Constraint/*, Ptr XXX porting */> cls(
         m, "SpatialVelocityConstraint", cls_doc.doc);
-    cls.def(py::init([](const MultibodyPlant<AutoDiffXd>* plant,
+    cls.def("__init__", [](Class* self, const MultibodyPlant<AutoDiffXd>* plant,
                          const Frame<AutoDiffXd>& frameA,
                          const Eigen::Ref<const Eigen::Vector3d>& v_AC_lower,
                          const Eigen::Ref<const Eigen::Vector3d>& v_AC_upper,
@@ -126,9 +138,9 @@ NB_MODULE(optimization, m) {
                          const std::optional<
                              SpatialVelocityConstraint::AngularVelocityBounds>&
                              w_AC_bounds) {
-      return std::make_unique<Class>(plant, frameA, v_AC_lower, v_AC_upper,
+      new (self) Class(plant, frameA, v_AC_lower, v_AC_upper,
           frameB, p_BCo, plant_context, w_AC_bounds);
-    }),
+    },
         py::arg("plant"), py::arg("frameA"), py::arg("v_AC_lower"),
         py::arg("v_AC_upper"), py::arg("frameB"), py::arg("p_BCo"),
         py::arg("plant_context"), py::arg("w_AC_bounds") = std::nullopt,
@@ -149,8 +161,7 @@ NB_MODULE(optimization, m) {
             avb_doc.magnitude_upper.doc)
         .def_rw("reference_direction", &Avb::reference_direction,
             avb_doc.reference_direction.doc)
-        .def_rw(
-            "theta_bound", &Avb::theta_bound, avb_doc.theta_bound.doc);
+        .def_rw("theta_bound", &Avb::theta_bound, avb_doc.theta_bound.doc);
   }
 
   {
@@ -168,8 +179,10 @@ NB_MODULE(optimization, m) {
         .def("get_mutable_prog", &Class::get_mutable_prog,
             py_rvp::reference_internal, cls_doc.get_mutable_prog.doc)
         .def("prog", &Class::prog, py_rvp::reference_internal, cls_doc.prog.doc)
+#if 0  // XXX porting
         .def("q_vars", &Class::q_vars, cls_doc.q_vars.doc)
         .def("u_vars", &Class::u_vars, cls_doc.u_vars.doc)
+#endif  // XXX porting
         .def("GetContactWrenchSolution", &Class::GetContactWrenchSolution,
             py::arg("result"), cls_doc.GetContactWrenchSolution.doc)
         .def("UpdateComplementarityTolerance",

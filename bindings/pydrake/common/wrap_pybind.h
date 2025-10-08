@@ -142,15 +142,17 @@ auto WrapCallbacks(Func&& func) {
 /// @tparam T type for the member we wish to apply keep alive semantics.
 template <typename PyClass, typename Class, typename T>
 void DefReadWriteKeepAlive(
-    PyClass* cls, const char* name, T Class::* member, const char* doc = "") {
+    PyClass* cls, const char* name, T Class::*member, const char* doc = "") {
   cls->def_prop_rw(
       name,  // BR
       [member](const Class* obj) { return obj->*member; },
-      py::cpp_function<void(Class*, const T&)>(
+#if 0   // XXX porting
+      py::cpp_function<Class>(
           [member](Class* obj, const T& value) { obj->*member = value; },
           // Keep alive, reference: `self` keeps `value` alive.
           py::keep_alive<1, 2>()),
-      doc);
+#endif  // XXX porting
+      [member](Class* obj, const T& value) { obj->*member = value; }, doc);
 }
 
 /// Idempotent to pybind11's `def_ro()`, which works for unique_ptr
@@ -162,7 +164,7 @@ void DefReadWriteKeepAlive(
 /// @tparam T type for the member we wish to apply keep alive semantics.
 template <typename PyClass, typename Class, typename T>
 void DefReadUniquePtr(PyClass* cls, const char* name,
-    const std::unique_ptr<T> Class::* member, const char* doc = "") {
+    const std::unique_ptr<T> Class::*member, const char* doc = "") {
   auto getter = py::cpp_function(
       [member](const Class* obj) { return (obj->*member).get(); },
       py_rvp::reference_internal);
@@ -172,11 +174,10 @@ void DefReadUniquePtr(PyClass* cls, const char* name,
 // Variant of DefReadUniquePtr() for copyable_unique_ptr.
 template <typename PyClass, typename Class, typename T>
 void DefReadUniquePtr(PyClass* cls, const char* name,
-    const copyable_unique_ptr<T> Class::* member, const char* doc = "") {
-  auto getter = py::cpp_function(
-      [member](const Class* obj) { return (obj->*member).get(); },
-      py_rvp::reference_internal);
-  cls->def_prop_ro(name, getter, doc);
+    const copyable_unique_ptr<T> Class::*member, const char* doc = "") {
+  cls->def_prop_ro(
+      name, [member](const Class* obj) { return (obj->*member).get(); },
+      py_rvp::reference_internal, doc);
 }
 
 }  // namespace pydrake

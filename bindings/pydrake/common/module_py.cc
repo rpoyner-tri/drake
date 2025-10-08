@@ -293,9 +293,12 @@ void InitLowLevelModules(py::module_ m) {
 
   m.def("CalcProbabilityDensity", &CalcProbabilityDensity<double>,
        py::arg("distribution"), py::arg("x"), doc.CalcProbabilityDensity.doc)
+#if 0  // XXX porting
       .def("CalcProbabilityDensity", &CalcProbabilityDensity<AutoDiffXd>,
           py::arg("distribution"), py::arg("x"),
-          doc.CalcProbabilityDensity.doc);
+          doc.CalcProbabilityDensity.doc)
+#endif  // XXX porting
+      ;
 
   // Adds a binding for drake::RandomGenerator.
   py::class_<RandomGenerator> random_generator_cls(m, "RandomGenerator",

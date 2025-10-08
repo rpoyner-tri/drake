@@ -43,7 +43,9 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py::arg("e"),
             // The return value is a view into the PolygonSurfaceMesh storage.
             py::keep_alive<0, 1>(), cls_doc.element.doc)
+#if 0  // XXX porting
         .def("vertex", &Class::vertex, py::arg("v"), cls_doc.vertex.doc)
+#endif  // XXX porting
         .def("num_vertices", &Class::num_vertices, cls_doc.num_vertices.doc)
         .def("num_elements", &Class::num_elements, cls_doc.num_elements.doc)
         .def(py::init<>(), cls_doc.ctor.doc_0args)
@@ -52,6 +54,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("num_faces", &Class::num_faces, cls_doc.num_faces.doc)
         .def("area", &Class::area, py::arg("f"), cls_doc.area.doc)
         .def("total_area", &Class::total_area, cls_doc.total_area.doc)
+#if 0  // XXX porting
         .def("face_normal", &Class::face_normal, py::arg("f"),
             cls_doc.face_normal.doc)
         .def("element_centroid", &Class::element_centroid, py::arg("e"),
@@ -59,6 +62,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("centroid", &Class::centroid, cls_doc.centroid.doc)
         .def("CalcBoundingBox", &Class::CalcBoundingBox,
             cls_doc.CalcBoundingBox.doc)
+#endif  // XXX porting
         .def("Equal", &Class::Equal, py::arg("mesh"), cls_doc.Equal.doc)
         .def("face_data", &Class::face_data, cls_doc.face_data.doc);
     DefCopyAndDeepCopy(&cls);
@@ -72,7 +76,9 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         m, "TriangleSurfaceMesh", param, cls_doc.doc);
     cls  // BR
         .def("element", &Class::element, py::arg("e"), cls_doc.element.doc)
+#if 0  // XXX porting
         .def("vertex", &Class::vertex, py::arg("v"), cls_doc.vertex.doc)
+#endif  // XXX porting
         .def("num_vertices", &Class::num_vertices, cls_doc.num_vertices.doc)
         .def("num_elements", &Class::num_elements, cls_doc.num_elements.doc)
         .def(py::init<std::vector<SurfaceTriangle>, std::vector<Vector3<T>>>(),
@@ -80,16 +86,21 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("num_triangles", &Class::num_triangles, cls_doc.num_triangles.doc)
         .def("area", &Class::area, py::arg("t"), cls_doc.area.doc)
         .def("total_area", &Class::total_area, cls_doc.total_area.doc)
+#if 0  // XXX porting
         .def("face_normal", &Class::face_normal, py::arg("t"),
             cls_doc.face_normal.doc)
+#endif  // XXX porting
         .def("triangles", &Class::triangles, cls_doc.triangles.doc)
         .def("vertices", &Class::vertices, cls_doc.vertices.doc)
+#if 0  // XXX porting
         .def("centroid", &Class::centroid, cls_doc.centroid.doc)
         .def("element_centroid", &Class::element_centroid, py::arg("t"),
             cls_doc.element_centroid.doc)
         .def("CalcBoundingBox", &Class::CalcBoundingBox,
             cls_doc.CalcBoundingBox.doc)
+#endif  // XXX porting
         .def("Equal", &Class::Equal, py::arg("mesh"), cls_doc.Equal.doc)
+#if 0  // XXX porting
         .def(
             "CalcCartesianFromBarycentric",
             [](const Class* self, int element_index, const Vector3<T>& b_Q) {
@@ -102,7 +113,9 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             [](const Class* self, const Vector3<T>& p_MQ, int t) {
               return self->CalcBarycentric(p_MQ, t);
             },
-            py::arg("p_MQ"), py::arg("t"), cls_doc.CalcBarycentric.doc);
+            py::arg("p_MQ"), py::arg("t"), cls_doc.CalcBarycentric.doc)
+#endif  // XXX porting
+        ;
   }
 
   // VolumeMesh
@@ -115,26 +128,32 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def(py::init<std::vector<VolumeElement>, std::vector<Vector3<T>>>(),
             py::arg("elements"), py::arg("vertices"), cls_doc.ctor.doc)
         .def("element", &Class::element, py::arg("e"), cls_doc.element.doc)
+#if 0  // XXX porting
         .def("vertex", &Class::vertex, py::arg("v"), cls_doc.vertex.doc)
+#endif  // XXX porting
         .def("vertices", &Class::vertices, py_rvp::reference_internal,
             cls_doc.vertices.doc)
         .def("tetrahedra", &Class::tetrahedra, py_rvp::reference_internal,
             cls_doc.tetrahedra.doc)
         .def("num_elements", &Class::num_elements, cls_doc.num_elements.doc)
         .def("num_vertices", &Class::num_vertices, cls_doc.num_vertices.doc)
+#if 0  // XXX porting
         .def("inward_normal", &Class::inward_normal, py::arg("e"), py::arg("f"),
             cls_doc.inward_normal.doc)
         .def("edge_vector", &Class::edge_vector, py::arg("e"), py::arg("a"),
             py::arg("b"), cls_doc.edge_vector.doc)
+#endif  // XXX porting
         .def("CalcTetrahedronVolume", &Class::CalcTetrahedronVolume,
             py::arg("e"), cls_doc.CalcTetrahedronVolume.doc)
         .def("CalcVolume", &Class::CalcVolume, cls_doc.CalcVolume.doc)
+#if 0  // XXX porting
         .def(
             "CalcBarycentric",
             [](const Class* self, const Vector3<T>& p_MQ, int e) {
               return self->CalcBarycentric(p_MQ, e);
             },
             py::arg("p_MQ"), py::arg("e"), cls_doc.CalcBarycentric.doc)
+#endif  // XXX porting
         .def("Equal", &Class::Equal, py::arg("mesh"),
             py::arg("vertex_tolerance") = 0, cls_doc.Equal.doc);
   }

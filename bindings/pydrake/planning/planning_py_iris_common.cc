@@ -26,15 +26,14 @@ void DefinePlanningCommonSampledIrisOptions(py::module_ m) {
       .def_rw("num_particles", &CommonSampledIrisOptions::num_particles,
           cls_doc.num_particles.doc)
       .def_rw("tau", &CommonSampledIrisOptions::tau, cls_doc.tau.doc)
-      .def_rw(
-          "delta", &CommonSampledIrisOptions::delta, cls_doc.delta.doc)
+      .def_rw("delta", &CommonSampledIrisOptions::delta, cls_doc.delta.doc)
       .def_rw(
           "epsilon", &CommonSampledIrisOptions::epsilon, cls_doc.epsilon.doc)
       .def_rw("containment_points",
           &CommonSampledIrisOptions::containment_points,
           cls_doc.containment_points.doc)
-      .def_rw("max_iterations",
-          &CommonSampledIrisOptions::max_iterations, cls_doc.max_iterations.doc)
+      .def_rw("max_iterations", &CommonSampledIrisOptions::max_iterations,
+          cls_doc.max_iterations.doc)
       .def_rw("max_iterations_separating_planes",
           &CommonSampledIrisOptions::max_iterations_separating_planes,
           cls_doc.max_iterations_separating_planes.doc)
@@ -111,6 +110,7 @@ void DefinePlanningCommonSampledIrisOptions(py::module_ m) {
 // TODO(cohnt): Refactor for better code reuse.
 enum class ArrayShapeType { Scalar, Vector };
 
+#if 0   // XXX porting
 // Checks array shape, provides user-friendly message if it fails.
 void CheckArrayShape(
     py::str var_name, py::array x, ArrayShapeType shape, int size) {
@@ -157,6 +157,7 @@ Func WrapParameterizationFunc(
   };
   return wrapped.cast<Func>();
 }
+#endif  // XXX porting
 
 void DefinePlanningIrisParameterizationFunction(py::module_ m) {
   // NOLINTNEXTLINE(build/namespaces): Emulate placement in namespace.
@@ -167,7 +168,8 @@ void DefinePlanningIrisParameterizationFunction(py::module_ m) {
   const auto& cls_doc = doc.IrisParameterizationFunction;
 
   const std::string parameterization_function_docstring =
-      std::string(cls_doc.ctor
+      std::string(
+          cls_doc.ctor
               .doc_3args_parameterization_double_parameterization_is_threadsafe_parameterization_dimension) +
       R"(
 
@@ -183,20 +185,26 @@ void DefinePlanningIrisParameterizationFunction(py::module_ m) {
   py::class_<IrisParameterizationFunction> iris_parameterization_function(
       m, "IrisParameterizationFunction", cls_doc.doc);
   iris_parameterization_function.def(py::init<>(), cls_doc.ctor.doc_0args)
-      .def(py::init([](const py::function& parameterization,
-                        int parameterization_dimension) {
-        return IrisParameterizationFunction(
-            WrapParameterizationFunc<double,
-                IrisParameterizationFunction::ParameterizationFunctionDouble>(
-                "IrisParameterizationFunction", parameterization,
-                parameterization_dimension),
-            WrapParameterizationFunc<AutoDiffXd,
-                IrisParameterizationFunction::ParameterizationFunctionAutodiff>(
-                "IrisParameterizationFunction", parameterization,
-                parameterization_dimension),
-            /* parameterization_is_threadsafe = */ false,
-            parameterization_dimension);
-      }),
+#if 0  // XXX porting
+      .def(
+          "__init__",
+          [](IrisParameterizationFunction* self,
+              const py::function& parameterization,
+              int parameterization_dimension) {
+            new (self) IrisParameterizationFunction(
+                WrapParameterizationFunc<double,
+                    IrisParameterizationFunction::
+                        ParameterizationFunctionDouble>(
+                    "IrisParameterizationFunction", parameterization,
+                    parameterization_dimension),
+                WrapParameterizationFunc<AutoDiffXd,
+                    IrisParameterizationFunction::
+                        ParameterizationFunctionAutodiff>(
+                    "IrisParameterizationFunction", parameterization,
+                    parameterization_dimension),
+                /* parameterization_is_threadsafe = */ false,
+                parameterization_dimension);
+          },
           py::arg("parameterization"), py::arg("dimension"),
           parameterization_function_docstring.c_str())
       .def(py::init<const Eigen::VectorX<symbolic::Expression>&,
@@ -207,6 +215,7 @@ void DefinePlanningIrisParameterizationFunction(py::module_ m) {
                const Eigen::Ref<const Eigen::VectorXd>&>(),
           py::arg("kin"), py::arg("q_star_val"),
           cls_doc.ctor.doc_2args_kin_q_star_val)
+#endif  // XXX porting
       .def("get_parameterization_is_threadsafe",
           &IrisParameterizationFunction::get_parameterization_is_threadsafe,
           cls_doc.get_parameterization_is_threadsafe.doc)

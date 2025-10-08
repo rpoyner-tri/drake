@@ -76,20 +76,21 @@ void DefineCspaceSeparatingPlane(py::module_ m) {
                 // referenced.
                 py_rvp::copy, base_cls_doc.a.doc)
             .def_ro("b", &Class::b, base_cls_doc.b.doc)
-            .def_ro("positive_side_geometry",
-                &Class::positive_side_geometry,
+            .def_ro("positive_side_geometry", &Class::positive_side_geometry,
                 base_cls_doc.positive_side_geometry.doc)
-            .def_ro("negative_side_geometry",
-                &Class::negative_side_geometry,
+            .def_ro("negative_side_geometry", &Class::negative_side_geometry,
                 base_cls_doc.negative_side_geometry.doc)
             .def_ro("expressed_body", &Class::expressed_body,
                 base_cls_doc.expressed_body.doc)
             .def_ro("plane_degree", &Class::plane_degree)
+#if 0  // XXX porting
             .def_ro("decision_variables", &Class::decision_variables,
                 // Use py_rvp::copy here because numpy.ndarray with
                 // dtype=object arrays must be copied, and cannot be
                 // referenced.
-                py_rvp::copy, base_cls_doc.a.doc);
+                py_rvp::copy, base_cls_doc.a.doc)
+#endif  // XXX porting
+            ;
         DefCopyAndDeepCopy(&cls);
         AddValueInstantiation<Class>(m);
       },
@@ -101,8 +102,7 @@ void DefineConvexSetBaseClassAndSubclasses(py::module_ m) {
   // ConvexSet depend on this struct.
   {
     py::class_<SampledVolume>(m, "SampledVolume", doc.SampledVolume.doc)
-        .def_rw(
-            "volume", &SampledVolume::volume, doc.SampledVolume.volume.doc)
+        .def_rw("volume", &SampledVolume::volume, doc.SampledVolume.volume.doc)
         .def_rw("rel_accuracy", &SampledVolume::rel_accuracy,
             doc.SampledVolume.rel_accuracy.doc)
         .def_rw("num_samples", &SampledVolume::num_samples,
@@ -127,6 +127,7 @@ void DefineConvexSetBaseClassAndSubclasses(py::module_ m) {
             cls_doc.MaybeGetFeasiblePoint.doc)
         .def("PointInSet", &ConvexSet::PointInSet, py::arg("x"),
             py::arg("tol") = 1e-8, cls_doc.PointInSet.doc)
+#if 0  // XXX porting
         .def("AddPointInSetConstraints", &ConvexSet::AddPointInSetConstraints,
             py::arg("prog"), py::arg("vars"),
             cls_doc.AddPointInSetConstraints.doc)
@@ -152,6 +153,7 @@ void DefineConvexSetBaseClassAndSubclasses(py::module_ m) {
             py::arg("prog"), py::arg("A"), py::arg("b"), py::arg("c"),
             py::arg("d"), py::arg("x"), py::arg("t"),
             cls_doc.AddPointInNonnegativeScalingConstraints.doc_7args)
+#endif  // XXX porting
         .def("ToShapeWithPose", &ConvexSet::ToShapeWithPose,
             cls_doc.ToShapeWithPose.doc)
         .def("CalcVolume", &ConvexSet::CalcVolume, cls_doc.CalcVolume.doc)
@@ -240,18 +242,21 @@ void DefineConvexSetBaseClassAndSubclasses(py::module_ m) {
     const auto& cls_doc = doc.CartesianProduct;
     py::class_<CartesianProduct, ConvexSet>(m, "CartesianProduct", cls_doc.doc)
         .def(py::init<>(), cls_doc.ctor.doc_0args)
-        .def(py::init([](const std::vector<ConvexSet*>& sets) {
-          return std::make_unique<CartesianProduct>(CloneConvexSets(sets));
-        }),
+        .def(
+            "__init__",
+            [](CartesianProduct* self, const std::vector<ConvexSet*>& sets) {
+              new (self) CartesianProduct(CloneConvexSets(sets));
+            },
             py::arg("sets"), cls_doc.ctor.doc_1args_sets)
         .def(py::init<const ConvexSet&, const ConvexSet&>(), py::arg("setA"),
             py::arg("setB"), cls_doc.ctor.doc_2args_setA_setB)
-        .def(py::init([](const std::vector<ConvexSet*>& sets,
-                          const Eigen::Ref<const Eigen::MatrixXd>& A,
-                          const Eigen::Ref<const Eigen::VectorXd>& b) {
-          return std::make_unique<CartesianProduct>(
-              CloneConvexSets(sets), A, b);
-        }),
+        .def(
+            "__init__",
+            [](CartesianProduct* self, const std::vector<ConvexSet*>& sets,
+                const Eigen::Ref<const Eigen::MatrixXd>& A,
+                const Eigen::Ref<const Eigen::VectorXd>& b) {
+              new (self) CartesianProduct(CloneConvexSets(sets), A, b);
+            },
             py::arg("sets"), py::arg("A"), py::arg("b"),
             cls_doc.ctor.doc_3args_sets_A_b)
         .def(py::init<const QueryObject<double>&, GeometryId,
@@ -271,11 +276,12 @@ void DefineConvexSetBaseClassAndSubclasses(py::module_ m) {
   {
     const auto& cls_doc = doc.ConvexHull;
     py::class_<ConvexHull, ConvexSet>(m, "ConvexHull", cls_doc.doc)
-        .def(py::init([](const std::vector<ConvexSet*>& sets,
-                          const bool remove_empty_sets) {
-          return std::make_unique<ConvexHull>(
-              CloneConvexSets(sets), remove_empty_sets);
-        }),
+        .def(
+            "__init__",
+            [](ConvexHull* self, const std::vector<ConvexSet*>& sets,
+                const bool remove_empty_sets) {
+              new (self) ConvexHull(CloneConvexSets(sets), remove_empty_sets);
+            },
             py::arg("sets"), cls_doc.ctor.doc,
             py::arg("remove_empty_sets") = true)
         .def(
@@ -384,13 +390,15 @@ void DefineConvexSetBaseClassAndSubclasses(py::module_ m) {
             cls_doc.MakeUnitBox.doc)
         .def_static("MakeL1Ball", &HPolyhedron::MakeL1Ball, py::arg("dim"),
             cls_doc.MakeL1Ball.doc)
-        .def(py::pickle(
+        .def("__getstate__",
             [](const HPolyhedron& self) {
               return std::make_pair(self.A(), self.b());
-            },
-            [](std::pair<Eigen::MatrixXd, Eigen::VectorXd> args) {
-              return HPolyhedron(std::get<0>(args), std::get<1>(args));
-            }));
+            })
+        .def("__setstate__",
+            [](HPolyhedron* self,
+                std::pair<Eigen::MatrixXd, Eigen::VectorXd> args) {
+              new (self) HPolyhedron(std::get<0>(args), std::get<1>(args));
+            });
   }
 
   // Hyperellipsoid
@@ -422,13 +430,15 @@ void DefineConvexSetBaseClassAndSubclasses(py::module_ m) {
             &Hyperellipsoid::MinimumVolumeCircumscribedEllipsoid,
             py::arg("points"), py::arg("rank_tol") = 1e-6,
             cls_doc.MinimumVolumeCircumscribedEllipsoid.doc)
-        .def(py::pickle(
+        .def("__getstate__",
             [](const Hyperellipsoid& self) {
               return std::make_pair(self.A(), self.center());
-            },
-            [](std::pair<Eigen::MatrixXd, Eigen::VectorXd> args) {
+            })
+        .def("__setstate__",
+            [](Hyperellipsoid* self,
+                std::pair<Eigen::MatrixXd, Eigen::VectorXd> args) {
               return Hyperellipsoid(std::get<0>(args), std::get<1>(args));
-            }));
+            });
   }
 
   // Hyperrectangle
@@ -448,13 +458,15 @@ void DefineConvexSetBaseClassAndSubclasses(py::module_ m) {
             cls_doc.MaybeGetIntersection.doc)
         .def("MakeHPolyhedron", &Hyperrectangle::MakeHPolyhedron,
             cls_doc.MakeHPolyhedron.doc)
-        .def(py::pickle(
+        .def("__getstate__",
             [](const Hyperrectangle& self) {
               return std::make_pair(self.lb(), self.ub());
-            },
-            [](std::pair<Eigen::VectorXd, Eigen::VectorXd> args) {
-              return Hyperrectangle(std::get<0>(args), std::get<1>(args));
-            }))
+            })
+        .def("__setstate__",
+            [](Hyperrectangle* self,
+                std::pair<Eigen::VectorXd, Eigen::VectorXd> args) {
+              new (self) Hyperrectangle(std::get<0>(args), std::get<1>(args));
+            })
         .def_static("MaybeCalcAxisAlignedBoundingBox",
             &Hyperrectangle::MaybeCalcAxisAlignedBoundingBox, py::arg("set"),
             cls_doc.MaybeCalcAxisAlignedBoundingBox.doc);
@@ -465,9 +477,11 @@ void DefineConvexSetBaseClassAndSubclasses(py::module_ m) {
     const auto& cls_doc = doc.Intersection;
     py::class_<Intersection, ConvexSet>(m, "Intersection", cls_doc.doc)
         .def(py::init<>(), cls_doc.ctor.doc_0args)
-        .def(py::init([](const std::vector<ConvexSet*>& sets) {
-          return std::make_unique<Intersection>(CloneConvexSets(sets));
-        }),
+        .def(
+            "__init__",
+            [](Intersection* self, const std::vector<ConvexSet*>& sets) {
+              new (self) Intersection(CloneConvexSets(sets));
+            },
             py::arg("sets"), cls_doc.ctor.doc_1args)
         .def(py::init<const ConvexSet&, const ConvexSet&>(), py::arg("setA"),
             py::arg("setB"), cls_doc.ctor.doc_2args)
@@ -482,9 +496,11 @@ void DefineConvexSetBaseClassAndSubclasses(py::module_ m) {
     const auto& cls_doc = doc.MinkowskiSum;
     py::class_<MinkowskiSum, ConvexSet>(m, "MinkowskiSum", cls_doc.doc)
         .def(py::init<>(), cls_doc.ctor.doc_0args)
-        .def(py::init([](const std::vector<ConvexSet*>& sets) {
-          return std::make_unique<MinkowskiSum>(CloneConvexSets(sets));
-        }),
+        .def(
+            "__init__",
+            [](MinkowskiSum* self, const std::vector<ConvexSet*>& sets) {
+              new (self) MinkowskiSum(CloneConvexSets(sets));
+            },
             py::arg("sets"), cls_doc.ctor.doc_1args)
         .def(py::init<const ConvexSet&, const ConvexSet&>(), py::arg("setA"),
             py::arg("setB"), cls_doc.ctor.doc_2args)
@@ -511,8 +527,9 @@ void DefineConvexSetBaseClassAndSubclasses(py::module_ m) {
             py::arg("maximum_allowable_radius") = 0.0, cls_doc.ctor.doc_4args)
         .def("x", &Point::x, cls_doc.x.doc)
         .def("set_x", &Point::set_x, py::arg("x"), cls_doc.set_x.doc)
-        .def(py::pickle([](const Point& self) { return self.x(); },
-            [](Eigen::VectorXd arg) { return Point(arg); }));
+        .def("__getstate__", [](const Point& self) { return self.x(); })
+        .def("__setstate__",
+            [](Point* self, Eigen::VectorXd arg) { new (self) Point(arg); });
   }
 
   // Spectrahedron
@@ -550,8 +567,11 @@ void DefineConvexSetBaseClassAndSubclasses(py::module_ m) {
         .def("ToShapeConvex", &VPolytope::ToShapeConvex,
             py::arg("convex_label") = "convex_from_vpolytope",
             cls_doc.ToShapeConvex.doc)
-        .def(py::pickle([](const VPolytope& self) { return self.vertices(); },
-            [](Eigen::MatrixXd arg) { return VPolytope(arg); }));
+        .def("__getstate__",
+            [](const VPolytope& self) { return self.vertices(); })
+        .def("__setstate__", [](VPolytope* self, Eigen::MatrixXd arg) {
+          new (self) VPolytope(arg);
+        });
   }
 }
 
@@ -559,14 +579,16 @@ void DefineIris(py::module_ m) {
   {
     const auto& cls_doc = doc.IrisOptions;
     py::class_<IrisOptions> iris_options(m, "IrisOptions", cls_doc.doc);
-    iris_options.def(ParamInit<IrisOptions>())
+    iris_options
+#if 0  // XXX porting
+        .def(ParamInit<IrisOptions>())
+#endif  // XXX porting
         .def_rw("require_sample_point_is_contained",
             &IrisOptions::require_sample_point_is_contained,
             cls_doc.require_sample_point_is_contained.doc)
         .def_rw("iteration_limit", &IrisOptions::iteration_limit,
             cls_doc.iteration_limit.doc)
-        .def_rw("termination_threshold",
-            &IrisOptions::termination_threshold,
+        .def_rw("termination_threshold", &IrisOptions::termination_threshold,
             cls_doc.termination_threshold.doc)
         .def_rw("relative_termination_threshold",
             &IrisOptions::relative_termination_threshold,
@@ -716,19 +738,19 @@ void DefineGraphOfConvexSetsAndRelated(py::module_ m) {
         .def_rw("convex_relaxation",
             &GraphOfConvexSetsOptions::convex_relaxation,
             cls_doc.convex_relaxation.doc)
-        .def_rw("preprocessing",
-            &GraphOfConvexSetsOptions::preprocessing, cls_doc.preprocessing.doc)
+        .def_rw("preprocessing", &GraphOfConvexSetsOptions::preprocessing,
+            cls_doc.preprocessing.doc)
         .def_rw("max_rounded_paths",
             &GraphOfConvexSetsOptions::max_rounded_paths,
             cls_doc.max_rounded_paths.doc)
         .def_rw("max_rounding_trials",
             &GraphOfConvexSetsOptions::max_rounding_trials,
             cls_doc.max_rounding_trials.doc)
-        .def_rw("flow_tolerance",
-            &GraphOfConvexSetsOptions::flow_tolerance,
+        .def_rw("flow_tolerance", &GraphOfConvexSetsOptions::flow_tolerance,
             cls_doc.flow_tolerance.doc)
-        .def_rw("rounding_seed",
-            &GraphOfConvexSetsOptions::rounding_seed, cls_doc.rounding_seed.doc)
+        .def_rw("rounding_seed", &GraphOfConvexSetsOptions::rounding_seed,
+            cls_doc.rounding_seed.doc)
+#if 0  // XXX porting
         .def_prop_rw("solver_options",
             py::cpp_function(
                 [](GraphOfConvexSetsOptions& self) {
@@ -766,6 +788,7 @@ void DefineGraphOfConvexSetsAndRelated(py::module_ m) {
                       std::move(preprocessing_solver_options);
                 }),
             cls_doc.preprocessing_solver_options.doc)
+#endif  // XXX porting
         .def_rw("parallelism", &GraphOfConvexSetsOptions::parallelism)
         .def("__repr__", [](const GraphOfConvexSetsOptions& self) {
           return py::str(
@@ -806,7 +829,9 @@ void DefineGraphOfConvexSetsAndRelated(py::module_ m) {
     using Class = GcsGraphvizOptions;
     constexpr auto& cls_doc = doc.GcsGraphvizOptions;
     py::class_<Class> cls(m, "GcsGraphvizOptions", cls_doc.doc);
+#if 0  // XXX porting
     cls.def(ParamInit<Class>());
+#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -851,11 +876,13 @@ void DefineGraphOfConvexSetsAndRelated(py::module_ m) {
         // As in trajectory_optimization_py.cc, we use a lambda to *copy*
         // the decision variables; otherwise we get dtype=object arrays
         // cannot be referenced.
+#if 0  // XXX porting
         .def(
             "x",
             [](const GraphOfConvexSets::Vertex& self)
                 -> const VectorX<symbolic::Variable> { return self.x(); },
             vertex_doc.x.doc)
+#endif  // XXX porting
         .def("set", &GraphOfConvexSets::Vertex::set, py_rvp::reference_internal,
             vertex_doc.set.doc)
         .def("AddCost",
@@ -927,6 +954,7 @@ void DefineGraphOfConvexSetsAndRelated(py::module_ m) {
             py_rvp::reference_internal, edge_doc.v.doc_0args_nonconst)
         .def("phi", &GraphOfConvexSets::Edge::phi, py_rvp::reference_internal,
             edge_doc.phi.doc)
+#if 0  // XXX porting
         .def(
             "xu",
             [](const GraphOfConvexSets::Edge& self)
@@ -937,6 +965,7 @@ void DefineGraphOfConvexSetsAndRelated(py::module_ m) {
             [](const GraphOfConvexSets::Edge& self)
                 -> const VectorX<symbolic::Variable> { return self.xv(); },
             edge_doc.xv.doc)
+#endif  // XXX porting
         .def("AddCost",
             py::overload_cast<const symbolic::Expression&,
                 const std::unordered_set<GraphOfConvexSets::Transcription>&>(
@@ -1139,8 +1168,10 @@ void DefineGraphOfConvexSetsAndRelated(py::module_ m) {
   // python.
   class PyImplicitGraphOfConvexSets : public ImplicitGraphOfConvexSets {
    public:
+    NB_TRAMPOLINE(ImplicitGraphOfConvexSets, 100);
     using Base = ImplicitGraphOfConvexSets;
-    using Base::Base;
+    // XXX porting duplicate?
+    // using Base::Base;
     using Base::mutable_gcs;
 
     PyImplicitGraphOfConvexSets() : Base() {}
@@ -1148,7 +1179,7 @@ void DefineGraphOfConvexSetsAndRelated(py::module_ m) {
     // Trampoline virtual methods.
 
     void Expand(GraphOfConvexSets::Vertex* v) override {
-      PYBIND11_OVERLOAD_PURE(void, ImplicitGraphOfConvexSets, Expand, v);
+      NB_OVERRIDE_PURE(Expand, v);
     }
   };
 
@@ -1253,10 +1284,8 @@ void DefineCspaceFreeStructs(py::module_ m) {
             .def(py::init<>())
             .def_rw(
                 "parallelism", &FindSeparationCertificateOptions::parallelism)
-            .def_rw(
-                "verbose", &FindSeparationCertificateOptions::verbose)
-            .def_rw(
-                "solver_id", &FindSeparationCertificateOptions::solver_id)
+            .def_rw("verbose", &FindSeparationCertificateOptions::verbose)
+            .def_rw("solver_id", &FindSeparationCertificateOptions::solver_id)
             .def_rw("terminate_at_failure",
                 &FindSeparationCertificateOptions::terminate_at_failure)
             .def_rw("solver_options",
@@ -1278,7 +1307,10 @@ void DefineCspaceFreePolytopeAndRelated(py::module_ m) {
             base_cls_doc.map_geometries_to_separating_planes.doc)
         .def("separating_planes", &BaseClass::separating_planes,
             base_cls_doc.separating_planes.doc)
-        .def("y_slack", &BaseClass::y_slack, base_cls_doc.y_slack.doc);
+#if 0  // XXX porting
+        .def("y_slack", &BaseClass::y_slack, base_cls_doc.y_slack.doc)
+#endif  // XXX porting
+        ;
 
     {
       const auto& options_cls_doc = base_cls_doc.Options;
@@ -1338,10 +1370,12 @@ void DefineCspaceFreePolytopeAndRelated(py::module_ m) {
 
     py::class_<Class::SeparationCertificate>(cspace_free_polytope_cls,
         "SeparationCertificate", cls_doc.SeparationCertificate.doc)
+#if 0  // XXX porting
         .def("GetSolution", &Class::SeparationCertificate::GetSolution,
             py::arg("plane_index"), py::arg("a"), py::arg("b"),
             py::arg("plane_decision_vars"), py::arg("result"),
             cls_doc.SeparationCertificate.GetSolution.doc)
+#endif  // XXX porting
         .def_rw("positive_side_rational_lagrangians",
             &Class::SeparationCertificate::positive_side_rational_lagrangians)
         .def_rw("negative_side_rational_lagrangians",
@@ -1428,8 +1462,7 @@ void DefineCspaceFreePolytopeAndRelated(py::module_ m) {
         .def_rw("scale_max", &Class::BinarySearchOptions::scale_max)
         .def_rw("scale_min", &Class::BinarySearchOptions::scale_min)
         .def_rw("max_iter", &Class::BinarySearchOptions::max_iter)
-        .def_rw(
-            "convergence_tol", &Class::BinarySearchOptions::convergence_tol)
+        .def_rw("convergence_tol", &Class::BinarySearchOptions::convergence_tol)
         .def_ro("find_lagrangian_options",
             &Class::BinarySearchOptions::find_lagrangian_options);
 
@@ -1473,10 +1506,12 @@ void DefineCspaceFreePolytopeAndRelated(py::module_ m) {
         .def("BinarySearch", &Class::BinarySearch,
             py::arg("ignored_collision_pairs"), py::arg("C"), py::arg("d"),
             py::arg("s_center"), py::arg("options"), cls_doc.BinarySearch.doc)
+#if 0  // XXX porting
         .def("MakeIsGeometrySeparableProgram",
             &Class::MakeIsGeometrySeparableProgram, py::arg("geometry_pair"),
             py::arg("C"), py::arg("d"),
             cls_doc.MakeIsGeometrySeparableProgram.doc)
+#endif  // XXX porting
         .def("SolveSeparationCertificateProgram",
             &Class::SolveSeparationCertificateProgram,
             py::arg("certificate_program"), py::arg("options"),

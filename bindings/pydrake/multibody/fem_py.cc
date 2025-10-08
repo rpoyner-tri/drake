@@ -100,8 +100,10 @@ void DefineForceDensityFieldBase(py::module_ m, T) {
         /*, std::shared_ptr<Class> XXX porting */>(
         m, "ForceDensityFieldBase", param, cls_doc.doc);
     cls  // BR
+#if 0  // XXX porting
         .def("EvaluateAt", &Class::EvaluateAt, py::arg("context"),
             py::arg("p_WQ"), cls_doc.EvaluateAt.doc)
+#endif  // XXX porting
         .def("density_type", &Class::density_type, cls_doc.density_type.doc);
     DefClone(&cls);
   }

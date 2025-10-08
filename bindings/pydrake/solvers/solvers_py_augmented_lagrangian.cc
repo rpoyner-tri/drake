@@ -32,6 +32,7 @@ void DefineSolversAugmentedLagrangian(py::module_ m) {
             },
             py::arg("x"), py::arg("lambda_val"), py::arg("mu"),
             cls_doc.Eval.doc)
+#if 0  // XXX porting
         .def(
             "Eval",
             [](const Class* self,
@@ -45,6 +46,7 @@ void DefineSolversAugmentedLagrangian(py::module_ m) {
             },
             py::arg("x"), py::arg("lambda_val"), py::arg("mu"),
             cls_doc.Eval.doc)
+#endif  // XXX porting
         .def("prog", &Class::prog, py_rvp::reference, cls_doc.prog.doc)
         .def("include_x_bounds", &Class::include_x_bounds,
             cls_doc.include_x_bounds.doc)
@@ -75,6 +77,7 @@ void DefineSolversAugmentedLagrangian(py::module_ m) {
             },
             py::arg("x"), py::arg("s"), py::arg("lambda_val"), py::arg("mu"),
             cls_doc.Eval.doc)
+#if 0  // XXX porting
         .def(
             "Eval",
             [](const Class* self,
@@ -89,6 +92,7 @@ void DefineSolversAugmentedLagrangian(py::module_ m) {
             },
             py::arg("x"), py::arg("s"), py::arg("lambda_val"), py::arg("mu"),
             cls_doc.Eval.doc)
+#endif  // XXX porting
         .def("prog", &Class::prog, py_rvp::reference, cls_doc.prog.doc)
         .def("include_x_bounds", &Class::include_x_bounds,
             cls_doc.include_x_bounds.doc)

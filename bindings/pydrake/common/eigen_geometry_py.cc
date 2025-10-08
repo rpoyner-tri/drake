@@ -78,7 +78,8 @@ void CheckAngleAxis(const Eigen::AngleAxis<T>& value) {
 // not easily achievable for non-numeric values. These can be removed once the
 // checks are removed in their entirety (#8960).
 
-void CheckRotMat(const Matrix3<Expression>&) {}
+// XXX porting unused
+// void CheckRotMat(const Matrix3<Expression>&) {}
 
 void CheckSe3(const Isometry3<Expression>&) {}
 
@@ -104,6 +105,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("__init__",
             [](Class* self) { new (self) Class(Class::Identity()); })
         .def_static("Identity", []() { return Class::Identity(); })
+#if 0  // XXX porting
         .def(
             "__init__",
             [](Class* self, const Matrix4<T>& matrix) {
@@ -131,6 +133,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               self->translation() = translation;
             },
             py::arg("quaternion"), py::arg("translation"))
+#endif  // XXX porting
         .def(
             "__init__",
             [](Class* self, const Class& other) {
@@ -138,6 +141,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               new (self) Class(other);
             },
             py::arg("other"))
+#if 0  // XXX porting
         .def("matrix",
             [](const Class* self) -> Matrix4<T> { return self->matrix(); })
         .def("set_matrix",
@@ -159,6 +163,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               CheckRotMat(rotation);
               self->linear() = rotation;
             })
+#endif  // XXX porting
         .def("quaternion",
             [](const Class* self) {
               return Eigen::Quaternion<T>(self->linear());
@@ -174,6 +179,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             "multiply",
             [](const Class& self, const Class& other) { return self * other; },
             py::arg("other"), "RigidTransform multiplication")
+#if 0  // XXX porting
         .def(
             "multiply",
             [](const Class& self, const Vector3<T>& position) {
@@ -186,14 +192,20 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               return self * position;
             },
             py::arg("position"), "Position vector list multiplication")
+#endif  // XXX porting
         .def("inverse", [](const Class* self) { return self->inverse(); })
+#if 0  // XXX porting
         .def("__getstate__", [](const Class& self) { return self.matrix(); })
         .def("__setstate__", [](Class& self, const Matrix4<T>& matrix) {
           new (&self) Class(matrix);
-        });
+        })
+#endif  // XXX porting
+        ;
     cls.attr("multiply") = WrapToMatchInputShape(cls.attr("multiply"));
     cls.attr("__matmul__") = cls.attr("multiply");
+#if 0  // XXX porting
     py::implicitly_convertible<Matrix4<T>, Class>();
+#endif  // XXX porting
     DefCopyAndDeepCopy(&cls);
     DefCast<T>(&cls, kCastDoc);
     AddValueInstantiation<Isometry3<T>>(m);
@@ -212,6 +224,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("__init__",
             [](Class* self) { new (self) Class(Class::Identity()); })
         .def_static("Identity", []() { return Class::Identity(); })
+#if 0  // XXX porting
         .def(
             "__init__",
             [](Class* self, const Vector4<T>& wxyz) {
@@ -219,6 +232,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               CheckQuaternion(*self);
             },
             py::arg("wxyz"))
+#endif  // XXX porting
         .def(
             "__init__",
             [](Class* self, T w, T x, T y, T z) {
@@ -226,6 +240,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               CheckQuaternion(*self);
             },
             py::arg("w"), py::arg("x"), py::arg("y"), py::arg("z"))
+#if 0  // XXX porting
         .def(
             "__init__",
             [](Class* self, const Matrix3<T>& rotation) {
@@ -233,6 +248,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               CheckQuaternion(*self);
             },
             py::arg("rotation"))
+#endif  // XXX porting
         .def(
             "__init__",
             [](Class* self, const Class& other) {
@@ -244,6 +260,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("x", [](const Class* self) { return self->x(); })
         .def("y", [](const Class* self) { return self->y(); })
         .def("z", [](const Class* self) { return self->z(); })
+#if 0  // XXX porting
         .def("xyz", [](const Class* self) { return Vector3<T>(self->vec()); })
         .def("wxyz",
             [](Class* self) {
@@ -261,6 +278,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               *self = update;
             },
             py::arg("wxyz"))
+#endif  // XXX porting
         .def(
             "set_wxyz",
             [](Class* self, T w, T x, T y, T z) {
@@ -269,6 +287,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               *self = update;
             },
             py::arg("w"), py::arg("x"), py::arg("y"), py::arg("z"))
+#if 0  // XXX porting
         .def("rotation",
             [](const Class* self) { return self->toRotationMatrix(); })
         .def("set_rotation",
@@ -277,6 +296,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               CheckQuaternion(update);
               *self = update;
             })
+#endif  // XXX porting
         .def("__str__",
             [py_class_obj](const Class* self) {
               return py::str("{}(w={}, x={}, y={}, z={})")
@@ -295,22 +315,25 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py::arg("t"), py::arg("other"),
             "The spherical linear interpolation between the two quaternions "
             "(self and other) at the parameter t in [0;1].");
-    auto multiply_vector = [](const Class& self, const Vector3<T>& vector) {
-      return self * vector;
-    };
-    auto multiply_vector_list = [](const Class& self,
-                                    const Matrix3X<T>& vector) {
-      Matrix3X<T> out(vector.rows(), vector.cols());
-      for (int i = 0; i < vector.cols(); ++i) {
-        out.col(i) = self * vector.col(i);
-      }
-      return out;
-    };
+    // XXX porting unused
+    // auto multiply_vector = [](const Class& self, const Vector3<T>& vector) {
+    //   return self * vector;
+    // };
+    // auto multiply_vector_list = [](const Class& self,
+    //                                 const Matrix3X<T>& vector) {
+    //   Matrix3X<T> out(vector.rows(), vector.cols());
+    //   for (int i = 0; i < vector.cols(); ++i) {
+    //     out.col(i) = self * vector.col(i);
+    //   }
+    //   return out;
+    // };
     cls  // BR
+#if 0  // XXX porting
         .def("multiply", multiply_vector, py::arg("vector"),
             "Multiplication by a vector expressed in a frame")
         .def("multiply", multiply_vector_list, py::arg("vector"),
             "Multiplication by a list of vectors expressed in the same frame")
+#endif  // XXX porting
         .def("inverse", [](const Class* self) { return self->inverse(); })
         .def("conjugate", [](const Class* self) { return self->conjugate(); })
         .def("__getstate__",
@@ -335,6 +358,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("__init__",
             [](Class* self) { new (self) Class(Class::Identity()); })
         .def_static("Identity", []() { return Class::Identity(); })
+#if 0  // XXX porting
         .def(
             "__init__",
             [](Class* self, const T& angle, const Vector3<T>& axis) {
@@ -342,6 +366,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               CheckAngleAxis(*self);
             },
             py::arg("angle"), py::arg("axis"))
+#endif  // XXX porting
         .def(
             "__init__",
             [](Class* self, const Eigen::Quaternion<T>& q) {
@@ -349,6 +374,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               CheckAngleAxis(*self);
             },
             py::arg("quaternion"))
+#if 0  // XXX porting
         .def(
             "__init__",
             [](Class* self, const Matrix3<T>& rotation) {
@@ -356,6 +382,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               CheckAngleAxis(*self);
             },
             py::arg("rotation"))
+#endif  // XXX porting
         .def(
             "__init__",
             [](Class* self, const Class& other) {
@@ -364,7 +391,9 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             },
             py::arg("other"))
         .def("angle", [](const Class* self) { return self->angle(); })
+#if 0  // XXX porting
         .def("axis", [](const Class* self) { return self->axis(); })
+#endif  // XXX porting
         .def(
             "set_angle",
             [](Class* self, const T& angle) {
@@ -373,6 +402,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               self->angle() = angle;
             },
             py::arg("angle"))
+#if 0  // XXX porting
         .def(
             "set_axis",
             [](Class* self, const Vector3<T>& axis) {
@@ -391,6 +421,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               *self = update;
             },
             py::arg("rotation"))
+#endif  // XXX porting
         .def("quaternion",
             [](const Class* self) { return Eigen::Quaternion<T>(*self); })
         .def(
@@ -402,17 +433,20 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               *self = update;
             },
             py::arg("q"))
+#if 0  // XXX porting
         .def("__str__",
             [py_class_obj](const Class* self) {
               return py::str("{}(angle={}, axis={})")
                   .format(internal::PrettyClassName(py_class_obj),
                       self->angle(), self->axis());
             })
+#endif  // XXX porting
         .def(
             "multiply",
             [](const Class& self, const Class& other) { return self * other; },
             py::arg("other"))
         .def("inverse", [](const Class* self) { return self->inverse(); })
+#if 0  // XXX porting
         .def("__getstate__",
             [](const Class& self) {
               return py::make_tuple(self.angle(), self.axis());
@@ -420,7 +454,9 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("__setstate__", [](Class& self, py::tuple t) {
           DRAKE_THROW_UNLESS(t.size() == 2);
           new (&self) Class(py::cast<T>(t[0]), py::cast<Vector3<T>>(t[1]));
-        });
+        })
+#endif  // XXX porting
+        ;
     // N.B. This class does not support multiplication with vectors, so we do
     // not use `WrapToMatchInputShape` here.
     cls.attr("__matmul__") = cls.attr("multiply");

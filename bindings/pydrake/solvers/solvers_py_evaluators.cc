@@ -66,6 +66,7 @@ auto RegisterBinding(py::handle* scope) {
   py::class_<B> binding_cls(*scope, pyname.c_str());
   AddTemplateClass(*scope, "Binding", binding_cls, GetPyParam<C>());
   binding_cls  // BR
+#if 0          // XXX porting
       .def(
           "__init__",
           [](B* self, C* c, const VectorXDecisionVariable& v) {
@@ -74,8 +75,11 @@ auto RegisterBinding(py::handle* scope) {
             new (self) Binding(make_shared_ptr_from_py_object<C>(c_py), v);
           },
           py::arg("c"), py::arg("v"), cls_doc.ctor.doc)
+#endif         // XXX porting
       .def("evaluator", &B::evaluator, cls_doc.evaluator.doc)
+#if 0   // XXX porting
       .def("variables", &B::variables, cls_doc.variables.doc)
+#endif  // XXX porting
       .def(
           "ToLatex", &B::ToLatex, py::arg("precision") = 3, cls_doc.ToLatex.doc)
       .def("__str__", &B::to_string, cls_doc.to_string.doc)
@@ -100,17 +104,19 @@ auto RegisterBinding(py::handle* scope) {
 
 template <typename C, typename PyClass>
 void DefBindingCastConstructor(PyClass* cls) {
-  static_assert(std::is_same_v<Binding<C>, typename PyClass::type>,
+  static_assert(std::is_same_v<Binding<C>, typename PyClass::Type>,
       "Bound type must be Binding<C>");
+#if 0   // XXX porting
   (*cls)  // BR
-      .def(py::init([](py::object binding) {
+      .def("__init__", [](Binding<C>* self, py::object binding) {
         // Define a type-erased downcast to mirror the implicit
         // "downcast-ability" of Binding<> types.
-        return std::make_unique<Binding<C>>(
+        new (self) Binding<C>(
             // Maintain python wrapper to avoid hazards like #20131.
             make_shared_ptr_from_py_object<C>(binding.attr("evaluator")()),
             py::cast<VectorXDecisionVariable>(binding.attr("variables")()));
-      }));
+      });
+#endif  // XXX porting
 }
 
 class StubEvaluatorBase : public EvaluatorBase {
@@ -138,12 +144,14 @@ void DefTesting(py::module_ m) {
   py::class_<StubEvaluatorBase, EvaluatorBase
       /*, std::shared_ptr<StubEvaluatorBase>  XXX porting */>(
       m, "StubEvaluatorBase");
+#if 0   // XXX porting
   RegisterBinding<StubEvaluatorBase>(&m)  // BR
       .def_static(
           "Make", [](const Eigen::Ref<const VectorXDecisionVariable>& v) {
             return Binding<StubEvaluatorBase>(
                 std::make_shared<StubEvaluatorBase>(), v);
           });
+#endif  // XXX porting
   // The Accept* methods use specific c++ argument signatures to invoke all of
   // the cases of automatic casting supported by
   // DefBindingCastConstructor. They return their arguments to help with
@@ -170,8 +178,10 @@ void BindEvaluatorsAndBindings(py::module_ m) {
             cls_doc.get_description.doc)
         .def("set_description", &Class::set_description,
             cls_doc.set_description.doc)
+#if 0   // XXX porting
         .def("ToLatex", &Class::ToLatex, py::arg("vars"),
             py::arg("precision") = 3, cls_doc.ToLatex.doc)
+#endif  // XXX porting
         .def("SetGradientSparsityPattern", &Class::SetGradientSparsityPattern,
             py::arg("gradient_sparsity_pattern"),
             cls_doc.SetGradientSparsityPattern.doc)
@@ -180,6 +190,7 @@ void BindEvaluatorsAndBindings(py::module_ m) {
         .def("is_thread_safe", &Class::is_thread_safe,
             cls_doc.is_thread_safe.doc);
     auto bind_eval = [&cls, &cls_doc](auto dummy_x, auto dummy_y) {
+#if 0   // XXX porting
       using T_x = decltype(dummy_x);
       using T_y = decltype(dummy_y);
       cls.def(
@@ -190,6 +201,7 @@ void BindEvaluatorsAndBindings(py::module_ m) {
             return y;
           },
           py::arg("x"), cls_doc.Eval.doc);
+#endif  // XXX porting
     };
     bind_eval(double{}, double{});
     bind_eval(AutoDiffXd{}, AutoDiffXd{});
@@ -227,6 +239,7 @@ void BindEvaluatorsAndBindings(py::module_ m) {
               double tol) { return self.CheckSatisfied(x, tol); },
           py::arg("x"), py::arg("tol") = 1E-6,
           doc.Constraint.CheckSatisfied.doc)
+#if 0   // XXX porting
       .def(
           "CheckSatisfied",
           [](Constraint& self, const Eigen::Ref<const AutoDiffVecXd>& x,
@@ -239,7 +252,9 @@ void BindEvaluatorsAndBindings(py::module_ m) {
               const Eigen::Ref<const VectorX<symbolic::Variable>>& x) {
             return self.CheckSatisfied(x);
           },
-          py::arg("x"), doc.Constraint.CheckSatisfied.doc);
+          py::arg("x"), doc.Constraint.CheckSatisfied.doc)
+#endif  // XXX porting
+      ;
 
   py::class_<LinearConstraint,
       Constraint /*, std::shared_ptr<LinearConstraint> XXX porting */>
@@ -525,6 +540,7 @@ void BindEvaluatorsAndBindings(py::module_ m) {
   py::class_<ExpressionConstraint, Constraint
       /*, std::shared_ptr<ExpressionConstraint> XXX porting */>(
       m, "ExpressionConstraint", doc.ExpressionConstraint.doc)
+#if 0  // XXX porting
       .def(py::init<const Eigen::Ref<const VectorX<symbolic::Expression>>&,
                const Eigen::Ref<const Eigen::VectorXd>&,
                const Eigen::Ref<const Eigen::VectorXd>&>(),
@@ -535,7 +551,9 @@ void BindEvaluatorsAndBindings(py::module_ m) {
           py_rvp::copy, doc.ExpressionConstraint.expressions.doc)
       .def("vars", &ExpressionConstraint::vars,
           // dtype = object arrays must be copied, and cannot be referenced.
-          py_rvp::copy, doc.ExpressionConstraint.vars.doc);
+          py_rvp::copy, doc.ExpressionConstraint.vars.doc)
+#endif  // XXX porting
+      ;
 
   py::class_<MinimumValueLowerBoundConstraint, Constraint
       /*, std::shared_ptr<MinimumValueLowerBoundConstraint> XXX porting */>(m,
@@ -700,10 +718,13 @@ void BindEvaluatorsAndBindings(py::module_ m) {
   py::class_<QuadraticCost,
       Cost /*, std::shared_ptr<QuadraticCost> XXX porting */>(
       m, "QuadraticCost", doc.QuadraticCost.doc)
-      .def(py::init([](const Eigen::MatrixXd& Q, const Eigen::VectorXd& b,
-                        double c, std::optional<bool> is_convex) {
-        return std::make_unique<QuadraticCost>(Q, b, c, is_convex);
-      }),
+      .def(
+          "__init__",
+          [](QuadraticCost* self, const Eigen::MatrixXd& Q,
+              const Eigen::VectorXd& b, double c,
+              std::optional<bool> is_convex) {
+            new (self) QuadraticCost(Q, b, c, is_convex);
+          },
           py::arg("Q"), py::arg("b"), py::arg("c"),
           py::arg("is_convex") = py::none(), doc.QuadraticCost.ctor.doc)
       .def("Q", &QuadraticCost::Q, doc.QuadraticCost.Q.doc)
@@ -731,11 +752,12 @@ void BindEvaluatorsAndBindings(py::module_ m) {
       .def("update_constant_term", &QuadraticCost::update_constant_term,
           py::arg("new_c"), doc.QuadraticCost.update_constant_term.doc);
 
-  py::class_<L1NormCost, Cost, std::shared_ptr<L1NormCost>>(
+  py::class_<L1NormCost, Cost /*, std::shared_ptr<L1NormCost> XXX porting */>(
       m, "L1NormCost", doc.L1NormCost.doc)
-      .def(py::init([](const Eigen::MatrixXd& A, const Eigen::VectorXd& b) {
-        return std::make_unique<L1NormCost>(A, b);
-      }),
+      .def(
+          "__init__",
+          [](L1NormCost* self, const Eigen::MatrixXd& A,
+              const Eigen::VectorXd& b) { new (self) L1NormCost(A, b); },
           py::arg("A"), py::arg("b"), doc.L1NormCost.ctor.doc)
       .def("A", &L1NormCost::A, doc.L1NormCost.A.doc)
       .def("b", &L1NormCost::b, doc.L1NormCost.b.doc)
@@ -753,16 +775,17 @@ void BindEvaluatorsAndBindings(py::module_ m) {
           py::arg("val"), doc.L1NormCost.update_b_entry.doc);
 
   {
-    py::class_<L2NormCost, Cost, std::shared_ptr<L2NormCost>> cls(
-        m, "L2NormCost", doc.L2NormCost.doc);
-    cls.def(py::init([](const Eigen::MatrixXd& A, const Eigen::VectorXd& b) {
-         return std::make_unique<L2NormCost>(A, b);
-       }),
+    py::class_<L2NormCost, Cost /*, std::shared_ptr<L2NormCost> XXX porting */>
+        cls(m, "L2NormCost", doc.L2NormCost.doc);
+    cls.def(
+           "__init__",
+           [](L2NormCost* self, const Eigen::MatrixXd& A,
+               const Eigen::VectorXd& b) { new (self) L2NormCost(A, b); },
            py::arg("A"), py::arg("b"), doc.L2NormCost.ctor.doc_dense_A)
-        .def(py::init([](const Eigen::SparseMatrix<double>& A,
-                          const Eigen::VectorXd& b) {
-          return std::make_unique<L2NormCost>(A, b);
-        }),
+        .def(
+            "__init__",
+            [](L2NormCost* self, const Eigen::SparseMatrix<double>& A,
+                const Eigen::VectorXd& b) { new (self) L2NormCost(A, b); },
             py::arg("A"), py::arg("b"), doc.L2NormCost.ctor.doc_sparse_A)
         .def("get_sparse_A", &L2NormCost::get_sparse_A,
             doc.L2NormCost.get_sparse_A.doc)
@@ -786,11 +809,13 @@ void BindEvaluatorsAndBindings(py::module_ m) {
             doc.L2NormCost.UpdateCoefficients.doc_sparse_A);
   }
 
-  py::class_<LInfNormCost, Cost, std::shared_ptr<LInfNormCost>>(
+  py::class_<LInfNormCost,
+      Cost /*, std::shared_ptr<LInfNormCost> XXX porting */>(
       m, "LInfNormCost", doc.LInfNormCost.doc)
-      .def(py::init([](const Eigen::MatrixXd& A, const Eigen::VectorXd& b) {
-        return std::make_unique<LInfNormCost>(A, b);
-      }),
+      .def(
+          "__init__",
+          [](LInfNormCost* self, const Eigen::MatrixXd& A,
+              const Eigen::VectorXd& b) { new (self) LInfNormCost(A, b); },
           py::arg("A"), py::arg("b"), doc.LInfNormCost.ctor.doc)
       .def("A", &LInfNormCost::A, doc.LInfNormCost.A.doc)
       .def("b", &LInfNormCost::b, doc.LInfNormCost.b.doc)
@@ -807,12 +832,15 @@ void BindEvaluatorsAndBindings(py::module_ m) {
       .def("update_b_entry", &LInfNormCost::update_b_entry, py::arg("i"),
           py::arg("val"), doc.LInfNormCost.update_b_entry.doc);
 
-  py::class_<PerspectiveQuadraticCost, Cost,
-      std::shared_ptr<PerspectiveQuadraticCost>>(
+  py::class_<PerspectiveQuadraticCost, Cost
+      /*, std::shared_ptr<PerspectiveQuadraticCost> XXX porting */>(
       m, "PerspectiveQuadraticCost", doc.PerspectiveQuadraticCost.doc)
-      .def(py::init([](const Eigen::MatrixXd& A, const Eigen::VectorXd& b) {
-        return std::make_unique<PerspectiveQuadraticCost>(A, b);
-      }),
+      .def(
+          "__init__",
+          [](PerspectiveQuadraticCost* self, const Eigen::MatrixXd& A,
+              const Eigen::VectorXd& b) {
+            new (self) PerspectiveQuadraticCost(A, b);
+          },
           py::arg("A"), py::arg("b"), doc.PerspectiveQuadraticCost.ctor.doc)
       .def(
           "A", &PerspectiveQuadraticCost::A, doc.PerspectiveQuadraticCost.A.doc)
@@ -833,15 +861,19 @@ void BindEvaluatorsAndBindings(py::module_ m) {
           py::arg("i"), py::arg("val"),
           doc.PerspectiveQuadraticCost.update_b_entry.doc);
 
-  py::class_<ExpressionCost, Cost, std::shared_ptr<ExpressionCost>>(
+  py::class_<ExpressionCost, Cost
+      /*, std::shared_ptr<ExpressionCost> XXX porting */>(
       m, "ExpressionCost", doc.ExpressionCost.doc)
       .def(py::init<const symbolic::Expression&>(), py::arg("e"),
           doc.ExpressionCost.ctor.doc)
       .def("expression", &ExpressionCost::expression,
           py_rvp::reference_internal, doc.ExpressionCost.expression.doc)
+#if 0  // XXX porting
       .def("vars", &ExpressionCost::vars,
           // dtype = object arrays must be copied, and cannot be referenced.
-          py_rvp::copy, doc.ExpressionCost.vars.doc);
+          py_rvp::copy, doc.ExpressionCost.vars.doc)
+#endif  // XXX porting
+      ;
 
   auto cost_binding = RegisterBinding<Cost>(&m);
   DefBindingCastConstructor<Cost>(&cost_binding);
@@ -856,8 +888,8 @@ void BindEvaluatorsAndBindings(py::module_ m) {
   // implementation as is, or convert it to symbolic::Polynomial first.
   RegisterBinding<ExpressionCost>(&m);
 
-  py::class_<VisualizationCallback, EvaluatorBase,
-      std::shared_ptr<VisualizationCallback>>(
+  py::class_<VisualizationCallback, EvaluatorBase
+      /*, std::shared_ptr<VisualizationCallback> XXX porting */>(
       m, "VisualizationCallback", doc.VisualizationCallback.doc);
 
   RegisterBinding<VisualizationCallback>(&m);

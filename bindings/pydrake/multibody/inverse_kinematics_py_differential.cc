@@ -52,7 +52,9 @@ void DefineDifferentialIkLegacy(py::module_ m) {
 
     // TODO(m-chaturvedi) Add Pybind11 documentation.
     cls  // BR
+#if 0    // XXX porting
         .def(ParamInit<Class>())
+#endif   // XXX porting
         .def_rw("joint_velocities", &Class::joint_velocities,
             cls_doc.joint_velocities.doc)
         .def_rw("status", &Class::status, cls_doc.status.doc);
@@ -64,9 +66,11 @@ void DefineDifferentialIkLegacy(py::module_ m) {
     py::class_<Class> cls(m, "DifferentialInverseKinematicsParameters",
         doc.DifferentialInverseKinematicsParameters.doc);
 
-    cls.def(py::init([](int num_positions, int num_velocities) {
-         return Class{num_positions, num_velocities};
-       }),
+    cls.def(
+           "__init__",
+           [](Class* self, int num_positions, int num_velocities) {
+             new (self) Class{num_positions, num_velocities};
+           },
            py::arg("num_positions"), py::arg("num_velocities") = std::nullopt,
            cls_doc.ctor.doc)
         .def("get_time_step", &Class::get_time_step, cls_doc.get_time_step.doc)
@@ -274,7 +278,9 @@ PyClassIngredient<Derived> BindIngredient(const char* class_name,
   PyClassIngredient<Derived> cls(*diff_ik_cls, class_name, cls_doc.doc);
 
   py::class_<Config> config_cls(cls, "Config", cls_doc.Config.doc);
+#if 0  // XXX porting
   config_cls.def(ParamInit<Config>());
+#endif  // XXX porting
   DefAttributesUsingSerialize(&config_cls, cls_doc.Config);
   DefReprUsingSerialize(&config_cls);
   DefCopyAndDeepCopy(&config_cls);
@@ -336,15 +342,18 @@ void DefineDifferentialIkSystem(py::module_ m) {
 
   using Class = DifferentialInverseKinematicsSystem;
   cls  // BR
-      .def(py::init([](py::object recipe, std::string_view task_frame,
-                        py::object collision_checker, const DofMask& active_dof,
-                        double time_step, double K_VX,
-                        const SpatialVelocity<double>& Vd_TG_limit) {
-        return std::make_unique<Class>(
-            make_shared_ptr_from_py_object<Recipe>(recipe), task_frame,
-            make_shared_ptr_from_py_object<CollisionChecker>(collision_checker),
-            active_dof, time_step, K_VX, Vd_TG_limit);
-      }),
+      .def(
+          "__init__",
+          [](Class* self, py::object recipe, std::string_view task_frame,
+              py::object collision_checker, const DofMask& active_dof,
+              double time_step, double K_VX,
+              const SpatialVelocity<double>& Vd_TG_limit) {
+            new (self) Class(
+                make_shared_ptr_from_py_object<Recipe>(recipe), task_frame,
+                make_shared_ptr_from_py_object<CollisionChecker>(
+                    collision_checker),
+                active_dof, time_step, K_VX, Vd_TG_limit);
+          },
           py::arg("recipe"), py::arg("task_frame"),
           py::arg("collision_checker"), py::arg("active_dof"),
           py::arg("time_step"), py::arg("K_VX"), py::arg("Vd_TG_limit"),
@@ -434,13 +443,16 @@ void DefineDifferentialIkController(py::module_ m) {
   constexpr auto& cls_doc = doc.DifferentialInverseKinematicsController;
   py::class_<Class, systems::Diagram<double>>(
       m, "DifferentialInverseKinematicsController")
-      .def(py::init([](py::object differential_inverse_kinematics,
-                        const std::vector<int>& planar_rotation_dof_indices) {
-        return std::make_unique<Class>(
-            make_shared_ptr_from_py_object<DifferentialInverseKinematicsSystem>(
-                differential_inverse_kinematics),
-            planar_rotation_dof_indices);
-      }),
+      .def(
+          "__init__",
+          [](Class* self, py::object differential_inverse_kinematics,
+              const std::vector<int>& planar_rotation_dof_indices) {
+            new (self) Class(
+                make_shared_ptr_from_py_object<
+                    DifferentialInverseKinematicsSystem>(
+                    differential_inverse_kinematics),
+                planar_rotation_dof_indices);
+          },
           py::arg("differential_inverse_kinematics"),
           py::arg("planar_rotation_dof_indices"), cls_doc.ctor.doc)
       .def("set_initial_position", &Class::set_initial_position,

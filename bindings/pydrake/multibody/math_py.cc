@@ -34,6 +34,7 @@ void BindSpatialVectorMixin(PyClass* pcls) {
           any overhead from NAN-initialization, so we err on the side of
           safety.
       )""")
+#if 0  // XXX porting
       .def(
           "rotational",
           [](const Class* self) -> const Vector3<T> {
@@ -46,10 +47,13 @@ void BindSpatialVectorMixin(PyClass* pcls) {
             return self->translational();
           },
           doc.SpatialVector.translational.doc_0args_const)
+#endif  // XXX porting
       .def("SetZero", &Class::SetZero, doc.SpatialVector.SetZero.doc)
+#if 0  // XXX porting
       .def(
           "get_coeffs", [](const Class& self) { return self.get_coeffs(); },
           doc.SpatialVector.get_coeffs.doc_0args_const)
+#endif  // XXX porting
       .def_static("Zero", &Class::Zero, doc.SpatialVector.Zero.doc)
       .def(-py::self)
       .def(py::self += py::self)
@@ -74,10 +78,13 @@ void BindSpatialVectorMixin(PyClass* pcls) {
               not disambiguate against the definitions of
               ``RotationMatrix.__matmul__``.
           )""")
+#if 0  // XXX porting
       .def("__getstate__", [](const Class& self) { return self.get_coeffs(); })
       .def("__setstate__", [](Class* self, const Vector6<T>& coeffs) {
         new (self) Class(coeffs);
-      });
+      })
+#endif  // XXX porting
+      ;
   DefCopyAndDeepCopy(&cls);
 }
 
@@ -113,6 +120,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
     auto& cls = cls_spatial_velocity;
     BindSpatialVectorMixin<T>(&cls);
     cls  // BR
+#if 0  // XXX porting
         .def(py::init<const Eigen::Ref<const Vector3<T>>&,
                  const Eigen::Ref<const Vector3<T>>&>(),
             py::arg("w"), py::arg("v"), cls_doc.ctor.doc_2args)
@@ -124,6 +132,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py::arg("velocity_of_moving_frame"),
             cls_doc.ComposeWithMovingFrameVelocity.doc)
         .def("Shift", &Class::Shift, py::arg("offset"), cls_doc.Shift.doc)
+#endif  // XXX porting
         .def("dot",
             overload_cast_explicit<T, const SpatialForce<T>&>(&Class::dot),
             py::arg("force"), cls_doc.dot.doc_1args_force)
@@ -141,12 +150,14 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
     auto& cls = cls_spatial_momentum;
     BindSpatialVectorMixin<T>(&cls);
     cls  // BR
+#if 0  // XXX porting
         .def(py::init<const Eigen::Ref<const Vector3<T>>&,
                  const Eigen::Ref<const Vector3<T>>&>(),
             py::arg("h"), py::arg("l"), cls_doc.ctor.doc_2args)
         .def(
             py::init<const Vector6<T>&>(), py::arg("L"), cls_doc.ctor.doc_1args)
         .def("Shift", &Class::Shift, py::arg("offset"), cls_doc.Shift.doc)
+#endif  // XXX porting
         .def("dot", &Class::dot, py::arg("velocity"), cls_doc.dot.doc);
     cls.attr("__matmul__") = cls.attr("dot");
     AddValueInstantiation<Class>(m);
@@ -155,9 +166,11 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
   }
   {
     using Class = SpatialAcceleration<T>;
-    constexpr auto& cls_doc = doc.SpatialAcceleration;
+    // XXX porting unused
+    // constexpr auto& cls_doc = doc.SpatialAcceleration;
     auto& cls = cls_spatial_acceleration;
     BindSpatialVectorMixin<T>(&cls);
+#if 0  // XXX porting
     cls  // BR
         .def(py::init<const Eigen::Ref<const Vector3<T>>&,
                  const Eigen::Ref<const Vector3<T>>&>(),
@@ -179,6 +192,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py::arg("velocity_of_moving_frame"),
             py::arg("acceleration_of_moving_frame"),
             cls_doc.ComposeWithMovingFrameAcceleration.doc);
+#endif  // XXX porting
     AddValueInstantiation<Class>(m);
     // Some ports need `Value<std::vector<Class>>`.
     AddValueInstantiation<std::vector<Class>>(m);
@@ -188,6 +202,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
     constexpr auto& cls_doc = doc.SpatialForce;
     auto& cls = cls_spatial_force;
     BindSpatialVectorMixin<T>(&cls);
+#if 0  // XXX porting
     cls  // BR
         .def(py::init<const Eigen::Ref<const Vector3<T>>&,
                  const Eigen::Ref<const Vector3<T>>&>(),
@@ -197,6 +212,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("Shift",
             overload_cast_explicit<Class, const Vector3<T>&>(&Class::Shift),
             py::arg("offset"), cls_doc.Shift.doc_1args);
+#endif  // XXX porting
     cls.def("dot",
         overload_cast_explicit<T, const SpatialVelocity<T>&>(&Class::dot),
         py::arg("velocity"), cls_doc.dot.doc);

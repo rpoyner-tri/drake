@@ -23,8 +23,10 @@ template <typename C>
 void RegisterAddConstraintToAllKnotPoints(
     py::class_<planning::trajectory_optimization::MultipleShooting>* cls) {
   using drake::planning::trajectory_optimization::MultipleShooting;
-  constexpr auto& doc = pydrake_doc_planning_trajectory_optimization.drake
-                            .planning.trajectory_optimization;
+  // XXX porting unused
+  // constexpr auto& doc = pydrake_doc_planning_trajectory_optimization.drake
+  //                           .planning.trajectory_optimization;
+#if 0  // XXX porting
   cls->def(
       "AddConstraintToAllKnotPoints",
       [](MultipleShooting* self, C* constraint,
@@ -37,6 +39,7 @@ void RegisterAddConstraintToAllKnotPoints(
       },
       py::arg("constraint"), py::arg("vars"),
       doc.MultipleShooting.AddConstraintToAllKnotPoints.doc_shared_ptr);
+#endif  // XXX porting
 }
 
 void DefinePlanningTrajectoryOptimization(py::module_ m) {
@@ -54,9 +57,12 @@ void DefinePlanningTrajectoryOptimization(py::module_ m) {
     constexpr auto& cls_doc = doc.MultipleShooting;
     py::class_<Class> cls(m, "MultipleShooting", cls_doc.doc);
     cls  // BR
+#if 0  // XXX porting
         .def("time", &Class::time, cls_doc.time.doc)
+#endif  // XXX porting
         .def("prog", overload_cast_explicit<MathematicalProgram&>(&Class::prog),
             py_rvp::reference_internal, cls_doc.prog.doc)
+#if 0  // XXX porting
         .def("time_step", &Class::time_step, py::arg("index"),
             cls_doc.time_step.doc)
         .def("fixed_time_step", &Class::fixed_time_step,
@@ -115,12 +121,14 @@ void DefinePlanningTrajectoryOptimization(py::module_ m) {
             },
             py::arg("name"), py::arg("index"),
             cls_doc.GetSequentialVariableAtIndex.doc)
+#endif  // XXX porting
         .def(
             "AddRunningCost",
             [](Class& prog, const symbolic::Expression& g) {
               prog.AddRunningCost(g);
             },
             py::arg("g"), cls_doc.AddRunningCost.doc_1args_g)
+#if 0  // XXX porting
         .def(
             "AddRunningCost",
             [](Class& prog,
@@ -128,12 +136,14 @@ void DefinePlanningTrajectoryOptimization(py::module_ m) {
               prog.AddRunningCost(g);
             },
             py::arg("g"), cls_doc.AddRunningCost.doc_1args_constEigenMatrixBase)
+#endif  // XXX porting
         .def(
             "AddConstraintToAllKnotPoints",
             [](Class* self, const symbolic::Formula& f) {
               return self->AddConstraintToAllKnotPoints(f);
             },
             py::arg("f"), cls_doc.AddConstraintToAllKnotPoints.doc)
+#if 0  // XXX porting
         .def(
             "AddConstraintToAllKnotPoints",
             [](Class* self,
@@ -141,6 +151,7 @@ void DefinePlanningTrajectoryOptimization(py::module_ m) {
               return self->AddConstraintToAllKnotPoints(f);
             },
             py::arg("f"), cls_doc.AddConstraintToAllKnotPoints.doc_formulas)
+#endif  // XXX porting
         .def("AddTimeIntervalBounds", &Class::AddTimeIntervalBounds,
             py::arg("lower_bound"), py::arg("upper_bound"),
             cls_doc.AddTimeIntervalBounds.doc)
@@ -154,11 +165,13 @@ void DefinePlanningTrajectoryOptimization(py::module_ m) {
             py::overload_cast<const symbolic::Expression&>(
                 &Class::AddFinalCost),
             py::arg("e"), cls_doc.AddFinalCost.doc_1args_e)
+#if 0  // XXX porting
         .def("AddFinalCost",
             py::overload_cast<
                 const Eigen::Ref<const MatrixX<symbolic::Expression>>&>(
                 &Class::AddFinalCost),
             py::arg("matrix"), cls_doc.AddFinalCost.doc_1args_matrix)
+#endif  // XXX porting
         .def("AddInputTrajectoryCallback", &Class::AddInputTrajectoryCallback,
             py::arg("callback"), cls_doc.AddInputTrajectoryCallback.doc)
         .def("AddStateTrajectoryCallback", &Class::AddStateTrajectoryCallback,
@@ -227,7 +240,8 @@ void DefinePlanningTrajectoryOptimization(py::module_ m) {
   {
     using Class = DirectCollocationConstraint;
     constexpr auto& cls_doc = doc.DirectCollocationConstraint;
-    py::class_<Class, solvers::Constraint, std::shared_ptr<Class>>(
+    py::class_<Class, solvers::Constraint
+        /*, std::shared_ptr<Class> XXX porting */>(
         m, "DirectCollocationConstraint", cls_doc.doc)
         .def(py::init<const systems::System<double>&,
                  const systems::Context<double>&,
@@ -241,10 +255,12 @@ void DefinePlanningTrajectoryOptimization(py::module_ m) {
             cls_doc.ctor.doc_double);
   }
 
+#if 0  // XXX porting
   m.def("AddDirectCollocationConstraint", &AddDirectCollocationConstraint,
       py::arg("constraint"), py::arg("time_step"), py::arg("state"),
       py::arg("next_state"), py::arg("input"), py::arg("next_input"),
       py::arg("prog"), doc.AddDirectCollocationConstraint.doc);
+#endif  // XXX porting
 
   {
     using Class = DirectTranscription;
@@ -293,12 +309,14 @@ void DefinePlanningTrajectoryOptimization(py::module_ m) {
             cls_doc.num_control_points.doc)
         .def("basis", &Class::basis, py_rvp::reference_internal,
             cls_doc.basis.doc)
+#if 0  // XXX porting
         .def(
             "control_points",
             [](const Class& self) -> MatrixXDecisionVariable {
               return self.control_points();
             },
             cls_doc.control_points.doc)
+#endif  // XXX porting
         .def(
             "duration",
             [](const Class& self) -> symbolic::Variable {
@@ -380,9 +398,12 @@ void DefinePlanningTrajectoryOptimization(py::module_ m) {
             cls_doc.AddPathLengthCost.doc)
         .def("AddPathEnergyCost", &Class::AddPathEnergyCost,
             py::arg("weight") = 1.0, cls_doc.AddPathEnergyCost.doc)
+#if 0  // XXX porting
         .def("q", &Class::q, cls_doc.q.doc)
         .def("qdot", &Class::qdot, cls_doc.qdot.doc)
-        .def("qddot", &Class::qddot, cls_doc.qddot.doc);
+        .def("qddot", &Class::qddot, cls_doc.qddot.doc)
+#endif  // XXX porting
+        ;
   }
 
   {
@@ -468,6 +489,7 @@ void DefinePlanningTrajectoryOptimization(py::module_ m) {
         .def("edge_constituent_vertex_durations",
             &Class::Subgraph::edge_constituent_vertex_durations,
             subgraph_doc.edge_constituent_vertex_durations.doc)
+#if 0  // XXX porting
         // As in trajectory_optimization_py.cc, we use a lambda to *copy*
         // the decision variables; otherwise we get dtype=object arrays
         // cannot be referenced.
@@ -486,6 +508,7 @@ void DefinePlanningTrajectoryOptimization(py::module_ m) {
               return self.edge_constituent_vertex_control_points();
             },
             subgraph_doc.edge_constituent_vertex_control_points.doc)
+#endif  // XXX porting
         .def("AddVertexCost",
             py::overload_cast<const symbolic::Expression&,
                 const std::unordered_set<
@@ -581,6 +604,7 @@ void DefinePlanningTrajectoryOptimization(py::module_ m) {
         .def("edge_constituent_vertex_durations",
             &Class::EdgesBetweenSubgraphs::edge_constituent_vertex_durations,
             subgraph_edges_doc.edge_constituent_vertex_durations.doc)
+#if 0  // XXX porting
         // As in trajectory_optimization_py.cc, we use a lambda to *copy*
         // the decision variables; otherwise we get dtype=object arrays
         // cannot be referenced.
@@ -592,6 +616,7 @@ void DefinePlanningTrajectoryOptimization(py::module_ m) {
               return self.edge_constituent_vertex_control_points();
             },
             subgraph_edges_doc.edge_constituent_vertex_control_points.doc)
+#endif  // XXX porting
         .def("AddEdgeCost",
             py::overload_cast<const symbolic::Expression&,
                 const std::unordered_set<
@@ -660,6 +685,7 @@ void DefinePlanningTrajectoryOptimization(py::module_ m) {
             py::arg("show_vars") = true, py::arg("show_flows") = true,
             py::arg("show_costs") = true, py::arg("scientific") = false,
             py::arg("precision") = 3, cls_doc.GetGraphvizString.doc)
+#if 0  // XXX porting
         .def(
             "AddRegions",
             // Pybind does not support None arguments for pointers to built-in
@@ -695,8 +721,10 @@ void DefinePlanningTrajectoryOptimization(py::module_ m) {
             py::arg("h_min") = 1e-6, py::arg("h_max") = 20,
             py::arg("name") = "", cls_doc.AddRegions.doc_5args,
             py::call_guard<py::gil_scoped_release>())
+#endif  // XXX porting
         .def("RemoveSubgraph", &Class::RemoveSubgraph, py::arg("subgraph"),
             cls_doc.RemoveSubgraph.doc)
+#if 0  // XXX porting
         .def(
             "AddEdges",
             // Pybind does not support None arguments for pointers to built-in
@@ -721,6 +749,7 @@ void DefinePlanningTrajectoryOptimization(py::module_ m) {
             py::arg("edges_between_regions") = py::none(),
             py::arg("edge_offsets") = py::none(), cls_doc.AddEdges.doc,
             py::call_guard<py::gil_scoped_release>())
+#endif  // XXX porting
         .def("AddTimeCost", &Class::AddTimeCost, py::arg("weight") = 1.0,
             cls_doc.AddTimeCost.doc)
         .def("AddPathLengthCost",

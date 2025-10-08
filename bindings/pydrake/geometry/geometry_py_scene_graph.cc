@@ -51,8 +51,10 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = geometry::DefaultProximityProperties;
     constexpr auto& cls_doc = doc.DefaultProximityProperties;
     py::class_<Class> cls(m, "DefaultProximityProperties", cls_doc.doc);
+#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
+#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -62,8 +64,10 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = geometry::SceneGraphConfig;
     constexpr auto& cls_doc = doc.SceneGraphConfig;
     py::class_<Class> cls(m, "SceneGraphConfig", cls_doc.doc);
+#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
+#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -541,18 +545,22 @@ void DefineGeometryConfigurationVector(py::module_ m, T) {
         .def(py::init<>(), doc.KinematicsVector.ctor.doc_0args)
         .def("clear", &GeometryConfigurationVector<T>::clear,
             doc.KinematicsVector.clear.doc)
+#if 0  // XXX porting
         .def(
             "set_value",
             [](Class* self, GeometryId id, const Eigen::VectorX<T>& value) {
               self->set_value(id, value);
             },
             py::arg("id"), py::arg("value"), doc.KinematicsVector.set_value.doc)
+#endif  // XXX porting
         .def("size", &GeometryConfigurationVector<T>::size,
             doc.KinematicsVector.size.doc)
         // This intentionally copies the value to avoid segfaults from accessing
         // the result after clear() is called. (see #11583)
+#if 0  // XXX porting
         .def("value", &GeometryConfigurationVector<T>::value, py::arg("id"),
             doc.KinematicsVector.value.doc)
+#endif  // XXX porting
         .def("has_id", &GeometryConfigurationVector<T>::has_id, py::arg("id"),
             doc.KinematicsVector.has_id.doc)
         .def("ids", &GeometryConfigurationVector<T>::ids,
@@ -585,9 +593,11 @@ void DefineQueryObject(py::module_ m, T) {
                 &Class::GetPoseInWorld),
             py::arg("geometry_id"), py_rvp::reference_internal,
             cls_doc.GetPoseInWorld.doc_1args_geometry_id)
+#if 0  // XXX porting
         .def("GetConfigurationsInWorld", &Class::GetConfigurationsInWorld,
             py::arg("deformable_geometry_id"), py_rvp::copy,
             cls_doc.GetConfigurationsInWorld.doc)
+#endif  // XXX porting
         .def("ComputeAabbInWorld", &Class::ComputeAabbInWorld,
             py::arg("geometry_id"), cls_doc.ComputeAabbInWorld.doc)
         .def("ComputeObbInWorld", &Class::ComputeObbInWorld,
@@ -603,10 +613,12 @@ void DefineQueryObject(py::module_ m, T) {
         .def("ComputePointPairPenetration",
             &QueryObject<T>::ComputePointPairPenetration,
             cls_doc.ComputePointPairPenetration.doc)
+#if 0  // XXX porting
         .def("ComputeSignedDistanceToPoint",
             &QueryObject<T>::ComputeSignedDistanceToPoint, py::arg("p_WQ"),
             py::arg("threshold") = std::numeric_limits<double>::infinity(),
             cls_doc.ComputeSignedDistanceToPoint.doc)
+#endif  // XXX porting
         .def("FindCollisionCandidates",
             &QueryObject<T>::FindCollisionCandidates,
             cls_doc.FindCollisionCandidates.doc)
@@ -684,17 +696,24 @@ void DefineSignedDistancePair(py::module_ m, T) {
     auto cls = DefineTemplateClassWithDefault<Class>(
         m, "SignedDistancePair", param, cls_doc.doc);
     cls  // BR
+#if 0  // XXX porting
         .def(ParamInit<Class>(), cls_doc.ctor.doc)
+#endif  // XXX porting
         .def_rw("id_A", &SignedDistancePair<T>::id_A, cls_doc.id_A.doc)
         .def_rw("id_B", &SignedDistancePair<T>::id_B, cls_doc.id_B.doc)
+#if 0  // XXX porting
         .def_rw("p_ACa", &SignedDistancePair<T>::p_ACa,
             return_value_policy_for_scalar_type<T>(), cls_doc.p_ACa.doc)
         .def_rw("p_BCb", &SignedDistancePair<T>::p_BCb,
             return_value_policy_for_scalar_type<T>(), cls_doc.p_BCb.doc)
+#endif  // XXX porting
         .def_rw(
             "distance", &SignedDistancePair<T>::distance, cls_doc.distance.doc)
+#if 0  // XXX porting
         .def_rw("nhat_BA_W", &SignedDistancePair<T>::nhat_BA_W,
-            return_value_policy_for_scalar_type<T>(), cls_doc.nhat_BA_W.doc);
+            return_value_policy_for_scalar_type<T>(), cls_doc.nhat_BA_W.doc)
+#endif  // XXX porting
+        ;
   }
 }
 
@@ -707,15 +726,22 @@ void DefineSignedDistanceToPoint(py::module_ m, T) {
     auto cls = DefineTemplateClassWithDefault<Class>(
         m, "SignedDistanceToPoint", param, cls_doc.doc);
     cls  // BR
+#if 0  // XXX porting
         .def(ParamInit<Class>(), cls_doc.ctor.doc)
+#endif  // XXX porting
         .def_rw(
             "id_G", &SignedDistanceToPoint<T>::id_G, cls_doc.id_G.doc)
+#if 0  // XXX porting
         .def_rw("p_GN", &SignedDistanceToPoint<T>::p_GN,
             return_value_policy_for_scalar_type<T>(), cls_doc.p_GN.doc)
+#endif  // XXX porting
         .def_rw("distance", &SignedDistanceToPoint<T>::distance,
             cls_doc.distance.doc)
+#if 0  // XXX porting
         .def_rw("grad_W", &SignedDistanceToPoint<T>::grad_W,
-            return_value_policy_for_scalar_type<T>(), cls_doc.grad_W.doc);
+            return_value_policy_for_scalar_type<T>(), cls_doc.grad_W.doc)
+#endif  // XXX porting
+        ;
   }
 }
 
@@ -728,17 +754,21 @@ void DefinePenetrationAsPointPair(py::module_ m, T) {
     auto cls = DefineTemplateClassWithDefault<Class>(
         m, "PenetrationAsPointPair", param, cls_doc.doc);
     cls  // BR
+#if 0  // XXX porting
         .def(ParamInit<Class>())
+#endif  // XXX porting
         .def_rw(
             "id_A", &PenetrationAsPointPair<T>::id_A, cls_doc.id_A.doc)
         .def_rw(
             "id_B", &PenetrationAsPointPair<T>::id_B, cls_doc.id_B.doc)
+#if 0  // XXX porting
         .def_rw("p_WCa", &PenetrationAsPointPair<T>::p_WCa,
             py_rvp::copy, cls_doc.p_WCa.doc)
         .def_rw("p_WCb", &PenetrationAsPointPair<T>::p_WCb,
             py_rvp::copy, cls_doc.p_WCb.doc)
         .def_rw("nhat_BA_W", &PenetrationAsPointPair<T>::nhat_BA_W,
             cls_doc.nhat_BA_W.doc)
+#endif  // XXX porting
         .def_rw(
             "depth", &PenetrationAsPointPair<T>::depth, cls_doc.depth.doc);
   }
@@ -762,6 +792,7 @@ void DefineContactSurface(py::module_ m, T) {
         .def("num_vertices", &Class::num_vertices, cls_doc.num_vertices.doc)
         .def("area", &Class::area, py::arg("face_index"), cls_doc.area.doc)
         .def("total_area", &Class::total_area, cls_doc.total_area.doc)
+#if 0  // XXX porting
         .def("face_normal", &Class::face_normal, py::arg("face_index"),
             cls_doc.face_normal.doc)
         .def("centroid",
@@ -770,6 +801,7 @@ void DefineContactSurface(py::module_ m, T) {
         .def("centroid",
             overload_cast_explicit<const Vector3<T>&>(&Class::centroid),
             cls_doc.centroid.doc)
+#endif  // XXX porting
         .def("is_triangle", &Class::is_triangle, cls_doc.is_triangle.doc)
         .def("representation", &Class::representation,
             cls_doc.representation.doc)
@@ -783,10 +815,12 @@ void DefineContactSurface(py::module_ m, T) {
             cls_doc.poly_e_MN.doc)
         .def("HasGradE_M", &Class::HasGradE_M, cls_doc.HasGradE_M.doc)
         .def("HasGradE_N", &Class::HasGradE_N, cls_doc.HasGradE_N.doc)
+#if 0  // XXX porting
         .def("EvaluateGradE_M_W", &Class::EvaluateGradE_M_W, py::arg("index"),
             cls_doc.EvaluateGradE_M_W.doc)
         .def("EvaluateGradE_N_W", &Class::EvaluateGradE_N_W, py::arg("index"),
             cls_doc.EvaluateGradE_N_W.doc)
+#endif  // XXX porting
         .def("Equal", &Class::Equal, py::arg("surface"), cls_doc.Equal.doc);
     DefCopyAndDeepCopy(&cls);
   }

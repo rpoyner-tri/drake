@@ -86,9 +86,9 @@ void BindPiecewisePolynomialSerialize(PyClass* cls) {
   // users so we'll respell the name during setattr to add a leading underscore,
   // and bind the properties using the private name.
   cls->def("__setattr__", [](Class& self, py::str name, py::object value) {
-    if (name == "breaks") {
+    if (name.equal(py::str("breaks"))) {
       name = py::str("_breaks");
-    } else if (std::string(name) == "polynomials") {
+    } else if (name.equal(py::str("polynomials"))) {
       name = py::str("_polynomials");
     }
     py::eval("object.__setattr__", py::globals())(self, name, value);
@@ -106,6 +106,7 @@ void BindPiecewisePolynomialSerialize(PyClass* cls) {
         .polynomials = Polynomials(num_poly, empty_poly)};
     self.Serialize(&archive);
   });
+#if 0   // XXX porting
   // Define a property setter for "_polynomials" (the getter is never called).
   // We bind it as private: only yaml_load_typed should call it, not users.
   // The property accepts a 4D ndarray and converts it to C++'s convention of
@@ -136,6 +137,7 @@ void BindPiecewisePolynomialSerialize(PyClass* cls) {
             .set_polynomials = true, .polynomials = std::move(cxx_poly)};
         self.Serialize(&archive);
       });
+#endif  // XXX porting
 }
 
 // Provides a templated 'namespace'.
@@ -271,15 +273,19 @@ struct Impl {
           m, "Trajectory", param, cls_doc.doc);
       cls  // BR
           .def(py::init<>())
+#if 0   // XXX porting
           .def("value", &Class::value, py::arg("t"), cls_doc.value.doc)
           .def("vector_values",
               overload_cast_explicit<MatrixX<T>, const std::vector<T>&>(
                   &Class::vector_values),
               py::arg("t"), cls_doc.vector_values.doc)
+#endif   // XXX porting
           .def("has_derivative", &Class::has_derivative,
               cls_doc.has_derivative.doc)
+#if 0   // XXX porting
           .def("EvalDerivative", &Class::EvalDerivative, py::arg("t"),
               py::arg("derivative_order") = 1, cls_doc.EvalDerivative.doc)
+#endif   // XXX porting
           .def("MakeDerivative", &Class::MakeDerivative,
               py::arg("derivative_order") = 1, cls_doc.MakeDerivative.doc)
           .def("start_time", &Class::start_time, cls_doc.start_time.doc)
@@ -300,18 +306,22 @@ struct Impl {
           m, "BezierCurve", param, cls_doc.doc);
       cls  // BR
           .def(py::init<>(), cls_doc.ctor.doc_0args)
+#if 0   // XXX porting
           .def(py::init<double, double, const Eigen::Ref<const MatrixX<T>>&>(),
               py::arg("start_time"), py::arg("end_time"),
               py::arg("control_points"), cls_doc.ctor.doc_3args)
+#endif   // XXX porting
           .def("order", &Class::order, cls_doc.order.doc)
           .def("BernsteinBasis", &Class::BernsteinBasis, py::arg("i"),
               py::arg("time"), py::arg("order") = std::nullopt,
               cls_doc.BernsteinBasis.doc)
+#if 0  // XXX porting
           .def("control_points", &Class::control_points,
               cls_doc.control_points.doc)
           .def("GetExpression", &Class::GetExpression,
               py::arg("time") = symbolic::Variable("t"),
               cls_doc.GetExpression.doc)
+#endif  // XXX porting
           .def("ElevateOrder", &Class::ElevateOrder, cls_doc.ElevateOrder.doc);
       if constexpr (std::is_same_v<T, double>) {  // #19712
         cls.def("AsLinearInControlPoints", &Class::AsLinearInControlPoints,
@@ -332,23 +342,30 @@ struct Impl {
           // std::vector<MatrixX<T>>. We want each column of the numpy array as
           // a MatrixX of control points, but the std::vectors here are
           // associated with the rows in numpy.
-          .def(py::init([](math::BsplineBasis<T> basis,
-                            std::vector<std::vector<T>> control_points) {
-            return Class(basis, MakeEigenFromRowMajorVectors(control_points));
-          }),
+          .def(
+              "__init__",
+              [](Class* self, math::BsplineBasis<T> basis,
+                  std::vector<std::vector<T>> control_points) {
+                new (self)
+                    Class(basis, MakeEigenFromRowMajorVectors(control_points));
+              },
               py::arg("basis"), py::arg("control_points"), cls_doc.ctor.doc)
           .def(py::init<math::BsplineBasis<T>, std::vector<MatrixX<T>>>(),
               py::arg("basis"), py::arg("control_points"), cls_doc.ctor.doc)
+#if 0  // XXX porting
           .def("EvaluateLinearInControlPoints",
               &Class::EvaluateLinearInControlPoints, py::arg("parameter_value"),
               py::arg("derivative_order") = 0,
               cls_doc.EvaluateLinearInControlPoints.doc)
+#endif  // XXX porting
           .def("num_control_points", &Class::num_control_points,
               cls_doc.num_control_points.doc)
           .def("control_points", &Class::control_points,
               cls_doc.control_points.doc)
+#if 0  // XXX porting
           .def("InitialValue", &Class::InitialValue, cls_doc.InitialValue.doc)
           .def("FinalValue", &Class::FinalValue, cls_doc.FinalValue.doc)
+#endif  // XXX porting
           .def("basis", &Class::basis, cls_doc.basis.doc)
           .def("InsertKnots", &Class::InsertKnots, py::arg("additional_knots"),
               cls_doc.InsertKnots.doc)
@@ -356,14 +373,16 @@ struct Impl {
               py::arg("start_col"), py::arg("block_rows"),
               py::arg("block_cols"), cls_doc.CopyBlock.doc)
           .def("CopyHead", &Class::CopyHead, py::arg("n"), cls_doc.CopyHead.doc)
-          .def(py::pickle(
+          .def("__getstate__",
               [](const Class& self) {
                 return std::make_pair(self.basis(), self.control_points());
-              },
-              [](std::pair<math::BsplineBasis<T>, std::vector<MatrixX<T>>>
+              })
+          .def("__setstate__",
+              [](Class* self,
+                  std::pair<math::BsplineBasis<T>, std::vector<MatrixX<T>>>
                       args) {
-                return Class(std::get<0>(args), std::get<1>(args));
-              }));
+                new (self) Class(std::get<0>(args), std::get<1>(args));
+              });
       if constexpr (std::is_same_v<T, double>) {  // #19712
         cls.def("AsLinearInControlPoints", &Class::AsLinearInControlPoints,
             py::arg("derivative_order") = 1,
@@ -451,8 +470,10 @@ struct Impl {
           m, "PiecewisePolynomial", param, cls_doc.doc);
       cls  // BR
           .def(py::init<>(), cls_doc.ctor.doc_0args)
+#if 0  // XXX porting
           .def(py::init<const Eigen::Ref<const MatrixX<T>>&>(),
               cls_doc.ctor.doc_1args_constEigenMatrixBase)
+#endif  // XXX porting
           .def(py::init<std::vector<MatrixX<Polynomial<T>>> const&,
                    std::vector<T> const&>(),
               cls_doc.ctor.doc_2args_polynomials_matrix_breaks)
@@ -510,6 +531,7 @@ struct Impl {
               py::arg("breaks"), py::arg("samples"),
               py::arg("zero_end_point_derivatives") = false,
               cls_doc.CubicShapePreserving.doc_matrix)
+#if 0  // XXX porting
           .def_static(
               "CubicWithContinuousSecondDerivatives",
               [](const std::vector<T>& breaks,
@@ -532,6 +554,7 @@ struct Impl {
               py::arg("breaks"), py::arg("samples"),
               py::arg("sample_dot_at_start"), py::arg("sample_dot_at_end"),
               cls_doc.CubicWithContinuousSecondDerivatives.doc_4args_matrix)
+#endif  // XXX porting
           .def_static(
               "CubicHermite",
               [](const std::vector<T>& breaks,
@@ -603,12 +626,14 @@ struct Impl {
               py::arg("block_cols"), cls_doc.Block.doc)
           .def("ConcatenateInTime", &Class::ConcatenateInTime, py::arg("other"),
               cls_doc.ConcatenateInTime.doc)
+#if 0  // XXX porting
           .def("AppendCubicHermiteSegment", &Class::AppendCubicHermiteSegment,
               py::arg("time"), py::arg("sample"), py::arg("sample_dot"),
               cls_doc.AppendCubicHermiteSegment.doc)
           .def("AppendFirstOrderSegment", &Class::AppendFirstOrderSegment,
               py::arg("time"), py::arg("sample"),
               cls_doc.AppendFirstOrderSegment.doc)
+#endif  // XXX porting
           .def("RemoveFinalSegment", &Class::RemoveFinalSegment,
               cls_doc.RemoveFinalSegment.doc)
           .def("ReverseTime", &Class::ReverseTime, cls_doc.ReverseTime.doc)
@@ -635,15 +660,17 @@ struct Impl {
       auto cls = DefineTemplateClassWithDefault<Class, PiecewiseTrajectory<T>>(
           m, "CompositeTrajectory", param, cls_doc.doc);
       cls  // BR
-          .def(py::init([](std::vector<const Trajectory<T>*> py_segments) {
-            std::vector<copyable_unique_ptr<Trajectory<T>>> segments;
-            segments.reserve(py_segments.size());
-            for (const Trajectory<T>* py_segment : py_segments) {
-              segments.emplace_back(py_segment ? py_segment->Clone() : nullptr);
-            }
-            return std::make_unique<CompositeTrajectory<T>>(
-                std::move(segments));
-          }),
+          .def(
+              "__init__",
+              [](Class* self, std::vector<const Trajectory<T>*> py_segments) {
+                std::vector<copyable_unique_ptr<Trajectory<T>>> segments;
+                segments.reserve(py_segments.size());
+                for (const Trajectory<T>* py_segment : py_segments) {
+                  segments.emplace_back(
+                      py_segment ? py_segment->Clone() : nullptr);
+                }
+                new (self) CompositeTrajectory<T>(std::move(segments));
+              },
               py::arg("segments"), cls_doc.ctor.doc)
           .def("segment", &Class::segment, py::arg("segment_index"),
               py_rvp::reference_internal, cls_doc.segment.doc)
@@ -689,12 +716,12 @@ struct Impl {
           m, "ExponentialPlusPiecewisePolynomial", param, cls_doc.doc);
       cls  // BR
           .def(
-              py::init(
-                  [](const Eigen::MatrixX<T>& K, const Eigen::MatrixX<T>& A,
-                      const Eigen::MatrixX<T>& alpha,
-                      const PiecewisePolynomial<T>& piecewise_polynomial_part) {
-                    return Class(K, A, alpha, piecewise_polynomial_part);
-                  }),
+              "__init__",
+              [](Class* self, const Eigen::MatrixX<T>& K,
+                  const Eigen::MatrixX<T>& A, const Eigen::MatrixX<T>& alpha,
+                  const PiecewisePolynomial<T>& piecewise_polynomial_part) {
+                new (self) Class(K, A, alpha, piecewise_polynomial_part);
+              },
               py::arg("K"), py::arg("A"), py::arg("alpha"),
               py::arg("piecewise_polynomial_part"), cls_doc.ctor.doc)
           .def("shiftRight", &Class::shiftRight, py::arg("offset"),
@@ -740,10 +767,13 @@ struct Impl {
               cls_doc.Append.doc_2args_time_angle_axis)
           .def("orientation", &Class::orientation, py::arg("time"),
               cls_doc.orientation.doc)
+#if 0  // XXX porting
           .def("angular_velocity", &Class::angular_velocity, py::arg("time"),
               cls_doc.angular_velocity.doc)
           .def("angular_acceleration", &Class::angular_acceleration,
-              py::arg("time"), cls_doc.angular_acceleration.doc);
+              py::arg("time"), cls_doc.angular_acceleration.doc)
+#endif  // XXX porting
+          ;
       DefCopyAndDeepCopy(&cls);
     }
 
@@ -760,17 +790,21 @@ struct Impl {
               cls_doc.ctor.doc_2args)
           .def_static("MakeLinear", &Class::MakeLinear, py::arg("times"),
               py::arg("poses"), cls_doc.MakeLinear.doc)
+#if 0  // XXX porting
           .def_static("MakeCubicLinearWithEndLinearVelocity",
               &Class::MakeCubicLinearWithEndLinearVelocity, py::arg("times"),
               py::arg("poses"),
               py::arg("start_vel") = Vector3<T>::Zero().eval(),
               py::arg("end_vel") = Vector3<T>::Zero().eval(),
               cls_doc.MakeCubicLinearWithEndLinearVelocity.doc)
+#endif  // XXX porting
           .def("GetPose", &Class::GetPose, py::arg("time"), cls_doc.GetPose.doc)
+#if 0  // XXX porting
           .def("GetVelocity", &Class::GetVelocity, py::arg("time"),
               cls_doc.GetVelocity.doc)
           .def("GetAcceleration", &Class::GetAcceleration, py::arg("time"),
               cls_doc.GetAcceleration.doc)
+#endif  // XXX porting
           .def("IsApprox", &Class::IsApprox, py::arg("other"), py::arg("tol"),
               cls_doc.IsApprox.doc)
           .def("get_position_trajectory", &Class::get_position_trajectory,
@@ -799,12 +833,13 @@ struct Impl {
       auto cls = DefineTemplateClassWithDefault<Class, Trajectory<T>>(
           m, "_WrappedTrajectory", param, "(Internal use only)");
       cls  // BR
-          .def(py::init([](const Trajectory<T>& trajectory) {
-            // The keep_alive is responsible for object lifetime, so we'll give
-            // the constructor an unowned pointer.
-            return std::make_unique<Class>(
-                make_unowned_shared_ptr_from_raw(&trajectory));
-          }),
+          .def(
+              "__init__",
+              [](Class* self, const Trajectory<T>& trajectory) {
+                // The keep_alive is responsible for object lifetime, so we'll
+                // give the constructor an unowned pointer.
+                new (self) Class(make_unowned_shared_ptr_from_raw(&trajectory));
+              },
               py::arg("trajectory"),
               // Keep alive, ownership: `return` keeps `trajectory` alive.
               py::keep_alive<0, 1>())

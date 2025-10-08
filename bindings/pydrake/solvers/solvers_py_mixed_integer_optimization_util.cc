@@ -15,6 +15,7 @@ void DefineSolversMixedIntegerOptimizationUtil(py::module_ m) {
   using namespace drake::solvers;
   constexpr auto& doc = pydrake_doc_solvers.drake.solvers;
 
+#if 0  // XXX porting
   m.def(
       "AddLogarithmicSos2Constraint",
       [](MathematicalProgram* prog,
@@ -37,6 +38,7 @@ void DefineSolversMixedIntegerOptimizationUtil(py::module_ m) {
       },
       py::arg("prog"), py::arg("num_lambda"),
       doc.AddLogarithmicSos1Constraint.doc_2args);
+#endif  // XXX porting
 
   {
     py::enum_<IntervalBinning>(m, "IntervalBinning", doc.IntervalBinning.doc)
@@ -44,6 +46,7 @@ void DefineSolversMixedIntegerOptimizationUtil(py::module_ m) {
         .value("kLinear", IntervalBinning::kLinear);
   }
 
+#if 0  // XXX porting
   m.def(
       "AddBilinearProductMcCormickEnvelopeSos2",
       [](MathematicalProgram* prog, const symbolic::Variable& x,
@@ -57,6 +60,7 @@ void DefineSolversMixedIntegerOptimizationUtil(py::module_ m) {
       py::arg("prog"), py::arg("x"), py::arg("y"), py::arg("w"),
       py::arg("phi_x"), py::arg("phi_y"), py::arg("Bx"), py::arg("By"),
       py::arg("binning"), doc.AddBilinearProductMcCormickEnvelopeSos2.doc);
+#endif  // XXX porting
 }
 
 }  // namespace internal
