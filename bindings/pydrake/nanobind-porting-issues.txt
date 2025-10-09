@@ -1,0 +1,71 @@
+.. -*- rst-mode -*-
+
+=============================
+   Nanobind porting issues
+=============================
+
+Compile time issues
+===================
+
+* Downstream breakage: unsolved issues in bindings cause downstream dependency
+  breakage. Examples: pyi generation, tests, unused variables, etc.
+
+* No out-of-box support for autodiff and expression as matrix/vector/array
+  scalar types. Note the pybind11 was patched by Drake for this as well.
+
+* dependencies on pybind11 internals that are missing/changed in nanobind:
+  * detail::is_pyobject<T>
+  * detail::get_type_info  --> nb_type_lookup?
+  * detail::get_object_handle
+  * detail::type_caster_generic
+
+* support for custom initializers (init(lambda)) abandoned. Need polyfill or
+  rewrite to placement new instead.
+
+* need to port various (deprecation, type-fiddling) wrappers to the new
+  def_visitor mechanism
+  * ParamInit
+  * maybe backfill for missing py::init(lambda)?
+  * deprecation helpers
+
+* custom annotations need rewrite on new internals
+  * pydrake::internal::ref_cycle
+  * pydrake::internal::builder_life_support_stash
+
+* c++ unit tests that use python embedding need rewrite
+  * create_extension_module is the clue.
+
+* issues with unique pointers as members/properties, etc.
+
+* method for putting python objects in drake::Value<T> likely needs a rewrite
+  * much dependence on internals
+
+* cpp_function() can't be passed to def() and friends any more.
+
+* trampolines:
+  * `using Base::Base` in trampoline classes collides with stuff from
+    newly-required macros.
+  * trampolines: some trampoline stacks got by without making methods public;
+    that doesn't work any more.
+  * the new override macros don't allow change of signature. maybe there is a
+    way to exploit new internals?
+
+
+* GeometryId has porting issues?
+
+* Various clone implementation hacks have smart pointer issues.
+
+* Holder types are no longer a thing; need to work through the implications.
+
+* nanobind's str type is less friendly; much rework will result.
+
+* some new restrictions on binding annotations need work.
+  * can't use py::args() and leave some args unnamed?
+
+* py::function is no longer a type.
+
+* py::array is no longer a type. No doubt this is part of the required
+  transition to nb::ndarray.
+
+* the c++ simulator class will need adjustments to get the shared-context
+  constructor stack working.
