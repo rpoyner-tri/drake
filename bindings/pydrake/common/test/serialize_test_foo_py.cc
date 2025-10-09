@@ -8,9 +8,7 @@ namespace test {
 
 NB_MODULE(serialize_test_foo, m) {
   py::class_<Foo> cls(m, "Foo");
-#if 0  // XXX porting
   DefAttributesUsingSerialize(&cls);
-#endif
 }
 
 }  // namespace test
