@@ -89,8 +89,8 @@ NB_MODULE(serialize_test_util, m) {
       .def(py::init());
 #if 0   // XXX porting
       .def(ParamInit<MyData1>());
-  DefAttributesUsingSerialize(&cls1);
 #endif  // XXX porting
+  DefAttributesUsingSerialize(&cls1);
   DefReprUsingSerialize(&cls1);
   DefCopyAndDeepCopy(&cls1);
 
@@ -101,8 +101,8 @@ NB_MODULE(serialize_test_util, m) {
       .def(py::init());
 #if 0   // XXX porting
       .def(ParamInit<MyData2>());
-  DefAttributesUsingSerialize(&cls2, cls2_doc);
 #endif  // XXX porting
+  DefAttributesUsingSerialize(&cls2, cls2_doc);
   DefReprUsingSerialize(&cls2);
   DefCopyAndDeepCopy(&cls2);
 
@@ -113,8 +113,8 @@ NB_MODULE(serialize_test_util, m) {
     AddTemplateClass(m, "MyData3", cls, GetPyParam<double>());
 #if 0   // XXX porting
     cls.def(ParamInit<Class>());
-    DefAttributesUsingSerialize(&cls);
 #endif  // XXX porting
+    DefAttributesUsingSerialize(&cls);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }
@@ -124,8 +124,8 @@ NB_MODULE(serialize_test_util, m) {
     AddTemplateClass(m, "MyData3", cls, GetPyParam<int>());
 #if 0   // XXX porting
     cls.def(ParamInit<Class>());
-    DefAttributesUsingSerialize(&cls);
 #endif  // XXX porting
+    DefAttributesUsingSerialize(&cls);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }
