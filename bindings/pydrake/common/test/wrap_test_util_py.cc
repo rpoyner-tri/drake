@@ -103,10 +103,8 @@ NB_MODULE(wrap_test_util, m) {
   py::class_<MyContainerRawPtr> my_container(m, "MyContainerRawPtr");
   my_container  // BR
       .def(py::init());
-#if 0  // XXX porting
   DefReadWriteKeepAlive(&my_container, "member", &MyContainerRawPtr::member,
       "MyContainerRawPtr doc");
-#endif
 
   py::class_<MyContainerUniquePtr> my_unique(m, "MyContainerUniquePtr");
   my_unique.def(py::init<MyValue, MyValue>(), py::arg("member"),
