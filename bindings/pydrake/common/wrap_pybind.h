@@ -78,7 +78,7 @@ struct type_caster_wrapped {
   }
 
   // See `pybind11/eigen.h`, `type_caster<>` implementations.
-  // N.B. Do not use `PYBIND11_TYPE_CASTER(...)` so we can avoid casting
+  // N.B. Do not use `NB_TYPE_CASTER(...)` so we can avoid casting
   // garbage values.
   operator Type&() {
     if (!loaded_) {

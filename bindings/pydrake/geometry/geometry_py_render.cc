@@ -84,7 +84,7 @@ class PyRenderEngine : public RenderEngine {
     // either a __deepcopy__ (preferred) or DoClone (legacy) method. We'll try
     // DoClone first so it has priority, but if it doesn't exist we'll fall back
     // to __deepcopy__ and just let the "no such method deepcopy" error message
-    // propagate if both were missing. Because the PYBIND11_OVERRIDE_INT macro
+    // propagate if both were missing. Because the NB_OVERRIDE_INT macro
     // embeds a conditional `return ...;` statement, we must wrap it in lambda
     // so that we can post-process the return value in case it does return.
     auto make_python_deepcopy = [&]() -> py::object {

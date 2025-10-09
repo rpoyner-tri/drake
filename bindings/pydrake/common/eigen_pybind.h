@@ -85,7 +85,7 @@ See http://pybind11.readthedocs.io/en/stable/advanced/cast/custom.html for
 more details on custom type casters.
 
 TODO(eric.cousineau): Place all logic inside of `drake` namespace once our
-pybind11 fork includes PYBIND11_TYPE_CASTER macro w/ fully qualified symbols.
+pybind11 fork includes NB_TYPE_CASTER macro w/ fully qualified symbols.
 */
 template <typename T>
 struct type_caster<drake::EigenPtr<T>> {

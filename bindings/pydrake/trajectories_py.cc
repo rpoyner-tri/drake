@@ -181,8 +181,9 @@ struct Impl {
 
   class PyTrajectory : public TrajectoryPublic {
    public:
+    NB_TRAMPOLINE(TrajectoryPublic, 100);
     using Base = TrajectoryPublic;
-    using Base::Base;
+    // XXX porting duplicate? using Base::Base;
 
     // Utility function that takes a Python object which is-a Trajectory and
     // wraps it in a unique_ptr that manages object lifetime when returned back
@@ -217,45 +218,46 @@ struct Impl {
     }
 
     MatrixX<T> do_value(const T& t) const final {
-      PYBIND11_OVERRIDE_PURE(MatrixX<T>, Trajectory<T>, do_value, t);
+      NB_OVERRIDE_PURE(do_value, t);
     }
 
     bool do_has_derivative() const final {
-      PYBIND11_OVERRIDE_PURE(bool, Trajectory<T>, do_has_derivative);
+      NB_OVERRIDE_PURE(do_has_derivative);
     }
 
     MatrixX<T> DoEvalDerivative(const T& t, int derivative_order) const final {
-      PYBIND11_OVERRIDE_PURE(
-          MatrixX<T>, Trajectory<T>, DoEvalDerivative, t, derivative_order);
+      NB_OVERRIDE_PURE(DoEvalDerivative, t, derivative_order);
     }
 
     std::unique_ptr<Trajectory<T>> DoMakeDerivative(
         int derivative_order) const final {
       py::gil_scoped_acquire guard;
-      // Because the PYBIND11_OVERRIDE_PURE macro embeds a `return ...;`
+#if 0  // XXX porting -- change of signature issues with macro
+      // Because the NB_OVERRIDE_PURE macro embeds a `return ...;`
       // statement, we must wrap it in lambda so that we can post-process the
       // return value.
       auto make_python_derivative = [&]() -> py::object {
-        PYBIND11_OVERRIDE_PURE(
-            py::object, Trajectory<T>, DoMakeDerivative, derivative_order);
+        NB_OVERRIDE_PURE(DoMakeDerivative, derivative_order);
       };
       return WrapPyTrajectory(make_python_derivative());
+#endif
+      return {};
     }
 
     T do_start_time() const final {
-      PYBIND11_OVERRIDE_PURE(T, Trajectory<T>, do_start_time);
+      NB_OVERRIDE_PURE(do_start_time);
     }
 
     T do_end_time() const final {
-      PYBIND11_OVERRIDE_PURE(T, Trajectory<T>, do_end_time);
+      NB_OVERRIDE_PURE(do_end_time);
     }
 
     Eigen::Index do_rows() const final {
-      PYBIND11_OVERRIDE_PURE(Eigen::Index, Trajectory<T>, do_rows);
+      NB_OVERRIDE_PURE(do_rows);
     }
 
     Eigen::Index do_cols() const final {
-      PYBIND11_OVERRIDE_PURE(Eigen::Index, Trajectory<T>, do_cols);
+      NB_OVERRIDE_PURE(do_cols);
     }
   };
 
@@ -272,8 +274,8 @@ struct Impl {
       auto cls = DefineTemplateClassWithDefault<Class, PyTrajectory>(
           m, "Trajectory", param, cls_doc.doc);
       cls  // BR
-          .def(py::init<>())
 #if 0   // XXX porting
+          .def(py::init<>())
           .def("value", &Class::value, py::arg("t"), cls_doc.value.doc)
           .def("vector_values",
               overload_cast_explicit<MatrixX<T>, const std::vector<T>&>(

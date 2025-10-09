@@ -217,8 +217,8 @@ std::shared_ptr<T> make_shared_ptr_from_py_object(py::object py_object) {
 
 // XXX porting needed
 /*
-#define DRAKE_PYBIND11_NUMPY_OBJECT_DTYPE(Type)       \
-   PYBIND11_NUMPY_OBJECT_DTYPE(Type)
+#define DRAKE_NB_NUMPY_OBJECT_DTYPE(Type)       \
+   NB_NUMPY_OBJECT_DTYPE(Type)
 */
 #define DRAKE_NANOBIND_NUMPY_OBJECT_DTYPE(Type) \
 namespace nanobind::detail {                    \

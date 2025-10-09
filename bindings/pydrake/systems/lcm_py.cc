@@ -36,6 +36,7 @@ namespace {
 // Python.
 class PySerializerInterface : public SerializerInterface {
  public:
+  NB_TRAMPOLINE(SerializerInterface, 100);
   using Base = SerializerInterface;
 
   PySerializerInterface() : Base() {}
@@ -50,14 +51,17 @@ class PySerializerInterface : public SerializerInterface {
     // Our required unique_ptr return type cannot be directly fulfilled by a
     // Python override, so we only ask the Python override for a py::object and
     // then just Clone it to obtain the necessary C++ signature. Because the
-    // PYBIND11_OVERRIDE_PURE macro embeds a `return ...;` statement, we must
+    // NB_OVERRIDE_PURE macro embeds a `return ...;` statement, we must
     // wrap it in lambda so that we can post-process the return value.
+#if 0  // XXX porting
+    // c++<=>py type conversion issues.
     py::object default_value = [this]() -> py::object {
-      PYBIND11_OVERRIDE_PURE(
-          py::object, SerializerInterface, CreateDefaultValue);
+      NB_OVERRIDE_PURE(CreateDefaultValue);
     }();
     DRAKE_THROW_UNLESS(!default_value.is_none());
     return py::cast<const AbstractValue*>(default_value)->Clone();
+#endif  // XXX porting
+    return {};
   }
 
   void Deserialize(const void* message_bytes, int message_length,
@@ -65,22 +69,26 @@ class PySerializerInterface : public SerializerInterface {
     py::gil_scoped_acquire guard;
     py::bytes buffer(
         reinterpret_cast<const char*>(message_bytes), message_length);
-    PYBIND11_OVERRIDE_PURE(
-        void, SerializerInterface, Deserialize, buffer, abstract_value);
+#if 0  // XXX porting
+    // change of signature issues.24~
+    NB_OVERRIDE_PURE(Deserialize, buffer, abstract_value);
+#endif  // XXX porting
   }
 
   void Serialize(const AbstractValue& abstract_value,
       std::vector<uint8_t>* message_bytes) const override {
     py::gil_scoped_acquire guard;
+#if 0  // XXX porting
+    // change of signature issues with override macro.
     auto wrapped = [&]() -> py::bytes {
       // N.B. We must pass `abstract_value` as a pointer to prevent `pybind11`
       // from copying it.
-      PYBIND11_OVERRIDE_PURE(
-          py::bytes, SerializerInterface, Serialize, &abstract_value);
+      NB_OVERRIDE_PURE(Serialize, &abstract_value);
     };
     py::bytes str = wrapped();
     message_bytes->resize(str.size());
     std::copy(str.c_str(), str.c_str() + str.size(), message_bytes->data());
+#endif  // XXX porting
   }
 };
 

@@ -1304,6 +1304,7 @@ class DelegatedForceDensityField final : public ForceDensityField<T> {
 template <typename T>
 class PyForceDensityField : public ForceDensityFieldPublic<T> {
  public:
+  NB_TRAMPOLINE(ForceDensityFieldPublic<T>, 100);
   explicit PyForceDensityField(ForceDensityType density_type)
       : ForceDensityFieldPublic<T>(density_type) {}
 
@@ -1366,11 +1367,11 @@ class PyForceDensityField : public ForceDensityFieldPublic<T> {
 #endif  // XXX porting
 
   void DoDeclareCacheEntries(MultibodyPlant<T>* plant) override {
-    PYBIND11_OVERRIDE(void, ForceDensityField<T>, DoDeclareCacheEntries, plant);
+    NB_OVERRIDE(DoDeclareCacheEntries, plant);
   }
 
   void DoDeclareInputPorts(MultibodyPlant<T>* plant) override {
-    PYBIND11_OVERRIDE(void, ForceDensityField<T>, DoDeclareInputPorts, plant);
+    NB_OVERRIDE(DoDeclareInputPorts, plant);
   }
 };
 
