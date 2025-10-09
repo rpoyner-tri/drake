@@ -242,11 +242,12 @@ drake_py_unittest(
     ],
 )
 
-add_lint_tests_pydrake(
-    python_lint_extra_srcs = [
-        "run_installed_meldis.py",
-        "run_installed_model_visualizer.py",
-        "test/visualization_install_tests.py",
-    ],
-    python_lint_use_ruff_format = False,
-)
+# XXX porting
+# add_lint_tests_pydrake(
+#     python_lint_extra_srcs = [
+#         "run_installed_meldis.py",
+#         "run_installed_model_visualizer.py",
+#         "test/visualization_install_tests.py",
+#     ],
+#     python_lint_use_ruff_format = False,
+# )

@@ -143,7 +143,9 @@ if _check_for_rtld_global_usages():
 # we need to do this *after* defining the pure Python helper functions, above,
 # since they are called while loading `pydrake.common` and things it loads.
 try:
-    from . import common
+    # XXXX porting
+    # from . import common
+    pass
 except ImportError as e:
     if ('cannot open shared object file' in (e.msg or '')
             and '/pydrake/' in (e.path or '')):
