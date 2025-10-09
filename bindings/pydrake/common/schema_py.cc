@@ -250,8 +250,8 @@ void DefineModuleSchema(py::module_ m) {
       inner.def(py::init<const Inner&>(), py::arg("other"));
 #if 0   // XXX porting
       inner.def(ParamInit<Inner>());
-      DefAttributesUsingSerialize(&inner, cls_doc.Identity);
 #endif  // XXX porting
+      DefAttributesUsingSerialize(&inner, cls_doc.Identity);
       DefReprUsingSerialize(&inner);
       DefCopyAndDeepCopy(&inner);
     }
@@ -261,8 +261,8 @@ void DefineModuleSchema(py::module_ m) {
       inner.def(py::init<const Inner&>(), py::arg("other"));
 #if 0   // XXX porting
       inner.def(ParamInit<Inner>());
-      DefAttributesUsingSerialize(&inner, cls_doc.Rpy);
 #endif  // XXX porting
+      DefAttributesUsingSerialize(&inner, cls_doc.Rpy);
       DefReprUsingSerialize(&inner);
       DefCopyAndDeepCopy(&inner);
     }
@@ -272,8 +272,8 @@ void DefineModuleSchema(py::module_ m) {
       inner.def(py::init<const Inner&>(), py::arg("other"));
 #if 0   // XXX porting
       inner.def(ParamInit<Inner>());
-      DefAttributesUsingSerialize(&inner, cls_doc.AngleAxis);
 #endif  // XXX porting
+      DefAttributesUsingSerialize(&inner, cls_doc.AngleAxis);
       DefReprUsingSerialize(&inner);
       DefCopyAndDeepCopy(&inner);
     }
@@ -283,8 +283,8 @@ void DefineModuleSchema(py::module_ m) {
       inner.def(py::init<const Inner&>(), py::arg("other"));
 #if 0   // XXX porting
       inner.def(ParamInit<Inner>());
-      DefAttributesUsingSerialize(&inner, cls_doc.Uniform);
 #endif  // XXX porting
+      DefAttributesUsingSerialize(&inner, cls_doc.Uniform);
       DefReprUsingSerialize(&inner);
       DefCopyAndDeepCopy(&inner);
     }
