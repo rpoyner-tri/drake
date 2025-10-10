@@ -101,10 +101,9 @@ py::object GetPyParamScalarImpl(const std::type_info& tinfo);
 // Gets Python type for a C++ type (base case).
 template <typename T>
 inline py::object GetPyParamScalarImpl(type_pack<T> = {}) {
-  // XXX porting
-  // static_assert(!py::detail::is_pyobject<T>::value,
-  //     "You cannot use `pybind11` types (e.g. `py::object`). Use a publicly "
-  //     "visible replacement type instead (e.g. `drake::pydrake::Object`).");
+  static_assert(!py::detail::is_pyobject<T>::value,
+      "You cannot use `pybind11` types (e.g. `py::object`). Use a publicly "
+      "visible replacement type instead (e.g. `drake::pydrake::Object`).");
   return GetPyParamScalarImpl(typeid(T));
 }
 

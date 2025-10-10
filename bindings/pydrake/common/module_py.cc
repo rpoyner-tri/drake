@@ -41,30 +41,15 @@ void trigger_an_assertion_failure() {
   DRAKE_DEMAND(false);
 }
 
-#if 0   // XXX porting
-// Resolves to a Python handle given a type erased pointer. If the instance or
-// lowest-level RTTI type are unregistered, returns an empty handle.
-py::handle ResolvePyObject(const type_erased_ptr& ptr) {
-  auto py_type_info = py::detail::get_type_info(ptr.info);
-  return py::detail::get_object_handle(ptr.raw, py_type_info);
-}
-#endif  // XXX porting
-
 // Override for SetNiceTypeNamePtrOverride, to ensure that instances that are
 // registered (along with their types) can use their Python class's name.
 std::string PyNiceTypeNamePtrOverride(const type_erased_ptr& ptr) {
   DRAKE_DEMAND(ptr.raw != nullptr);
   const std::string cc_name = NiceTypeName::Get(ptr.info);
   if (cc_name.find("pydrake::") != std::string::npos) {
-#if 0  // XXX porting
-    py::handle obj = ResolvePyObject(ptr);
-    if (obj) {
-      py::handle cls = obj.get_type();
-#else  // XXX porting
     auto py_type_info = py::detail::nb_type_lookup(&ptr.info);
     if (py_type_info) {
       py::handle cls = py::handle(py_type_info);
-#endif  // XXX porting
       const bool use_qualname = true;
       return std::string(py::str("{}.{}")
               .format(cls.attr("__module__"),
@@ -293,11 +278,9 @@ void InitLowLevelModules(py::module_ m) {
 
   m.def("CalcProbabilityDensity", &CalcProbabilityDensity<double>,
        py::arg("distribution"), py::arg("x"), doc.CalcProbabilityDensity.doc)
-#if 0  // XXX porting
       .def("CalcProbabilityDensity", &CalcProbabilityDensity<AutoDiffXd>,
           py::arg("distribution"), py::arg("x"),
           doc.CalcProbabilityDensity.doc)
-#endif  // XXX porting
       ;
 
   // Adds a binding for drake::RandomGenerator.
