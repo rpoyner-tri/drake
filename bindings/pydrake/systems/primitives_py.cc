@@ -80,9 +80,7 @@ NB_MODULE(primitives, m) {
       using Nested = Class::InputPortParams;
       py::class_<Nested> nested(
           cls, "InputPortParams", doc.SelectorParams.InputPortParams.doc);
-#if 0   // XXX porting
       nested.def(ParamInit<Nested>());
-#endif  // XXX porting
       DefAttributesUsingSerialize(&nested, doc.SelectorParams.InputPortParams);
       DefReprUsingSerialize(&nested);
       DefCopyAndDeepCopy(&nested);
@@ -91,9 +89,7 @@ NB_MODULE(primitives, m) {
       using Nested = Class::OutputSelection;
       py::class_<Nested> nested(
           cls, "OutputSelection", doc.SelectorParams.OutputSelection.doc);
-#if 0   // XXX porting
       nested.def(ParamInit<Nested>());
-#endif  // XXX porting
       DefAttributesUsingSerialize(&nested, doc.SelectorParams.OutputSelection);
       DefReprUsingSerialize(&nested);
       DefCopyAndDeepCopy(&nested);
@@ -102,16 +98,12 @@ NB_MODULE(primitives, m) {
       using Nested = Class::OutputPortParams;
       py::class_<Nested> nested(
           cls, "OutputPortParams", doc.SelectorParams.OutputPortParams.doc);
-#if 0   // XXX porting
       nested.def(ParamInit<Nested>());
-#endif  // XXX porting
       DefAttributesUsingSerialize(&nested, doc.SelectorParams.OutputPortParams);
       DefReprUsingSerialize(&nested);
       DefCopyAndDeepCopy(&nested);
     }
-#if 0   // XXX porting
     cls.def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, doc.SelectorParams);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);

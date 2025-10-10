@@ -23,9 +23,7 @@ void DefineSolversBranchAndBound(py::module_ m) {
       using Nested = MixedIntegerBranchAndBound::Options;
       constexpr auto& options_doc = cls_doc.Options;
       py::class_<Nested> options_cls(bnb_cls, "Options", options_doc.doc);
-#if 0  // XXX porting
       options_cls.def(ParamInit<Nested>());
-#endif  // XXX porting
       DefAttributesUsingSerialize(&options_cls, options_doc);
       DefReprUsingSerialize(&options_cls);
       DefCopyAndDeepCopy(&options_cls);

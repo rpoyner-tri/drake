@@ -31,6 +31,7 @@ Compile time issues
 * need to port various (deprecation, type-fiddling) wrappers to the new
   def_visitor mechanism
   * ParamInit
+    - !! a new implementation on def_visitor is compilable.
   * maybe backfill for missing py::init(lambda)?
   * deprecation helpers
 

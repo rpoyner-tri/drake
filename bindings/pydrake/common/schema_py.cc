@@ -245,9 +245,7 @@ void DefineModuleSchema(py::module_ m) {
       using Inner = Class::Identity;
       py::class_<Inner> inner(cls, "Identity", cls_doc.Identity.doc);
       inner.def(py::init<const Inner&>(), py::arg("other"));
-#if 0   // XXX porting
       inner.def(ParamInit<Inner>());
-#endif  // XXX porting
       DefAttributesUsingSerialize(&inner, cls_doc.Identity);
       DefReprUsingSerialize(&inner);
       DefCopyAndDeepCopy(&inner);
@@ -256,9 +254,7 @@ void DefineModuleSchema(py::module_ m) {
       using Inner = Class::Rpy;
       py::class_<Inner> inner(cls, "Rpy", cls_doc.Rpy.doc);
       inner.def(py::init<const Inner&>(), py::arg("other"));
-#if 0   // XXX porting
       inner.def(ParamInit<Inner>());
-#endif  // XXX porting
       DefAttributesUsingSerialize(&inner, cls_doc.Rpy);
       DefReprUsingSerialize(&inner);
       DefCopyAndDeepCopy(&inner);
@@ -267,9 +263,7 @@ void DefineModuleSchema(py::module_ m) {
       using Inner = Class::AngleAxis;
       py::class_<Inner> inner(cls, "AngleAxis", cls_doc.AngleAxis.doc);
       inner.def(py::init<const Inner&>(), py::arg("other"));
-#if 0   // XXX porting
       inner.def(ParamInit<Inner>());
-#endif  // XXX porting
       DefAttributesUsingSerialize(&inner, cls_doc.AngleAxis);
       DefReprUsingSerialize(&inner);
       DefCopyAndDeepCopy(&inner);
@@ -278,9 +272,7 @@ void DefineModuleSchema(py::module_ m) {
       using Inner = Class::Uniform;
       py::class_<Inner> inner(cls, "Uniform", cls_doc.Uniform.doc);
       inner.def(py::init<const Inner&>(), py::arg("other"));
-#if 0   // XXX porting
       inner.def(ParamInit<Inner>());
-#endif  // XXX porting
       DefAttributesUsingSerialize(&inner, cls_doc.Uniform);
       DefReprUsingSerialize(&inner);
       DefCopyAndDeepCopy(&inner);
@@ -292,9 +284,7 @@ void DefineModuleSchema(py::module_ m) {
         .def(py::init<const Class&>(), py::arg("other"))
         .def(py::init<const math::RotationMatrixd&>(), cls_doc.ctor.doc_1args)
         .def(py::init<const math::RollPitchYawd&>(), cls_doc.ctor.doc_1args)
-#if 0   // XXX porting
         .def(ParamInit<Class>())
-#endif  // XXX porting
         .def("IsDeterministic", &Class::IsDeterministic,
             cls_doc.IsDeterministic.doc)
         .def("GetDeterministicValue", &Class::GetDeterministicValue,
@@ -358,9 +348,7 @@ void DefineModuleSchema(py::module_ m) {
         .def(py::init<>(), cls_doc.ctor.doc_0args)
         .def(py::init<const Class&>(), py::arg("other"))
         .def(py::init<const math::RigidTransformd&>(), cls_doc.ctor.doc_1args)
-#if 0   // XXX porting
         .def(ParamInit<Class>())
-#endif  // XXX porting
         .def("set_rotation_rpy_deg", &Class::set_rotation_rpy_deg,
             py::arg("rpy_deg"), cls_doc.set_rotation_rpy_deg.doc)
         .def("IsDeterministic", &Class::IsDeterministic,

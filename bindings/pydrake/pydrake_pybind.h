@@ -19,10 +19,10 @@
 // #include "pybind11/stl.h"
 // #include "pybind11/stl/filesystem.h"
 
-#include "nanobind/nanobind.h"
 #include "nanobind/eigen/dense.h"
 #include "nanobind/eval.h"
 #include "nanobind/make_iterator.h"
+#include "nanobind/nanobind.h"
 #include "nanobind/ndarray.h"
 #include "nanobind/operators.h"
 #include "nanobind/trampoline.h"
@@ -155,6 +155,18 @@ auto ParamInit() {
     return obj;
   });
 }
+#else  // XXX porting
+template <typename CppClass>
+struct ParamInit : py::def_visitor<ParamInit<CppClass>> {
+  template <typename Class, typename... Extra>
+  void execute(Class& cl, const Extra&...) {
+    cl.def("__init__", [](Class* self, py::kwargs kwargs) {
+      new (self) Class();
+      py::object py_obj = py::cast(self, py_rvp::reference);
+      py::module_::import_("pydrake").attr("_setattr_kwargs")(py_obj, kwargs);
+    });
+  }
+};
 #endif  // XXX porting
 
 /// Executes Python code to introduce additional symbols for a given module.
@@ -172,16 +184,16 @@ inline void ExecuteExtraPythonCode(py::module_ m, bool use_subdir = false) {
 // the module, within the module itself).
 // TODO(eric.cousineau): Unfold cyclic references, and remove the need for this
 // macro (see #11868 for rationale).
-#define PYDRAKE_PREVENT_PYTHON3_MODULE_REIMPORT(variable)                 \
-  {                                                                       \
-    static py::handle variable##_original;                                \
-    if (variable##_original) {                                            \
-      variable##_original.inc_ref();                                      \
+#define PYDRAKE_PREVENT_PYTHON3_MODULE_REIMPORT(variable)      \
+  {                                                            \
+    static py::handle variable##_original;                     \
+    if (variable##_original) {                                 \
+      variable##_original.inc_ref();                           \
       variable = py::borrow<py::module_>(variable##_original); \
-      return;                                                             \
-    } else {                                                              \
-      variable##_original = variable;                                     \
-    }                                                                     \
+      return;                                                  \
+    } else {                                                   \
+      variable##_original = variable;                          \
+    }                                                          \
   }
 
 /// Given a raw pointer, returns a shared_ptr wrapper around it that doesn't own
@@ -220,14 +232,15 @@ std::shared_ptr<T> make_shared_ptr_from_py_object(py::object py_object) {
 #define DRAKE_NB_NUMPY_OBJECT_DTYPE(Type)       \
    NB_NUMPY_OBJECT_DTYPE(Type)
 */
-#define DRAKE_NANOBIND_NUMPY_OBJECT_DTYPE(Type)         \
-namespace nanobind::detail {                            \
-template <> struct dtype_traits<Type>{                  \
-  static constexpr dlpack::dtype value {                \
-    0,                                                  \
-    sizeof(Type) * 8,                                   \
-    0,                                                  \
-  };                                                    \
-  static constexpr auto name = const_name( #Type );     \
-};                                                      \
-}  // nanobind::detail
+#define DRAKE_NANOBIND_NUMPY_OBJECT_DTYPE(Type)     \
+  namespace nanobind::detail {                      \
+  template <>                                       \
+  struct dtype_traits<Type> {                       \
+    static constexpr dlpack::dtype value{           \
+        0,                                          \
+        sizeof(Type) * 8,                           \
+        0,                                          \
+    };                                              \
+    static constexpr auto name = const_name(#Type); \
+  };                                                \
+  }  // nanobind::detail

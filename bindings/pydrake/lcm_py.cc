@@ -92,10 +92,8 @@ NB_MODULE(lcm, m) {
     using Class = DrakeLcmParams;
     constexpr auto& cls_doc = doc.DrakeLcmParams;
     py::class_<Class> cls(m, "DrakeLcmParams", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);

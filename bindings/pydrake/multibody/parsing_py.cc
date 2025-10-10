@@ -60,9 +60,7 @@ NB_MODULE(parsing, m) {
       using Nested = PackageMap::RemoteParams;
       constexpr auto& nested_doc = cls_doc.RemoteParams;
       py::class_<Nested> nested(cls, "RemoteParams", nested_doc.doc);
-#if 0  // XXX porting
       nested.def(ParamInit<Nested>());
-#endif  // XXX porting
       nested.def("ToJson", &Nested::ToJson, nested_doc.ToJson.doc);
       DefAttributesUsingSerialize(&nested, nested_doc);
       DefReprUsingSerialize(&nested);
@@ -166,9 +164,7 @@ NB_MODULE(parsing, m) {
     using Class = parsing::AddWeld;
     constexpr auto& cls_doc = doc.parsing.AddWeld;
     py::class_<Class> cls(m, "AddWeld", cls_doc.doc);
-#if 0  // XXX porting
     cls.def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -178,9 +174,7 @@ NB_MODULE(parsing, m) {
     using Class = parsing::AddModel;
     constexpr auto& cls_doc = doc.parsing.AddModel;
     py::class_<Class> cls(m, "AddModel", cls_doc.doc);
-#if 0  // XXX porting
     cls.def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -190,9 +184,7 @@ NB_MODULE(parsing, m) {
     using Class = parsing::AddModelInstance;
     constexpr auto& cls_doc = doc.parsing.AddModelInstance;
     py::class_<Class> cls(m, "AddModelInstance", cls_doc.doc);
-#if 0  // XXX porting
     cls.def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -202,9 +194,7 @@ NB_MODULE(parsing, m) {
     using Class = parsing::AddFrame;
     constexpr auto& cls_doc = doc.parsing.AddFrame;
     py::class_<Class> cls(m, "AddFrame", cls_doc.doc);
-#if 0  // XXX porting
     cls.def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -214,9 +204,7 @@ NB_MODULE(parsing, m) {
     using Class = parsing::AddCollisionFilterGroup;
     constexpr auto& cls_doc = doc.parsing.AddCollisionFilterGroup;
     py::class_<Class> cls(m, "AddCollisionFilterGroup", cls_doc.doc);
-#if 0  // XXX porting
     cls.def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -226,9 +214,7 @@ NB_MODULE(parsing, m) {
     using Class = parsing::AddDirectives;
     constexpr auto& cls_doc = doc.parsing.AddDirectives;
     py::class_<Class> cls(m, "AddDirectives", cls_doc.doc);
-#if 0  // XXX porting
     cls.def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -238,9 +224,7 @@ NB_MODULE(parsing, m) {
     using Class = parsing::ModelDirective;
     constexpr auto& cls_doc = doc.parsing.ModelDirective;
     py::class_<Class> cls(m, "ModelDirective", cls_doc.doc);
-#if 0  // XXX porting
     cls.def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -250,9 +234,7 @@ NB_MODULE(parsing, m) {
     using Class = parsing::ModelDirectives;
     constexpr auto& cls_doc = doc.parsing.ModelDirectives;
     py::class_<Class> cls(m, "ModelDirectives", cls_doc.doc);
-#if 0  // XXX porting
     cls.def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);

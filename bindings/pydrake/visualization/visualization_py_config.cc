@@ -18,9 +18,7 @@ void DefineVisualizationConfig(py::module_ m) {
     using Class = VisualizationConfig;
     constexpr auto& cls_doc = doc.VisualizationConfig;
     py::class_<Class> cls(m, "VisualizationConfig", cls_doc.doc);
-#if 0  // XXX porting
     cls.def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);

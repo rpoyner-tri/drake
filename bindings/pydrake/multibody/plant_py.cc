@@ -1748,10 +1748,8 @@ NB_MODULE(plant, m) {
     using Class = MultibodyPlantConfig;
     constexpr auto& cls_doc = doc.MultibodyPlantConfig;
     py::class_<Class> cls(m, "MultibodyPlantConfig", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);

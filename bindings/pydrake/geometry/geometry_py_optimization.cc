@@ -575,9 +575,7 @@ void DefineIris(py::module_ m) {
     const auto& cls_doc = doc.IrisOptions;
     py::class_<IrisOptions> iris_options(m, "IrisOptions", cls_doc.doc);
     iris_options
-#if 0  // XXX porting
         .def(ParamInit<IrisOptions>())
-#endif  // XXX porting
         .def_rw("require_sample_point_is_contained",
             &IrisOptions::require_sample_point_is_contained,
             cls_doc.require_sample_point_is_contained.doc)
@@ -824,9 +822,7 @@ void DefineGraphOfConvexSetsAndRelated(py::module_ m) {
     using Class = GcsGraphvizOptions;
     constexpr auto& cls_doc = doc.GcsGraphvizOptions;
     py::class_<Class> cls(m, "GcsGraphvizOptions", cls_doc.doc);
-#if 0  // XXX porting
     cls.def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);

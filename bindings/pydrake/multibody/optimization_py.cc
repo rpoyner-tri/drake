@@ -34,10 +34,8 @@ NB_MODULE(optimization, m) {
     using Class = CalcGridPointsOptions;
     constexpr auto& cls_doc = doc.CalcGridPointsOptions;
     py::class_<Class> cls(m, "CalcGridPointsOptions", cls_doc.doc);
-#if 0   // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);

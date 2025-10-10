@@ -324,9 +324,7 @@ void DefineInMemoryMesh(py::module_ m) {
     py::class_<Class> cls(m, "InMemoryMesh", cls_doc.doc);
     py::object ctor = m.attr("InMemoryMesh");
     cls  // BR
-#if 0    // XXX porting
         .def(ParamInit<Class>())
-#endif   // XXX porting
         .def_rw("mesh_file", &Class::mesh_file, cls_doc.mesh_file.doc)
         .def_rw("supporting_files", &Class::supporting_files,
             cls_doc.supporting_files.doc)

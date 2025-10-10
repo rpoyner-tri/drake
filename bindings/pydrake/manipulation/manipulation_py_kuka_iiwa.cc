@@ -161,10 +161,8 @@ void DefineManipulationKukaIiwa(py::module_ m) {
     using Class = IiwaDriver;
     constexpr auto& cls_doc = doc.IiwaDriver;
     py::class_<Class> cls(m, "IiwaDriver", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);

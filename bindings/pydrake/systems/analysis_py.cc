@@ -58,9 +58,9 @@ NB_MODULE(analysis, m) {
     using Class = SimulatorConfig;
     constexpr auto& cls_doc = doc.SimulatorConfig;
     py::class_<Class> cls(m, "SimulatorConfig", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
+#if 0  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
 #endif  // XXX porting
     DefReprUsingSerialize(&cls);
@@ -100,10 +100,8 @@ NB_MODULE(analysis, m) {
     constexpr auto& cls_doc = doc.InitializeParams;
     using Class = InitializeParams;
     py::class_<Class> cls(m, "InitializeParams", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);

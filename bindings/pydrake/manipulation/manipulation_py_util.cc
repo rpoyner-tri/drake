@@ -19,10 +19,8 @@ void DefineManipulationUtil(py::module_ m) {
     using Class = ZeroForceDriver;
     constexpr auto& cls_doc = doc.ZeroForceDriver;
     py::class_<Class> cls(m, "ZeroForceDriver", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);

@@ -132,11 +132,9 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = DoorHingeConfig;
     constexpr auto& cls_doc = doc.DoorHingeConfig;
     py::class_<Class> cls(m, "DoorHingeConfig", cls_doc.doc);
-#if 0   // XXX porting
     cls  // BR
         .def(ParamInit<Class>(), cls_doc.ctor.doc);
     DefAttributesUsingSerialize(&cls, cls_doc);
-#endif  // XXX porting
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }
@@ -188,10 +186,8 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = PdControllerGains;
     constexpr auto& cls_doc = doc.PdControllerGains;
     py::class_<Class> cls(m, "PdControllerGains", cls_doc.doc);
-#if 0    // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif   // XXX porting
     cls  // BR
         .def_rw("p", &Class::p, cls_doc.p.doc)
         .def_rw("d", &Class::d, cls_doc.d.doc);

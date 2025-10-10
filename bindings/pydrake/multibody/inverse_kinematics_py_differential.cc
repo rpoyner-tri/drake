@@ -52,9 +52,7 @@ void DefineDifferentialIkLegacy(py::module_ m) {
 
     // TODO(m-chaturvedi) Add Pybind11 documentation.
     cls  // BR
-#if 0    // XXX porting
         .def(ParamInit<Class>())
-#endif   // XXX porting
         .def_rw("joint_velocities", &Class::joint_velocities,
             cls_doc.joint_velocities.doc)
         .def_rw("status", &Class::status, cls_doc.status.doc);
@@ -278,9 +276,7 @@ PyClassIngredient<Derived> BindIngredient(const char* class_name,
   PyClassIngredient<Derived> cls(*diff_ik_cls, class_name, cls_doc.doc);
 
   py::class_<Config> config_cls(cls, "Config", cls_doc.Config.doc);
-#if 0  // XXX porting
   config_cls.def(ParamInit<Config>());
-#endif  // XXX porting
   DefAttributesUsingSerialize(&config_cls, cls_doc.Config);
   DefReprUsingSerialize(&config_cls);
   DefCopyAndDeepCopy(&config_cls);

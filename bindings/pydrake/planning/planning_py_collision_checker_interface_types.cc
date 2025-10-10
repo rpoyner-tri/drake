@@ -111,9 +111,7 @@ void DefinePlanningCollisionCheckerInterfaceTypes(py::module_ m) {
     py::class_<Class> cls(m, "CollisionCheckerParams", cls_doc.doc);
     cls  // BR
         .def(py::init<>())
-#if 0  // XXX porting
         .def(ParamInit<Class>())
-#endif  // XXX porting
         .def_prop_rw(
             "model",
             [](const Class& self) -> const RobotDiagram<double>* {

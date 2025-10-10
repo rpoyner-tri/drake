@@ -51,10 +51,8 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = geometry::DefaultProximityProperties;
     constexpr auto& cls_doc = doc.DefaultProximityProperties;
     py::class_<Class> cls(m, "DefaultProximityProperties", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -64,10 +62,8 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = geometry::SceneGraphConfig;
     constexpr auto& cls_doc = doc.SceneGraphConfig;
     py::class_<Class> cls(m, "SceneGraphConfig", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -688,9 +684,7 @@ void DefineSignedDistancePair(py::module_ m, T) {
     auto cls = DefineTemplateClassWithDefault<Class>(
         m, "SignedDistancePair", param, cls_doc.doc);
     cls  // BR
-#if 0  // XXX porting
         .def(ParamInit<Class>(), cls_doc.ctor.doc)
-#endif  // XXX porting
         .def_rw("id_A", &SignedDistancePair<T>::id_A, cls_doc.id_A.doc)
         .def_rw("id_B", &SignedDistancePair<T>::id_B, cls_doc.id_B.doc)
         .def_rw("p_ACa", &SignedDistancePair<T>::p_ACa,
@@ -714,9 +708,7 @@ void DefineSignedDistanceToPoint(py::module_ m, T) {
     auto cls = DefineTemplateClassWithDefault<Class>(
         m, "SignedDistanceToPoint", param, cls_doc.doc);
     cls  // BR
-#if 0  // XXX porting
         .def(ParamInit<Class>(), cls_doc.ctor.doc)
-#endif  // XXX porting
         .def_rw(
             "id_G", &SignedDistanceToPoint<T>::id_G, cls_doc.id_G.doc)
         .def_rw("p_GN", &SignedDistanceToPoint<T>::p_GN,
@@ -737,9 +729,7 @@ void DefinePenetrationAsPointPair(py::module_ m, T) {
     auto cls = DefineTemplateClassWithDefault<Class>(
         m, "PenetrationAsPointPair", param, cls_doc.doc);
     cls  // BR
-#if 0  // XXX porting
         .def(ParamInit<Class>())
-#endif  // XXX porting
         .def_rw(
             "id_A", &PenetrationAsPointPair<T>::id_A, cls_doc.id_A.doc)
         .def_rw(

@@ -375,10 +375,8 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = geometry::NullTexture;
     constexpr auto& cls_doc = doc_vtk.NullTexture;
     py::class_<Class> cls(m, "NullTexture", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -388,10 +386,8 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = geometry::EquirectangularMap;
     constexpr auto& cls_doc = doc_vtk.EquirectangularMap;
     py::class_<Class> cls(m, "EquirectangularMap", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -401,10 +397,8 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = geometry::EnvironmentMap;
     constexpr auto& cls_doc = doc_vtk.EnvironmentMap;
     py::class_<Class> cls(m, "EnvironmentMap", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -414,10 +408,8 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = geometry::GltfExtension;
     constexpr auto& cls_doc = doc_vtk.GltfExtension;
     py::class_<Class> cls(m, "GltfExtension", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -427,10 +419,8 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = geometry::render::LightParameter;
     constexpr auto& cls_doc = doc.LightParameter;
     py::class_<Class> cls(m, "LightParameter", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -440,10 +430,8 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = geometry::SsaoParameter;
     constexpr auto& cls_doc = doc_vtk.SsaoParameter;
     py::class_<Class> cls(m, "SsaoParameter", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -453,10 +441,8 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = RenderEngineVtkParams;
     constexpr auto& cls_doc = doc_vtk.RenderEngineVtkParams;
     py::class_<Class> cls(m, "RenderEngineVtkParams", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -483,10 +469,8 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = RenderEngineGlParams;
     constexpr auto& cls_doc = doc_gl.RenderEngineGlParams;
     py::class_<Class> cls(m, "RenderEngineGlParams", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -513,10 +497,8 @@ void DoScalarIndependentDefinitions(py::module_ m) {
     using Class = RenderEngineGltfClientParams;
     constexpr auto& cls_doc = doc_gltf_client.RenderEngineGltfClientParams;
     py::class_<Class> cls(m, "RenderEngineGltfClientParams", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);

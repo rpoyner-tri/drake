@@ -135,10 +135,8 @@ void DefineManipulationSchunkWsg(py::module_ m) {
     using Class = manipulation::schunk_wsg::SchunkWsgDriver;
     constexpr auto& cls_doc = doc.SchunkWsgDriver;
     py::class_<Class> cls(m, "SchunkWsgDriver", cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);

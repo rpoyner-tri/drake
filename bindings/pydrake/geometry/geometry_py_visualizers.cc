@@ -179,9 +179,9 @@ void DefineDrakeVisualizerParams(py::module_ m) {
     constexpr auto& cls_doc = doc.DrakeVisualizerParams;
     py::class_<Class> cls(
         m, "DrakeVisualizerParams", py::dynamic_attr(), cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
+#if 0  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
 #endif  // XXX porting
     DefReprUsingSerialize(&cls);
@@ -200,16 +200,12 @@ void DefineMeshcatParams(py::module_ m) {
       using Nested = MeshcatParams::PropertyTuple;
       constexpr auto& nested_doc = doc.MeshcatParams.PropertyTuple;
       py::class_<Nested> nested(cls, "PropertyTuple", nested_doc.doc);
-#if 0  // XXX porting
       nested.def(ParamInit<Nested>());
-#endif  // XXX porting
       DefAttributesUsingSerialize(&nested, nested_doc);
       DefReprUsingSerialize(&nested);
       DefCopyAndDeepCopy(&nested);
     }
-#if 0  // XXX porting
     cls.def(ParamInit<Class>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
@@ -237,10 +233,8 @@ void DefineMeshcat(py::module_ m) {
     const auto& perspective_camera_doc = doc.Meshcat.PerspectiveCamera;
     py::class_<Meshcat::PerspectiveCamera> perspective_camera_cls(
         meshcat, "PerspectiveCamera", perspective_camera_doc.doc);
-#if 0  // XXX porting
     perspective_camera_cls  // BR
         .def(ParamInit<Meshcat::PerspectiveCamera>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(
         &perspective_camera_cls, perspective_camera_doc);
     DefReprUsingSerialize(&perspective_camera_cls);
@@ -249,10 +243,8 @@ void DefineMeshcat(py::module_ m) {
     const auto& orthographic_camera_doc = doc.Meshcat.OrthographicCamera;
     py::class_<Meshcat::OrthographicCamera> orthographic_camera_cls(
         meshcat, "OrthographicCamera", orthographic_camera_doc.doc);
-#if 0  // XXX porting
     orthographic_camera_cls  // BR
         .def(ParamInit<Meshcat::OrthographicCamera>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(
         &orthographic_camera_cls, orthographic_camera_doc);
     DefReprUsingSerialize(&orthographic_camera_cls);
@@ -261,10 +253,8 @@ void DefineMeshcat(py::module_ m) {
     const auto& gamepad_doc = doc.Meshcat.Gamepad;
     py::class_<Meshcat::Gamepad> gamepad_cls(
         meshcat, "Gamepad", gamepad_doc.doc);
-#if 0  // XXX porting
     gamepad_cls  // BR
         .def(ParamInit<Meshcat::Gamepad>());
-#endif  // XXX porting
     DefAttributesUsingSerialize(&gamepad_cls, gamepad_doc);
     DefReprUsingSerialize(&gamepad_cls);
     DefCopyAndDeepCopy(&gamepad_cls);
@@ -537,9 +527,9 @@ void DefineMeshcatVisualizerParams(py::module_ m) {
     constexpr auto& cls_doc = doc.MeshcatVisualizerParams;
     py::class_<Class> cls(
         m, "MeshcatVisualizerParams", py::dynamic_attr(), cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
+#if 0  // XXX porting
     DefAttributesUsingSerialize(&cls, cls_doc);
 #endif  // XXX porting
     DefReprUsingSerialize(&cls);

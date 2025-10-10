@@ -27,9 +27,7 @@ void DefineSensorsCameraConfig(py::module_ m) {
     py::class_<CameraConfig::FovDegrees> fov_class(
         config_cls, "FovDegrees", fov_degrees_doc.doc);
     fov_class  // BR
-#if 0  // XXX porting
         .def(ParamInit<CameraConfig::FovDegrees>())
-#endif  // XXX porting
         .def("focal_x", &CameraConfig::FovDegrees::focal_x, py::arg("width"),
             py::arg("height"), fov_degrees_doc.focal_x.doc)
         .def("focal_y", &CameraConfig::FovDegrees::focal_y, py::arg("width"),
@@ -43,9 +41,7 @@ void DefineSensorsCameraConfig(py::module_ m) {
     py::class_<CameraConfig::FocalLength> focal_class(
         config_cls, "FocalLength", focal_doc.doc);
     focal_class  // BR
-#if 0  // XXX porting
         .def(ParamInit<CameraConfig::FocalLength>())
-#endif  // XXX porting
         .def("focal_x", &CameraConfig::FocalLength::focal_x,
             focal_doc.focal_x.doc)
         .def("focal_y", &CameraConfig::FocalLength::focal_y,
@@ -56,9 +52,7 @@ void DefineSensorsCameraConfig(py::module_ m) {
 
     // Now we can bind the outer struct (see above).
     config_cls  // BR
-#if 0  // XXX porting
         .def(ParamInit<CameraConfig>())
-#endif  // XXX porting
         .def("focal_x", &CameraConfig::focal_x, config_cls_doc.focal_x.doc)
         .def("focal_y", &CameraConfig::focal_y, config_cls_doc.focal_y.doc)
         .def("principal_point", &CameraConfig::principal_point,
