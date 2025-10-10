@@ -207,6 +207,7 @@ void DefinePlanningIrisParameterizationFunction(py::module_ m) {
           },
           py::arg("parameterization"), py::arg("dimension"),
           parameterization_function_docstring.c_str())
+#endif  // XXX porting
       .def(py::init<const Eigen::VectorX<symbolic::Expression>&,
                const Eigen::VectorX<symbolic::Variable>&>(),
           py::arg("expression_parameterization"), py::arg("variables"),
@@ -215,7 +216,6 @@ void DefinePlanningIrisParameterizationFunction(py::module_ m) {
                const Eigen::Ref<const Eigen::VectorXd>&>(),
           py::arg("kin"), py::arg("q_star_val"),
           cls_doc.ctor.doc_2args_kin_q_star_val)
-#endif  // XXX porting
       .def("get_parameterization_is_threadsafe",
           &IrisParameterizationFunction::get_parameterization_is_threadsafe,
           cls_doc.get_parameterization_is_threadsafe.doc)

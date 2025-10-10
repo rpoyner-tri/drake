@@ -82,3 +82,8 @@ Compile time issues
 * SortedPair<GeometryId> is causing problems.
 
 * EigenPtr is causing problems.
+
+* kw_only() is more restrictive, or causing problems.
+
+* some problem with blah::Subgraph in geom/optimization.
+
