@@ -274,20 +274,16 @@ struct Impl {
       auto cls = DefineTemplateClassWithDefault<Class, PyTrajectory>(
           m, "Trajectory", param, cls_doc.doc);
       cls  // BR
-#if 0   // XXX porting
           .def(py::init<>())
           .def("value", &Class::value, py::arg("t"), cls_doc.value.doc)
           .def("vector_values",
               overload_cast_explicit<MatrixX<T>, const std::vector<T>&>(
                   &Class::vector_values),
               py::arg("t"), cls_doc.vector_values.doc)
-#endif   // XXX porting
           .def("has_derivative", &Class::has_derivative,
               cls_doc.has_derivative.doc)
-#if 0   // XXX porting
           .def("EvalDerivative", &Class::EvalDerivative, py::arg("t"),
               py::arg("derivative_order") = 1, cls_doc.EvalDerivative.doc)
-#endif   // XXX porting
           .def("MakeDerivative", &Class::MakeDerivative,
               py::arg("derivative_order") = 1, cls_doc.MakeDerivative.doc)
           .def("start_time", &Class::start_time, cls_doc.start_time.doc)
@@ -308,22 +304,18 @@ struct Impl {
           m, "BezierCurve", param, cls_doc.doc);
       cls  // BR
           .def(py::init<>(), cls_doc.ctor.doc_0args)
-#if 0   // XXX porting
           .def(py::init<double, double, const Eigen::Ref<const MatrixX<T>>&>(),
               py::arg("start_time"), py::arg("end_time"),
               py::arg("control_points"), cls_doc.ctor.doc_3args)
-#endif   // XXX porting
           .def("order", &Class::order, cls_doc.order.doc)
           .def("BernsteinBasis", &Class::BernsteinBasis, py::arg("i"),
               py::arg("time"), py::arg("order") = std::nullopt,
               cls_doc.BernsteinBasis.doc)
-#if 0  // XXX porting
           .def("control_points", &Class::control_points,
               cls_doc.control_points.doc)
           .def("GetExpression", &Class::GetExpression,
               py::arg("time") = symbolic::Variable("t"),
               cls_doc.GetExpression.doc)
-#endif  // XXX porting
           .def("ElevateOrder", &Class::ElevateOrder, cls_doc.ElevateOrder.doc);
       if constexpr (std::is_same_v<T, double>) {  // #19712
         cls.def("AsLinearInControlPoints", &Class::AsLinearInControlPoints,
@@ -354,20 +346,16 @@ struct Impl {
               py::arg("basis"), py::arg("control_points"), cls_doc.ctor.doc)
           .def(py::init<math::BsplineBasis<T>, std::vector<MatrixX<T>>>(),
               py::arg("basis"), py::arg("control_points"), cls_doc.ctor.doc)
-#if 0  // XXX porting
           .def("EvaluateLinearInControlPoints",
               &Class::EvaluateLinearInControlPoints, py::arg("parameter_value"),
               py::arg("derivative_order") = 0,
               cls_doc.EvaluateLinearInControlPoints.doc)
-#endif  // XXX porting
           .def("num_control_points", &Class::num_control_points,
               cls_doc.num_control_points.doc)
           .def("control_points", &Class::control_points,
               cls_doc.control_points.doc)
-#if 0  // XXX porting
           .def("InitialValue", &Class::InitialValue, cls_doc.InitialValue.doc)
           .def("FinalValue", &Class::FinalValue, cls_doc.FinalValue.doc)
-#endif  // XXX porting
           .def("basis", &Class::basis, cls_doc.basis.doc)
           .def("InsertKnots", &Class::InsertKnots, py::arg("additional_knots"),
               cls_doc.InsertKnots.doc)
@@ -472,10 +460,8 @@ struct Impl {
           m, "PiecewisePolynomial", param, cls_doc.doc);
       cls  // BR
           .def(py::init<>(), cls_doc.ctor.doc_0args)
-#if 0  // XXX porting
           .def(py::init<const Eigen::Ref<const MatrixX<T>>&>(),
               cls_doc.ctor.doc_1args_constEigenMatrixBase)
-#endif  // XXX porting
           .def(py::init<std::vector<MatrixX<Polynomial<T>>> const&,
                    std::vector<T> const&>(),
               cls_doc.ctor.doc_2args_polynomials_matrix_breaks)
@@ -533,7 +519,6 @@ struct Impl {
               py::arg("breaks"), py::arg("samples"),
               py::arg("zero_end_point_derivatives") = false,
               cls_doc.CubicShapePreserving.doc_matrix)
-#if 0  // XXX porting
           .def_static(
               "CubicWithContinuousSecondDerivatives",
               [](const std::vector<T>& breaks,
@@ -556,7 +541,6 @@ struct Impl {
               py::arg("breaks"), py::arg("samples"),
               py::arg("sample_dot_at_start"), py::arg("sample_dot_at_end"),
               cls_doc.CubicWithContinuousSecondDerivatives.doc_4args_matrix)
-#endif  // XXX porting
           .def_static(
               "CubicHermite",
               [](const std::vector<T>& breaks,
@@ -628,14 +612,12 @@ struct Impl {
               py::arg("block_cols"), cls_doc.Block.doc)
           .def("ConcatenateInTime", &Class::ConcatenateInTime, py::arg("other"),
               cls_doc.ConcatenateInTime.doc)
-#if 0  // XXX porting
           .def("AppendCubicHermiteSegment", &Class::AppendCubicHermiteSegment,
               py::arg("time"), py::arg("sample"), py::arg("sample_dot"),
               cls_doc.AppendCubicHermiteSegment.doc)
           .def("AppendFirstOrderSegment", &Class::AppendFirstOrderSegment,
               py::arg("time"), py::arg("sample"),
               cls_doc.AppendFirstOrderSegment.doc)
-#endif  // XXX porting
           .def("RemoveFinalSegment", &Class::RemoveFinalSegment,
               cls_doc.RemoveFinalSegment.doc)
           .def("ReverseTime", &Class::ReverseTime, cls_doc.ReverseTime.doc)
@@ -769,13 +751,10 @@ struct Impl {
               cls_doc.Append.doc_2args_time_angle_axis)
           .def("orientation", &Class::orientation, py::arg("time"),
               cls_doc.orientation.doc)
-#if 0  // XXX porting
           .def("angular_velocity", &Class::angular_velocity, py::arg("time"),
               cls_doc.angular_velocity.doc)
           .def("angular_acceleration", &Class::angular_acceleration,
-              py::arg("time"), cls_doc.angular_acceleration.doc)
-#endif  // XXX porting
-          ;
+              py::arg("time"), cls_doc.angular_acceleration.doc);
       DefCopyAndDeepCopy(&cls);
     }
 
@@ -792,21 +771,17 @@ struct Impl {
               cls_doc.ctor.doc_2args)
           .def_static("MakeLinear", &Class::MakeLinear, py::arg("times"),
               py::arg("poses"), cls_doc.MakeLinear.doc)
-#if 0  // XXX porting
           .def_static("MakeCubicLinearWithEndLinearVelocity",
               &Class::MakeCubicLinearWithEndLinearVelocity, py::arg("times"),
               py::arg("poses"),
               py::arg("start_vel") = Vector3<T>::Zero().eval(),
               py::arg("end_vel") = Vector3<T>::Zero().eval(),
               cls_doc.MakeCubicLinearWithEndLinearVelocity.doc)
-#endif  // XXX porting
           .def("GetPose", &Class::GetPose, py::arg("time"), cls_doc.GetPose.doc)
-#if 0  // XXX porting
           .def("GetVelocity", &Class::GetVelocity, py::arg("time"),
               cls_doc.GetVelocity.doc)
           .def("GetAcceleration", &Class::GetAcceleration, py::arg("time"),
               cls_doc.GetAcceleration.doc)
-#endif  // XXX porting
           .def("IsApprox", &Class::IsApprox, py::arg("other"), py::arg("tol"),
               cls_doc.IsApprox.doc)
           .def("get_position_trajectory", &Class::get_position_trajectory,

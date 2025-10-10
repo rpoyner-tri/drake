@@ -70,7 +70,7 @@ class PySerializerInterface : public SerializerInterface {
     py::bytes buffer(
         reinterpret_cast<const char*>(message_bytes), message_length);
 #if 0  // XXX porting
-    // change of signature issues.24~
+    // change of signature issues.
     NB_OVERRIDE_PURE(Deserialize, buffer, abstract_value);
 #endif  // XXX porting
   }

@@ -78,6 +78,8 @@ Compile time issues
 
 * blah Serialize() helpers now trip on enum typed fields, even though they
   are/were "registered types">
+  * geometry::Role
+  * systems::sensors::{ImageFileFormat,PixelScalar}
 
 * SortedPair<GeometryId> is causing problems.
 

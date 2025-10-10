@@ -53,11 +53,8 @@ template <typename SomeObject, typename T>
 py::object DoEval(const SomeObject* self, const systems::Context<T>& context) {
   switch (self->get_data_type()) {
     case systems::kVectorValued: {
-#if 0  // XXX porting
       const VectorX<T> eigen_copy = self->Eval(context);
       return py::cast(eigen_copy);
-#endif  // XXX porting
-      return {};
     }
     case systems::kAbstractValued: {
       const auto& abstract = self->template Eval<AbstractValue>(context);
@@ -429,7 +426,6 @@ py::class_<Context<T>, ContextBase> DefineContext(py::module_ m) {
       // order as the header file.
       .def("SetTime", &Context<T>::SetTime, py::arg("time_sec"),
           doc.Context.SetTime.doc)
-#if 0   // XXX porting
       .def("SetContinuousState", &Context<T>::SetContinuousState,
           doc.Context.SetContinuousState.doc)
       .def("SetTimeAndContinuousState", &Context<T>::SetTimeAndContinuousState,
@@ -444,7 +440,6 @@ py::class_<Context<T>, ContextBase> DefineContext(py::module_ m) {
               &Context<T>::SetDiscreteState),
           py::arg("group_index"), py::arg("xd"),
           doc.Context.SetDiscreteState.doc_select_one_group)
-#endif  // XXX porting
       .def("SetDiscreteState",
           overload_cast_explicit<void, const DiscreteValues<T>&>(
               &Context<T>::SetDiscreteState),
@@ -1233,13 +1228,10 @@ void DefineContinuousState(py::module_ m) {
             self->SetFrom(other);
           },
           doc.ContinuousState.SetFrom.doc)
-#if 0   // XXX porting
       .def("SetFromVector", &ContinuousState<T>::SetFromVector,
           py::arg("value"), doc.ContinuousState.SetFromVector.doc)
       .def("CopyToVector", &ContinuousState<T>::CopyToVector,
-          doc.ContinuousState.CopyToVector.doc)
-#endif  // XXX porting
-      ;
+          doc.ContinuousState.CopyToVector.doc);
 }
 
 template <typename T>
@@ -1267,7 +1259,6 @@ void DefineDiscreteValues(py::module_ m) {
       .def("size", &DiscreteValues<T>::size, doc.DiscreteValues.size.doc)
       .def("get_data", &DiscreteValues<T>::get_data, py_rvp::reference_internal,
           doc.DiscreteValues.get_data.doc)
-#if 0   // XXX porting
       .def("set_value",
           overload_cast_explicit<void, const Eigen::Ref<const VectorX<T>>&>(
               &DiscreteValues<T>::set_value),
@@ -1277,7 +1268,6 @@ void DefineDiscreteValues(py::module_ m) {
               &DiscreteValues<T>::value),
           return_value_policy_for_scalar_type<T>(), py::arg("index") = 0,
           doc.DiscreteValues.value.doc_1args)
-#endif  // XXX porting
       .def("get_vector",
           overload_cast_explicit<const BasicVector<T>&, int>(
               &DiscreteValues<T>::get_vector),
@@ -1288,7 +1278,6 @@ void DefineDiscreteValues(py::module_ m) {
               &DiscreteValues<T>::get_mutable_vector),
           py_rvp::reference_internal, py::arg("index") = 0,
           doc.DiscreteValues.get_mutable_vector.doc_1args)
-#if 0   // XXX porting
       .def("set_value",
           overload_cast_explicit<void, int,
               const Eigen::Ref<const VectorX<T>>&>(
@@ -1311,7 +1300,6 @@ void DefineDiscreteValues(py::module_ m) {
           // N.B. We explicitly want a failure when T != double due to #8116.
           py_rvp::reference_internal, py::arg("index") = 0,
           doc.DiscreteValues.get_mutable_value.doc_1args)
-#endif  // XXX porting
       .def(
           "SetFrom",
           [](DiscreteValues<T>* self, const DiscreteValues<double>& other) {

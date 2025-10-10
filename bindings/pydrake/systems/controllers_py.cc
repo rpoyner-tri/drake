@@ -288,11 +288,9 @@ NB_MODULE(controllers, m) {
   m.def("FittedValueIteration", WrapCallbacks(&FittedValueIteration),
       doc.FittedValueIteration.doc);
 
-#if 0  // XXX porting
   m.def("LinearProgrammingApproximateDynamicProgramming",
       WrapCallbacks(&LinearProgrammingApproximateDynamicProgramming),
       doc.LinearProgrammingApproximateDynamicProgramming.doc);
-#endif  // XXX porting
 
   m.def(
       "LinearQuadraticRegulator",

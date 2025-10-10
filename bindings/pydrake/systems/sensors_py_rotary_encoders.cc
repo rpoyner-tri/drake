@@ -31,15 +31,12 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def(py::init<int, const std::vector<int>&, const std::vector<int>&>(),
             py::arg("input_port_size"), py::arg("input_vector_indices"),
             py::arg("ticks_per_revolution"), cls_doc.ctor.doc_3args)
-#if 0  // XXX porting
         .def("set_calibration_offsets", &Class::set_calibration_offsets,
             py::arg("context"), py::arg("calibration_offsets"),
             cls_doc.set_calibration_offsets.doc)
         .def("get_calibration_offsets", &Class::get_calibration_offsets,
             py::arg("context"), py_rvp::copy,
-            cls_doc.get_calibration_offsets.doc)
-#endif  // XXX porting
-        ;
+            cls_doc.get_calibration_offsets.doc);
   }
 }
 

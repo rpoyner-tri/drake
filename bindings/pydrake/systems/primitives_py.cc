@@ -82,8 +82,8 @@ NB_MODULE(primitives, m) {
           cls, "InputPortParams", doc.SelectorParams.InputPortParams.doc);
 #if 0   // XXX porting
       nested.def(ParamInit<Nested>());
-      DefAttributesUsingSerialize(&nested, doc.SelectorParams.InputPortParams);
 #endif  // XXX porting
+      DefAttributesUsingSerialize(&nested, doc.SelectorParams.InputPortParams);
       DefReprUsingSerialize(&nested);
       DefCopyAndDeepCopy(&nested);
     }
@@ -93,8 +93,8 @@ NB_MODULE(primitives, m) {
           cls, "OutputSelection", doc.SelectorParams.OutputSelection.doc);
 #if 0   // XXX porting
       nested.def(ParamInit<Nested>());
-      DefAttributesUsingSerialize(&nested, doc.SelectorParams.OutputSelection);
 #endif  // XXX porting
+      DefAttributesUsingSerialize(&nested, doc.SelectorParams.OutputSelection);
       DefReprUsingSerialize(&nested);
       DefCopyAndDeepCopy(&nested);
     }
@@ -104,15 +104,15 @@ NB_MODULE(primitives, m) {
           cls, "OutputPortParams", doc.SelectorParams.OutputPortParams.doc);
 #if 0   // XXX porting
       nested.def(ParamInit<Nested>());
-      DefAttributesUsingSerialize(&nested, doc.SelectorParams.OutputPortParams);
 #endif  // XXX porting
+      DefAttributesUsingSerialize(&nested, doc.SelectorParams.OutputPortParams);
       DefReprUsingSerialize(&nested);
       DefCopyAndDeepCopy(&nested);
     }
 #if 0   // XXX porting
     cls.def(ParamInit<Class>());
-    DefAttributesUsingSerialize(&cls, doc.SelectorParams);
 #endif  // XXX porting
+    DefAttributesUsingSerialize(&cls, doc.SelectorParams);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }
@@ -170,11 +170,9 @@ NB_MODULE(primitives, m) {
             doc.TimeVaryingAffineSystem.num_inputs.doc)
         .def("num_outputs", &TrajectoryAffineSystem<T>::num_outputs,
             doc.TimeVaryingAffineSystem.num_outputs.doc)
-#if 0   // XXX porting
         .def("configure_default_state",
             &TimeVaryingAffineSystem<T>::configure_default_state, py::arg("x0"),
             doc.TimeVaryingAffineSystem.configure_default_state.doc)
-#endif  // XXX porting
         .def("configure_random_state",
             &TimeVaryingAffineSystem<T>::configure_random_state,
             py::arg("covariance"),
@@ -214,10 +212,8 @@ NB_MODULE(primitives, m) {
 
     DefineTemplateClassWithDefault<ConstantVectorSource<T>, LeafSystem<T>>(m,
         "ConstantVectorSource", GetPyParam<T>(), doc.ConstantVectorSource.doc)
-#if 0   // XXX porting
         .def(py::init<VectorX<T>>(), py::arg("source_value"),
             doc.ConstantVectorSource.ctor.doc)
-#endif  // XXX porting
         .def("get_source_value", &ConstantVectorSource<T>::get_source_value,
             py::arg("context"), py_rvp::reference_internal,
             doc.ConstantVectorSource.get_source_value.doc)
@@ -253,11 +249,9 @@ NB_MODULE(primitives, m) {
         doc.DiscreteTimeIntegrator.doc)
         .def(py::init<int, double>(), py::arg("size"), py::arg("time_step"),
             doc.DiscreteTimeIntegrator.ctor.doc)
-#if 0  // XXX porting
         .def("set_integral_value",
             &DiscreteTimeIntegrator<T>::set_integral_value, py::arg("context"),
             py::arg("value"), doc.DiscreteTimeIntegrator.set_integral_value.doc)
-#endif  // XXX porting
         .def("time_step", &DiscreteTimeIntegrator<T>::time_step,
             doc.DiscreteTimeIntegrator.time_step.doc);
 
@@ -286,12 +280,9 @@ NB_MODULE(primitives, m) {
         .def("get_time_constants_vector",
             &FirstOrderLowPassFilter<T>::get_time_constants_vector,
             doc.FirstOrderLowPassFilter.get_time_constants_vector.doc)
-#if 0  // XXX porting
         .def("set_initial_output_value",
             &FirstOrderLowPassFilter<T>::set_initial_output_value,
-            doc.FirstOrderLowPassFilter.set_initial_output_value.doc)
-#endif  // XXX porting
-        ;
+            doc.FirstOrderLowPassFilter.set_initial_output_value.doc);
 
     DefineTemplateClassWithDefault<Gain<T>, LeafSystem<T>>(
         m, "Gain", GetPyParam<T>(), doc.Gain.doc)
@@ -327,12 +318,9 @@ NB_MODULE(primitives, m) {
             &Integrator<T>::set_default_integral_value,
             py::arg("initial_value"),
             doc.Integrator.set_default_integral_value.doc)
-#if 0  // XXX porting
        .def("set_integral_value", &Integrator<T>::set_integral_value,
             py::arg("context"), py::arg("value"),
-            doc.Integrator.set_integral_value.doc)
-#endif  // XXX porting
-        ;
+            doc.Integrator.set_integral_value.doc);
 
     DefineTemplateClassWithDefault<LinearSystem<T>, AffineSystem<T>>(
         m, "LinearSystem", GetPyParam<T>(), doc.LinearSystem.doc)
@@ -379,7 +367,6 @@ NB_MODULE(primitives, m) {
             doc.MultilayerPerceptron.layers.doc)
         .def("activation_type", &MultilayerPerceptron<T>::activation_type,
             py::arg("layer"), doc.MultilayerPerceptron.activation_type.doc)
-#if 0  // XXX porting
         .def("GetParameters", &MultilayerPerceptron<T>::GetParameters,
             py::arg("context"),
             py::keep_alive<0, 2>() /* return keeps context alive */,
@@ -435,6 +422,7 @@ NB_MODULE(primitives, m) {
             py::arg("params"), py::arg("layer"),
             py::keep_alive<0, 2>() /* return keeps params alive */,
             py_rvp::reference, doc.MultilayerPerceptron.GetBiases.doc_vector)
+#if 0  // XXX porting
         .def("SetWeights",
             py::overload_cast<EigenPtr<VectorX<T>>, int,
                 const Eigen::Ref<const MatrixX<T>>&>(
@@ -460,6 +448,7 @@ NB_MODULE(primitives, m) {
         .def("BatchOutput", &MultilayerPerceptron<T>::BatchOutput,
             py::arg("context"), py::arg("X"), py::arg("Y"),
             py::arg("dYdX") = nullptr, doc.MultilayerPerceptron.BatchOutput.doc)
+#endif  // XXX porting
         .def(
             "BatchOutput",
             [](const MultilayerPerceptron<T>* self, const Context<T>& context,
@@ -472,9 +461,7 @@ NB_MODULE(primitives, m) {
             "Evaluates the batch output for the MLP with a batch input vector. "
             "See BatchOutput(context, X, Y) for a version that can avoid "
             "dynamic memory allocations of Y (e.g. if this is used inside an "
-            "optimization loop).")
-#endif  // XXX porting
-        ;
+            "optimization loop).");
 
     DefineTemplateClassWithDefault<PassThrough<T>, LeafSystem<T>>(
         m, "PassThrough", GetPyParam<T>(), doc.PassThrough.doc)
@@ -500,12 +487,9 @@ NB_MODULE(primitives, m) {
 
     DefineTemplateClassWithDefault<Saturation<T>, LeafSystem<T>>(
         m, "Saturation", GetPyParam<T>(), doc.Saturation.doc)
-#if 0  // XXX porting
         .def(py::init<const VectorX<T>&, const VectorX<T>&>(),
             py::arg("min_value"), py::arg("max_value"),
-            doc.Saturation.ctor.doc_2args)
-#endif  // XXX porting
-        ;
+            doc.Saturation.ctor.doc_2args);
 
     DefineTemplateClassWithDefault<SparseMatrixGain<T>, LeafSystem<T>>(
         m, "SparseMatrixGain", GetPyParam<T>(), doc.SparseMatrixGain.doc)
@@ -533,7 +517,6 @@ NB_MODULE(primitives, m) {
                 T>::suppress_initial_transient,
             doc.StateInterpolatorWithDiscreteDerivative
                 .suppress_initial_transient.doc)
-#if 0  // XXX porting
         .def(
             "set_initial_position",
             [](const StateInterpolatorWithDiscreteDerivative<T>* self,
@@ -552,9 +535,7 @@ NB_MODULE(primitives, m) {
             },
             py::arg("state"), py::arg("position"),
             doc.StateInterpolatorWithDiscreteDerivative.set_initial_position
-                .doc_2args_state_position)
-#endif  // XXX porting
-        ;
+                .doc_2args_state_position);
 
     DefineTemplateClassWithDefault<SharedPointerSystem<T>, LeafSystem<T>>(
         m, "SharedPointerSystem", GetPyParam<T>(), doc.SharedPointerSystem.doc)
@@ -590,7 +571,6 @@ NB_MODULE(primitives, m) {
 
     DefineTemplateClassWithDefault<SymbolicVectorSystem<T>, LeafSystem<T>>(m,
         "SymbolicVectorSystem", GetPyParam<T>(), doc.SymbolicVectorSystem.doc)
-#if 0  // XXX porting
         .def(py::init<std::optional<Variable>, VectorX<Variable>,
                  VectorX<Variable>, VectorX<Expression>, VectorX<Expression>,
                  double>(),
@@ -612,7 +592,6 @@ NB_MODULE(primitives, m) {
             py::arg("output") = Vector0<Expression>{},
             py::arg("time_period") = 0.0,
             doc.SymbolicVectorSystem.ctor.doc_7args)
-#endif  // XXX porting
         .def("dynamics_for_variable",
             &SymbolicVectorSystem<T>::dynamics_for_variable, py::arg("var"),
             doc.SymbolicVectorSystem.dynamics_for_variable.doc);
@@ -624,7 +603,6 @@ NB_MODULE(primitives, m) {
         .def(py::init<int>(), py::arg("input_size"), doc.VectorLog.ctor.doc)
         .def("num_samples", &VectorLog<T>::num_samples,
             doc.VectorLog.num_samples.doc)
-#if 0  // XXX porting
         .def(
             "sample_times",
             [](const VectorLog<T>* self) {
@@ -640,13 +618,10 @@ NB_MODULE(primitives, m) {
               return CopyIfNotPodType(self->data());
             },
             return_value_policy_for_scalar_type<T>(), doc.VectorLog.data.doc)
-#endif  // XXX porting
         .def("Clear", &VectorLog<T>::Clear, doc.VectorLog.Clear.doc)
         .def("Reserve", &VectorLog<T>::Reserve, doc.VectorLog.Reserve.doc)
-#if 0  // XXX porting
         .def("AddData", &VectorLog<T>::AddData, py::arg("time"),
             py::arg("sample"), doc.VectorLog.AddData.doc)
-#endif  // XXX porting
         .def("get_input_size", &VectorLog<T>::get_input_size,
             doc.VectorLog.get_input_size.doc);
 
@@ -727,11 +702,8 @@ NB_MODULE(primitives, m) {
                 .doc_3args_period_sec_abstract_model_value_offset_sec)
         .def("period", &ZeroOrderHold<T>::period, doc.ZeroOrderHold.period.doc)
         .def("offset", &ZeroOrderHold<T>::offset, doc.ZeroOrderHold.offset.doc)
-#if 0  // XXX porting
         .def("SetVectorState", &ZeroOrderHold<T>::SetVectorState,
-            doc.ZeroOrderHold.SetVectorState.doc)
-#endif  // XXX porting
-        ;
+            doc.ZeroOrderHold.SetVectorState.doc);
 
     DefineTemplateClassWithDefault<TrajectorySource<T>, LeafSystem<T>>(
         m, "TrajectorySource", GetPyParam<T>(), doc.TrajectorySource.doc)
@@ -774,14 +746,12 @@ NB_MODULE(primitives, m) {
             doc.LinearTransformDensity.get_output_port_w_out_density.doc)
         .def("get_distribution", &LinearTransformDensity<T>::get_distribution,
             doc.LinearTransformDensity.get_distribution.doc)
-#if 0  // XXX porting
         .def("FixConstantA", &LinearTransformDensity<T>::FixConstantA,
             py::arg("context"), py::arg("A"), py_rvp::reference_internal,
             doc.LinearTransformDensity.FixConstantA.doc)
         .def("FixConstantB", &LinearTransformDensity<T>::FixConstantB,
             py::arg("context"), py::arg("b"), py_rvp::reference_internal,
             doc.LinearTransformDensity.FixConstantB.doc)
-#endif  // XXX porting
         .def("CalcDensity", &LinearTransformDensity<T>::CalcDensity,
             py::arg("context"), doc.LinearTransformDensity.CalcDensity.doc);
 
@@ -797,7 +767,6 @@ NB_MODULE(primitives, m) {
             py::arg("A"), py::arg("B"), py::arg("f0"), py::arg("C"),
             py::arg("D"), py::arg("y0"), py::arg("time_period") = 0.0,
             doc.TrajectoryAffineSystem.ctor.doc)
-#if 0  // XXX porting
         .def("A",
             overload_cast_explicit<MatrixX<T>, const T&>(
                 &TrajectoryAffineSystem<T>::A),
@@ -822,17 +791,14 @@ NB_MODULE(primitives, m) {
             overload_cast_explicit<VectorX<T>, const T&>(
                 &TrajectoryAffineSystem<T>::y0),
             doc.TrajectoryAffineSystem.y0.doc)
-#endif  // XXX porting
         // Wrap a few methods from the TimeVaryingAffineSystem parent class.
         // TODO(russt): Move to TimeVaryingAffineSystem if/when that class is
         // wrapped.
         .def("time_period", &TrajectoryAffineSystem<T>::time_period,
             doc.TimeVaryingAffineSystem.time_period.doc)
-#if 0  // XXX porting
         .def("configure_default_state",
             &TimeVaryingAffineSystem<T>::configure_default_state, py::arg("x0"),
             doc.TimeVaryingAffineSystem.configure_default_state.doc)
-#endif  // XXX porting
         .def("configure_random_state",
             &TimeVaryingAffineSystem<T>::configure_random_state,
             py::arg("covariance"),
@@ -847,7 +813,6 @@ NB_MODULE(primitives, m) {
                  const trajectories::Trajectory<double>&, double>(),
             py::arg("A"), py::arg("B"), py::arg("C"), py::arg("D"),
             py::arg("time_period") = 0.0, doc.TrajectoryLinearSystem.ctor.doc)
-#if 0  // XXX porting
         .def("A",
             overload_cast_explicit<MatrixX<T>, const T&>(
                 &TrajectoryLinearSystem<T>::A),
@@ -864,17 +829,14 @@ NB_MODULE(primitives, m) {
             overload_cast_explicit<MatrixX<T>, const T&>(
                 &TrajectoryLinearSystem<T>::D),
             doc.TrajectoryLinearSystem.D.doc)
-#endif  // XXX porting
         // Wrap a few methods from the TimeVaryingAffineSystem parent class.
         // TODO(russt): Move to TimeVaryingAffineSystem if/when that class is
         // wrapped.
         .def("time_period", &TrajectoryAffineSystem<T>::time_period,
             doc.TimeVaryingAffineSystem.time_period.doc)
-#if 0  // XXX porting
         .def("configure_default_state",
             &TimeVaryingAffineSystem<T>::configure_default_state, py::arg("x0"),
             doc.TimeVaryingAffineSystem.configure_default_state.doc)
-#endif  // XXX porting
         .def("configure_random_state",
             &TimeVaryingAffineSystem<T>::configure_random_state,
             py::arg("covariance"),

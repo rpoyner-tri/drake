@@ -20,8 +20,8 @@ void DefineVisualizationConfig(py::module_ m) {
     py::class_<Class> cls(m, "VisualizationConfig", cls_doc.doc);
 #if 0  // XXX porting
     cls.def(ParamInit<Class>());
-    DefAttributesUsingSerialize(&cls, cls_doc);
 #endif  // XXX porting
+    DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }

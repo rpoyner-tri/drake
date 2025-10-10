@@ -332,11 +332,9 @@ struct Impl {
             overload_cast_explicit<unique_ptr<ContinuousState<T>>>(
                 &System<T>::AllocateTimeDerivatives),
             doc.System.AllocateTimeDerivatives.doc)
-#if 0   // XXX porting
         .def("AllocateImplicitTimeDerivativesResidual",
             &System<T>::AllocateImplicitTimeDerivativesResidual,
             doc.System.AllocateImplicitTimeDerivativesResidual.doc)
-#endif  // XXX porting
         .def("AllocateDiscreteVariables",
             overload_cast_explicit<unique_ptr<DiscreteValues<T>>>(
                 &System<T>::AllocateDiscreteVariables),
@@ -390,11 +388,12 @@ struct Impl {
         .def("CalcTimeDerivatives", &System<T>::CalcTimeDerivatives,
             py::arg("context"), py::arg("derivatives"),
             doc.System.CalcTimeDerivatives.doc)
-#if 0   // XXX porting
+#if 0  // XXX porting
         .def("CalcImplicitTimeDerivativesResidual",
             &System<T>::CalcImplicitTimeDerivativesResidual, py::arg("context"),
             py::arg("proposed_derivatives"), py::arg("residual"),
             doc.System.CalcImplicitTimeDerivativesResidual.doc)
+#endif  // XXX porting
         .def(
             "CalcImplicitTimeDerivativesResidual",
             [](const System<T>* self, const Context<T>& context,
@@ -409,7 +408,6 @@ struct Impl {
             },
             py::arg("context"), py::arg("proposed_derivatives"),
             doc.System.CalcImplicitTimeDerivativesResidual.doc)
-#endif  // XXX porting
         .def("CalcForcedDiscreteVariableUpdate",
             &System<T>::CalcForcedDiscreteVariableUpdate, py::arg("context"),
             py::arg("discrete_state"),
@@ -996,13 +994,11 @@ Note: The above is for the C++ documentation. For Python, use
                 &LeafSystemPublic::DeclareDiscreteState),
             py::arg("model_vector"),
             doc.LeafSystem.DeclareDiscreteState.doc_1args_model_vector)
-#if 0  // XXX porting
         .def("DeclareDiscreteState",
             py::overload_cast<const Eigen::Ref<const VectorX<T>>&>(
                 &LeafSystemPublic::DeclareDiscreteState),
             py::arg("vector"),
             doc.LeafSystem.DeclareDiscreteState.doc_1args_vector)
-#endif  // XXX porting
         .def("DeclareDiscreteState",
             py::overload_cast<int>(&LeafSystemPublic::DeclareDiscreteState),
             py::arg("num_state_variables"),

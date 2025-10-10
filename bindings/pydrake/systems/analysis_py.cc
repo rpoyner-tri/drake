@@ -103,8 +103,8 @@ NB_MODULE(analysis, m) {
 #if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-    DefAttributesUsingSerialize(&cls, cls_doc);
 #endif  // XXX porting
+    DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }
@@ -564,12 +564,10 @@ Parameter ``interruptible``:
         .def_rw("lyapunov_candidate",
             &RegionOfAttractionOptions::lyapunov_candidate,
             cls_doc.lyapunov_candidate.doc)
-#if 0  // XXX porting
         .def_rw("state_variables",
             &RegionOfAttractionOptions::state_variables,
             // dtype = object arrays must be copied, and cannot be referenced.
             py_rvp::copy, cls_doc.state_variables.doc)
-#endif  // XXX porting
         .def_rw("use_implicit_dynamics",
             &RegionOfAttractionOptions::use_implicit_dynamics,
             cls_doc.use_implicit_dynamics.doc)

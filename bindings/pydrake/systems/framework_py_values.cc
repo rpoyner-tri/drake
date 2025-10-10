@@ -29,7 +29,6 @@ void DoScalarDependentDefinitions(py::module_ m) {
   // Value types.
   DefineTemplateClassWithDefault<VectorBase<T>>(
       m, "VectorBase", GetPyParam<T>(), doc.VectorBase.doc)
-#if 0  // XXX porting
       .def("__str__",
           [](const VectorBase<T>& self) {
             // Print out list directly.
@@ -41,7 +40,6 @@ void DoScalarDependentDefinitions(py::module_ m) {
             return py::str("{}({})").format(internal::PrettyClassName(cls),
                 py::cast(self.CopyToVector()).attr("tolist")());
           })
-#endif  // XXX porting
       .def("__getitem__",
           overload_cast_explicit<const T&, int>(&VectorBase<T>::operator[]),
           py_rvp::reference_internal, doc.VectorBase.operator_array.doc)
@@ -58,15 +56,11 @@ void DoScalarDependentDefinitions(py::module_ m) {
           py::arg("value"), doc.VectorBase.SetAtIndex.doc)
       .def("SetFrom", &VectorBase<T>::SetFrom, py::arg("value"),
           doc.VectorBase.SetFrom.doc)
-#if 0  // XXX porting
       .def("SetFromVector", &VectorBase<T>::SetFromVector, py::arg("value"),
           doc.VectorBase.SetFromVector.doc)
-#endif  // XXX porting
       .def("SetZero", &VectorBase<T>::SetZero, doc.VectorBase.SetZero.doc)
-#if 0  // XXX porting
       .def("CopyToVector", &VectorBase<T>::CopyToVector,
           doc.VectorBase.CopyToVector.doc)
-#endif  // XXX porting
       .def("PlusEqScaled",
           overload_cast_explicit<VectorBase<T>&, const T&,
               const VectorBase<T>&>(&VectorBase<T>::PlusEqScaled),
@@ -83,13 +77,10 @@ void DoScalarDependentDefinitions(py::module_ m) {
       // N.B. Place `init<VectorX<T>>` `init<int>` so that we do not
       // implicitly convert scalar-size `np.array` objects to `int` (since
       // this is normally permitted).
-#if 0  // XXX porting
       .def(py::init<VectorX<T>>(), py::arg("data"),
           doc.BasicVector.ctor.doc_1args_vec)
-#endif  // XXX porting
       .def(
           py::init<int>(), py::arg("size"), doc.BasicVector.ctor.doc_1args_size)
-#if 0  // XXX porting
       .def(
           "set_value",
           [](BasicVector<T>* self, const Eigen::Ref<const VectorX<T>>& value) {
@@ -119,9 +110,7 @@ void DoScalarDependentDefinitions(py::module_ m) {
           [](BasicVector<T>* self) -> Eigen::Ref<VectorX<T>> {
             return self->get_mutable_value();
           },
-          py_rvp::reference_internal, doc.BasicVector.get_mutable_value.doc)
-#endif  // XXX porting
-      ;
+          py_rvp::reference_internal, doc.BasicVector.get_mutable_value.doc);
 
   DefineTemplateClassWithDefault<Supervector<T>, VectorBase<T>>(
       m, "Supervector", GetPyParam<T>(), doc.Supervector.doc);
@@ -136,16 +125,13 @@ void DoScalarDependentDefinitions(py::module_ m) {
             self->set_value(BasicVector<T>{value});
           },
           py::arg("value"))
-#if 0  // XXX porting
       .def(
           "set_value",
           [](Value<BasicVector<T>>* self,
               const Eigen::Ref<const VectorX<T>>& value) {
             self->set_value(BasicVector<T>(value));
           },
-          py::arg("value"))
-#endif  // XXX porting
-      ;
+          py::arg("value"));
 }
 
 void DefineBusValue(py::module_ m) {
