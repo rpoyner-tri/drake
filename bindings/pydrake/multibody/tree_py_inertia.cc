@@ -57,18 +57,14 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
                  const T&>(),
             py::arg("Ixx"), py::arg("Iyy"), py::arg("Izz"), py::arg("Ixy"),
             py::arg("Ixz"), py::arg("Iyz"), cls_doc.ctor.doc_6args)
-#if 0  // XXX porting
         .def(py::init<const T&, const Vector3<T>&>(), py::arg("mass"),
             py::arg("p_PQ_E"), cls_doc.ctor.doc_2args)
-#endif  // XXX porting
         .def_static("TriaxiallySymmetric", &Class::TriaxiallySymmetric,
             py::arg("I_triaxial"), cls_doc.TriaxiallySymmetric.doc)
         .def("rows", &Class::rows, cls_doc.rows.doc)
         .def("cols", &Class::cols, cls_doc.cols.doc)
-#if 0  // XXX porting
         .def("get_moments", &Class::get_moments, cls_doc.get_moments.doc)
         .def("get_products", &Class::get_products, cls_doc.get_products.doc)
-#endif  // XXX porting
         .def("Trace", &Class::Trace, cls_doc.Trace.doc)
         .def("CalcMaximumPossibleMomentOfInertia",
             &Class::CalcMaximumPossibleMomentOfInertia,
@@ -84,10 +80,8 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               return self(i, j);
             },
             cls_doc.operator_call.doc)
-#if 0  // XXX porting
         .def("CopyToFullMatrix3", &Class::CopyToFullMatrix3,
             cls_doc.CopyToFullMatrix3.doc)
-#endif  // XXX porting
         .def("IsNearlyEqualTo", &Class::IsNearlyEqualTo, py::arg("other"),
             py::arg("precision"), cls_doc.IsNearlyEqualTo.doc)
         .def(py::self += py::self, cls_doc.operator_iadd.doc)
@@ -97,9 +91,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def(py::self *= T{}, cls_doc.operator_imul.doc)
         .def(py::self * T{}, cls_doc.operator_mul.doc)
         .def(T{} * py::self, cls_doc.operator_mul.doc)
-#if 0  // XXX porting
         .def(py::self * Vector3<T>{}, cls_doc.operator_mul.doc)
-#endif  // XXX porting
         .def(py::self /= T{}, cls_doc.operator_idiv.doc)
         .def(py::self / T{}, cls_doc.operator_div.doc)
         .def("SetToNaN", &Class::SetToNaN, cls_doc.SetToNaN.doc)
@@ -117,7 +109,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             cls_doc.CouldBePhysicallyValid.doc)
         .def("ReExpress", &Class::ReExpress, py::arg("R_AE"),
             cls_doc.ReExpress.doc)
-#if 0  // XXX porting
         .def("ShiftFromCenterOfMass", &Class::ShiftFromCenterOfMass,
             py::arg("mass"), py::arg("p_BcmQ_E"),
             cls_doc.ShiftFromCenterOfMass.doc)
@@ -135,9 +126,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
           // diagonal) inertia matrix.
           new (self)
               Class(I(0, 0), I(1, 1), I(2, 2), I(0, 1), I(0, 2), I(1, 2));
-        })
-#endif  // XXX porting
-        ;
+        });
     DefCopyAndDeepCopy(&cls);
   }
 
@@ -165,14 +154,12 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             cls_doc.SetFromRotationalInertia.doc)
         .def("ReExpress", &Class::ReExpress, py::arg("R_AE"),
             cls_doc.ReExpress.doc)
-#if 0  // XXX porting
         .def("ShiftFromCenterOfMass", &Class::ShiftFromCenterOfMass,
             py::arg("p_BcmQ_E"), cls_doc.ShiftFromCenterOfMass.doc)
         .def("ShiftToCenterOfMass", &Class::ShiftToCenterOfMass,
             py::arg("p_QBcm_E"), cls_doc.ShiftToCenterOfMass.doc)
         .def_static("PointMass", &Class::PointMass, py::arg("p_FQ"),
             cls_doc.PointMass.doc)
-#endif  // XXX porting
         .def_static("SolidEllipsoid", &Class::SolidEllipsoid, py::arg("a"),
             py::arg("b"), py::arg("c"), cls_doc.SolidEllipsoid.doc)
         .def_static("SolidSphere", &Class::SolidSphere, py::arg("r"),
@@ -183,7 +170,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py::arg("Lz"), cls_doc.SolidBox.doc)
         .def_static(
             "SolidCube", &Class::SolidCube, py::arg("L"), cls_doc.SolidCube.doc)
-#if 0  // XXX porting
         .def_static("SolidCylinder", &Class::SolidCylinder, py::arg("radius"),
             py::arg("length"), py::arg("unit_vector"),
             cls_doc.SolidCylinder.doc)
@@ -209,9 +195,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
           // diagonal) inertia matrix.
           new (self)
               Class(I(0, 0), I(1, 1), I(2, 2), I(0, 1), I(0, 2), I(1, 2));
-        })
-#endif  // XXX porting
-        ;
+        });
     DefCopyAndDeepCopy(&cls);
   }
 
@@ -222,11 +206,9 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
     auto cls = DefineTemplateClassWithDefault<Class>(
         m, "SpatialInertia", param, cls_doc.doc);
     cls  // BR
-#if 0  // XXX porting
         .def_static("MakeFromCentralInertia", &Class::MakeFromCentralInertia,
             py::arg("mass"), py::arg("p_PScm_E"), py::arg("I_SScm_E"),
             cls_doc.MakeFromCentralInertia.doc)
-#endif  // XXX porting
         .def_static("SolidBoxWithDensity", &Class::SolidBoxWithDensity,
             py::arg("density"), py::arg("lx"), py::arg("ly"), py::arg("lz"),
             cls_doc.SolidBoxWithDensity.doc)
@@ -236,7 +218,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def_static("SolidCubeWithDensity", &Class::SolidCubeWithDensity,
             py::arg("density"), py::arg("length"),
             cls_doc.SolidCubeWithDensity.doc)
-#if 0  // XXX porting
         .def_static("SolidCapsuleWithDensity", &Class::SolidCapsuleWithDensity,
             py::arg("density"), py::arg("radius"), py::arg("length"),
             py::arg("unit_vector"), cls_doc.SolidCapsuleWithDensity.doc)
@@ -264,7 +245,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def_static("ThinRodWithMassAboutEnd", &Class::ThinRodWithMassAboutEnd,
             py::arg("mass"), py::arg("length"), py::arg("unit_vector"),
             cls_doc.ThinRodWithMassAboutEnd.doc)
-#endif  // XXX porting
         .def_static("SolidEllipsoidWithDensity",
             &Class::SolidEllipsoidWithDensity, py::arg("density"), py::arg("a"),
             py::arg("b"), py::arg("c"), cls_doc.SolidEllipsoidWithDensity.doc)
@@ -284,18 +264,14 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             cls_doc.HollowSphereWithMass.doc)
         .def_static("Zero", &Class::Zero, cls_doc.Zero.doc)
         .def_static("NaN", &Class::NaN, cls_doc.NaN.doc)
-#if 0  // XXX porting
         .def(py::init<const T&, const Eigen::Ref<const Vector3<T>>&,
                  const UnitInertia<T>&, const bool>(),
             py::arg("mass"), py::arg("p_PScm_E"), py::arg("G_SP_E"),
             py::arg("skip_validity_check") = false, cls_doc.ctor.doc)
-#endif  // XXX porting
         // TODO(jwnimmer-tri) Need to bind cast<>.
         .def("get_mass", &Class::get_mass, cls_doc.get_mass.doc)
-#if 0  // XXX porting
         .def("get_com", &Class::get_com, cls_doc.get_com.doc)
         .def("CalcComMoment", &Class::CalcComMoment, cls_doc.CalcComMoment.doc)
-#endif  // XXX porting
         .def("get_unit_inertia", &Class::get_unit_inertia,
             cls_doc.get_unit_inertia.doc)
         .def("CalcRotationalInertia", &Class::CalcRotationalInertia,
@@ -305,18 +281,14 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("CalcPrincipalSemiDiametersAndPoseForSolidEllipsoid",
             &Class::CalcPrincipalSemiDiametersAndPoseForSolidEllipsoid,
             cls_doc.CalcPrincipalSemiDiametersAndPoseForSolidEllipsoid.doc)
-#if 0  // XXX porting
         .def("CopyToFullMatrix6", &Class::CopyToFullMatrix6,
             cls_doc.CopyToFullMatrix6.doc)
-#endif  // XXX porting
         .def("IsNaN", &Class::IsNaN, cls_doc.IsNaN.doc)
         .def("IsZero", &Class::IsZero, cls_doc.IsZero.doc)
         .def("SetNaN", &Class::SetNaN, cls_doc.SetNaN.doc)
         .def("ReExpress", &Class::ReExpress, py::arg("R_AE"),
             cls_doc.ReExpress.doc)
-#if 0  // XXX porting
         .def("Shift", &Class::Shift, py::arg("p_PQ_E"), cls_doc.Shift.doc)
-#endif  // XXX porting
         .def(py::self += py::self)
         .def(py::self * SpatialAcceleration<T>())
         .def(py::self * SpatialVelocity<T>())
@@ -329,7 +301,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               }
               return py::eval("object.__repr__", py::globals())(self);
             })
-#if 0  // XXX porting
         .def("__getstate__",
             [](const Class& self) {
               return py::make_tuple(
@@ -339,9 +310,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
           DRAKE_THROW_UNLESS(t.size() == 3);
           new (self) Class(py::cast<T>(t[0]), py::cast<Vector3<T>>(t[1]),
               py::cast<UnitInertia<T>>(t[2]));
-        })
-#endif  // XXX porting
-        ;
+        });
     DefCopyAndDeepCopy(&cls);
   }
 }

@@ -257,13 +257,11 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             cls_doc.CalcRotationMatrix.doc)
         .def("CalcRotationMatrixInWorld", &Class::CalcRotationMatrixInWorld,
             py::arg("context"), cls_doc.CalcRotationMatrixInWorld.doc)
-#if 0  // XXX porting
         .def("EvalAngularVelocityInWorld", &Class::EvalAngularVelocityInWorld,
             py::arg("context"), cls_doc.EvalAngularVelocityInWorld.doc)
         .def("CalcAngularVelocity", &Class::CalcAngularVelocity,
             py::arg("context"), py::arg("measured_in_frame"),
             py::arg("expressed_in_frame"), cls_doc.CalcAngularVelocity.doc)
-#endif  // XXX porting
         .def("CalcSpatialVelocityInWorld", &Class::CalcSpatialVelocityInWorld,
             py::arg("context"), cls_doc.CalcSpatialVelocityInWorld.doc)
         .def("CalcSpatialVelocity", &Class::CalcSpatialVelocity,
@@ -361,7 +359,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("default_mass", &Class::default_mass, cls_doc.default_mass.doc)
         .def("get_mass", &Class::get_mass, py::arg("context"),
             cls_doc.get_mass.doc)
-#if 0  // XXX porting
         .def("CalcCenterOfMassInBodyFrame", &Class::CalcCenterOfMassInBodyFrame,
             py::arg("context"), cls_doc.CalcCenterOfMassInBodyFrame.doc)
         .def("CalcCenterOfMassTranslationalVelocityInWorld",
@@ -372,7 +369,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             &Class::CalcCenterOfMassTranslationalAccelerationInWorld,
             py::arg("context"),
             cls_doc.CalcCenterOfMassTranslationalAccelerationInWorld.doc)
-#endif  // XXX porting
         .def("CalcSpatialInertiaInBodyFrame",
             &Class::CalcSpatialInertiaInBodyFrame, py::arg("context"),
             cls_doc.CalcSpatialInertiaInBodyFrame.doc)
@@ -387,11 +383,9 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py::arg("forces"), cls_doc.GetForceInWorld.doc)
         .def("AddInForceInWorld", &Class::AddInForceInWorld, py::arg("context"),
             py::arg("F_Bo_W"), py::arg("forces"), cls_doc.AddInForceInWorld.doc)
-#if 0   // XXX porting
         .def("AddInForce", &Class::AddInForce, py::arg("context"),
             py::arg("p_BP_E"), py::arg("F_Bp_E"), py::arg("frame_E"),
             py::arg("forces"), cls_doc.AddInForce.doc)
-#endif  // XXX porting
         .def("Lock", &Class::Lock, py::arg("context"), cls_doc.Lock.doc)
         .def("Unlock", &Class::Unlock, py::arg("context"), cls_doc.Unlock.doc)
         .def("is_locked", &Class::is_locked, py::arg("context"),
@@ -407,11 +401,9 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py_rvp::reference_internal, cls_doc.default_spatial_inertia.doc)
         .def("SetMass", &Class::SetMass, py::arg("context"), py::arg("mass"),
             cls_doc.SetMass.doc)
-#if 0  // XXX porting
         .def("SetCenterOfMassInBodyFrame", &Class::SetCenterOfMassInBodyFrame,
             py::arg("context"), py::arg("com"),
             cls_doc.SetCenterOfMassInBodyFrame.doc)
-#endif  // XXX porting
         .def("SetSpatialInertiaInBodyFrame",
             &Class::SetSpatialInertiaInBodyFrame, py::arg("context"),
             py::arg("M_Bo_B"), cls_doc.SetSpatialInertiaInBodyFrame.doc);
@@ -512,15 +504,12 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             cls_doc.default_damping_vector.doc)
         .def("set_default_damping_vector", &Class::set_default_damping_vector,
             py::arg("damping"), cls_doc.set_default_damping_vector.doc)
-#if 0  // XXX porting
         .def("GetDampingVector", &Class::GetDampingVector, py::arg("context"),
             // Keep alive, ownership: `return` keeps `context` alive.
             py::keep_alive<0, 2>(), return_value_policy_for_scalar_type<T>(),
             cls_doc.GetDampingVector.doc)
         .def("SetDampingVector", &Class::SetDampingVector, py::arg("context"),
-            py::arg("damping"), cls_doc.SetDampingVector.doc)
-#endif  // XXX porting
-        ;
+            py::arg("damping"), cls_doc.SetDampingVector.doc);
   }
 
   // BallRpyJoint
@@ -538,7 +527,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py::arg("frame_on_child"), py::arg("damping") = 0, cls_doc.ctor.doc)
         .def("default_damping", &Class::default_damping,
             cls_doc.default_damping.doc)
-#if 0  // XXX porting
         .def("get_angles", &Class::get_angles, py::arg("context"),
             cls_doc.get_angles.doc)
         .def("set_angles", &Class::set_angles, py::arg("context"),
@@ -554,9 +542,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("get_default_angles", &Class::get_default_angles,
             cls_doc.get_default_angles.doc)
         .def("set_default_angles", &Class::set_default_angles,
-            py::arg("angles"), cls_doc.set_default_angles.doc)
-#endif  // XXX porting
-        ;
+            py::arg("angles"), cls_doc.set_default_angles.doc);
   }
 
   // PlanarJoint
@@ -575,17 +561,14 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py::arg("damping") = Vector3<double>::Zero(), cls_doc.ctor.doc)
         .def("default_damping", &Class::default_damping,
             cls_doc.default_damping.doc)
-#if 0  // XXX porting
         .def("get_translation", &Class::get_translation, py::arg("context"),
             cls_doc.get_translation.doc)
         .def("set_translation", &Class::set_translation, py::arg("context"),
             py::arg("p_FoMo_F"), cls_doc.set_translation.doc)
-#endif  // XXX porting
         .def("get_rotation", &Class::get_rotation, py::arg("context"),
             cls_doc.get_rotation.doc)
         .def("set_rotation", &Class::set_rotation, py::arg("context"),
             py::arg("theta"), cls_doc.set_rotation.doc)
-#if 0  // XXX porting
         .def("set_pose", &Class::set_pose, py::arg("context"),
             py::arg("p_FoMo_F"), py::arg("theta"), cls_doc.set_pose.doc)
         .def("get_translational_velocity", &Class::get_translational_velocity,
@@ -593,7 +576,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("set_translational_velocity", &Class::set_translational_velocity,
             py::arg("context"), py::arg("v_FoMo_F"),
             cls_doc.set_translational_velocity.doc)
-#endif  // XXX porting
         .def("get_angular_velocity", &Class::get_angular_velocity,
             py::arg("context"), cls_doc.get_angular_velocity.doc)
         .def("set_angular_velocity", &Class::set_angular_velocity,
@@ -609,12 +591,9 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py::arg("theta"), cls_doc.set_default_rotation.doc)
         .def("set_default_pose", &Class::set_default_pose, py::arg("p_FoMo_F"),
             py::arg("theta"), cls_doc.set_default_pose.doc)
-#if 0  // XXX porting
         .def("set_random_pose_distribution",
             &Class::set_random_pose_distribution, py::arg("p_FoMo_F"),
-            py::arg("theta"), cls_doc.set_random_pose_distribution.doc)
-#endif  // XXX porting
-        ;
+            py::arg("theta"), cls_doc.set_random_pose_distribution.doc);
   }
 
   // PrismaticJoint
@@ -696,29 +675,22 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             cls_doc.default_translational_damping.doc)
         .def("get_quaternion", &Class::get_quaternion, py::arg("context"),
             cls_doc.get_quaternion.doc)
-#if 0  // XXX porting
         .def("get_translation", &Class::get_translation, py::arg("context"),
             cls_doc.get_translation.doc)
-#endif  // XXX porting
         .def(
             "GetPose", &Class::GetPose, py::arg("context"), cls_doc.GetPose.doc)
-#if 0  // XXX porting
         .def("get_angular_velocity", &Class::get_angular_velocity,
             py::arg("context"), cls_doc.get_angular_velocity.doc)
         .def("get_translational_velocity", &Class::get_translational_velocity,
             py::arg("context"), cls_doc.get_translational_velocity.doc)
-#endif  // XXX porting
         .def("SetQuaternion", &Class::SetQuaternion, py::arg("context"),
             py::arg("q_FM"), cls_doc.SetQuaternion.doc)
         .def("SetOrientation", &Class::SetOrientation, py::arg("context"),
             py::arg("R"), cls_doc.SetOrientation.doc)
-#if 0  // XXX porting
         .def("SetTranslation", &Class::SetTranslation, py::arg("context"),
             py::arg("p_FM"), cls_doc.SetTranslation.doc)
-#endif  // XXX porting
         .def("SetPose", &Class::SetPose, py::arg("context"), py::arg("X_FM"),
             cls_doc.SetPose.doc)
-#if 0  // XXX porting
         .def("set_angular_velocity", &Class::set_angular_velocity,
             py::arg("context"), py::arg("w_FM"),
             cls_doc.set_angular_velocity.doc)
@@ -728,7 +700,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("set_random_translation_distribution",
             &Class::set_random_translation_distribution, py::arg("translation"),
             cls_doc.set_random_translation_distribution.doc)
-#endif  // XXX porting
         .def("set_random_quaternion_distribution",
             &Class::set_random_quaternion_distribution, py::arg("q_FM"),
             cls_doc.set_random_quaternion_distribution.doc)
@@ -822,25 +793,20 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("default_translational_damping",
             &Class::default_translational_damping,
             cls_doc.default_translational_damping.doc)
-#if 0  // XXX porting
         .def("get_angles", &Class::get_angles, py::arg("context"),
             cls_doc.get_angles.doc)
         .def("set_angles", &Class::set_angles, py::arg("context"),
             py::arg("angles"), cls_doc.set_angles.doc)
-#endif  // XXX porting
         .def("SetOrientation", &Class::SetOrientation, py::arg("context"),
             py::arg("R_FM"), cls_doc.SetOrientation.doc)
-#if 0  // XXX porting
         .def("get_translation", &Class::get_translation, py::arg("context"),
             cls_doc.get_translation.doc)
         .def("SetTranslation", &Class::SetTranslation, py::arg("context"),
             py::arg("p_FM"), cls_doc.SetTranslation.doc)
-#endif  // XXX porting
         .def(
             "GetPose", &Class::GetPose, py::arg("context"), cls_doc.GetPose.doc)
         .def("SetPose", &Class::SetPose, py::arg("context"), py::arg("X_FM"),
             cls_doc.SetPose.doc)
-#if 0  // XXX porting
         .def("get_angular_velocity", &Class::get_angular_velocity,
             py::arg("context"), cls_doc.get_angular_velocity.doc)
         .def("set_angular_velocity", &Class::set_angular_velocity,
@@ -857,7 +823,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("set_random_translation_distribution",
             &Class::set_random_translation_distribution, py::arg("p_FM"),
             cls_doc.set_random_translation_distribution.doc)
-#endif  // XXX porting
         .def("get_default_angles", &Class::get_default_angles,
             cls_doc.get_default_angles.doc)
         .def("set_default_angles", &Class::set_default_angles,
@@ -914,11 +879,9 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("set_angular_velocity", &Class::set_angular_velocity,
             py::arg("context"), py::arg("theta_dot"),
             cls_doc.set_angular_velocity.doc)
-#if 0  // XXX porting
         .def("set_random_pose_distribution",
             &Class::set_random_pose_distribution, py::arg("theta"),
             cls_doc.set_random_pose_distribution.doc)
-#endif  // XXX porting
         .def("GetDamping", &Class::GetDamping, py::arg("context"),
             cls_doc.GetDamping.doc)
         .def("SetDamping", &Class::SetDamping, py::arg("context"),
@@ -940,7 +903,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py::arg("frame_on_child"), py::arg("damping") = 0, cls_doc.ctor.doc)
         .def("default_damping", &Class::default_damping,
             cls_doc.default_damping.doc)
-#if 0  // XXX porting
         .def("get_angles", &Class::get_angles, py::arg("context"),
             cls_doc.get_angles.doc)
         .def("set_angles", &Class::set_angles, py::arg("context"),
@@ -955,9 +917,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py::arg("angles"), cls_doc.set_default_angles.doc)
         .def("set_random_angles_distribution",
             &Class::set_random_angles_distribution, py::arg("angles"),
-            cls_doc.set_random_angles_distribution.doc)
-#endif  // XXX porting
-        ;
+            cls_doc.set_random_angles_distribution.doc);
   }
 
   // WeldJoint
@@ -987,13 +947,13 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("name", &Class::name, cls_doc.name.doc)
         .def("joint", &Class::joint, py_rvp::reference_internal,
             cls_doc.joint.doc)
-#if 0  // XXX porting
         .def(
             "get_actuation_vector",
             [](const Class& self, const VectorX<T>& u) -> VectorX<T> {
               return self.get_actuation_vector(u);
             },
             py::arg("u"), cls_doc.get_actuation_vector.doc)
+#if 0  // XXX porting
         .def("set_actuation_vector", &Class::set_actuation_vector,
             py::arg("u_actuator"), py::arg("u"),
             cls_doc.set_actuation_vector.doc)
@@ -1120,12 +1080,9 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py::arg("is_enabled"), cls_doc.set_enabled.doc)
         .def("is_enabled", &Class::is_enabled, py::arg("model_instance"),
             cls_doc.is_enabled.doc)
-#if 0  // XXX porting
         .def("CalcGravityGeneralizedForces",
             &Class::CalcGravityGeneralizedForces, py::arg("context"),
-            cls_doc.CalcGravityGeneralizedForces.doc)
-#endif  // XXX porting
-        ;
+            cls_doc.CalcGravityGeneralizedForces.doc);
   }
 
   {
@@ -1177,7 +1134,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             cls_doc.force_stiffness_constants.doc)
         .def("force_damping_constants", &Class::force_damping_constants,
             cls_doc.force_damping_constants.doc)
-#if 0  // XXX porting
         .def("GetTorqueStiffnessConstants", &Class::GetTorqueStiffnessConstants,
             py::arg("context"), cls_doc.GetTorqueStiffnessConstants.doc)
         .def("GetTorqueDampingConstants", &Class::GetTorqueDampingConstants,
@@ -1198,7 +1154,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("SetForceDampingConstants", &Class::SetForceDampingConstants,
             py::arg("context"), py::arg("force_damping"),
             cls_doc.SetForceDampingConstants.doc)
-#endif  // XXX porting
         .def("CalcBushingSpatialForceOnFrameA",
             &Class::CalcBushingSpatialForceOnFrameA, py::arg("context"),
             cls_doc.CalcBushingSpatialForceOnFrameA.doc)
@@ -1235,12 +1190,10 @@ void DefineMultibodyForces(py::module_ m, T) {
         .def("num_bodies", &Class::num_bodies, cls_doc.num_bodies.doc)
         .def("num_velocities", &Class::num_velocities,
             cls_doc.num_velocities.doc)
-#if 0  // XXX porting
         .def("generalized_forces", &Class::generalized_forces,
             cls_doc.generalized_forces.doc)
         .def("mutable_generalized_forces", &Class::mutable_generalized_forces,
             py_rvp::reference_internal, cls_doc.mutable_generalized_forces.doc)
-#endif  // XXX porting
         // WARNING: Do not bind `body_forces` or `mutable_body_forces` because
         // they use `internal::MobodIndex`. Instead, use force API in Body.
         .def("AddInForces", &Class::AddInForces, py::arg("addend"),
@@ -1416,11 +1369,9 @@ void DefineForceDensityField(py::module_ m, T) {
         ForceDensityField<T>
         /*, std::shared_ptr<GravityForceField<T>> XXX porting */>(
         m, "GravityForceField", param, cls_doc.doc);
-#if 0  // XXX porting
     cls  // BR
         .def(py::init<const Vector3<T>&, const T&>(), py::arg("gravity_vector"),
             py::arg("mass_density"), cls_doc.ctor.doc);
-#endif  // XXX porting
   }
 }
 
