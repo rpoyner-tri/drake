@@ -26,7 +26,6 @@ NB_MODULE(cc_module, m) {
     WarnDeprecated("Example emitting of deprecation", "2038-01-19");
   });
 
-#if 0  // XXX porting
   // Example: Deprecating a constructor bound with ParamInit. Typical when
   // deprecating a C++ struct with no explicit constructor.
   {
@@ -41,7 +40,6 @@ NB_MODULE(cc_module, m) {
         .def_rw("j", &Class::j);
 #pragma GCC diagnostic pop
   }
-#endif  // XXX porting
 
   {
     using Class = ExampleCppClass;

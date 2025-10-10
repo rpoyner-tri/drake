@@ -106,6 +106,9 @@ auto py_init_deprecated(std::string message, Func&& func) {
   return py::init(WrapDeprecated(std::move(message), std::forward<Func>(func)));
 }
 
+#endif  // XXX porting
+
+#if 0  // XXX porting
 /// The deprecated flavor of ParamInit<>.
 template <typename Class>
 auto DeprecatedParamInit(std::string message) {
@@ -121,7 +124,22 @@ auto DeprecatedParamInit(std::string message) {
     return obj;
   }));
 }
-
+#else  // XXX porting
+template <typename CppClass>
+struct DeprecatedParamInit : py::def_visitor<DeprecatedParamInit<CppClass>> {
+  DeprecatedParamInit(std::string message) : message_(std::move(message)) {}
+  template <typename Class, typename... Extra>
+  void execute(Class& cl, const Extra&...) {
+    cl.def("__init__",
+        WrapDeprecated(std::move(message_), [](Class* self, py::kwargs kwargs) {
+          new (self) Class();
+          py::object py_obj = py::cast(self, py_rvp::reference);
+          py::module_::import_("pydrake").attr("_setattr_kwargs")(
+              py_obj, kwargs);
+        }));
+  }
+  std::string message_;
+};
 #endif  // XXX porting
 
 }  // namespace pydrake

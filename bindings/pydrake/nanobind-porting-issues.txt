@@ -32,8 +32,8 @@ Compile time issues
   def_visitor mechanism
   * ParamInit
     - !! a new implementation on def_visitor is compilable.
-  * maybe backfill for missing py::init(lambda)?
   * deprecation helpers
+    - !! DeprecatedParamInit is compilable.
 
 * custom annotations need rewrite on new internals
   * pydrake::internal::ref_cycle
