@@ -131,10 +131,7 @@ void DefineModuleSchema(py::module_ m) {
     py::class_<Class>(m, "DistributionVector", cls_doc.doc)
         .def("Sample", &Class::Sample, py::arg("generator"), cls_doc.Sample.doc)
         .def("Mean", &Class::Mean, cls_doc.Mean.doc)
-#if 0  // XXX porting
-        .def("ToSymbolic", &Class::ToSymbolic, cls_doc.ToSymbolic.doc)
-#endif  // XXX porting
-        ;
+        .def("ToSymbolic", &Class::ToSymbolic, cls_doc.ToSymbolic.doc);
   }
 
   // Here, we bind all supported values of the 'Size' template argument.

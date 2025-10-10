@@ -114,7 +114,7 @@ NB_MODULE(wrap_test_util, m) {
       "MyContainerUniquePtr doc");
   DefReadUniquePtr(&my_unique, "copyable_member",
       &MyContainerUniquePtr::copyable_member, "MyContainerUniquePtr doc");
-#endif
+#endif  // XXX porting
 
 #if 0   // XXX porting
   m.def("MakeTypeConversionExample", &MakeTypeConversionExample);
