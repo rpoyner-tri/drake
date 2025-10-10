@@ -245,9 +245,7 @@ py::list MakeArgs(const Formula& f) {
       break;
     }
     case FormulaKind::PositiveSemidefinite: {
-#if 0  // XXX porting
       result.append(get_matrix_in_positive_semidefinite(f));
-#endif  // XXX porting
       break;
     }
   }

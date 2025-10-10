@@ -152,7 +152,6 @@ void DefineSymbolicMonolith(py::module_ m) {
       },
       py::arg("f"), py::arg("a"), py::arg("order"), doc_expr.TaylorExpand.doc);
 
-#if 0  // XXX porting
   // Bind the free functions for Make(Vector|Matrix)(...)Variable.
   m  // BR
       .def(
@@ -213,17 +212,14 @@ void DefineSymbolicMonolith(py::module_ m) {
           },
           py::arg("rows"), py::arg("name"),
           doc_expr.MakeVectorContinuousVariable.doc_2args);
-#endif  // XXX porting
 
   // TODO(m-chaturvedi) Add Pybind11 documentation for operator overloads,
   // etc.
   constexpr auto& doc_variables = doc_expr.Variables;
   py::class_<Variables>(m, "Variables", doc_variables.doc)
       .def(py::init<>(), doc_variables.ctor.doc_0args)
-#if 0  // XXX porting
       .def(py::init<const Eigen::Ref<const VectorX<Variable>>&>(),
           doc_variables.ctor.doc_1args_vec)
-#endif  // XXX porting
       .def("size", &Variables::size, doc_variables.size.doc)
       .def("__len__", &Variables::size, doc_variables.size.doc)
       .def("empty", &Variables::empty, doc_variables.empty.doc)
@@ -460,16 +456,12 @@ void DefineSymbolicMonolith(py::module_ m) {
       .def(py::self != double())
       .def("Differentiate", &Expression::Differentiate, py::arg("x"),
           doc_expression.Differentiate.doc)
-#if 0  // XXX porting
       .def("Jacobian", &Expression::Jacobian, py::arg("vars"),
           doc_expression.Jacobian.doc)
-#endif  // XXX porting
       ;
   // TODO(eric.cousineau): Clean this overload stuff up (#15041).
   pydrake::internal::BindMathOperators<Expression>(&expr_cls);
-#if 0  // XXX porting
   pydrake::internal::BindMathOperators<Expression>(&m);
-#endif  // XXX porting
   DefCopyAndDeepCopy(&expr_cls);
 
   m.def("if_then_else", &symbolic::if_then_else, py::arg("f_cond"),
@@ -478,7 +470,6 @@ void DefineSymbolicMonolith(py::module_ m) {
       py::arg("name"), py::arg("arguments"),
       doc_expr.uninterpreted_function.doc);
 
-#if 0  // XXX porting
   m.def(
       "Jacobian",
       [](const Eigen::Ref<const VectorX<Expression>>& f,
@@ -525,7 +516,6 @@ void DefineSymbolicMonolith(py::module_ m) {
           const Expression& e) { return Substitute(M, var, e); },
       py::arg("m"), py::arg("var"), py::arg("e"),
       doc_expr.Substitute.doc_3args);
-#endif  // XXX porting
 
   {
     using Enum = SinCosSubstitutionType;
@@ -554,7 +544,6 @@ void DefineSymbolicMonolith(py::module_ m) {
       },
       py::arg("e"), py::arg("subs"), doc.Substitute.doc_sincos);
 
-#if 0  // XXX porting
   m.def(
       "Substitute",
       [](const MatrixX<Expression>& M, const SinCosSubstitution& subs) {
@@ -570,7 +559,6 @@ void DefineSymbolicMonolith(py::module_ m) {
       },
       py::arg("e"), py::arg("sin_cos"), py::arg("t"),
       doc.SubstituteStereographicProjection.doc);
-#endif  // XXX porting
 
   {
     constexpr auto& cls_doc = doc_expr.FormulaKind;
@@ -682,13 +670,11 @@ void DefineSymbolicMonolith(py::module_ m) {
   m.def("isnan", &symbolic::isnan, py::arg("e"), doc_expr.isnan.doc);
   m.def("forall", &symbolic::forall, py::arg("vars"), py::arg("f"),
       doc_expr.forall.doc);
-#if 0  // XXX porting
   m.def("positive_semidefinite",
       overload_cast_explicit<Formula,
           const Eigen::Ref<const MatrixX<Expression>>&>(
           &symbolic::positive_semidefinite),
       py::arg("m"), doc_expr.positive_semidefinite.doc_1args_m);
-#endif  // XXX porting
 
   // TODO(m-chaturvedi) Add Pybind11 documentation for operator overloads, etc.
   py::class_<Monomial>(m, "Monomial", doc.Monomial.doc)
@@ -699,12 +685,10 @@ void DefineSymbolicMonolith(py::module_ m) {
           py::arg("exponent"), doc.Monomial.ctor.doc_2args_var_exponent)
       .def(py::init<const map<Variable, int>&>(), py::arg("powers"),
           doc.Monomial.ctor.doc_1args_powers)
-#if 0  // XXX porting
       .def(py::init<const Eigen::Ref<const VectorX<Variable>>&,
                const Eigen::Ref<const Eigen::VectorXi>&>(),
           py::arg("vars"), py::arg("exponents"),
           doc.Monomial.ctor.doc_2args_vars_exponents)
-#endif  // XXX porting
       .def("degree", &Monomial::degree, py::arg("v"), doc.Monomial.degree.doc)
       .def("total_degree", &Monomial::total_degree,
           doc.Monomial.total_degree.doc)
@@ -746,7 +730,6 @@ void DefineSymbolicMonolith(py::module_ m) {
             return self.Evaluate(Environment{env});
           },
           py::arg("env"), doc.Monomial.Evaluate.doc_1args)
-#if 0  // XXX porting
       .def(
           "Evaluate",
           [](const Monomial& self,
@@ -756,7 +739,6 @@ void DefineSymbolicMonolith(py::module_ m) {
           },
           py::arg("vars"), py::arg("vars_values"),
           doc.Monomial.Evaluate.doc_2args)
-#endif  // XXX porting
       .def(
           "EvaluatePartial",
           [](const Monomial& self, const Environment::map& env) {
@@ -769,7 +751,6 @@ void DefineSymbolicMonolith(py::module_ m) {
           [](const Monomial& self, const int p) { return pow(self, p); });
 
   m  // BR
-#if 0  // XXX porting
       .def(
           "MonomialBasis",
           [](const Eigen::Ref<const VectorX<Variable>>& vars,
@@ -778,7 +759,6 @@ void DefineSymbolicMonolith(py::module_ m) {
           },
           py::arg("vars"), py::arg("degree"),
           doc.MonomialBasis.doc_2args_vars_degree)
-#endif  // XXX porting
       .def(
           "MonomialBasis",
           [](const Variables& vars, const int degree) {
@@ -821,7 +801,6 @@ void DefineSymbolicMonolith(py::module_ m) {
       .def(py::init<const Expression&, const Variables&>(), py::arg("e"),
           py::arg("indeterminates"),
           doc.Polynomial.ctor.doc_2args_e_indeterminates)
-#if 0  // XXX porting
       .def("__init__",
           [](Polynomial* self, const Expression& e,
               const Eigen::Ref<const VectorX<Variable>>& vars) {
@@ -829,7 +808,6 @@ void DefineSymbolicMonolith(py::module_ m) {
           },
           py::arg("e"), py::arg("indeterminates"),
           doc.Polynomial.ctor.doc_2args_e_indeterminates)
-#endif  // XXX porting
       .def("indeterminates", &Polynomial::indeterminates,
           doc.Polynomial.indeterminates.doc)
       .def("decision_variables", &Polynomial::decision_variables,
@@ -942,7 +920,6 @@ void DefineSymbolicMonolith(py::module_ m) {
           },
           py::arg("var"), py::arg("c"),
           doc.Polynomial.EvaluatePartial.doc_2args)
-#if 0  // XXX porting
       .def(
           "EvaluateIndeterminates",
           [](const Polynomial& self,
@@ -975,9 +952,7 @@ void DefineSymbolicMonolith(py::module_ m) {
               const Eigen::Ref<const VectorX<Variable>>& vars) {
             return p.Jacobian(vars);
           },
-          py::arg("vars"), doc.Polynomial.Jacobian.doc)
-#endif  // XXX porting
-      ;
+          py::arg("vars"), doc.Polynomial.Jacobian.doc);
 
   // Bind CalcPolynomialWLowerTriangularPart
   m.def(
@@ -988,7 +963,6 @@ void DefineSymbolicMonolith(py::module_ m) {
        },
        py::arg("monomial_basis"), py::arg("gram_lower"),
        doc.CalcPolynomialWLowerTriangularPart.doc)
-#if 0  // XXX porting
       .def(
           "CalcPolynomialWLowerTriangularPart",
           [](const Eigen::Ref<const VectorX<symbolic::Monomial>>&
@@ -1009,9 +983,7 @@ void DefineSymbolicMonolith(py::module_ m) {
                 monomial_basis, gram_lower);
           },
           py::arg("monomial_basis"), py::arg("gram_lower"),
-          doc.CalcPolynomialWLowerTriangularPart.doc)
-#endif  // XXX porting
-      ;
+          doc.CalcPolynomialWLowerTriangularPart.doc);
 
   rat_fun_cls.def(py::init<>(), doc.RationalFunction.ctor.doc_0args)
       .def(py::init<Polynomial, Polynomial>(), py::arg("numerator"),
@@ -1096,7 +1068,6 @@ void DefineSymbolicMonolith(py::module_ m) {
       },
       py::arg("m"), py::arg("env"), doc.Evaluate.doc_polynomial);
 
-#if 0  // XXX porting
   m.def(
       "Jacobian",
       [](const Eigen::Ref<const VectorX<Polynomial>>& f,
@@ -1104,7 +1075,6 @@ void DefineSymbolicMonolith(py::module_ m) {
         return Jacobian(f, vars);
       },
       py::arg("f"), py::arg("vars"), doc.Jacobian.doc_polynomial);
-#endif  // XXX porting
 
   m.def("ToLatex",
       overload_cast_explicit<std::string, const Expression&, int>(&ToLatex),
@@ -1113,14 +1083,12 @@ void DefineSymbolicMonolith(py::module_ m) {
       overload_cast_explicit<std::string, const Formula&, int>(&ToLatex),
       py::arg("f"), py::arg("precision") = 3, doc.ToLatex.doc_formula);
 
-#if 0  // XXX porting
   m.def(
       "ToLatex",
       [](const MatrixX<Expression>& M, int precision) {
         return ToLatex(M, precision);
       },
       py::arg("M"), py::arg("precision") = 3, doc.ToLatex.doc_matrix);
-#endif  // XXX porting
   m.def(
       "ToLatex",
       [](const MatrixX<double>& M, int precision) {
@@ -1140,7 +1108,6 @@ void DefineSymbolicMonolith(py::module_ m) {
 
   // Bind the free functions in symbolic/decompose.h
   m  // BR
-#if 0  // XXX porting
       .def(
           "DecomposeLinearExpressions",
           [](const Eigen::Ref<const VectorX<symbolic::Expression>>& expressions,
@@ -1176,7 +1143,6 @@ void DefineSymbolicMonolith(py::module_ m) {
           },
           py::arg("expressions"),
           doc.ExtractVariablesFromExpression.doc_1args_expressions)
-#endif  // XXX porting
       .def(
           "DecomposeQuadraticPolynomial",
           [](const symbolic::Polynomial& poly,
@@ -1192,7 +1158,6 @@ void DefineSymbolicMonolith(py::module_ m) {
           },
           py::arg("poly"), py::arg("map_var_to_index"),
           doc.DecomposeQuadraticPolynomial.doc)
-#if 0  // XXX porting
       .def(
           "DecomposeAffineExpressions",
           [](const Eigen::Ref<const VectorX<symbolic::Expression>>& v) {
@@ -1203,7 +1168,6 @@ void DefineSymbolicMonolith(py::module_ m) {
             return std::make_tuple(A, b, vars);
           },
           py::arg("v"), doc.DecomposeAffineExpressions.doc_4args_v_A_b_vars)
-#endif  // XXX porting
       .def(
           "DecomposeAffineExpression",
           [](const symbolic::Expression& e,
@@ -1217,20 +1181,16 @@ void DefineSymbolicMonolith(py::module_ m) {
           },
           py::arg("e"), py::arg("map_var_to_index"),
           doc.DecomposeAffineExpression.doc)
-#if 0  // XXX porting
       .def("DecomposeLumpedParameters", &DecomposeLumpedParameters,
           py::arg("f"), py::arg("parameters"),
           doc.DecomposeLumpedParameters.doc)
-#endif  // XXX porting
       .def("DecomposeL2NormExpression", &DecomposeL2NormExpression,
           py::arg("e"), py::arg("psd_tol") = 1e-8,
           py::arg("coefficient_tol") = 1e-8, doc.DecomposeL2NormExpression.doc);
 
-#if 0  // XXX porting
   // Bind free function in replace_bilinear_terms.
   m.def("ReplaceBilinearTerms", &ReplaceBilinearTerms, py::arg("e"),
       py::arg("x"), py::arg("y"), py::arg("W"), doc.ReplaceBilinearTerms.doc);
-#endif  // XXX porting
 
   // NOLINTNEXTLINE(readability/fn_size)
 }
