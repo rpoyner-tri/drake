@@ -387,7 +387,6 @@ void BindMathematicalProgramResult(py::module_ m) {
       .def("SetSolution", &MathematicalProgramResult::SetSolution,
           py::arg("var"), py::arg("value"),
           doc.MathematicalProgramResult.SetSolution.doc)
-#if 0  // XXX porting
       .def(
           "GetSolution",
           [](const MathematicalProgramResult& self,
@@ -404,7 +403,6 @@ void BindMathematicalProgramResult(py::module_ m) {
           },
           doc.MathematicalProgramResult.GetSolution
               .doc_1args_constEigenMatrixBase)
-#endif  // XXX porting
       .def(
           "GetSolution",
           [](const MathematicalProgramResult& self,
@@ -415,13 +413,11 @@ void BindMathematicalProgramResult(py::module_ m) {
           [](const MathematicalProgramResult& self,
               const symbolic::Polynomial& p) { return self.GetSolution(p); },
           doc.MathematicalProgramResult.GetSolution.doc_1args_p)
-#if 0  // XXX porting
       .def("GetSolution",
           [](const MathematicalProgramResult& self,
               const MatrixX<symbolic::Expression>& mat) {
             return self.GetSolution(mat);
           })
-#endif  // XXX porting
       .def(
           "GetSuboptimalSolution",
           [](const MathematicalProgramResult& self,
@@ -430,7 +426,6 @@ void BindMathematicalProgramResult(py::module_ m) {
           },
           doc.MathematicalProgramResult.GetSuboptimalSolution
               .doc_2args_var_solution_number)
-#if 0  // XXX porting
       .def(
           "GetSuboptimalSolution",
           [](const MathematicalProgramResult& self,
@@ -447,7 +442,6 @@ void BindMathematicalProgramResult(py::module_ m) {
           },
           doc.MathematicalProgramResult.GetSuboptimalSolution
               .doc_2args_constEigenMatrixBase_int)
-#endif  // XXX porting
       .def("num_suboptimal_solution",
           &MathematicalProgramResult::num_suboptimal_solution,
           doc.MathematicalProgramResult.num_suboptimal_solution.doc)
@@ -503,7 +497,6 @@ void BindMathematicalProgram(py::module_ m) {
           doc.MathematicalProgram.IsThreadSafe.doc)
       .def("ToLatex", &MathematicalProgram::ToLatex, py::arg("precision") = 3,
           doc.MathematicalProgram.ToLatex.doc)
-#if 0  // XXX porting
       .def("NewContinuousVariables",
           static_cast<VectorXDecisionVariable (MathematicalProgram::*)(
               int, const std::string&)>(
@@ -538,7 +531,6 @@ void BindMathematicalProgram(py::module_ m) {
       .def("AddDecisionVariables", &MathematicalProgram::AddDecisionVariables,
           py::arg("decision_variables"),
           doc.MathematicalProgram.AddDecisionVariables.doc)
-#endif  // XXX porting
       .def("NewFreePolynomial", &MathematicalProgram::NewFreePolynomial,
           py::arg("indeterminates"), py::arg("deg"),
           py::arg("coeff_name") = "a",
@@ -553,7 +545,6 @@ void BindMathematicalProgram(py::module_ m) {
           py::arg("indeterminates"), py::arg("degree"),
           py::arg("coeff_name") = "a",
           doc.MathematicalProgram.NewOddDegreeFreePolynomial.doc)
-#if 0  // XXX porting
       .def("NewSosPolynomial",
           static_cast<std::pair<Polynomial, MatrixXDecisionVariable> (
               MathematicalProgram::*)(
@@ -586,7 +577,6 @@ void BindMathematicalProgram(py::module_ m) {
           py::arg("gram_name") = "S",
           doc.MathematicalProgram.NewSosPolynomial
               .doc_4args_indeterminates_degree_type_gram_name)
-#endif  // XXX porting
       .def("NewEvenDegreeNonnegativePolynomial",
           &MathematicalProgram::NewEvenDegreeNonnegativePolynomial,
           py::arg("indeterminates"), py::arg("degree"), py::arg("type"),
@@ -607,7 +597,6 @@ void BindMathematicalProgram(py::module_ m) {
           doc.MathematicalProgram.MakePolynomial.doc)
       .def("Reparse", &MathematicalProgram::Reparse, py::arg("p"),
           doc.MathematicalProgram.Reparse.doc)
-#if 0  // XXX porting
       .def("NewIndeterminates",
           static_cast<VectorXIndeterminate (MathematicalProgram::*)(int,
               const std::string&)>(&MathematicalProgram::NewIndeterminates),
@@ -618,29 +607,26 @@ void BindMathematicalProgram(py::module_ m) {
               const std::string&)>(&MathematicalProgram::NewIndeterminates),
           py::arg("rows"), py::arg("cols"), py::arg("name") = "X",
           doc.MathematicalProgram.NewIndeterminates.doc_3args)
-#endif  // XXX porting
       .def("AddIndeterminate", &MathematicalProgram::AddIndeterminate,
           py::arg("new_indeterminate"),
           doc.MathematicalProgram.AddIndeterminate.doc)
-#if 0  // XXX porting
       .def("AddIndeterminates",
           py::overload_cast<const Eigen::Ref<const MatrixXIndeterminate>&>(
               &MathematicalProgram::AddIndeterminates),
           py::arg("new_indeterminates"),
           doc.MathematicalProgram.AddIndeterminates.doc)
-#endif  // XXX porting
       .def("AddIndeterminates",
           py::overload_cast<const symbolic::Variables&>(
               &MathematicalProgram::AddIndeterminates),
           py::arg("new_indeterminates"),
           doc.MathematicalProgram.AddIndeterminates.doc)
-#if 0   // XXX porting
       .def("AddVisualizationCallback",
           static_cast<Binding<VisualizationCallback> (MathematicalProgram::*)(
               const VisualizationCallback::CallbackFunction&,
               const Eigen::Ref<const VectorXDecisionVariable>&)>(
               &MathematicalProgram::AddVisualizationCallback),
           doc.MathematicalProgram.AddVisualizationCallback.doc)
+#if 0  // XXX porting
       .def(
           "AddCost",
           [](MathematicalProgram* self, py::function func,
@@ -666,7 +652,6 @@ void BindMathematicalProgram(py::module_ m) {
           static_cast<Binding<Cost> (MathematicalProgram::*)(
               const Expression&)>(&MathematicalProgram::AddCost),
           py::arg("e"), doc.MathematicalProgram.AddCost.doc_1args_e)
-#if 0   // XXX porting
       .def(
           "AddCost",
           [](MathematicalProgram* self, Cost* obj,
@@ -678,12 +663,10 @@ void BindMathematicalProgram(py::module_ m) {
           },
           py::arg("obj"), py::arg("vars"),
           doc.MathematicalProgram.AddCost.doc_2args_obj_vars)
-#endif  // XXX porting
       .def("AddLinearCost",
           static_cast<Binding<LinearCost> (MathematicalProgram::*)(
               const Expression&)>(&MathematicalProgram::AddLinearCost),
           py::arg("e"), doc.MathematicalProgram.AddLinearCost.doc_1args)
-#if 0   // XXX porting
       .def("AddLinearCost",
           static_cast<Binding<LinearCost> (MathematicalProgram::*)(
               const Eigen::Ref<const Eigen::VectorXd>&, double,
@@ -698,14 +681,12 @@ void BindMathematicalProgram(py::module_ m) {
               &MathematicalProgram::AddLinearCost),
           py::arg("a"), py::arg("vars"),
           doc.MathematicalProgram.AddLinearCost.doc_2args)
-#endif  // XXX porting
       .def("AddQuadraticCost",
           static_cast<Binding<QuadraticCost> (MathematicalProgram::*)(
               const Expression&, std::optional<bool>)>(
               &MathematicalProgram::AddQuadraticCost),
           py::arg("e"), py::arg("is_convex") = py::none(),
           doc.MathematicalProgram.AddQuadraticCost.doc_2args)
-#if 0   // XXX porting
       .def("AddQuadraticCost",
           static_cast<Binding<QuadraticCost> (MathematicalProgram::*)(
               const Eigen::Ref<const Eigen::MatrixXd>&,
@@ -757,7 +738,6 @@ void BindMathematicalProgram(py::module_ m) {
               &MathematicalProgram::AddL2NormCost),
           py::arg("A"), py::arg("b"), py::arg("vars"),
           doc.MathematicalProgram.AddL2NormCost.doc_3args_A_b_vars)
-#endif  // XXX porting
       .def("AddL2NormCost",
           overload_cast_explicit<Binding<L2NormCost>,
               const symbolic::Expression&, double, double>(
@@ -765,7 +745,6 @@ void BindMathematicalProgram(py::module_ m) {
           py::arg("e"), py::arg("psd_tol") = 1e-8,
           py::arg("coefficient_tol") = 1e-8,
           doc.MathematicalProgram.AddL2NormCost.doc_expression)
-#if 0  // XXX porting
       .def("AddL2NormCostUsingConicConstraint",
           &MathematicalProgram::AddL2NormCostUsingConicConstraint, py::arg("A"),
           py::arg("b"), py::arg("vars"),
@@ -800,6 +779,7 @@ void BindMathematicalProgram(py::module_ m) {
               &MathematicalProgram::AddMaximizeGeometricMeanCost),
           py::arg("x"), py::arg("c"),
           doc.MathematicalProgram.AddMaximizeGeometricMeanCost.doc_2args)
+#if 0  // XXX porting
       .def(
           "AddConstraint",
           [](MathematicalProgram* self, py::function func,
@@ -824,7 +804,6 @@ void BindMathematicalProgram(py::module_ m) {
           static_cast<Binding<Constraint> (MathematicalProgram::*)(
               const Formula&)>(&MathematicalProgram::AddConstraint),
           doc.MathematicalProgram.AddConstraint.doc_1args_f)
-#if 0  // XXX porting
       .def(
           "AddConstraint",
           [](MathematicalProgram* self, Constraint* constraint,
@@ -845,7 +824,6 @@ void BindMathematicalProgram(py::module_ m) {
           },
           py::arg("formulas"),
           doc.MathematicalProgram.AddConstraint.doc_1args_constEigenDenseBase)
-#endif  // XXX porting
       .def(
           "AddConstraint",
           [](MathematicalProgram* self, const Binding<Constraint>& binding) {
@@ -853,7 +831,6 @@ void BindMathematicalProgram(py::module_ m) {
           },
           py::arg("binding"),
           doc.MathematicalProgram.AddConstraint.doc_1args_binding)
-#if 0  // XXX porting
       .def("AddLinearConstraint",
           static_cast<Binding<LinearConstraint> (MathematicalProgram::*)(
               const Eigen::Ref<const Eigen::MatrixXd>&,
@@ -879,14 +856,12 @@ void BindMathematicalProgram(py::module_ m) {
               &MathematicalProgram::AddLinearConstraint),
           py::arg("A"), py::arg("lb"), py::arg("ub"), py::arg("vars"),
           doc.MathematicalProgram.AddLinearConstraint.doc_4args_A_lb_ub_sparse)
-#endif  // XXX porting
       .def("AddLinearConstraint",
           static_cast<Binding<LinearConstraint> (MathematicalProgram::*)(
               const Expression&, double, double)>(
               &MathematicalProgram::AddLinearConstraint),
           py::arg("e"), py::arg("lb"), py::arg("ub"),
           doc.MathematicalProgram.AddLinearConstraint.doc_3args_e_lb_ub)
-#if 0  // XXX porting
       .def("AddLinearConstraint",
           static_cast<Binding<LinearConstraint> (MathematicalProgram::*)(
               const Eigen::Ref<const MatrixX<symbolic::Expression>>&,
@@ -895,12 +870,10 @@ void BindMathematicalProgram(py::module_ m) {
               &MathematicalProgram::AddLinearConstraint),
           py::arg("v"), py::arg("lb"), py::arg("ub"),
           doc.MathematicalProgram.AddLinearConstraint.doc_3args_v_lb_ub)
-#endif  // XXX porting
       .def("AddLinearConstraint",
           static_cast<Binding<LinearConstraint> (MathematicalProgram::*)(
               const Formula&)>(&MathematicalProgram::AddLinearConstraint),
           py::arg("f"), doc.MathematicalProgram.AddLinearConstraint.doc_1args_f)
-#if 0  // XXX porting
       .def(
           "AddLinearConstraint",
           [](MathematicalProgram* self,
@@ -936,7 +909,6 @@ void BindMathematicalProgram(py::module_ m) {
           py::arg("Aeq"), py::arg("beq"), py::arg("vars"),
           doc.MathematicalProgram.AddLinearEqualityConstraint
               .doc_3args_Aeq_beq_sparse)
-#endif  // XXX porting
       .def("AddLinearEqualityConstraint",
           static_cast<Binding<LinearEqualityConstraint> (
               MathematicalProgram::*)(const Expression&, double)>(
@@ -949,7 +921,6 @@ void BindMathematicalProgram(py::module_ m) {
               &MathematicalProgram::AddLinearEqualityConstraint),
           py::arg("f"),
           doc.MathematicalProgram.AddLinearEqualityConstraint.doc_1args_f)
-#if 0  // XXX porting
       .def("AddLinearEqualityConstraint",
           static_cast<Binding<LinearEqualityConstraint> (
               MathematicalProgram::*)(const Eigen::Ref<const Eigen::Array<
@@ -975,13 +946,11 @@ void BindMathematicalProgram(py::module_ m) {
               const Eigen::Ref<const MatrixXDecisionVariable>&)>(
               &MathematicalProgram::AddBoundingBoxConstraint),
           doc.MathematicalProgram.AddBoundingBoxConstraint.doc_3args_lb_ub_vars)
-#endif  // XXX porting
       .def("AddBoundingBoxConstraint",
           static_cast<Binding<BoundingBoxConstraint> (MathematicalProgram::*)(
               double, double, const symbolic::Variable&)>(
               &MathematicalProgram::AddBoundingBoxConstraint),
           doc.MathematicalProgram.AddBoundingBoxConstraint.doc_3args_lb_ub_var)
-#if 0  // XXX porting
       .def(
           "AddBoundingBoxConstraint",
           [](MathematicalProgram* self, double lb, double ub,
@@ -1000,7 +969,6 @@ void BindMathematicalProgram(py::module_ m) {
           py::arg("Q"), py::arg("b"), py::arg("lb"), py::arg("ub"),
           py::arg("vars"), py::arg("hessian_type") = std::nullopt,
           doc.MathematicalProgram.AddQuadraticConstraint.doc_6args)
-#endif  // XXX porting
       .def("AddQuadraticConstraint",
           static_cast<Binding<QuadraticConstraint> (MathematicalProgram::*)(
               const symbolic::Expression&, double, double,
@@ -1017,7 +985,6 @@ void BindMathematicalProgram(py::module_ m) {
           py::arg("eval_type") = LorentzConeConstraint::EvalType::kConvexSmooth,
           py::arg("psd_tol") = 1e-8, py::arg("coefficient_tol") = 1e-8,
           doc.MathematicalProgram.AddLorentzConeConstraint.doc_formula)
-#if 0  // XXX porting
       .def("AddLorentzConeConstraint",
           static_cast<Binding<LorentzConeConstraint> (MathematicalProgram::*)(
               const Eigen::Ref<const VectorX<drake::symbolic::Expression>>&,
@@ -1027,7 +994,6 @@ void BindMathematicalProgram(py::module_ m) {
           py::arg("eval_type") = LorentzConeConstraint::EvalType::kConvexSmooth,
           doc.MathematicalProgram.AddLorentzConeConstraint
               .doc_2args_v_eval_type)
-#endif  // XXX porting
       .def(
           "AddLorentzConeConstraint",
           [](MathematicalProgram* self,
@@ -1042,7 +1008,6 @@ void BindMathematicalProgram(py::module_ m) {
           py::arg("eval_type") = LorentzConeConstraint::EvalType::kConvexSmooth,
           doc.MathematicalProgram.AddLorentzConeConstraint
               .doc_4args_linear_expression_quadratic_expression_tol_eval_type)
-#if 0  // XXX porting
       .def(
           "AddLorentzConeConstraint",
           [](MathematicalProgram* self,
@@ -1056,7 +1021,6 @@ void BindMathematicalProgram(py::module_ m) {
           py::arg("eval_type") = LorentzConeConstraint::EvalType::kConvexSmooth,
           doc.MathematicalProgram.AddLorentzConeConstraint
               .doc_4args_A_b_vars_eval_type)
-#endif  // XXX porting
       .def(
           "AddRotatedLorentzConeConstraint",
           [](MathematicalProgram* self,
@@ -1070,7 +1034,6 @@ void BindMathematicalProgram(py::module_ m) {
           py::arg("quadratic_expression"), py::arg("tol") = 0,
           doc.MathematicalProgram.AddRotatedLorentzConeConstraint
               .doc_4args_linear_expression1_linear_expression2_quadratic_expression_tol)
-#if 0  // XXX porting
       .def(
           "AddRotatedLorentzConeConstraint",
           [](MathematicalProgram* self,
@@ -1189,12 +1152,10 @@ void BindMathematicalProgram(py::module_ m) {
           doc.MathematicalProgram
               .AddPositiveDiagonallyDominantDualConeMatrixConstraint
               .doc_variable)
-#endif  // XXX porting
       .def("RelaxPsdConstraintToDdDualCone",
           &MathematicalProgram::RelaxPsdConstraintToDdDualCone,
           py::arg("constraint"),
           doc.MathematicalProgram.RelaxPsdConstraintToDdDualCone.doc)
-#if 0  // XXX porting
       .def("AddScaledDiagonallyDominantMatrixConstraint",
           static_cast<std::vector<std::vector<Matrix2<symbolic::Expression>>> (
               MathematicalProgram::*)(
@@ -1213,12 +1174,10 @@ void BindMathematicalProgram(py::module_ m) {
           py::arg("X"),
           doc.MathematicalProgram.AddScaledDiagonallyDominantMatrixConstraint
               .doc_variable)
-#endif  // XXX porting
       .def("TightenPsdConstraintToSdd",
           &MathematicalProgram::TightenPsdConstraintToSdd,
           py::arg("constraint"),
           doc.MathematicalProgram.TightenPsdConstraintToSdd.doc)
-#if 0  // XXX porting
       .def("AddScaledDiagonallyDominantDualConeMatrixConstraint",
           static_cast<std::vector<Binding<RotatedLorentzConeConstraint>> (
               MathematicalProgram::*)(
@@ -1238,12 +1197,10 @@ void BindMathematicalProgram(py::module_ m) {
           py::arg("X"),
           doc.MathematicalProgram
               .AddScaledDiagonallyDominantDualConeMatrixConstraint.doc_variable)
-#endif  // XXX porting
       .def("RelaxPsdConstraintToSddDualCone",
           &MathematicalProgram::RelaxPsdConstraintToSddDualCone,
           py::arg("constraint"),
           doc.MathematicalProgram.RelaxPsdConstraintToSddDualCone.doc)
-#if 0  // XXX porting
       .def("AddSosConstraint",
           static_cast<MatrixXDecisionVariable (MathematicalProgram::*)(
               const Polynomial&, const Eigen::Ref<const VectorX<Monomial>>&,
@@ -1286,12 +1243,10 @@ void BindMathematicalProgram(py::module_ m) {
           py::arg("type") = MathematicalProgram::NonnegativePolynomial::kSos,
           py::arg("gram_name") = "S",
           doc.MathematicalProgram.AddSosConstraint.doc_3args_e_type_gram_name)
-#endif  // XXX porting
       .def("AddEqualityConstraintBetweenPolynomials",
           &MathematicalProgram::AddEqualityConstraintBetweenPolynomials,
           py::arg("p1"), py::arg("p2"),
           doc.MathematicalProgram.AddEqualityConstraintBetweenPolynomials.doc)
-#if 0  // XXX porting
       .def(
           "AddExponentialConeConstraint",
           [](MathematicalProgram* self,
@@ -1310,7 +1265,6 @@ void BindMathematicalProgram(py::module_ m) {
           },
           py::arg("z"),
           doc.MathematicalProgram.AddExponentialConeConstraint.doc_1args)
-#endif  // XXX porting
       .def(
           "GetInitialGuess",
           [](MathematicalProgram& prog,
@@ -1318,7 +1272,6 @@ void BindMathematicalProgram(py::module_ m) {
             return prog.GetInitialGuess(decision_variable);
           },
           doc.MathematicalProgram.GetInitialGuess.doc_1args_decision_variable)
-#if 0  // XXX porting
       .def(
           "GetInitialGuess",
           [](MathematicalProgram& prog,
@@ -1335,7 +1288,6 @@ void BindMathematicalProgram(py::module_ m) {
           },
           doc.MathematicalProgram.GetInitialGuess
               .doc_1args_constEigenMatrixBase)
-#endif  // XXX porting
       .def(
           "SetInitialGuess",
           [](MathematicalProgram& prog,
@@ -1345,7 +1297,6 @@ void BindMathematicalProgram(py::module_ m) {
           },
           doc.MathematicalProgram.SetInitialGuess
               .doc_2args_decision_variable_variable_guess_value)
-#if 0  // XXX porting
       .def(
           "SetInitialGuess",
           [](MathematicalProgram& prog,
@@ -1361,6 +1312,7 @@ void BindMathematicalProgram(py::module_ m) {
             prog.SetInitialGuessForAllVariables(x0);
           },
           doc.MathematicalProgram.SetInitialGuessForAllVariables.doc)
+#if 0  // XXX porting
       .def("SetDecisionVariableValueInVector",
           py::overload_cast<const symbolic::Variable&, double,
               EigenPtr<Eigen::VectorXd>>(
@@ -1467,11 +1419,9 @@ void BindMathematicalProgram(py::module_ m) {
       .def("FindDecisionVariableIndex",
           &MathematicalProgram::FindDecisionVariableIndex, py::arg("var"),
           doc.MathematicalProgram.FindDecisionVariableIndex.doc)
-#if 0  // XXX porting
       .def("FindDecisionVariableIndices",
           &MathematicalProgram::FindDecisionVariableIndices, py::arg("vars"),
           doc.MathematicalProgram.FindDecisionVariableIndices.doc)
-#endif  // XXX porting
       .def("FindIndeterminateIndex",
           &MathematicalProgram::FindIndeterminateIndex, py::arg("var"),
           doc.MathematicalProgram.FindIndeterminateIndex.doc)
@@ -1500,7 +1450,6 @@ for every column of ``prog_var_vals``. )""")
           },
           py::arg("binding"), py::arg("prog_var_vals"),
           doc.MathematicalProgram.EvalBinding.doc)
-#if 0  // XXX porting
       .def(
           "EvalBinding",
           [](const MathematicalProgram& prog,
@@ -1510,7 +1459,6 @@ for every column of ``prog_var_vals``. )""")
           },
           py::arg("binding"), py::arg("prog_var_vals"),
           doc.MathematicalProgram.EvalBinding.doc)
-#endif  // XXX porting
       .def(
           "EvalBindingAtInitialGuess",
           [](const MathematicalProgram& prog,
@@ -1528,7 +1476,6 @@ for every column of ``prog_var_vals``. )""")
           },
           py::arg("bindings"), py::arg("prog_var_vals"),
           doc.MathematicalProgram.EvalBindings.doc)
-#if 0  // XXX porting
       .def(
           "EvalBindings",
           [](const MathematicalProgram& prog,
@@ -1538,7 +1485,6 @@ for every column of ``prog_var_vals``. )""")
           },
           py::arg("bindings"), py::arg("prog_var_vals"),
           doc.MathematicalProgram.EvalBindings.doc)
-#endif  // XXX porting
       .def(
           "GetBindingVariableValues",
           [](const MathematicalProgram& prog,
@@ -1576,22 +1522,18 @@ for every column of ``prog_var_vals``. )""")
               double>(&MathematicalProgram::CheckSatisfiedAtInitialGuess),
           py::arg("bindings"), py::arg("tol") = 1e-6,
           doc.MathematicalProgram.CheckSatisfiedAtInitialGuess.doc_vector)
-#if 0  // XXX porting
       .def("indeterminates", &MathematicalProgram::indeterminates,
           // dtype = object arrays must be copied, and cannot be referenced.
           py_rvp::copy, doc.MathematicalProgram.indeterminates.doc)
-#endif  // XXX porting
       .def("indeterminate", &MathematicalProgram::indeterminate, py::arg("i"),
           doc.MathematicalProgram.indeterminate.doc)
       .def("required_capabilities", &MathematicalProgram::required_capabilities,
           doc.MathematicalProgram.required_capabilities.doc)
       .def("indeterminates_index", &MathematicalProgram::indeterminates_index,
           doc.MathematicalProgram.indeterminates_index.doc)
-#if 0  // XXX porting
       .def("decision_variables", &MathematicalProgram::decision_variables,
           // dtype = object arrays must be copied, and cannot be referenced.
           py_rvp::copy, doc.MathematicalProgram.decision_variables.doc)
-#endif  // XXX porting
       .def("decision_variable", &MathematicalProgram::decision_variable,
           py::arg("i"), doc.MathematicalProgram.decision_variable.doc)
       .def("decision_variable_index",

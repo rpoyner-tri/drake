@@ -87,3 +87,5 @@ Compile time issues
 
 * some problem with blah::Subgraph in geom/optimization.
 
+* dtypes apparently must be <256 bits wide. This may need a nanobind patch.
+

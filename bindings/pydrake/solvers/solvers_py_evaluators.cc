@@ -66,7 +66,6 @@ auto RegisterBinding(py::handle* scope) {
   py::class_<B> binding_cls(*scope, pyname.c_str());
   AddTemplateClass(*scope, "Binding", binding_cls, GetPyParam<C>());
   binding_cls  // BR
-#if 0          // XXX porting
       .def(
           "__init__",
           [](B* self, C* c, const VectorXDecisionVariable& v) {
@@ -75,11 +74,8 @@ auto RegisterBinding(py::handle* scope) {
             new (self) Binding(make_shared_ptr_from_py_object<C>(c_py), v);
           },
           py::arg("c"), py::arg("v"), cls_doc.ctor.doc)
-#endif         // XXX porting
       .def("evaluator", &B::evaluator, cls_doc.evaluator.doc)
-#if 0   // XXX porting
       .def("variables", &B::variables, cls_doc.variables.doc)
-#endif  // XXX porting
       .def(
           "ToLatex", &B::ToLatex, py::arg("precision") = 3, cls_doc.ToLatex.doc)
       .def("__str__", &B::to_string, cls_doc.to_string.doc)
@@ -106,7 +102,6 @@ template <typename C, typename PyClass>
 void DefBindingCastConstructor(PyClass* cls) {
   static_assert(std::is_same_v<Binding<C>, typename PyClass::Type>,
       "Bound type must be Binding<C>");
-#if 0   // XXX porting
   (*cls)  // BR
       .def("__init__", [](Binding<C>* self, py::object binding) {
         // Define a type-erased downcast to mirror the implicit
@@ -116,7 +111,6 @@ void DefBindingCastConstructor(PyClass* cls) {
             make_shared_ptr_from_py_object<C>(binding.attr("evaluator")()),
             py::cast<VectorXDecisionVariable>(binding.attr("variables")()));
       });
-#endif  // XXX porting
 }
 
 class StubEvaluatorBase : public EvaluatorBase {
@@ -144,14 +138,12 @@ void DefTesting(py::module_ m) {
   py::class_<StubEvaluatorBase, EvaluatorBase
       /*, std::shared_ptr<StubEvaluatorBase>  XXX porting */>(
       m, "StubEvaluatorBase");
-#if 0   // XXX porting
   RegisterBinding<StubEvaluatorBase>(&m)  // BR
       .def_static(
           "Make", [](const Eigen::Ref<const VectorXDecisionVariable>& v) {
             return Binding<StubEvaluatorBase>(
                 std::make_shared<StubEvaluatorBase>(), v);
           });
-#endif  // XXX porting
   // The Accept* methods use specific c++ argument signatures to invoke all of
   // the cases of automatic casting supported by
   // DefBindingCastConstructor. They return their arguments to help with
@@ -178,10 +170,8 @@ void BindEvaluatorsAndBindings(py::module_ m) {
             cls_doc.get_description.doc)
         .def("set_description", &Class::set_description,
             cls_doc.set_description.doc)
-#if 0   // XXX porting
         .def("ToLatex", &Class::ToLatex, py::arg("vars"),
             py::arg("precision") = 3, cls_doc.ToLatex.doc)
-#endif  // XXX porting
         .def("SetGradientSparsityPattern", &Class::SetGradientSparsityPattern,
             py::arg("gradient_sparsity_pattern"),
             cls_doc.SetGradientSparsityPattern.doc)
@@ -190,7 +180,6 @@ void BindEvaluatorsAndBindings(py::module_ m) {
         .def("is_thread_safe", &Class::is_thread_safe,
             cls_doc.is_thread_safe.doc);
     auto bind_eval = [&cls, &cls_doc](auto dummy_x, auto dummy_y) {
-#if 0   // XXX porting
       using T_x = decltype(dummy_x);
       using T_y = decltype(dummy_y);
       cls.def(
@@ -201,7 +190,6 @@ void BindEvaluatorsAndBindings(py::module_ m) {
             return y;
           },
           py::arg("x"), cls_doc.Eval.doc);
-#endif  // XXX porting
     };
     bind_eval(double{}, double{});
     bind_eval(AutoDiffXd{}, AutoDiffXd{});
@@ -239,7 +227,6 @@ void BindEvaluatorsAndBindings(py::module_ m) {
               double tol) { return self.CheckSatisfied(x, tol); },
           py::arg("x"), py::arg("tol") = 1E-6,
           doc.Constraint.CheckSatisfied.doc)
-#if 0   // XXX porting
       .def(
           "CheckSatisfied",
           [](Constraint& self, const Eigen::Ref<const AutoDiffVecXd>& x,
@@ -252,9 +239,7 @@ void BindEvaluatorsAndBindings(py::module_ m) {
               const Eigen::Ref<const VectorX<symbolic::Variable>>& x) {
             return self.CheckSatisfied(x);
           },
-          py::arg("x"), doc.Constraint.CheckSatisfied.doc)
-#endif  // XXX porting
-      ;
+          py::arg("x"), doc.Constraint.CheckSatisfied.doc);
 
   py::class_<LinearConstraint,
       Constraint /*, std::shared_ptr<LinearConstraint> XXX porting */>
@@ -540,7 +525,6 @@ void BindEvaluatorsAndBindings(py::module_ m) {
   py::class_<ExpressionConstraint, Constraint
       /*, std::shared_ptr<ExpressionConstraint> XXX porting */>(
       m, "ExpressionConstraint", doc.ExpressionConstraint.doc)
-#if 0  // XXX porting
       .def(py::init<const Eigen::Ref<const VectorX<symbolic::Expression>>&,
                const Eigen::Ref<const Eigen::VectorXd>&,
                const Eigen::Ref<const Eigen::VectorXd>&>(),
@@ -551,9 +535,7 @@ void BindEvaluatorsAndBindings(py::module_ m) {
           py_rvp::copy, doc.ExpressionConstraint.expressions.doc)
       .def("vars", &ExpressionConstraint::vars,
           // dtype = object arrays must be copied, and cannot be referenced.
-          py_rvp::copy, doc.ExpressionConstraint.vars.doc)
-#endif  // XXX porting
-      ;
+          py_rvp::copy, doc.ExpressionConstraint.vars.doc);
 
   py::class_<MinimumValueLowerBoundConstraint, Constraint
       /*, std::shared_ptr<MinimumValueLowerBoundConstraint> XXX porting */>(m,
@@ -868,12 +850,9 @@ void BindEvaluatorsAndBindings(py::module_ m) {
           doc.ExpressionCost.ctor.doc)
       .def("expression", &ExpressionCost::expression,
           py_rvp::reference_internal, doc.ExpressionCost.expression.doc)
-#if 0  // XXX porting
       .def("vars", &ExpressionCost::vars,
           // dtype = object arrays must be copied, and cannot be referenced.
-          py_rvp::copy, doc.ExpressionCost.vars.doc)
-#endif  // XXX porting
-      ;
+          py_rvp::copy, doc.ExpressionCost.vars.doc);
 
   auto cost_binding = RegisterBinding<Cost>(&m);
   DefBindingCastConstructor<Cost>(&cost_binding);
