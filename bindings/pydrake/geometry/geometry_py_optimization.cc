@@ -83,14 +83,11 @@ void DefineCspaceSeparatingPlane(py::module_ m) {
             .def_ro("expressed_body", &Class::expressed_body,
                 base_cls_doc.expressed_body.doc)
             .def_ro("plane_degree", &Class::plane_degree)
-#if 0  // XXX porting
             .def_ro("decision_variables", &Class::decision_variables,
                 // Use py_rvp::copy here because numpy.ndarray with
                 // dtype=object arrays must be copied, and cannot be
                 // referenced.
-                py_rvp::copy, base_cls_doc.a.doc)
-#endif  // XXX porting
-            ;
+                py_rvp::copy, base_cls_doc.a.doc);
         DefCopyAndDeepCopy(&cls);
         AddValueInstantiation<Class>(m);
       },
@@ -127,7 +124,6 @@ void DefineConvexSetBaseClassAndSubclasses(py::module_ m) {
             cls_doc.MaybeGetFeasiblePoint.doc)
         .def("PointInSet", &ConvexSet::PointInSet, py::arg("x"),
             py::arg("tol") = 1e-8, cls_doc.PointInSet.doc)
-#if 0  // XXX porting
         .def("AddPointInSetConstraints", &ConvexSet::AddPointInSetConstraints,
             py::arg("prog"), py::arg("vars"),
             cls_doc.AddPointInSetConstraints.doc)
@@ -153,7 +149,6 @@ void DefineConvexSetBaseClassAndSubclasses(py::module_ m) {
             py::arg("prog"), py::arg("A"), py::arg("b"), py::arg("c"),
             py::arg("d"), py::arg("x"), py::arg("t"),
             cls_doc.AddPointInNonnegativeScalingConstraints.doc_7args)
-#endif  // XXX porting
         .def("ToShapeWithPose", &ConvexSet::ToShapeWithPose,
             cls_doc.ToShapeWithPose.doc)
         .def("CalcVolume", &ConvexSet::CalcVolume, cls_doc.CalcVolume.doc)
@@ -750,7 +745,7 @@ void DefineGraphOfConvexSetsAndRelated(py::module_ m) {
             cls_doc.flow_tolerance.doc)
         .def_rw("rounding_seed", &GraphOfConvexSetsOptions::rounding_seed,
             cls_doc.rounding_seed.doc)
-#if 0  // XXX porting
+# if 0 // XXX porting
         .def_prop_rw("solver_options",
             py::cpp_function(
                 [](GraphOfConvexSetsOptions& self) {
@@ -876,13 +871,11 @@ void DefineGraphOfConvexSetsAndRelated(py::module_ m) {
         // As in trajectory_optimization_py.cc, we use a lambda to *copy*
         // the decision variables; otherwise we get dtype=object arrays
         // cannot be referenced.
-#if 0  // XXX porting
         .def(
             "x",
             [](const GraphOfConvexSets::Vertex& self)
                 -> const VectorX<symbolic::Variable> { return self.x(); },
             vertex_doc.x.doc)
-#endif  // XXX porting
         .def("set", &GraphOfConvexSets::Vertex::set, py_rvp::reference_internal,
             vertex_doc.set.doc)
         .def("AddCost",
@@ -954,7 +947,6 @@ void DefineGraphOfConvexSetsAndRelated(py::module_ m) {
             py_rvp::reference_internal, edge_doc.v.doc_0args_nonconst)
         .def("phi", &GraphOfConvexSets::Edge::phi, py_rvp::reference_internal,
             edge_doc.phi.doc)
-#if 0  // XXX porting
         .def(
             "xu",
             [](const GraphOfConvexSets::Edge& self)
@@ -965,7 +957,6 @@ void DefineGraphOfConvexSetsAndRelated(py::module_ m) {
             [](const GraphOfConvexSets::Edge& self)
                 -> const VectorX<symbolic::Variable> { return self.xv(); },
             edge_doc.xv.doc)
-#endif  // XXX porting
         .def("AddCost",
             py::overload_cast<const symbolic::Expression&,
                 const std::unordered_set<GraphOfConvexSets::Transcription>&>(
@@ -1307,10 +1298,7 @@ void DefineCspaceFreePolytopeAndRelated(py::module_ m) {
             base_cls_doc.map_geometries_to_separating_planes.doc)
         .def("separating_planes", &BaseClass::separating_planes,
             base_cls_doc.separating_planes.doc)
-#if 0  // XXX porting
-        .def("y_slack", &BaseClass::y_slack, base_cls_doc.y_slack.doc)
-#endif  // XXX porting
-        ;
+        .def("y_slack", &BaseClass::y_slack, base_cls_doc.y_slack.doc);
 
     {
       const auto& options_cls_doc = base_cls_doc.Options;
@@ -1370,12 +1358,10 @@ void DefineCspaceFreePolytopeAndRelated(py::module_ m) {
 
     py::class_<Class::SeparationCertificate>(cspace_free_polytope_cls,
         "SeparationCertificate", cls_doc.SeparationCertificate.doc)
-#if 0  // XXX porting
         .def("GetSolution", &Class::SeparationCertificate::GetSolution,
             py::arg("plane_index"), py::arg("a"), py::arg("b"),
             py::arg("plane_decision_vars"), py::arg("result"),
             cls_doc.SeparationCertificate.GetSolution.doc)
-#endif  // XXX porting
         .def_rw("positive_side_rational_lagrangians",
             &Class::SeparationCertificate::positive_side_rational_lagrangians)
         .def_rw("negative_side_rational_lagrangians",

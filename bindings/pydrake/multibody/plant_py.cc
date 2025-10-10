@@ -75,20 +75,16 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
     auto cls = DefineTemplateClassWithDefault<Class>(
         m, "PointPairContactInfo", param, cls_doc.doc);
     cls  // BR
-#if 0    // XXX porting
         .def(py::init<BodyIndex, BodyIndex, const Vector3<T>, const Vector3<T>,
                  const T&, const T&,
                  const geometry::PenetrationAsPointPair<T>>(),
             py::arg("bodyA_index"), py::arg("bodyB_index"), py::arg("f_Bc_W"),
             py::arg("p_WC"), py::arg("separation_speed"), py::arg("slip_speed"),
             py::arg("point_pair"), cls_doc.ctor.doc)
-#endif   // XXX porting
         .def("bodyA_index", &Class::bodyA_index, cls_doc.bodyA_index.doc)
         .def("bodyB_index", &Class::bodyB_index, cls_doc.bodyB_index.doc)
-#if 0   // XXX porting
         .def("contact_force", &Class::contact_force, cls_doc.contact_force.doc)
         .def("contact_point", &Class::contact_point, cls_doc.contact_point.doc)
-#endif  // XXX porting
         .def("slip_speed", &Class::slip_speed, cls_doc.slip_speed.doc)
         .def("separation_speed", &Class::separation_speed,
             cls_doc.separation_speed.doc)
@@ -354,7 +350,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py_rvp::reference_internal, cls_doc.AddWeldConstraint.doc)
         .def("RemoveConstraint", &Class::RemoveConstraint, py::arg("id"),
             cls_doc.RemoveConstraint.doc);
-#if 0    // XXX porting
     // Mathy bits
     cls      // BR
         .def(
@@ -370,7 +365,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             },
             py::arg("context"), py::arg("frame_B"), py::arg("p_BQi"),
             py::arg("frame_A"), cls_doc.CalcPointsPositions.doc);
-#endif   // XXX porting
     cls  // BR
         .def("CalcTotalMass",
             overload_cast_explicit<T, const Context<T>&>(&Class::CalcTotalMass),
@@ -380,7 +374,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
                 const std::vector<ModelInstanceIndex>&>(&Class::CalcTotalMass),
             py::arg("context"), py::arg("model_instances"),
             cls_doc.CalcTotalMass.doc_2args)
-#if 0   // XXX porting
             .def("CalcCenterOfMassPositionInWorld",
                 overload_cast_explicit<Vector3<T>, const Context<T>&>(
                     &Class::CalcCenterOfMassPositionInWorld),
@@ -416,7 +409,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
                 py::arg("context"), py::arg("model_instances"),
                 cls_doc.CalcCenterOfMassTranslationalAccelerationInWorld
                     .doc_2args)
-#endif  // XXX porting
         .def(
             "CalcSpatialInertia",
             [](const Class* self, const Context<T>& context,
@@ -426,7 +418,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             },
             py::arg("context"), py::arg("frame_F"), py::arg("body_indexes"),
             cls_doc.CalcSpatialInertia.doc)
-#if 0   // XXX porting
             .def(
                 "CalcSpatialMomentumInWorldAboutPoint",
                 [](const Class* self, const Context<T>& context,
@@ -494,7 +485,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
                 py::arg("with_respect_to"), py::arg("frame_A"),
                 py::arg("frame_E"),
                 cls_doc.CalcJacobianCenterOfMassTranslationalVelocity.doc_6args)
-#endif  // XXX porting
         .def("GetFloatingBaseBodies", &Class::GetFloatingBaseBodies,
             cls_doc.GetFloatingBaseBodies.doc)
         .def("SetDefaultFloatingBaseBodyPose",
@@ -529,31 +519,36 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
                 const SpatialVelocity<T>&>(&Class::SetFreeBodySpatialVelocity),
             py::arg("context"), py::arg("body"), py::arg("V_JpJc"),
             cls_doc.SetFreeBodySpatialVelocity.doc_3args)
-#if 0   // XXX porting
             .def("GetActuationFromArray", &Class::GetActuationFromArray,
                 py::arg("model_instance"), py::arg("u"),
                 cls_doc.GetActuationFromArray.doc)
+#if 0  // XXX porting
         .def("SetActuationInArray", &Class::SetActuationInArray,
             py::arg("model_instance"), py::arg("u_instance"), py::arg("u"),
             cls_doc.SetActuationInArray.doc)
+#endif  // XXX porting
         .def("GetPositionsFromArray",
             overload_cast_explicit<VectorX<T>, ModelInstanceIndex,
                 const Eigen::Ref<const VectorX<T>>&>(
                 &Class::GetPositionsFromArray),
             py::arg("model_instance"), py::arg("q"),
             cls_doc.GetPositionsFromArray.doc_2args)
+#if 0  // XXX porting
         .def("SetPositionsInArray", &Class::SetPositionsInArray,
             py::arg("model_instance"), py::arg("q_instance"), py::arg("q"),
             cls_doc.SetPositionsInArray.doc)
+#endif  // XXX porting
         .def("GetVelocitiesFromArray",
             overload_cast_explicit<VectorX<T>, ModelInstanceIndex,
                 const Eigen::Ref<const VectorX<T>>&>(
                 &Class::GetVelocitiesFromArray),
             py::arg("model_instance"), py::arg("v"),
             cls_doc.GetVelocitiesFromArray.doc_2args)
+#if 0  // XXX porting
         .def("SetVelocitiesInArray", &Class::SetVelocitiesInArray,
             py::arg("model_instance"), py::arg("v_instance"), py::arg("v"),
             cls_doc.SetVelocitiesInArray.doc)
+#endif  // XXX porting
         // TODO(eric.cousineau): Ensure all of these return either references,
         // or copies, consistently. At present, `GetX(context)` returns a
         // reference, while `GetX(context, model_instance)` returns a copy.
@@ -593,7 +588,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             },
             py::arg("context"), py::arg("model_instance"),
             cls_doc.GetVelocities.doc_2args)
-#endif  // XXX porting
         .def(
             "EvalBodyPoseInWorld",
             [](const Class* self, const Context<T>& context,
@@ -664,19 +658,17 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             V_PB_parameter_name_deprecated);
 #pragma GCC diagnostic pop
 
-    // XXX porting unused
-    // auto CalcJacobianSpatialVelocity =
-    //     [](const Class* self, const systems::Context<T>& context,
-    //         JacobianWrtVariable with_respect_to, const Frame<T>& frame_B,
-    //         const Eigen::Ref<const Vector3<T>>& p_BoBp_B,
-    //         const Frame<T>& frame_A, const Frame<T>& frame_E) {
-    //       MatrixX<T> Js_V_ABp_E(6, GetVariableSize<T>(*self, with_respect_to));
-    //       self->CalcJacobianSpatialVelocity(context, with_respect_to, frame_B,
-    //           p_BoBp_B, frame_A, frame_E, &Js_V_ABp_E);
-    //       return Js_V_ABp_E;
-    //     };
+    auto CalcJacobianSpatialVelocity =
+        [](const Class* self, const systems::Context<T>& context,
+            JacobianWrtVariable with_respect_to, const Frame<T>& frame_B,
+            const Eigen::Ref<const Vector3<T>>& p_BoBp_B,
+            const Frame<T>& frame_A, const Frame<T>& frame_E) {
+          MatrixX<T> Js_V_ABp_E(6, GetVariableSize<T>(*self, with_respect_to));
+          self->CalcJacobianSpatialVelocity(context, with_respect_to, frame_B,
+              p_BoBp_B, frame_A, frame_E, &Js_V_ABp_E);
+          return Js_V_ABp_E;
+        };
     cls  // BR
-#if 0  // XXX porting
         .def("CalcJacobianSpatialVelocity", CalcJacobianSpatialVelocity,
             py::arg("context"), py::arg("with_respect_to"), py::arg("frame_B"),
             py::arg("p_BoBp_B"), py::arg("frame_A"), py::arg("frame_E"),
@@ -744,7 +736,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("CalcForceElementsContribution",
             &Class::CalcForceElementsContribution, py::arg("context"),
             py::arg("forces"), cls_doc.CalcForceElementsContribution.doc)
-#endif  // XXX porting
         .def("GetPositionLowerLimits", &Class::GetPositionLowerLimits,
             cls_doc.GetPositionLowerLimits.doc)
         .def("GetPositionUpperLimits", &Class::GetPositionUpperLimits,
@@ -761,7 +752,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             cls_doc.GetEffortLowerLimits.doc)
         .def("GetEffortUpperLimits", &Class::GetEffortUpperLimits,
             cls_doc.GetEffortUpperLimits.doc)
-#if 0  // XXX porting
         .def(
             "CalcMassMatrixViaInverseDynamics",
             [](const Class* self, const Context<T>& context) {
@@ -829,7 +819,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             cls_doc.CalcGeneralizedForces.doc)
         .def("MakeActuationMatrix", &Class::MakeActuationMatrix,
             cls_doc.MakeActuationMatrix.doc)
-#endif  // XXX porting
         .def("MakeActuationMatrixPseudoinverse",
             &Class::MakeActuationMatrixPseudoinverse,
             cls_doc.MakeActuationMatrixPseudoinverse.doc)
@@ -857,7 +846,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             cls_doc.MakeStateSelectorMatrix.doc)
         .def("IsVelocityEqualToQDot", &Class::IsVelocityEqualToQDot,
             cls_doc.IsVelocityEqualToQDot.doc)
-#if 0  // XXX porting
         .def(
             "MapVelocityToQDot",
             [](const Class* self, const Context<T>& context,
@@ -876,7 +864,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               return v;
             },
             py::arg("context"), py::arg("qdot"), cls_doc.MapQDotToVelocity.doc)
-#endif  // XXX porting
         .def("CalcRelativeTransform", &Class::CalcRelativeTransform,
             py::arg("context"), py::arg("frame_A"), py::arg("frame_B"),
             cls_doc.CalcRelativeTransform.doc)
@@ -1286,7 +1273,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             cls_doc.get_contact_penalty_method_time_scale.doc)
         .def("set_stiction_tolerance", &Class::set_stiction_tolerance,
             py::arg("v_stiction") = 0.001, cls_doc.set_stiction_tolerance.doc)
-#if 0  // XXX porting
         .def(
             "SetPositions",
             [](const MultibodyPlant<T>* self, Context<T>* context,
@@ -1381,7 +1367,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             },
             py_rvp::reference, py::arg("context"), py::arg("model_instance"),
             py::arg("q_v"), cls_doc.SetPositionsAndVelocities.doc_3args)
-#endif  // XXX porting
         .def(
             "SetDefaultState",
             [](const Class* self, const Context<T>& context, State<T>* state) {
@@ -1541,12 +1526,9 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
     cls  // BR
         .def(py::init<>())
         .def_rw("body_index", &Class::body_index, cls_doc.body_index.doc)
-#if 0  // XXX porting
         .def_rw("p_BoBq_B", &Class::p_BoBq_B,
             return_value_policy_for_scalar_type<T>(), cls_doc.p_BoBq_B.doc)
-        .def_rw("F_Bq_W", &Class::F_Bq_W, cls_doc.F_Bq_W.doc)
-#endif  // XXX porting
-        ;
+        .def_rw("F_Bq_W", &Class::F_Bq_W, cls_doc.F_Bq_W.doc);
     DefCopyAndDeepCopy(&cls);
     AddValueInstantiation<Class>(m);
     // Some ports need `Value<std::vector<Class>>`.

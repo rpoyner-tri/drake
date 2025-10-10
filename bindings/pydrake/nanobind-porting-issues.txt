@@ -75,3 +75,10 @@ Compile time issues
 
 * the c++ simulator class will need adjustments to get the shared-context
   constructor stack working.
+
+* blah Serialize() helpers now trip on enum typed fields, even though they
+  are/were "registered types">
+
+* SortedPair<GeometryId> is causing problems.
+
+* EigenPtr is causing problems.

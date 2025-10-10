@@ -11,10 +11,8 @@ namespace internal {
 void DefineMathOperators(py::module_ m) {
   // Define math operations for all three scalar types.
   pydrake::internal::BindMathOperators<double>(&m);
-#if 0  // XXX porting
   pydrake::internal::BindMathOperators<AutoDiffXd>(&m);
   pydrake::internal::BindMathOperators<symbolic::Expression>(&m);
-#endif  // XXX porting
 }
 
 }  // namespace internal

@@ -69,7 +69,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
     cls  // BR
         .def("EvaluateAtVertex", &Class::EvaluateAtVertex, py::arg("v"),
             cls_doc.EvaluateAtVertex.doc)
-#if 0  // XXX porting
         .def("EvaluateGradient", &Class::EvaluateGradient, py::arg("e"),
             cls_doc.EvaluateGradient.doc)
         .def(
@@ -78,7 +77,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               return self->EvaluateCartesian(e, p_MQ);
             },
             py::arg("e"), py::arg("p_MQ"), cls_doc.EvaluateCartesian.doc)
-#endif  // XXX porting
         ;
   }
 
@@ -91,13 +89,11 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
     constexpr auto& cls_doc = doc.MeshFieldLinear;
     auto cls = DefineTemplateClassWithDefault<Class>(
         m, "TriangleSurfaceMeshFieldLinear", GetPyParam<T, T>(), cls_doc.doc);
-    // XXX porting unused
-    // using Barycentric =
-    //     typename TriangleSurfaceMesh<T>::template Barycentric<T>;
+    using Barycentric =
+        typename TriangleSurfaceMesh<T>::template Barycentric<T>;
     cls  // BR
         .def("EvaluateAtVertex", &Class::EvaluateAtVertex, py::arg("v"),
             cls_doc.EvaluateAtVertex.doc)
-#if 0  // XXX porting
         .def(
             "Evaluate",
             [](const Class* self, int e, const Barycentric& b) {
@@ -110,7 +106,6 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               return self->EvaluateCartesian(e, p_MQ);
             },
             py::arg("e"), py::arg("p_MQ"), cls_doc.EvaluateCartesian.doc)
-#endif  // XXX porting
         ;
   }
 }

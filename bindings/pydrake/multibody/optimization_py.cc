@@ -37,8 +37,8 @@ NB_MODULE(optimization, m) {
 #if 0   // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-    DefAttributesUsingSerialize(&cls, cls_doc);
 #endif  // XXX porting
+    DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }
@@ -110,15 +110,12 @@ NB_MODULE(optimization, m) {
         .def("ComposeVariable", &Class::ComposeVariable<double>,
             py::arg("quat1"), py::arg("quat2"), py::arg("angular_vel"),
             py::arg("h"), cls_doc.ComposeVariable.doc)
-#if 0  // XXX porting
         .def("ComposeVariable", &Class::ComposeVariable<symbolic::Variable>,
             py::arg("quat1"), py::arg("quat2"), py::arg("angular_vel"),
             py::arg("h"), cls_doc.ComposeVariable.doc)
         .def("ComposeVariable", &Class::ComposeVariable<symbolic::Expression>,
             py::arg("quat1"), py::arg("quat2"), py::arg("angular_vel"),
-            py::arg("h"), cls_doc.ComposeVariable.doc)
-#endif  // XXX porting
-        ;
+            py::arg("h"), cls_doc.ComposeVariable.doc);
   }
 
   {
@@ -179,10 +176,8 @@ NB_MODULE(optimization, m) {
         .def("get_mutable_prog", &Class::get_mutable_prog,
             py_rvp::reference_internal, cls_doc.get_mutable_prog.doc)
         .def("prog", &Class::prog, py_rvp::reference_internal, cls_doc.prog.doc)
-#if 0  // XXX porting
         .def("q_vars", &Class::q_vars, cls_doc.q_vars.doc)
         .def("u_vars", &Class::u_vars, cls_doc.u_vars.doc)
-#endif  // XXX porting
         .def("GetContactWrenchSolution", &Class::GetContactWrenchSolution,
             py::arg("result"), cls_doc.GetContactWrenchSolution.doc)
         .def("UpdateComplementarityTolerance",

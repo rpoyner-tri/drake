@@ -166,9 +166,7 @@ NB_MODULE(inverse_kinematics, m) {
         .def("AddPolyhedronConstraint", &Class::AddPolyhedronConstraint,
             py::arg("frameF"), py::arg("frameG"), py::arg("p_GP"), py::arg("A"),
             py::arg("b"), cls_doc.AddPolyhedronConstraint.doc)
-#if 0  // XXX porting
         .def("q", &Class::q, cls_doc.q.doc)
-#endif  // XXX porting
         .def("prog", &Class::prog, internal::ref_cycle<0, 1>(),
             py_rvp::reference, cls_doc.prog.doc)
         .def("get_mutable_prog", &Class::get_mutable_prog,
@@ -179,7 +177,6 @@ NB_MODULE(inverse_kinematics, m) {
             py_rvp::reference_internal, cls_doc.get_mutable_context.doc);
   }
 
-#if 0  // XXX porting
   m.def(
       "AddMultibodyPlantConstraints",
       [](py::object plant, const solvers::VectorXDecisionVariable& q,
@@ -192,7 +189,6 @@ NB_MODULE(inverse_kinematics, m) {
       py::arg("plant"), py::arg("q"), py::arg("prog"),
       py::arg("plant_context") = py::none(),
       doc.AddMultibodyPlantConstraints.doc);
-#endif  // XXX porting
 
   {
     using Class = AngleBetweenVectorsConstraint;
@@ -439,7 +435,7 @@ NB_MODULE(inverse_kinematics, m) {
     // using Ptr = std::shared_ptr<Class>;
     py::class_<Class, Constraint /*, Ptr XXX porting */>(
         m, "DistanceConstraint", cls_doc.doc)
-#if 0   // XXX porting
+#if 0  // XXX porting
         .def(
             "__init__",
             [](Class* self,
@@ -1037,7 +1033,6 @@ NB_MODULE(inverse_kinematics, m) {
         .def(
             "__init__", [](Class* self) { new (self) Class(); },
             cls_doc.ctor.doc);
-#if 0  // XXX porting
     m.def("AddUnitQuaternionConstraintOnPlant",
         &AddUnitQuaternionConstraintOnPlant<double>, py::arg("plant"),
         py::arg("q_vars"), py::arg("prog"),
@@ -1045,9 +1040,7 @@ NB_MODULE(inverse_kinematics, m) {
     m.def("AddUnitQuaternionConstraintOnPlant",
         &AddUnitQuaternionConstraintOnPlant<AutoDiffXd>, py::arg("plant"),
         py::arg("q_vars"), py::arg("prog"),
-        doc.AddUnitQuaternionConstraintOnPlant.doc)
-#endif  // XXX porting
-        ;
+        doc.AddUnitQuaternionConstraintOnPlant.doc);
   }
   {
     using Class = GlobalInverseKinematics;
@@ -1104,12 +1097,10 @@ NB_MODULE(inverse_kinematics, m) {
         .def("prog", &Class::prog, py_rvp::reference_internal, cls_doc.prog.doc)
         .def("get_mutable_prog", &Class::get_mutable_prog,
             py_rvp::reference_internal, cls_doc.get_mutable_prog.doc)
-#if 0  // XXX porting
         .def("body_rotation_matrix", &Class::body_rotation_matrix,
             py::arg("body_index"), cls_doc.body_rotation_matrix.doc)
         .def("body_position", &Class::body_position, py::arg("body_index"),
             cls_doc.body_position.doc)
-#endif  // XXX porting
         .def("ReconstructGeneralizedPositionSolution",
             &Class::ReconstructGeneralizedPositionSolution, py::arg("result"),
             cls_doc.ReconstructGeneralizedPositionSolution.doc)
@@ -1160,7 +1151,6 @@ NB_MODULE(inverse_kinematics, m) {
             },
             py::arg("q_desired"), py::arg("body_position_cost"),
             py::arg("body_orientation_cost"), cls_doc.AddPostureCost.doc)
-#if 0  // XXX porting
         .def(
             "BodyPointInOneOfRegions",
             [](Class* self, BodyIndex body_index,
@@ -1182,7 +1172,6 @@ NB_MODULE(inverse_kinematics, m) {
             },
             py::arg("body_index"), py::arg("p_BQ"), py::arg("radius"),
             py::arg("polytopes"), cls_doc.BodySphereInOneOfPolytopes.doc)
-#endif  // XXX porting
         .def("AddJointLimitConstraint", &Class::AddJointLimitConstraint,
             py::arg("body_index"), py::arg("joint_lower_bound"),
             py::arg("joint_upper_bound"),

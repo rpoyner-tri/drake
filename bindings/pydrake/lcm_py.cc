@@ -95,8 +95,8 @@ NB_MODULE(lcm, m) {
 #if 0  // XXX porting
     cls  // BR
         .def(ParamInit<Class>());
-    DefAttributesUsingSerialize(&cls, cls_doc);
 #endif  // XXX porting
+    DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }

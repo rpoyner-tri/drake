@@ -19,16 +19,10 @@ namespace pydrake {
 #ifndef DRAKE_DOXYGEN_CXX
 namespace internal {
 
-#if 0   // XXX porting
 // Determines if a type will go through pybind11's generic caster. This
 // implies that the type has been declared using `py::class_`, and can have
 // a reference passed through. Otherwise, the type uses type-conversion:
 // https://pybind11.readthedocs.io/en/stable/advanced/cast/index.html
-template <typename T>
-constexpr inline bool is_generic_pybind_v =
-    std::is_base_of_v<py::detail::type_caster_generic,
-        py::detail::make_caster<T>>;
-#endif  // XXX porting
 template <typename T>
 constexpr inline bool is_generic_nanobind_v =
     py::detail::is_base_caster_v<py::detail::make_caster<T>>;

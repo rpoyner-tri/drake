@@ -202,15 +202,15 @@ void DefineMeshcatParams(py::module_ m) {
       py::class_<Nested> nested(cls, "PropertyTuple", nested_doc.doc);
 #if 0  // XXX porting
       nested.def(ParamInit<Nested>());
-      DefAttributesUsingSerialize(&nested, nested_doc);
 #endif  // XXX porting
+      DefAttributesUsingSerialize(&nested, nested_doc);
       DefReprUsingSerialize(&nested);
       DefCopyAndDeepCopy(&nested);
     }
 #if 0  // XXX porting
     cls.def(ParamInit<Class>());
-    DefAttributesUsingSerialize(&cls, cls_doc);
 #endif  // XXX porting
+    DefAttributesUsingSerialize(&cls, cls_doc);
     DefReprUsingSerialize(&cls);
     DefCopyAndDeepCopy(&cls);
   }

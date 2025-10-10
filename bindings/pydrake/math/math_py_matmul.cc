@@ -57,7 +57,6 @@ void DefineMathMatmul(py::module_ m) {
     const std::string doc = fmt::format(
         "Matrix product for dtype={} @ dtype={} -> dtype={}.{}",
         GetDtypeName<T1>(), GetDtypeName<T2>(), GetDtypeName<T3>(), extra_doc);
-#if 0  // XXX porting
     m.def(
         "matmul",
         [](const Eigen::Ref<const MatrixX<T1>, 0, StrideX>& A,
@@ -70,7 +69,6 @@ void DefineMathMatmul(py::module_ m) {
           }
         },
         doc.c_str());
-#endif  // XXX porting
   };  // NOLINT(readability/braces)
 
   // The ordering of the calls to `bind` here are sorted fastest-to-slowest to
