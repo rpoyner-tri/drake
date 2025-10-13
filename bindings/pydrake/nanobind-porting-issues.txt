@@ -48,6 +48,8 @@ Compile time issues
   * much dependence on internals
 
 * cpp_function() can't be passed to def() and friends any more.
+  - !! a chunk of this was to group annotations with functions in setter/getter
+    situations. Can port with nanobind's for_getter() and for_setter() wrappers.
 
 * trampolines:
   * `using Base::Base` in trampoline classes collides with stuff from
@@ -87,6 +89,7 @@ Compile time issues
 * EigenPtr is causing problems.
 
 * kw_only() is more restrictive, or causing problems.
+  - !! need to add an explicit py::arg("kwargs")
 
 * some problem with blah::Subgraph in geom/optimization.
 

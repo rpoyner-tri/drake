@@ -136,7 +136,6 @@ struct Impl {
    public:
     NB_TRAMPOLINE(LeafSystemBase, 100);
     using Base = LeafSystemBase;
-    // XXX porting duplicate? using Base::Base;
 
     // Trampoline virtual methods.
 
@@ -204,7 +203,6 @@ struct Impl {
    public:
     NB_TRAMPOLINE(DiagramBase, 100);
     using Base = DiagramBase;
-    // XXX porting duplicate? using Base::Base;
 
     SystemBase::GraphvizFragment DoGetGraphvizFragment(
         const SystemBase::GraphvizFragmentParams& params) const override {
@@ -235,7 +233,6 @@ struct Impl {
    public:
     NB_TRAMPOLINE(VectorSystemPublic, 100);
     using Base = VectorSystemPublic;
-    // XXX porting duplicate? using Base::Base;
 
 #if 0  // XXX porting
     // something something ToEigenRef().

@@ -183,7 +183,6 @@ struct Impl {
    public:
     NB_TRAMPOLINE(TrajectoryPublic, 100);
     using Base = TrajectoryPublic;
-    // XXX porting duplicate? using Base::Base;
 
     // Utility function that takes a Python object which is-a Trajectory and
     // wraps it in a unique_ptr that manages object lifetime when returned back

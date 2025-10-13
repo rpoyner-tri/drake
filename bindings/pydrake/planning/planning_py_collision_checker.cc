@@ -292,7 +292,6 @@ void DefinePlanningCollisionChecker(py::module_ m) {
         m, "SceneGraphCollisionChecker", cls_doc.doc);
     py::object params_ctor = m.attr("CollisionCheckerParams");
     cls  // BR
-#if 0  // XXX porting
         .def(
             "__init__",
             [params_ctor](
@@ -309,13 +308,12 @@ void DefinePlanningCollisionChecker(py::module_ m) {
                   make_shared_ptr_from_py_object<RobotDiagram<double>>(model);
               new (self) SceneGraphCollisionChecker(std::move(*params));
             },
-            py::kw_only(), py::arg("model"),
+            py::kw_only(), py::arg("model"), py::arg("kwargs"),
             (std::string(cls_doc.ctor.doc) +
                 "\n\n"
                 "See :class:`pydrake.planning.CollisionCheckerParams` for the "
                 "list of properties available here as kwargs.")
                 .c_str())
-#endif  // XXX porting
         .def(py::init<CollisionCheckerParams>(), py::arg("params"),
             cls_doc.ctor.doc);
   }
@@ -327,7 +325,6 @@ void DefinePlanningCollisionChecker(py::module_ m) {
         m, "UnimplementedCollisionChecker", cls_doc.doc);
     py::object params_ctor = m.attr("CollisionCheckerParams");
     cls  // BR
-#if 0  // XXX porting
         .def(
             "__init__",
             [params_ctor](Class* self, py::object model,
@@ -345,13 +342,12 @@ void DefinePlanningCollisionChecker(py::module_ m) {
               new (self) Class(std::move(*params), supports_parallel_checking);
             },
             py::kw_only(), py::arg("model"),
-            py::arg("supports_parallel_checking"),
+            py::arg("supports_parallel_checking"), py::arg("kwargs"),
             (std::string(cls_doc.ctor.doc) +
                 "\n\n"
                 "See :class:`pydrake.planning.CollisionCheckerParams` for the "
                 "list of properties available here as kwargs.")
                 .c_str())
-#endif  // XXX porting
         .def(py::init<CollisionCheckerParams, bool>(), py::arg("params"),
             py::arg("supports_parallel_checking"), cls_doc.ctor.doc);
   }
