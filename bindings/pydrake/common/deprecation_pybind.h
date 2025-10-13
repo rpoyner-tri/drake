@@ -80,7 +80,6 @@ auto WrapDeprecated(std::string message, Func&& func) {
 }
 
 /// Deprecated wrapping of `py::init<>`.
-/// @note Only for `unique_ptr` holders. If using `shared_ptr`, talk to Eric.
 template <typename CppClass, typename... Args>
 struct py_init_deprecated
     : py::def_visitor<py_init_deprecated<CppClass, Args...>> {
@@ -88,33 +87,30 @@ struct py_init_deprecated
   template <typename Class, typename... Extra>
   void execute(Class& cl, const Extra&...) {
     cl.def("__init__",
-           [message = std::move(message_)](CppClass* self, Args... args) {
-      WarnDeprecated(message);
-      new (self) CppClass(std::forward<Args>(args)...);
-    });
+        [message = std::move(message_)](CppClass* self, Args... args) {
+          WarnDeprecated(message);
+          new (self) CppClass(std::forward<Args>(args)...);
+        });
   }
   std::string message_;
 };
 
-#if 0  // XXX porting
-
-auto py_init_deprecated(std::string message) {
-  // N.B. For simplicity, require that Class be passed up front, rather than
-  // trying to figure out how to pipe code into / mock `py::detail::initimpl`
-  // classes.
-  return py::init([message = std::move(message)](Args... args) {
-    WarnDeprecated(message);
-    return std::make_unique<Class>(std::forward<Args>(args)...);
-  });
-}
-
-/// Deprecated wrapping of `py::init(factory)`.
-template <typename Func>
-auto py_init_deprecated(std::string message, Func&& func) {
-  return py::init(WrapDeprecated(std::move(message), std::forward<Func>(func)));
-}
-
-#endif  // XXX porting
+/// Deprecated wrapping of `py::init(placement-new-callable)`.
+/// XXX porting how do we do specialization so we can reuse the name?
+template <typename CppClass, typename Func>
+struct py_init_deprecated2
+    : py::def_visitor<py_init_deprecated2<CppClass, Func>> {
+  py_init_deprecated2(std::string message) : message_(std::move(message)) {}
+  template <typename Class, typename... Extra>
+  void execute(Class& cl, const Extra&...) {
+    cl.def("__init__",
+        [message = std::move(message_)](CppClass* self, Func&& func) {
+          WarnDeprecated(message);
+          func(self);
+        });
+  }
+  std::string message_;
+};
 
 template <typename CppClass>
 struct DeprecatedParamInit : py::def_visitor<DeprecatedParamInit<CppClass>> {
