@@ -574,8 +574,7 @@ void DefineIris(py::module_ m) {
   {
     const auto& cls_doc = doc.IrisOptions;
     py::class_<IrisOptions> iris_options(m, "IrisOptions", cls_doc.doc);
-    iris_options
-        .def(ParamInit<IrisOptions>())
+    iris_options.def(ParamInit<IrisOptions>())
         .def_rw("require_sample_point_is_contained",
             &IrisOptions::require_sample_point_is_contained,
             cls_doc.require_sample_point_is_contained.doc)
@@ -743,45 +742,38 @@ void DefineGraphOfConvexSetsAndRelated(py::module_ m) {
             cls_doc.flow_tolerance.doc)
         .def_rw("rounding_seed", &GraphOfConvexSetsOptions::rounding_seed,
             cls_doc.rounding_seed.doc)
-# if 0 // XXX porting
-        .def_prop_rw("solver_options",
-            py::cpp_function(
-                [](GraphOfConvexSetsOptions& self) {
-                  return &(self.solver_options);
-                },
-                py_rvp::reference_internal),
-            py::cpp_function([](GraphOfConvexSetsOptions& self,
-                                 solvers::SolverOptions solver_options) {
+        .def_prop_rw(
+            "solver_options",
+            [](GraphOfConvexSetsOptions& self) {
+              return &(self.solver_options);
+            },
+            [](GraphOfConvexSetsOptions& self,
+                solvers::SolverOptions solver_options) {
               self.solver_options = std::move(solver_options);
-            }),
+            },
             cls_doc.solver_options.doc)
-        .def_prop_rw("restriction_solver_options",
-            py::cpp_function(
-                [](GraphOfConvexSetsOptions& self) {
-                  return &(self.restriction_solver_options);
-                },
-                py_rvp::reference_internal),
-            py::cpp_function(
-                [](GraphOfConvexSetsOptions& self,
-                    solvers::SolverOptions restriction_solver_options) {
-                  self.restriction_solver_options =
-                      std::move(restriction_solver_options);
-                }),
+        .def_prop_rw(
+            "restriction_solver_options",
+            [](GraphOfConvexSetsOptions& self) {
+              return &(self.restriction_solver_options);
+            },
+            [](GraphOfConvexSetsOptions& self,
+                solvers::SolverOptions restriction_solver_options) {
+              self.restriction_solver_options =
+                  std::move(restriction_solver_options);
+            },
             cls_doc.restriction_solver_options.doc)
-        .def_prop_rw("preprocessing_solver_options",
-            py::cpp_function(
-                [](GraphOfConvexSetsOptions& self) {
-                  return &(self.preprocessing_solver_options);
-                },
-                py_rvp::reference_internal),
-            py::cpp_function(
-                [](GraphOfConvexSetsOptions& self,
-                    solvers::SolverOptions preprocessing_solver_options) {
-                  self.preprocessing_solver_options =
-                      std::move(preprocessing_solver_options);
-                }),
+        .def_prop_rw(
+            "preprocessing_solver_options",
+            [](GraphOfConvexSetsOptions& self) {
+              return &(self.preprocessing_solver_options);
+            },
+            [](GraphOfConvexSetsOptions& self,
+                solvers::SolverOptions preprocessing_solver_options) {
+              self.preprocessing_solver_options =
+                  std::move(preprocessing_solver_options);
+            },
             cls_doc.preprocessing_solver_options.doc)
-#endif  // XXX porting
         .def_rw("parallelism", &GraphOfConvexSetsOptions::parallelism)
         .def("__repr__", [](const GraphOfConvexSetsOptions& self) {
           return py::str(
@@ -1488,7 +1480,7 @@ void DefineCspaceFreePolytopeAndRelated(py::module_ m) {
         .def("BinarySearch", &Class::BinarySearch,
             py::arg("ignored_collision_pairs"), py::arg("C"), py::arg("d"),
             py::arg("s_center"), py::arg("options"), cls_doc.BinarySearch.doc)
-#if 0  // XXX porting
+#if 0   // XXX porting
         .def("MakeIsGeometrySeparableProgram",
             &Class::MakeIsGeometrySeparableProgram, py::arg("geometry_pair"),
             py::arg("C"), py::arg("d"),
