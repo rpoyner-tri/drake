@@ -54,6 +54,7 @@ Compile time issues
 * trampolines:
   * `using Base::Base` in trampoline classes collides with stuff from
     newly-required macros.
+    - !! just delete the duplicate statement.
   * trampolines: some trampoline stacks got by without making methods public;
     that doesn't work any more.
   * the new override macros don't allow change of signature. maybe there is a

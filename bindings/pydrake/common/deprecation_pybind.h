@@ -79,17 +79,25 @@ auto WrapDeprecated(std::string message, Func&& func) {
       internal::infer_function_info(std::forward<Func>(func)));
 }
 
-#if 0  // XXX porting
-
-
-// Porting of py::init lambda hijinks to nanobind: None of this is supported
-// any more. Maybe we can get this to work by porting it to the nanobind
-// def_visitor mechanism. That will give us a widget we can hand to .def(),
-// that turns around and does completely custom stuff internally.
-
 /// Deprecated wrapping of `py::init<>`.
 /// @note Only for `unique_ptr` holders. If using `shared_ptr`, talk to Eric.
-template <typename Class, typename... Args>
+template <typename CppClass, typename... Args>
+struct py_init_deprecated
+    : py::def_visitor<py_init_deprecated<CppClass, Args...>> {
+  py_init_deprecated(std::string message) : message_(std::move(message)) {}
+  template <typename Class, typename... Extra>
+  void execute(Class& cl, const Extra&...) {
+    cl.def("__init__",
+           [message = std::move(message_)](CppClass* self, Args... args) {
+      WarnDeprecated(message);
+      new (self) CppClass(std::forward<Args>(args)...);
+    });
+  }
+  std::string message_;
+};
+
+#if 0  // XXX porting
+
 auto py_init_deprecated(std::string message) {
   // N.B. For simplicity, require that Class be passed up front, rather than
   // trying to figure out how to pipe code into / mock `py::detail::initimpl`
@@ -108,23 +116,6 @@ auto py_init_deprecated(std::string message, Func&& func) {
 
 #endif  // XXX porting
 
-#if 0  // XXX porting
-/// The deprecated flavor of ParamInit<>.
-template <typename Class>
-auto DeprecatedParamInit(std::string message) {
-  return py::init(WrapDeprecated(std::move(message), [](py::kwargs kwargs) {
-    // N.B. We use `Class` here because `pybind11` strongly requires that we
-    // return the instance itself, not just `py::object`.
-    // TODO(eric.cousineau): This may hurt `keep_alive` behavior, as this
-    // reference may evaporate by the time the true holding pybind11 record is
-    // constructed. Would be alleviated using old-style pybind11 init :(
-    Class obj{};
-    py::object py_obj = py::cast(&obj, py_rvp::reference);
-    py::module_::import_("pydrake").attr("_setattr_kwargs")(py_obj, kwargs);
-    return obj;
-  }));
-}
-#else  // XXX porting
 template <typename CppClass>
 struct DeprecatedParamInit : py::def_visitor<DeprecatedParamInit<CppClass>> {
   DeprecatedParamInit(std::string message) : message_(std::move(message)) {}
@@ -140,7 +131,6 @@ struct DeprecatedParamInit : py::def_visitor<DeprecatedParamInit<CppClass>> {
   }
   std::string message_;
 };
-#endif  // XXX porting
 
 }  // namespace pydrake
 }  // namespace drake

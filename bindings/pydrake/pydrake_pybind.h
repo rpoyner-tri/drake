@@ -139,23 +139,6 @@ void DefClone(PyClass* ppy_class) {
 /// @endcode
 ///
 /// @tparam Class The C++ class. Must have a default constructor.
-#if 0  // XXX porting
-// This likely needs a def_visitor rewrite.
-template <typename Class>
-auto ParamInit() {
-  return py::init([](py::kwargs kwargs) {
-    // N.B. We use `Class` here because `pybind11` strongly requires that we
-    // return the instance itself, not just `py::object`.
-    // TODO(eric.cousineau): This may hurt `keep_alive` behavior, as this
-    // reference may evaporate by the time the true holding pybind11 record is
-    // constructed. Would be alleviated using old-style pybind11 init :(
-    Class obj{};
-    py::object py_obj = py::cast(&obj, py_rvp::reference);
-    py::module_::import_("pydrake").attr("_setattr_kwargs")(py_obj, kwargs);
-    return obj;
-  });
-}
-#else  // XXX porting
 template <typename CppClass>
 struct ParamInit : py::def_visitor<ParamInit<CppClass>> {
   template <typename Class, typename... Extra>
@@ -167,7 +150,6 @@ struct ParamInit : py::def_visitor<ParamInit<CppClass>> {
     });
   }
 };
-#endif  // XXX porting
 
 /// Executes Python code to introduce additional symbols for a given module.
 /// For a module with local name `{name}` and use_subdir=False, the code
