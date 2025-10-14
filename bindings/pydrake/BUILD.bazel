@@ -499,5 +499,4 @@ generate_file(
 #         ":test/all_install_test.py",
 #         ":test/common_install_test.py",
 #     ],
-#     python_lint_use_ruff_format = False,
 # )
