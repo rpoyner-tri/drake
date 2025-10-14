@@ -69,21 +69,12 @@ decltype(auto) WrapDeprecatedImpl(std::string message,
   };
 }
 
-}  // namespace internal
-
-/// Wraps any callable (function pointer, method pointer, lambda, etc.) to emit
-/// a deprecation message.
-template <typename Func>
-auto WrapDeprecated(std::string message, Func&& func) {
-  return internal::WrapDeprecatedImpl(std::move(message),
-      internal::infer_function_info(std::forward<Func>(func)));
-}
-
 /// Deprecated wrapping of `py::init<>`.
 template <typename CppClass, typename... Args>
-struct py_init_deprecated
-    : py::def_visitor<py_init_deprecated<CppClass, Args...>> {
-  py_init_deprecated(std::string message) : message_(std::move(message)) {}
+struct PyInitDeprecatedCtorImpl
+    : py::def_visitor<PyInitDeprecatedCtorImpl<CppClass, Args...>> {
+  PyInitDeprecatedCtorImpl(std::string message)
+      : message_(std::move(message)) {}
   template <typename Class, typename... Extra>
   void execute(Class& cl, const Extra&...) {
     cl.def("__init__",
@@ -97,20 +88,47 @@ struct py_init_deprecated
 
 /// Deprecated wrapping of `py::init(placement-new-callable)`.
 /// XXX porting how do we do specialization so we can reuse the name?
-template <typename CppClass, typename Func>
-struct py_init_deprecated2
-    : py::def_visitor<py_init_deprecated2<CppClass, Func>> {
-  py_init_deprecated2(std::string message) : message_(std::move(message)) {}
+template <typename Func>
+struct PyInitDeprecatedCustomImpl
+    : py::def_visitor<PyInitDeprecatedCustomImpl<Func>> {
+  PyInitDeprecatedCustomImpl(std::string message)
+      : message_(std::move(message)) {}
   template <typename Class, typename... Extra>
   void execute(Class& cl, const Extra&...) {
     cl.def("__init__",
-        [message = std::move(message_)](CppClass* self, Func&& func) {
+           [message = std::move(message_)](Class::T* self, Func&& func) {
           WarnDeprecated(message);
           func(self);
         });
   }
   std::string message_;
 };
+
+}  // namespace internal
+
+/// Wraps any callable (function pointer, method pointer, lambda, etc.) to emit
+/// a deprecation message.
+template <typename Func>
+auto WrapDeprecated(std::string message, Func&& func) {
+  return internal::WrapDeprecatedImpl(std::move(message),
+      internal::infer_function_info(std::forward<Func>(func)));
+}
+
+/// Deprecated wrapping of `py::init<>`.
+/// @note Only for `unique_ptr` holders. If using `shared_ptr`, talk to Eric.
+template <typename Class, typename... Args>
+auto py_init_deprecated(std::string message) {
+  // N.B. For simplicity, require that Class be passed up front, rather than
+  // trying to figure out how to pipe code into / mock `py::detail::initimpl`
+  // classes.
+  return internal::PyInitDeprecatedCtorImpl<Class, Args...>(message);
+}
+
+/// Deprecated wrapping of `py::init(factory)`.
+template <typename Func>
+auto py_init_deprecated(std::string message, Func&& func) {
+  return internal::PyInitDeprecatedCustomImpl<Func>();
+}
 
 template <typename CppClass>
 struct DeprecatedParamInit : py::def_visitor<DeprecatedParamInit<CppClass>> {
