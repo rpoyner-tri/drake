@@ -52,9 +52,9 @@ std::string PyNiceTypeNamePtrOverride(const type_erased_ptr& ptr) {
       py::handle cls = py::handle(py_type_info);
       const bool use_qualname = true;
       return std::string(py::str("{}.{}")
-              .format(cls.attr("__module__"),
-                  internal::PrettyClassName(cls, use_qualname))
-              .c_str());
+                             .format(cls.attr("__module__"),
+                                 internal::PrettyClassName(cls, use_qualname))
+                             .c_str());
     }
   }
   return cc_name;
@@ -100,7 +100,7 @@ void InitLowLevelModules(py::module_ m) {
 
   // Morph any DRAKE_ASSERT and DRAKE_DEMAND failures into SystemExit exceptions
   // instead of process aborts.  See RobotLocomotion/drake#5268.
-  drake_set_assertion_failure_to_throw_exception();
+  // drake_set_assertion_failure_to_throw_exception(); XXX porting debug
 
   // TODO(jwnimmer-tri) Split out the bindings for functions and classes into
   // their own separate files, so that this file is only an orchestrator.
@@ -280,8 +280,7 @@ void InitLowLevelModules(py::module_ m) {
        py::arg("distribution"), py::arg("x"), doc.CalcProbabilityDensity.doc)
       .def("CalcProbabilityDensity", &CalcProbabilityDensity<AutoDiffXd>,
           py::arg("distribution"), py::arg("x"),
-          doc.CalcProbabilityDensity.doc)
-      ;
+          doc.CalcProbabilityDensity.doc);
 
   // Adds a binding for drake::RandomGenerator.
   py::class_<RandomGenerator> random_generator_cls(m, "RandomGenerator",
@@ -368,9 +367,9 @@ discussion), use e.g.
 
   // Define `_testing` submodule.
   py::module_ pydrake_top =
-      py::cast<py::module_>(py::eval("sys.modules['pydrake']", m));
-  py::module_ pydrake_common =
-      py::cast<py::module_>(py::eval("sys.modules['pydrake.common']", m));
+      py::cast<py::module_>(py::eval("sys.modules['pydrake']", py::globals()));
+  py::module_ pydrake_common = py::cast<py::module_>(
+      py::eval("sys.modules['pydrake.common']", py::globals()));
 
   py::module_ testing = pydrake_common.def_submodule("_testing");
   testing::def_testing(testing);

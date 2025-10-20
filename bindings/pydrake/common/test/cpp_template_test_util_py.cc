@@ -25,7 +25,7 @@ struct SimpleTemplate {
 };
 
 template <typename... Ts>
-auto BindSimpleTemplate(py::module m) {
+auto BindSimpleTemplate(py::module_ m) {
   using Class = SimpleTemplate<Ts...>;
   py::class_<Class> py_class(m, TemporaryClassName<Class>().c_str());
   py_class  // BR
@@ -37,7 +37,7 @@ auto BindSimpleTemplate(py::module m) {
 
 template <typename T>
 void CheckValue(const string& expr, const T& expected) {
-  EXPECT_EQ(py::eval(expr).cast<T>(), expected);
+  EXPECT_EQ(py::cast<T>(py::eval(py::str(expr.c_str()))), expected);
 }
 
 template <typename T>
@@ -46,7 +46,7 @@ struct TemplateWithDefault {
 };
 
 template <typename T>
-void BindTemplateWithDefault(py::module m) {
+void BindTemplateWithDefault(py::module_ m) {
   using Class = TemplateWithDefault<T>;
   auto py_class =
       DefineTemplateClassWithDefault<Class>(m, "TemplateWithDefault",
@@ -77,7 +77,7 @@ struct SimpleType {
 
 }  // namespace
 
-PYBIND11_MODULE(cpp_template_test_util, m) {
+NB_MODULE(cpp_template_test_util, m) {
   auto cls_1 = BindSimpleTemplate<int>(m);
   m.attr("DefaultInst") = cls_1;
   auto cls_2 = BindSimpleTemplate<int, double>(m);
@@ -88,8 +88,11 @@ PYBIND11_MODULE(cpp_template_test_util, m) {
   m.def("simple_func", [](const SimpleTemplate<int>&) {});
 
   // Add dummy constructors to check __call__ pseudo-deduction.
-  cls_1.def(py::init([](int) { return SimpleTemplate<int>(); }));
-  cls_2.def(py::init([](double) { return SimpleTemplate<int, double>(); }));
+  cls_1.def("__init__",
+      [](SimpleTemplate<int>* self, int) { new (self) SimpleTemplate<int>(); });
+  cls_2.def("__init__", [](SimpleTemplate<int, double>* self, double) {
+    new (self) SimpleTemplate<int, double>();
+  });
 
   AddTemplateFunction(m, "SimpleFunction",  // BR
       &SimpleFunction<int>, GetPyParam<int>());

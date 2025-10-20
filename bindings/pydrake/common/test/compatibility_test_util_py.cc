@@ -6,7 +6,8 @@ namespace drake {
 namespace pydrake {
 
 NB_MODULE(compatibility_test_util, m) {
-  m.def("invoke_callback", [](std::function<void()> callback) {
+  // XXX porting -- can we write this with std::function??
+  m.def("invoke_callback", [](py::callable callback) {
     // Trivial callback test.
     callback();
   });

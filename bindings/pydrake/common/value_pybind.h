@@ -33,6 +33,7 @@ py::class_<Class, drake::AbstractValue> AddValueInstantiation(
       scope, TemporaryClassName<Class>().c_str());
   // Register instantiation.
   py::tuple param = GetPyParam<T>();
+  py::gil_scoped_acquire guard;
   AddTemplateClass(py_common, "Value", py_class, param);
   // Only use copy (clone) construction.
   // Ownership with `unique_ptr<T>` has some annoying caveats, and some are
@@ -42,23 +43,18 @@ py::class_<Class, drake::AbstractValue> AddValueInstantiation(
   // Define emplace constructor.
   py::object py_T = param[0];
   py_class.def(
-      "__init__", [py_T](Class* place, py::args args, py::kwargs kwargs) {
+      "__init__", [py_T](Class* self, py::args args, py::kwargs kwargs) {
         // Use Python constructor for the bound type.
         py::object py_v = py_T(*args, **kwargs);
-#if 0   // XXX porting
-    // TODO(eric.cousineau): Use `unique_ptr` for custom types if it's ever a
-    // performance concern.
-    // Use `type_caster` so that we are not forced to copy T, which is not
-    // possible for non-movable types. This can be avoided if we bind a
-    // `cpp_function` accepting a reference. However, that may cause the Python
-    // instance to be double-initialized.
-    py::detail::type_caster<T> caster;
-    DRAKE_THROW_UNLESS(caster.from_python(py_v, 0, nullptr));
-    const T& v = caster;  // Use implicit conversion from `type_caster<>`.
-#endif  // XXX porting
-        static_assert(!py::detail::is_pyobject<T>::value, " XXX porting ");
+        // TODO(eric.cousineau): Use `unique_ptr` for custom types if it's ever
+        // a performance concern. Use `type_caster` so that we are not forced to
+        // copy T, which is not possible for non-movable types. This can be
+        // avoided if we bind a `cpp_function` accepting a reference. However,
+        // that may cause the Python instance to be double-initialized.
         py::detail::type_caster<T> caster;
-        return new (place) Class(caster.operator T&());
+        DRAKE_THROW_UNLESS(caster.from_python(py_v, 0, nullptr));
+        const T& v = static_cast<const T&>(caster);
+        return new (self) Class(v);
       });
   // If the type is registered via `py::class_`, or is of type `Object`
   // (`py::object`), then we can obtain a mutable view into the value.

@@ -11,8 +11,10 @@ cc_library(
     name = "nanobind",
     hdrs = glob([
         "include/nanobind/*.h",
-        "include/nanobind/stl/*.h",
         "include/nanobind/eigen/*.h",
+        "include/nanobind/intrusive/*.h",
+        "include/nanobind/stl/*.h",
+        "include/nanobind/stl/detail/*.h",
     ]),
     srcs = glob(["src/*.cpp", "src/*.h"], exclude = ["src/nb_combined.cpp"]),
     includes = [

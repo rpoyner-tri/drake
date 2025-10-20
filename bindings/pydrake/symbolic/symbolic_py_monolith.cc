@@ -320,7 +320,8 @@ void DefineSymbolicMonolith(py::module_ m) {
 
   // TODO(m-chaturvedi) Add Pybind11 documentation for operator overloads, etc.
   constexpr auto doc_expression = doc_expr.Expression;
-  expr_cls.def(py::init<>(), doc_expression.ctor.doc_0args)
+  expr_cls  // BR
+      .def(py::init<>(), doc_expression.ctor.doc_0args)
       .def(py::init<double>(), py::arg("constant"),
           doc_expression.ctor.doc_1args_constant)
       .def(py::init<const Variable&>(), py::arg("var"),
@@ -341,14 +342,15 @@ void DefineSymbolicMonolith(py::module_ m) {
           },
           internal::kUnapplyExpressionDoc)
       .def("Expand", &Expression::Expand, doc_expression.Expand.doc)
-      .def(
-          "Evaluate",
-          [](const Expression& self, const Environment::map& env,
-              RandomGenerator* generator) {
-            return self.Evaluate(Environment{env}, generator);
-          },
-          py::arg("env") = Environment::map{}, py::arg("generator") = nullptr,
-          doc_expression.Evaluate.doc_2args)
+      // XXX porting -- raises exception and error info lost
+      // .def(
+      //     "Evaluate",
+      //     [](const Expression& self, const Environment::map& env,
+      //         RandomGenerator* generator) {
+      //       return self.Evaluate(Environment{env}, generator);
+      //     },
+      //     py::arg("env") = Environment::map{}, py::arg("generator") = nullptr,
+      //     doc_expression.Evaluate.doc_2args)
       .def(
           "Evaluate",
           [](const Expression& self, RandomGenerator* generator) {
@@ -491,14 +493,15 @@ void DefineSymbolicMonolith(py::module_ m) {
       },
       py::arg("m"), doc.IsAffine.doc_1args);
 
-  m.def(
-      "Evaluate",
-      [](const MatrixX<Expression>& M, const Environment::map& env,
-          RandomGenerator* random_generator) {
-        return Evaluate(M, Environment{env}, random_generator);
-      },
-      py::arg("m"), py::arg("env") = Environment::map{},
-      py::arg("generator") = nullptr, doc_expr.Evaluate.doc_expression);
+  // XXX porting -- raises exception and error info lost
+  // m.def(
+  //     "Evaluate",
+  //     [](const MatrixX<Expression>& M, const Environment::map& env,
+  //         RandomGenerator* random_generator) {
+  //       return Evaluate(M, Environment{env}, random_generator);
+  //     },
+  //     py::arg("m"), py::arg("env") = Environment::map{},
+  //     py::arg("generator") = nullptr, doc_expr.Evaluate.doc_expression);
 
   m.def("GetVariableVector", &symbolic::GetVariableVector,
       py::arg("expressions"), doc_expr.GetVariableVector.doc);
@@ -583,7 +586,8 @@ void DefineSymbolicMonolith(py::module_ m) {
   }
 
   constexpr auto& doc_formula = doc_expr.Formula;
-  formula_cls.def(py::init<>(), doc_formula.ctor.doc_0args)
+  formula_cls  // BR
+      .def(py::init<>(), doc_formula.ctor.doc_0args)
       .def(py::init<bool>(), py::arg("value").noconvert(),
           doc_formula.ctor.doc_1args_value)
       .def(py::init<const Variable&>(), py::arg("var"),
@@ -596,12 +600,13 @@ void DefineSymbolicMonolith(py::module_ m) {
       .def("GetFreeVariables", &Formula::GetFreeVariables,
           doc_formula.GetFreeVariables.doc)
       .def("EqualTo", &Formula::EqualTo, doc_formula.EqualTo.doc)
-      .def(
-          "Evaluate",
-          [](const Formula& self, const Environment::map& env) {
-            return self.Evaluate(Environment{env});
-          },
-          py::arg("env") = Environment::map{}, doc_formula.Evaluate.doc_2args)
+      // XXX porting -- raises exception and error info lost
+      // .def(
+      //     "Evaluate",
+      //     [](const Formula& self, const Environment::map& env) {
+      //       return self.Evaluate(Environment{env});
+      //     },
+      //     py::arg("env") = Environment::map{}, doc_formula.Evaluate.doc_2args)
       .def(
           "Substitute",
           [](const Formula& self, const Variable& var, const Expression& e) {
@@ -791,7 +796,8 @@ void DefineSymbolicMonolith(py::module_ m) {
   using symbolic::Polynomial;
 
   // TODO(m-chaturvedi) Add Pybind11 documentation for operator overloads, etc.
-  polynomial_cls.def(py::init<>(), doc.Polynomial.ctor.doc_0args)
+  polynomial_cls  // BR
+      .def(py::init<>(), doc.Polynomial.ctor.doc_0args)
       .def(py::init<Polynomial::MapType>(), py::arg("map"),
           doc.Polynomial.ctor.doc_1args_map)
       .def(py::init<const Monomial&>(), py::arg("m"),
@@ -841,10 +847,11 @@ void DefineSymbolicMonolith(py::module_ m) {
       .def("AddProduct", &Polynomial::AddProduct, py::arg("coeff"),
           py::arg("m"), doc.Polynomial.AddProduct.doc)
       .def("Expand", &Polynomial::Expand, doc.Polynomial.Expand.doc)
-      .def("SubstituteAndExpand", &Polynomial::SubstituteAndExpand,
-          py::arg("indeterminate_substitution"),
-          py::arg("substitutions_cached_data") = std::nullopt,
-          doc.Polynomial.SubstituteAndExpand.doc)
+      // XXX porting -- raises exception and error info lost
+      // .def("SubstituteAndExpand", &Polynomial::SubstituteAndExpand,
+      //     py::arg("indeterminate_substitution"),
+      //     py::arg("substitutions_cached_data") = std::nullopt,
+      //     doc.Polynomial.SubstituteAndExpand.doc)
       .def("RemoveTermsWithSmallCoefficients",
           &Polynomial::RemoveTermsWithSmallCoefficients,
           py::arg("coefficient_tol"),

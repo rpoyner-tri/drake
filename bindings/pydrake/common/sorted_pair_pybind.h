@@ -11,33 +11,44 @@ namespace detail {
 // Casts `SortedPair<T>` as `Tuple[T]` comprised of `(first, second)`.
 template <typename T>
 struct type_caster<drake::SortedPair<T>> {
-  using Type = drake::SortedPair<T>;
+  using Value = drake::SortedPair<T>;
   using InnerCaster = make_caster<T>;
-  using Tuple = tuple<T, T>;
 
-  // N.B. This macro assumes placement in `pybind11::detail`.
-  NB_TYPE_CASTER(
-      Type, const_name("Tuple[") + type_caster<T>::Name + const_name("]"));
+  template <typename U> using Cast = Value;
 
-  bool load(handle src, bool convert) {
-    if (!convert && !Tuple::check_(src)) {
-      return false;
-    }
-    tuple t = borrow<Tuple>(src);
+  static constexpr auto Name =
+      const_name("Tuple[") + type_caster<T>::Name + const_name("]");
+
+  bool from_python(handle src, uint8_t flags, cleanup_list* cleanup) noexcept {
+    nanobind::tuple t = nanobind::tuple(src);
     if (t.size() != 2) return false;
-    InnerCaster first, second;
-    if (!first.load(t[0], convert) || !second.load(t[1], convert)) {
+    if (!first.from_python(t[0], flags, cleanup) ||
+        !second.from_python(t[1], flags, cleanup)) {
       return false;
     }
-    value = Type(static_cast<T>(first), static_cast<T>(second));
     return true;
   }
 
-  static handle cast(Type src, rv_policy policy, handle parent) {
-    object out = make_tuple(InnerCaster::cast(src.first(), policy, parent),
-        InnerCaster::cast(src.second(), policy, parent));
+  template <typename U>
+  static handle from_cpp(
+      U&& value, rv_policy policy, cleanup_list* cleanup) noexcept {
+    object out =
+        make_tuple(steal(InnerCaster::from_cpp(value.first(), policy, cleanup)),
+            steal(InnerCaster::from_cpp(value.second(), policy, cleanup)));
     return out.release();
   }
+
+  template <typename U>
+  bool can_cast() const noexcept {
+    return first.template can_cast<U>() && second.template can_cast<U>();
+  }
+
+  explicit operator Value() {
+    return Value(first.operator cast_t<T>(), second.operator cast_t<T>());
+  }
+
+  InnerCaster first;
+  InnerCaster second;
 };
 
 }  // namespace detail

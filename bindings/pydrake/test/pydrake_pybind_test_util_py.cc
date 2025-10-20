@@ -13,8 +13,7 @@ namespace pydrake {
 namespace {
 
 // Statically check the spelling of the widely-used alias.
-static_assert(
-    std::is_same_v<py_rvp, py::return_value_policy>, "Alias is wrong?");
+static_assert(std::is_same_v<py_rvp, py::rv_policy>, "Alias is wrong?");
 
 struct Item {
   int value{};
@@ -71,10 +70,10 @@ struct ExampleParamInit {
 
 }  // namespace
 
-PYBIND11_MODULE(pydrake_pybind_test_util, m) {
+NB_MODULE(pydrake_pybind_test_util, m) {
   {
     using Class = Item;
-    py::class_<Class>(m, "Item").def_readonly("value", &Class::value);
+    py::class_<Class>(m, "Item").def_ro("value", &Class::value);
   }
   {
     using Class = ExamplePyKeepAlive;
@@ -88,7 +87,8 @@ PYBIND11_MODULE(pydrake_pybind_test_util, m) {
     using Class = ExampleDefCopyAndDeepCopy;
     py::class_<Class> cls(m, "ExampleDefCopyAndDeepCopy");
     cls  // BR
-        .def(py::init([](int value) { return Class(value); }))
+        .def(
+            "__init__", [](Class* self, int value) { new (self) Class(value); })
         .def(py::self == py::self);
     DefCopyAndDeepCopy(&cls);
   }
@@ -106,8 +106,8 @@ PYBIND11_MODULE(pydrake_pybind_test_util, m) {
     using Class = ExampleParamInit;
     py::class_<Class>(m, "ExampleParamInit")
         .def(ParamInit<Class>())
-        .def_readwrite("a", &Class::a)
-        .def_readwrite("b", &Class::b)
+        .def_rw("a", &Class::a)
+        .def_rw("b", &Class::b)
         // This is purely a sugar method for testing the values.
         .def("compare_values", [](const Class& self, int a, int b) {
           return self.a == a && self.b == b;
