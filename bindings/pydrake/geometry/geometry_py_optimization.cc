@@ -432,7 +432,7 @@ void DefineConvexSetBaseClassAndSubclasses(py::module_ m) {
         .def("__setstate__",
             [](Hyperellipsoid* self,
                 std::pair<Eigen::MatrixXd, Eigen::VectorXd> args) {
-              return Hyperellipsoid(std::get<0>(args), std::get<1>(args));
+              new (self) Hyperellipsoid(std::get<0>(args), std::get<1>(args));
             });
   }
 

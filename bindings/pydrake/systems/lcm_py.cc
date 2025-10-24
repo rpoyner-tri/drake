@@ -53,7 +53,7 @@ class PySerializerInterface : public SerializerInterface {
     // then just Clone it to obtain the necessary C++ signature. Because the
     // NB_OVERRIDE_PURE macro embeds a `return ...;` statement, we must
     // wrap it in lambda so that we can post-process the return value.
-#if 0  // XXX porting
+#if 0   // XXX porting
     // c++<=>py type conversion issues.
     py::object default_value = [this]() -> py::object {
       NB_OVERRIDE_PURE(CreateDefaultValue);
@@ -65,20 +65,20 @@ class PySerializerInterface : public SerializerInterface {
   }
 
   void Deserialize(const void* message_bytes, int message_length,
-      AbstractValue* abstract_value) const override {
+      AbstractValue* /* abstract_value XXX porting */) const override {
     py::gil_scoped_acquire guard;
     py::bytes buffer(
         reinterpret_cast<const char*>(message_bytes), message_length);
-#if 0  // XXX porting
+#if 0   // XXX porting
     // change of signature issues.
     NB_OVERRIDE_PURE(Deserialize, buffer, abstract_value);
 #endif  // XXX porting
   }
 
-  void Serialize(const AbstractValue& abstract_value,
-      std::vector<uint8_t>* message_bytes) const override {
+  void Serialize(const AbstractValue& /* abstract_value XXX porting */,
+      std::vector<uint8_t>* /* message_bytes XXX porting */) const override {
     py::gil_scoped_acquire guard;
-#if 0  // XXX porting
+#if 0   // XXX porting
     // change of signature issues with override macro.
     auto wrapped = [&]() -> py::bytes {
       // N.B. We must pass `abstract_value` as a pointer to prevent `pybind11`

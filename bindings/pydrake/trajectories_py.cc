@@ -229,7 +229,7 @@ struct Impl {
     }
 
     std::unique_ptr<Trajectory<T>> DoMakeDerivative(
-        int derivative_order) const final {
+        int /* derivative_order XXX porting */) const final {
       py::gil_scoped_acquire guard;
 #if 0  // XXX porting -- change of signature issues with macro
       // Because the NB_OVERRIDE_PURE macro embeds a `return ...;`

@@ -11,6 +11,7 @@
 
 #include "drake/bindings/pydrake/common/wrap_function.h"
 #include "drake/bindings/pydrake/pydrake_pybind.h"
+#include "drake/common/drake_export.h"
 
 namespace drake {
 namespace pydrake {
@@ -69,7 +70,7 @@ decltype(auto) WrapDeprecatedImpl(std::string message,
   };
 }
 
-}
+}  // namespace internal
 
 /// Wraps any callable (function pointer, method pointer, lambda, etc.) to emit
 /// a deprecation message.
@@ -83,7 +84,7 @@ namespace internal {
 
 /// Deprecated wrapping of `py::init<>`.
 template <typename CppClass, typename... Args>
-struct PyInitDeprecatedCtorImpl
+struct DRAKE_NO_EXPORT PyInitDeprecatedCtorImpl
     : py::def_visitor<PyInitDeprecatedCtorImpl<CppClass, Args...>> {
   PyInitDeprecatedCtorImpl(std::string message)
       : message_(std::move(message)) {}
@@ -110,7 +111,7 @@ struct PyInitDeprecatedCustomImpl
   template <typename Class, typename... Extra>
   void execute(Class& cl, const Extra&...) {
     cl.def("__init__",
-           WrapDeprecated(std::move(message_), std::forward<Func>(func_)));
+        WrapDeprecated(std::move(message_), std::forward<Func>(func_)));
   }
   std::string message_;
   Func&& func_;
@@ -135,7 +136,8 @@ auto py_init_deprecated(std::string message, Func&& func) {
 }
 
 template <typename CppClass>
-struct DeprecatedParamInit : py::def_visitor<DeprecatedParamInit<CppClass>> {
+struct DRAKE_NO_EXPORT DeprecatedParamInit
+    : py::def_visitor<DeprecatedParamInit<CppClass>> {
   DeprecatedParamInit(std::string message) : message_(std::move(message)) {}
   template <typename Class, typename... Extra>
   void execute(Class& cl, const Extra&...) {

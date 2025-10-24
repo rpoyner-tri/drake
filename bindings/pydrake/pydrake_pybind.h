@@ -27,6 +27,8 @@
 #include "nanobind/operators.h"
 #include "nanobind/trampoline.h"
 
+#include "drake/common/drake_export.h"
+
 // XXX porting shim-fest
 namespace nanobind {
 namespace detail {
@@ -140,7 +142,7 @@ void DefClone(PyClass* ppy_class) {
 ///
 /// @tparam Class The C++ class. Must have a default constructor.
 template <typename CppClass>
-struct ParamInit : py::def_visitor<ParamInit<CppClass>> {
+struct DRAKE_NO_EXPORT ParamInit : py::def_visitor<ParamInit<CppClass>> {
   template <typename Class, typename... Extra>
   void execute(Class& cl, const Extra&...) {
     cl.def("__init__", [](Class* self, py::kwargs kwargs) {

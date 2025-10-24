@@ -142,13 +142,13 @@ class DefAttributesArchive {
     // match them manually. See https://github.com/pybind/pybind11/issues/2486.
     auto type_of = [](const py::object& o) { return py::borrow(o.type()); };
     if constexpr (std::is_same_v<T, bool>) {
-      return type_of(py::bool_());
+      return type_of(py::bool_({}));
     } else if constexpr (std::is_integral_v<T>) {
-      return type_of(py::int_());
+      return type_of(py::int_(0));
     } else if constexpr (std::is_floating_point_v<T>) {
-      return type_of(py::float_());
+      return type_of(py::float_({}));
     } else if constexpr (std::is_same_v<T, std::string>) {
-      return type_of(py::str());
+      return type_of(py::str(""));
     } else if constexpr (is_eigen_type<T>::value) {
       // TODO(jwnimmer-tri) Perhaps we can use numpy.typing here some day?
       return py::module_::import_("numpy").attr("ndarray");
