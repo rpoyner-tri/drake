@@ -49,7 +49,6 @@ NB_MODULE(cc_module, m) {
         .def(py::init(), cls_doc.ctor.doc_0args)
         .def_rw("prop", &Class::prop, cls_doc.prop.doc);
 
-#if 0  // XXX porting
     // Example: Deprecation of constructor previously bound with `py::init<>`.
     // Can be used to deprecate a class (if all constructor overloads are
     // deprecated) or only deprecate an overloaded constructor.
@@ -68,10 +67,9 @@ NB_MODULE(cc_module, m) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     cls.def(py_init_deprecated(cls_doc.ctor.doc_deprecated_deprecated_1args_y,
-                [](double arg) { return Class(arg); }),
+                [](Class* self, double arg) { new (self) Class(arg); }),
         py::arg("y"), cls_doc.ctor.doc_deprecated_deprecated_1args_y);
 #pragma GCC diagnostic pop
-#endif  // XXX porting
 
     cls  // BR
         .def("overload", py::overload_cast<>(&Class::overload),
