@@ -4,8 +4,10 @@ unaliased types, and (b) correct mapping for aliased types (as the aliases
 relate in C++).
 
 N.B. The C++ types are not registered in this test. They are registered and
-tested in `cpp_param_pybind_test`.
+tested in `cpp_param_test_util`, which is invoked from this test.
 """
+
+import pydrake.common.cpp_param as mut  # ruff: isort: skip
 
 import ctypes
 import unittest
@@ -13,7 +15,7 @@ import unittest
 import numpy as np
 
 from pydrake.common import _MangledName
-import pydrake.common.cpp_param as mut
+import pydrake.common.cpp_param_test_util as cpp_test
 
 
 class CustomPyType:
@@ -50,6 +52,10 @@ class TestCppParam(unittest.TestCase):
         for alias in aliases:
             actual = mut.get_param_names([alias])[0]
             self.assertEqual(actual, name_canonical)
+
+    def test_cpp_tests(self):
+        # See cpp_param_test_util.cc.
+        cpp_test.execute_tests()
 
     def test_idempotent(self):
         # Check idempotent mapping for unaliased types.
@@ -196,7 +202,7 @@ class TestCppParam(unittest.TestCase):
         )
 
         # Unknown names raise the conventional error.
-        message = "module 'cpp_param_test' has no attribute 'NoSuchClass'"
+        message = f"module '{__name__}' has no attribute 'NoSuchClass'"
         with self.assertRaisesRegex(AttributeError, message):
             _MangledName.module_getattr(
                 module_name=__name__,
