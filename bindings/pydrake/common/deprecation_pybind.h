@@ -141,13 +141,14 @@ struct DRAKE_NO_EXPORT DeprecatedParamInit
   DeprecatedParamInit(std::string message) : message_(std::move(message)) {}
   template <typename Class, typename... Extra>
   void execute(Class& cl, const Extra&...) {
-    cl.def("__init__",
-        WrapDeprecated(std::move(message_), [](Class* self, py::kwargs kwargs) {
-          new (self) Class();
-          py::object py_obj = py::cast(self, py_rvp::reference);
-          py::module_::import_("pydrake").attr("_setattr_kwargs")(
-              py_obj, kwargs);
-        }));
+    cl.def("__init__", WrapDeprecated(std::move(message_),
+                           [](CppClass* self, py::kwargs kwargs) {
+                             new (self) Class();
+                             py::object py_obj =
+                                 py::cast(self, py_rvp::reference);
+                             py::module_::import_("pydrake").attr(
+                                 "_setattr_kwargs")(py_obj, kwargs);
+                           }));
   }
   std::string message_;
 };
