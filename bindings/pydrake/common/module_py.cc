@@ -100,7 +100,7 @@ void InitLowLevelModules(py::module_ m) {
 
   // Morph any DRAKE_ASSERT and DRAKE_DEMAND failures into SystemExit exceptions
   // instead of process aborts.  See RobotLocomotion/drake#5268.
-  // drake_set_assertion_failure_to_throw_exception(); XXX porting debug
+  drake_set_assertion_failure_to_throw_exception();
 
   // TODO(jwnimmer-tri) Split out the bindings for functions and classes into
   // their own separate files, so that this file is only an orchestrator.
