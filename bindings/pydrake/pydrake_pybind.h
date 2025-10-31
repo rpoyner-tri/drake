@@ -31,7 +31,9 @@
 #include "nanobind/stl/pair.h"
 #include "nanobind/stl/shared_ptr.h"
 #include "nanobind/stl/string.h"
+#include "nanobind/stl/string_view.h"
 #include "nanobind/stl/unique_ptr.h"
+#include "nanobind/stl/variant.h"
 #include "nanobind/stl/vector.h"
 #include "nanobind/trampoline.h"
 
@@ -153,7 +155,7 @@ template <typename CppClass>
 struct DRAKE_NO_EXPORT ParamInit : py::def_visitor<ParamInit<CppClass>> {
   template <typename Class, typename... Extra>
   void execute(Class& cl, const Extra&...) {
-    cl.def("__init__", [](Class* self, py::kwargs kwargs) {
+    cl.def("__init__", [](CppClass* self, py::kwargs kwargs) {
       new (self) Class();
       py::object py_obj = py::cast(self, py_rvp::reference);
       py::module_::import_("pydrake").attr("_setattr_kwargs")(py_obj, kwargs);
