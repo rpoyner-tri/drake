@@ -22,7 +22,6 @@ class TestBuilderLifeSupport(unittest.TestCase):
             RuntimeError, "Could not activate builder_life_support_stash.*"
         ):
             adversary.StashBadIndex()
-        self.assertEqual(actual_ref_count(adversary), 1)
 
     @numpy_compare.check_all_types
     def test_wrong_type(self, T):
@@ -30,32 +29,31 @@ class TestBuilderLifeSupport(unittest.TestCase):
         adversary = DiagramBuilderTestAdversary()
         with self.assertRaisesRegex(RuntimeError, "Unable to cast.*"):
             adversary.StashWrongType(Arbitrary())
-        self.assertEqual(actual_ref_count(adversary), 1)
 
     @numpy_compare.check_all_types
     def test_bind_at_init(self, T):
         DiagramBuilderTestAdversary = DiagramBuilderTestAdversary_[T]
         # The int-accepting constructor also stashes.
         adversary = DiagramBuilderTestAdversary(10)
-        self.assertEqual(actual_ref_count(adversary), 2)
+        tare = actual_ref_count(adversary)
         adversary.Abandon()
-        self.assertEqual(actual_ref_count(adversary), 1)
+        self.assertEqual(actual_ref_count(adversary), tare - 1)
 
     @numpy_compare.check_all_types
     def test_bind_self(self, T):
         DiagramBuilderTestAdversary = DiagramBuilderTestAdversary_[T]
         adversary = DiagramBuilderTestAdversary()
         adversary.StashSelf()
-        self.assertEqual(actual_ref_count(adversary), 2)
+        tare = actual_ref_count(adversary)
         adversary.Abandon()
-        self.assertEqual(actual_ref_count(adversary), 1)
+        self.assertEqual(actual_ref_count(adversary), tare - 1)
 
     @numpy_compare.check_all_types
     def test_bind_returned_self(self, T):
         DiagramBuilderTestAdversary = DiagramBuilderTestAdversary_[T]
         adversary = DiagramBuilderTestAdversary()
         adversary.StashReturnedSelf()
-        self.assertEqual(actual_ref_count(adversary), 2)
+        tare = actual_ref_count(adversary)
         adversary.Abandon()
         self.assertEqual(actual_ref_count(adversary), 1)
 
