@@ -50,9 +50,8 @@ struct ref_cycle {};
 
 /* This function is used in the template below to select peers by call/return
  index. */
-// XXX porting see nb_attr.h maybe?
-// void ref_cycle_impl(size_t peer0, size_t peer1,
-//     const py::detail::function_call& call, py::handle ret);
+void ref_cycle_impl(
+    size_t peer0, size_t peer1, PyObject** args, size_t nargs, py::handle ret);
 
 /* This function constructs a reference cycle from arbitrary handles. It may be
  needed in special cases where the ordinary call-policy annotations won't work.
@@ -61,6 +60,11 @@ struct ref_cycle {};
 void make_arbitrary_ref_cycle(
     py::handle p0, py::handle p1, const std::string& location_hint);
 
+// Returns true if either template parameter denotes the return value.
+template <size_t Peer0, size_t Peer1>
+static constexpr bool needs_return_value() {
+  return Peer0 == 0 || Peer1 == 0;
+}
 }  // namespace internal
 }  // namespace pydrake
 }  // namespace drake
@@ -68,54 +72,43 @@ void make_arbitrary_ref_cycle(
 namespace nanobind {
 namespace detail {
 
-#if 0   // XXX porting
-// Provide a specialization of the pybind11 internal process_attribute
-// template; this allows writing an annotation that works seamlessly in
-// bindings definitions.
-template <size_t Peer0, size_t Peer1>
-class process_attribute<drake::pydrake::internal::ref_cycle<Peer0, Peer1>>
-    : public process_attribute_default<
-          drake::pydrake::internal::ref_cycle<Peer0, Peer1>> {
- public:
-  // NOLINTNEXTLINE(runtime/references)
-  static void precall(function_call& call) {
-    // Only generate code if this invocation doesn't need the return value.
-    if constexpr (!needs_return_value()) {
-      drake::pydrake::internal::ref_cycle_impl(Peer0, Peer1, call, handle());
-    }
-  }
-
-  // NOLINTNEXTLINE(runtime/references)
-  static void postcall(function_call& call, handle ret) {
-    // Only generate code if this invocation *does* need the return value.
-    if constexpr (needs_return_value()) {
-      drake::pydrake::internal::ref_cycle_impl(Peer0, Peer1, call, ret);
-    }
-  }
-
- private:
-  // Returns true if either template parameter denotes the return value.
-  static constexpr bool needs_return_value() {
-    return Peer0 == 0 || Peer1 == 0;
-  }
-};
-#endif  // 0  XXX porting
-
-}  // namespace detail
-}  // namespace nanobind
-
-namespace nanobind {
-namespace detail {
-
-// Provide specializations of the pybind11 internal templates for return value
+// Provide specializations of the nanobind internal templates for call
 // policies; this allows writing an annotation that works seamlessly in
 // bindings definitions.
 
-// XXX porting TODO
 template <typename F, size_t Peer0, size_t Peer1>
 NB_INLINE void func_extra_apply(
-    F&, drake::pydrake::internal::ref_cycle<Peer0, Peer1>, size_t&) {
-  // XXX porting TODO
+    F& f, drake::pydrake::internal::ref_cycle<Peer0, Peer1>, size_t&) {
+  f.flags |= static_cast<uint32_t>(func_flags::can_mutate_args);
+}
+
+template <size_t Peer0, size_t Peer1, typename... Ts>
+struct func_extra_info<drake::pydrake::internal::ref_cycle<Peer0, Peer1>, Ts...>
+    : func_extra_info<Ts...> {
+  static constexpr bool pre_post_hooks = true;
+};
+
+template <size_t NArgs, size_t Peer0, size_t Peer1>
+NB_INLINE void process_precall(PyObject** args,
+    std::integral_constant<size_t, NArgs> nargs, detail::cleanup_list*,
+    drake::pydrake::internal::ref_cycle<Peer0, Peer1>*) {
+  if constexpr (!drake::pydrake::internal::needs_return_value<Peer0, Peer1>()) {
+    drake::pydrake::internal::ref_cycle_impl(
+        Peer0, Peer1, args, nargs, handle());
+  }
+}
+
+template <size_t NArgs, size_t Peer0, size_t Peer1>
+NB_INLINE void process_postcall(PyObject** args,
+    std::integral_constant<size_t, NArgs> nargs, PyObject* result,
+    drake::pydrake::internal::ref_cycle<Peer0, Peer1>*) {
+  if constexpr (drake::pydrake::internal::needs_return_value<Peer0, Peer1>()) {
+    // result_guard avoids leaking a reference to the return object
+    // if postcall throws an exception.
+    object result_guard = steal(result);
+    drake::pydrake::internal::ref_cycle_impl(Peer0, Peer1, args, nargs, result);
+    result_guard.release();
+  }
 }
 
 }  // namespace detail
