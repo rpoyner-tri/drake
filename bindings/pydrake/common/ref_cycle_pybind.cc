@@ -71,15 +71,19 @@ void check_and_make_ref_cycle(size_t peer0, handle p0, size_t peer1, handle p1,
 }  // namespace
 
 void ref_cycle_impl(
-    size_t peer0, size_t peer1, PyObject** args, size_t, handle ret) {
+    size_t peer0, size_t peer1, PyObject** args, size_t nargs, handle ret) {
   // Returns the handle selected by the given index. Throws if the index is
   // invalid.
-  auto get_arg = [&](size_t n) -> handle {
+  auto get_arg = [&args, &nargs, &ret](size_t n) -> handle {
     if (n == 0) {
-      DRAKE_DEMAND(false);
       return ret;
     }
-    return args[n - 1];
+    if (n <= nargs) {
+      return args[n - 1];
+    }
+    throw std::runtime_error(fmt::format(
+        "Could not activate ref_cycle: index {} is invalid",
+        n));
   };
   handle p0 = get_arg(peer0);
   handle p1 = get_arg(peer1);

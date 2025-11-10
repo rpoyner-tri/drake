@@ -60,11 +60,42 @@ void ref_cycle_impl(
 void make_arbitrary_ref_cycle(
     py::handle p0, py::handle p1, const std::string& location_hint);
 
+// TODO(rpoyner-tri): figure out if this feature can capture the function name
+// for use in error messages.
+
 // Returns true if either template parameter denotes the return value.
 template <size_t Peer0, size_t Peer1>
 static constexpr bool needs_return_value() {
   return Peer0 == 0 || Peer1 == 0;
 }
+
+template <size_t NArgs, size_t Peer0, size_t Peer1>
+NB_INLINE void process_precall(PyObject** args,
+    std::integral_constant<size_t, NArgs>, nanobind::detail::cleanup_list*,
+    ref_cycle<Peer0, Peer1>*) {
+  if constexpr (!needs_return_value<Peer0, Peer1>()) {
+    ref_cycle_impl(Peer0, Peer1, args, NArgs, nanobind::handle());
+  }
+}
+
+template <size_t NArgs, size_t Peer0, size_t Peer1>
+void process_postcall(PyObject** args, std::integral_constant<size_t, NArgs>,
+    PyObject* result, ref_cycle<Peer0, Peer1>*) {
+  if constexpr (drake::pydrake::internal::needs_return_value<Peer0, Peer1>()) {
+    // result_guard avoids leaking a reference to the return object if postcall
+    // throws an exception.
+    py::object result_guard = py::steal(result);
+    ref_cycle_impl(Peer0, Peer1, args, NArgs, result);
+    result_guard.release();
+  }
+}
+
+template <typename F, size_t Peer0, size_t Peer1>
+NB_INLINE void func_extra_apply(F& f, ref_cycle<Peer0, Peer1>, size_t&) {
+  f.flags |=
+      static_cast<uint32_t>(nanobind::detail::func_flags::can_mutate_args);
+}
+
 }  // namespace internal
 }  // namespace pydrake
 }  // namespace drake
@@ -76,40 +107,11 @@ namespace detail {
 // policies; this allows writing an annotation that works seamlessly in
 // bindings definitions.
 
-template <typename F, size_t Peer0, size_t Peer1>
-NB_INLINE void func_extra_apply(
-    F& f, drake::pydrake::internal::ref_cycle<Peer0, Peer1>, size_t&) {
-  f.flags |= static_cast<uint32_t>(func_flags::can_mutate_args);
-}
-
 template <size_t Peer0, size_t Peer1, typename... Ts>
 struct func_extra_info<drake::pydrake::internal::ref_cycle<Peer0, Peer1>, Ts...>
     : func_extra_info<Ts...> {
   static constexpr bool pre_post_hooks = true;
 };
-
-template <size_t NArgs, size_t Peer0, size_t Peer1>
-NB_INLINE void process_precall(PyObject** args,
-    std::integral_constant<size_t, NArgs> nargs, detail::cleanup_list*,
-    drake::pydrake::internal::ref_cycle<Peer0, Peer1>*) {
-  if constexpr (!drake::pydrake::internal::needs_return_value<Peer0, Peer1>()) {
-    drake::pydrake::internal::ref_cycle_impl(
-        Peer0, Peer1, args, nargs, handle());
-  }
-}
-
-template <size_t NArgs, size_t Peer0, size_t Peer1>
-NB_INLINE void process_postcall(PyObject** args,
-    std::integral_constant<size_t, NArgs> nargs, PyObject* result,
-    drake::pydrake::internal::ref_cycle<Peer0, Peer1>*) {
-  if constexpr (drake::pydrake::internal::needs_return_value<Peer0, Peer1>()) {
-    // result_guard avoids leaking a reference to the return object
-    // if postcall throws an exception.
-    object result_guard = steal(result);
-    drake::pydrake::internal::ref_cycle_impl(Peer0, Peer1, args, nargs, result);
-    result_guard.release();
-  }
-}
 
 }  // namespace detail
 }  // namespace nanobind

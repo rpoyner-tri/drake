@@ -97,7 +97,7 @@ class TestRefCycle(unittest.TestCase):
         self.check_no_cycle(dut, peer)
         # Annotated call dies because dut is not py::dynamic_attr().
         with self.assertRaisesRegex(
-            RuntimeError, ".type.*index 1.*AddIsCycle.*not tracked.*"
+            RuntimeError, ".type.*index 1.*not tracked.*"
         ):
             dut.AddIsCycle(peer)
 
@@ -108,7 +108,7 @@ class TestRefCycle(unittest.TestCase):
         self.check_no_cycle(dut, returned)
         # Annotated call dies because dut is not py::dynamic_attr().
         with self.assertRaisesRegex(
-            RuntimeError, ".type.*index 1.*ReturnIsCycle.*not tracked.*"
+            RuntimeError, ".type.*index 1.*not tracked.*"
         ):
             dut.ReturnIsCycle()
 
@@ -126,7 +126,7 @@ class TestRefCycle(unittest.TestCase):
         self.check_no_cycle(dut, notpeer)
         # Annotated call dies because notpeer is not py::dynamic_attr().
         with self.assertRaisesRegex(
-            RuntimeError, ".type.*index 2.*AddNotCycle.*not tracked.*"
+            RuntimeError, ".type.*index 2.*not tracked.*"
         ):
             dut.AddNotCycle(notpeer)
 
@@ -137,7 +137,7 @@ class TestRefCycle(unittest.TestCase):
         self.check_no_cycle(dut, returned)
         # Annotated call dies because return is not py::dynamic_attr().
         with self.assertRaisesRegex(
-            RuntimeError, ".type.*index 0.*ReturnNotCycle.*not tracked.*"
+            RuntimeError, ".type.*index 0.*not tracked.*"
         ):
             dut.ReturnNotCycle()
 
