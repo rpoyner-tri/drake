@@ -60,54 +60,37 @@ struct type_caster_wrapped {
   using WrappedType = typename Wrapper::WrappedType;
   using WrappedTypeCaster = py::detail::type_caster<WrappedType>;
 
-  // Python to C++.
-  bool load(py::handle src, bool converter) {
-    WrappedTypeCaster caster;
-    if (!caster.load(src, converter)) {
-      return false;
-    }
-    value_ = Wrapper::unwrap(caster.operator WrappedType&());
-    loaded_ = true;
-    return true;
+  using Value = Type;
+  template <typename U>
+  using Cast = Value;
+
+  static constexpr auto Name = Wrapper::wrapped_name;
+
+  bool from_python(py::handle src, uint8_t flags,
+      py::detail::cleanup_list* cleanup) noexcept {
+    return caster_.from_python(src, flags, cleanup);
   }
 
-  // See `pybind11/eigen.h`, `type_caster<>` implementations.
-  // N.B. Do not use `NB_TYPE_CASTER(...)` so we can avoid casting
-  // garbage values.
-  operator Type&() {
-    if (!loaded_) {
-      // throw py::cast_error("Internal error: value not loaded?");
-      throw py::cast_error();
-    }
-    return value_;
+  template <typename U>
+  static py::handle from_cpp(
+      U&& value, py_rvp policy, py::detail::cleanup_list* cleanup) noexcept {
+    py::object out = steal(WrappedTypeCaster::from_cpp(
+        Wrapper::wrap(std::forward<U>(value)), policy, cleanup));
+    return out.release();
   }
 
-  template <typename T>
-  using cast_op_type = py::detail::movable_cast_t<T>;
+  template <typename U>
+  bool can_cast() const noexcept {
+    return caster_.template can_cast<U>();
+  }
 
-  static constexpr auto name = Wrapper::wrapped_name;
-
-  // C++ to Python.
-  template <typename TType>
-  static py::handle cast(TType&& src, py::rv_policy policy, py::handle parent) {
-    if (policy == py::rv_policy::reference ||
-        policy == py::rv_policy::reference_internal) {
-      // N.B. We must declare a local `static constexpr` here to prevent
-      // linking errors. This does not appear achievable with
-      // `constexpr char[]`, so we use `py::detail::descr`.
-      // See `pybind11/pybind11.h`, `cpp_function::initialize(...)` for an
-      // example.
-      static constexpr auto original_name = Wrapper::original_name;
-      throw py::cast_error(
-          std::string("Can only pass ") + original_name.text + " by value.");
-    }
-    return WrappedTypeCaster::cast(
-        Wrapper::wrap(std::forward<TType>(src)), policy, parent);
+  explicit operator Value() {
+    return Value(
+        Wrapper::unwrap(caster_.operator py::detail::cast_t<WrappedType>()));
   }
 
  private:
-  bool loaded_{false};
-  Type value_;
+  WrappedTypeCaster caster_;
 };
 
 }  // namespace internal

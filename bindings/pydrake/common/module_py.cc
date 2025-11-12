@@ -147,9 +147,16 @@ void InitLowLevelModules(py::module_ m) {
     py::class_<Class> cls(m, "Sha256", cls_doc.doc);
     cls  // BR
         .def(py::init<>(), cls_doc.ctor.doc)
+        .def_static(
+            "Checksum",
+            [](py::bytes data) {
+              return Class::Checksum(
+                  std::string_view(data.c_str(), data.size()));
+            },
+            py::arg("data"), cls_doc.Checksum.doc_1args_data)
         .def_static("Checksum",
             py::overload_cast<std::string_view>(&Class::Checksum),
-            cls_doc.Checksum.doc_1args_data)
+            py::arg("data"), cls_doc.Checksum.doc_1args_data)
         .def_static("Parse", &Class::Parse, cls_doc.Parse.doc)
         .def("to_string", &Class::to_string, cls_doc.to_string.doc)
         .def(py::self == py::self)
@@ -171,13 +178,23 @@ void InitLowLevelModules(py::module_ m) {
     py::object ctor = m.attr("MemoryFile");
     cls  // BR
         .def(py::init<>(), cls_doc.ctor.doc_0args)
+        .def(
+            "__init__",
+            [](Class* self, py::bytes contents, std::string extension,
+                std::string filename_hint) {
+              new (self) Class(std::string(contents.c_str(), contents.size()),
+                  extension, filename_hint);
+            },
+            py::arg("contents"), py::arg("extension"), py::arg("filename_hint"),
+            cls_doc.ctor.doc_3args)
         .def(py::init<std::string, std::string, std::string>(),
             py::arg("contents"), py::arg("extension"), py::arg("filename_hint"),
             cls_doc.ctor.doc_3args)
         .def(
             "contents",
             [](const Class& self) {
-              return py::bytes(self.contents().c_str());
+              const std::string& contents = self.contents();
+              return py::bytes(contents.c_str(), contents.size());
             },
             cls_doc.contents.doc)
         .def("extension", &Class::extension, py_rvp::reference_internal,
@@ -234,7 +251,8 @@ void InitLowLevelModules(py::module_ m) {
           name_str == "filename_hint") {
         name = py::str(fmt::format("_{}", name_str).c_str());
       }
-      py::eval("object.__setattr__", py::globals())(self, name, value);
+      py::eval("object.__setattr__", py::globals())(
+          py::cast(self, py_rvp::reference), name, value);
     });
     // Provide properties for use by yaml_{dump,load}_typed.
     cls.def_prop_rw(

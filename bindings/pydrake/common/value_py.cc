@@ -43,9 +43,7 @@ void AddPrimitiveValueInstantiations(py::module_ m) {
   AddValueInstantiation<std::string>(m);  // Value[str]
   AddValueInstantiation<bool>(m);         // Value[bool]
   AddValueInstantiation<double>(m);       // Value[float]
-#if 0                                     // XXX porting
   AddValueInstantiation<Object, PyObjectValue>(m);  // Value[object]
-#endif                                    // XXX porting
 }
 
 }  // namespace

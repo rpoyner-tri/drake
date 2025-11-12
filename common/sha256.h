@@ -14,6 +14,7 @@ namespace drake {
 /** Represents a SHA-256 cryptographic checksum.
 See also https://en.wikipedia.org/wiki/SHA-2.
 
+XXX porting -- this paragraph contains lies.
 This class is not bound in pydrake, because Python programmers should prefer
 using https://docs.python.org/3/library/hashlib.html instead. */
 class Sha256 final {

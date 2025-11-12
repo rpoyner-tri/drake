@@ -38,6 +38,8 @@ Compile time issues
 
 * custom annotations need rewrite on new internals
   * pydrake::internal::ref_cycle
+    - !! mostly implemented now
+    - !! function names for error messages would be nice but may not work
   * pydrake::internal::builder_life_support_stash
 
 * c++ unit tests that use python embedding need rewrite
@@ -99,3 +101,5 @@ Compile time issues
 
 * dtypes apparently must be <256 bits wide. This may need a nanobind patch.
 
+* nanobind no longer implicitly converts Python bytes to std::string.
+  - !! need to add explicit overload bindings where this is desired.
