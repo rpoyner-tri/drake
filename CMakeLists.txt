@@ -97,7 +97,7 @@ else()
 endif()
 
 # This version number should match bazel_compatibility in MODULE.bazel.
-set(MINIMUM_BAZEL_VERSION 8.0.1)
+set(MINIMUM_BAZEL_VERSION 8.4.0)
 find_package(Bazel ${MINIMUM_BAZEL_VERSION} MODULE)
 if(NOT Bazel_FOUND)
   set(Bazel_EXECUTABLE "${PROJECT_SOURCE_DIR}/third_party/com_github_bazelbuild_bazelisk/bazelisk.py")
@@ -224,7 +224,7 @@ set(CMAKE_CXX_STANDARD 20)
 if(APPLE)
   # The macOS python version should match what's listed in both the
   # tools/workspace/python/repository.bzl and doc/_pages/installation.md.
-  set(SUPPORTED_PYTHON_VERSION 3.13)
+  set(SUPPORTED_PYTHON_VERSION 3.14)
 else()
   if(UNIX_DISTRIBUTION_CODENAME STREQUAL noble)
     set(SUPPORTED_PYTHON_VERSION 3.12)
@@ -632,7 +632,7 @@ define_bool_option("WITH_SCS" "SCS")
 
 option(WITH_GUROBI "Build with support for Gurobi" OFF)
 if(WITH_GUROBI)
-  find_package(Gurobi 10.0 EXACT MODULE REQUIRED)
+  find_package(Gurobi 12.0 EXACT MODULE REQUIRED)
 
   string(APPEND BAZEL_CONFIG " --config=gurobi")
 
@@ -824,7 +824,6 @@ configure_file(cmake/MODULE.bazel.in drake_build_cwd/MODULE.bazel @ONLY)
 configure_file(cmake/BUILD.bazel.in drake_build_cwd/BUILD.bazel @ONLY)
 file(CREATE_LINK "${PROJECT_SOURCE_DIR}/.bazeliskrc" drake_build_cwd/.bazeliskrc SYMBOLIC)
 file(CREATE_LINK "${PROJECT_SOURCE_DIR}/.bazelversion" drake_build_cwd/.bazelversion SYMBOLIC)
-file(CREATE_LINK "${PROJECT_SOURCE_DIR}/tools/workspace/rules_cc/patches/upstream/pr456.patch" drake_build_cwd/pr456.patch SYMBOLIC)
 
 find_package(Git)
 

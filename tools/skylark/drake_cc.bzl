@@ -1,4 +1,11 @@
-load("//tools/skylark:cc.bzl", "CcInfo", "cc_binary", "cc_library", "cc_test")
+load(
+    "//tools/skylark:cc.bzl",
+    "CcInfo",
+    "cc_binary",
+    "cc_common",
+    "cc_library",
+    "cc_test",
+)
 load(
     "//tools/skylark:kwargs.bzl",
     "incorporate_allow_network",
@@ -56,6 +63,11 @@ GCC_FLAGS = CXX_FLAGS + [
     "-Werror=unused-but-set-parameter",
     # This was turned on via -Wextra, but is too strict to have as an error.
     "-Wno-missing-field-initializers",
+]
+
+# The CC_TEST_FLAGS will be enabled for all cc_test rules in the project.
+CC_TEST_FLAGS = [
+    "-Wno-sign-compare",
 ]
 
 # The GCC_CC_TEST_FLAGS will be enabled for all cc_test rules in the project
@@ -126,12 +138,23 @@ def _platform_copts(rule_copts, rule_gcc_copts, rule_clang_copts, cc_test = 0):
         # In the case of no special arguments at all, we can save Bazel the
         # hassle of concatenating a bunch of empty stuff.
         return BASE_COPTS
-    test_gcc_copts = GCC_CC_TEST_FLAGS if cc_test else []
+    test_gcc_copts = (CC_TEST_FLAGS + GCC_CC_TEST_FLAGS) if cc_test else []
+    test_clang_copts = CC_TEST_FLAGS if cc_test else []
     return BASE_COPTS + rule_copts + select({
         "//tools/cc_toolchain:gcc": rule_gcc_copts + test_gcc_copts,
-        "//tools/cc_toolchain:clang": rule_clang_copts,
+        "//tools/cc_toolchain:clang": rule_clang_copts + test_clang_copts,
         "//conditions:default": [],
     })
+
+# The BASE_LINKOPTS are used for all drake_cc_{binary,library,test} rules.
+BASE_LINKOPTS = select({
+    "@drake//tools/cc_toolchain:use_mold_linker": [
+        "-fuse-ld=mold",
+        "-Wl,--compress-debug-sections=zlib",
+        "-Wl,--thread-count=2",
+    ],
+    "//conditions:default": [],
+})
 
 def _check_library_deps_blacklist(name, deps):
     """Report an error if a library should not use something from deps."""
@@ -549,6 +572,7 @@ def drake_cc_library(
         copts = [],
         clang_copts = [],
         gcc_copts = [],
+        linkopts = [],
         linkstatic = 1,
         internal = False,
         compile_once_per_scalar = False,
@@ -602,6 +626,7 @@ def drake_cc_library(
     should be surrounded with `#if DRAKE_ONCE_PER_SCALAR_PHASE == 0`.
     """
     new_copts = _platform_copts(copts, gcc_copts, clang_copts)
+    new_linkopts = BASE_LINKOPTS + linkopts
     new_tags = kwargs.pop("tags", None) or []
     if internal:
         if install_hdrs_exclude != []:
@@ -632,6 +657,7 @@ def drake_cc_library(
         srcs = srcs,
         deps = deps,
         copts = new_copts,
+        linkopts = new_linkopts,
         declare_installed_headers = declare_installed_headers,
         tags = new_tags,
         **kwargs
@@ -643,6 +669,7 @@ def drake_cc_library(
         deps = deps + add_deps,
         implementation_deps = implementation_deps,
         copts = new_copts,
+        linkopts = new_linkopts,
         linkstatic = linkstatic,
         declare_installed_headers = declare_installed_headers,
         install_hdrs_exclude = install_hdrs_exclude,
@@ -736,11 +763,13 @@ def drake_cc_binary(
     defaults using test_rule_args=["-f", "--bar=42"] or test_rule_size="baz".
     """
     new_copts = _platform_copts(copts, gcc_copts, clang_copts)
+    new_linkopts = BASE_LINKOPTS + linkopts
     new_srcs, add_deps = _maybe_add_pruned_private_hdrs_dep(
         base_name = name,
         srcs = srcs,
         deps = deps,
         copts = new_copts,
+        linkopts = new_linkopts,
         testonly = testonly,
         **kwargs
     )
@@ -754,7 +783,7 @@ def drake_cc_binary(
         testonly = testonly,
         linkshared = linkshared,
         linkstatic = linkstatic,
-        linkopts = linkopts,
+        linkopts = new_linkopts,
         features = [
             # We should deduplicate symbols while linking (for a ~6% reduction
             # in disk use), to conserve space in CI; see #18545 for details.
@@ -773,6 +802,7 @@ def drake_cc_binary(
             data = data + test_rule_data,
             deps = deps + add_deps,
             copts = copts,
+            linkopts = new_linkopts,
             gcc_copts = gcc_copts,
             size = test_rule_size,
             timeout = test_rule_timeout,
@@ -792,6 +822,7 @@ def drake_cc_test(
         copts = [],
         gcc_copts = [],
         clang_copts = [],
+        linkopts = [],
         allow_network = None,
         display = False,
         num_threads = None,
@@ -821,11 +852,13 @@ def drake_cc_test(
     kwargs = incorporate_display(kwargs, display = display)
     kwargs = incorporate_num_threads(kwargs, num_threads = num_threads)
     new_copts = _platform_copts(copts, gcc_copts, clang_copts, cc_test = 1)
+    new_linkopts = BASE_LINKOPTS + linkopts
     new_srcs, add_deps = _maybe_add_pruned_private_hdrs_dep(
         base_name = name,
         srcs = srcs,
         deps = deps,
         copts = new_copts,
+        linkopts = new_linkopts,
         **kwargs
     )
     cc_test(
@@ -835,6 +868,7 @@ def drake_cc_test(
         args = args,
         deps = deps + add_deps,
         copts = new_copts,
+        linkopts = new_linkopts,
         features = [
             # We should deduplicate symbols while linking (for a ~6% reduction
             # in disk use), to conserve space in CI; see #18545 for details.

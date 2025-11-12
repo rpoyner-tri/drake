@@ -14,6 +14,17 @@ load(
 
 package(default_visibility = ["//visibility:public"])
 
+filegroup(
+    name = "doxygen_input",
+    srcs = [
+        "geometry_doxygen.h",
+        "geometry_file_formats_doxygen.h",
+        "geometry_infrastructure_doxygen.h",
+    ],
+    tags = ["nolint"],
+    visibility = ["//doc/doxygen_cxx:__pkg__"],
+)
+
 drake_cc_package_library(
     name = "geometry",
     visibility = ["//visibility:public"],
@@ -493,14 +504,6 @@ drake_cc_library(
 )
 
 genrule(
-    name = "stats_js_genrule",
-    srcs = ["@statsjs_internal//:build/stats.min.js"],
-    outs = ["stats.min.js"],
-    cmd = "cp $< $@",
-    visibility = ["//visibility:private"],
-)
-
-genrule(
     name = "meshcat_ico_genrule",
     srcs = ["//doc:favicon.ico"],
     outs = ["meshcat.ico"],
@@ -522,7 +525,6 @@ filegroup(
         "meshcat.html",
         ":meshcat.ico",
         ":meshcat.js",
-        ":stats.min.js",
     ],
     visibility = ["//visibility:private"],
 )

@@ -421,8 +421,8 @@ For more information about `pybind11` return value policies, see [the pybind11
 documentation](
 https://pybind11.readthedocs.io/en/stable/advanced/functions.html#return-value-policies).
 
-`pydrake` offers the @ref drake::pydrake::py_rvp "py_rvp" alias to help with
-shortened usage of `py_rvp`. The most used (non-default)
+`pydrake` offers the `drake::pydrake::py_rvp` alias to help with
+shortened usage of `py::return_value_policy`. The most used (non-default)
 policies in `pydrake` are `reference` and `reference_internal` due to the usage
 of raw pointers / references in the public C++ API (rather than
 `std::shared_ptr<>`).
@@ -702,10 +702,9 @@ covered.
 // TODO(eric.cousineau): If it ever stops redirecting stdin, use
 // `bazel run --run_under='gdb --args python' --script_path=...`.
 
-/**
-@addtogroup environment_variables
+/** @defgroup pydrake_python_logging DRAKE_PYTHON_LOGGING
+@ingroup environment_variables
 @{
-@defgroup pydrake_python_logging DRAKE_PYTHON_LOGGING
 
 By default, pydrake will redirect spdlog logging (from C++) to Python's
 `logging` module. However, if this environment variable is set to "0",
