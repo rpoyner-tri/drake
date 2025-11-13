@@ -103,3 +103,6 @@ Compile time issues
 
 * nanobind no longer implicitly converts Python bytes to std::string.
   - !! need to add explicit overload bindings where this is desired.
+
+* nanobind can't easily tell if a type_erased_ptr (void*, type_info) is a
+  registered instance. This causes python nice type name behavior to change.
