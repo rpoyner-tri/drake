@@ -8,17 +8,17 @@
 // Whenever we want to cast any array / matrix type of `T` in C++ (e.g.,
 // `Eigen::MatrixX<T>`) to a NumPy array, we should have it in the following
 // list.
-DRAKE_NANOBIND_NUMPY_OBJECT_DTYPE(  // NOLINT
+DRAKE_NB_NUMPY_OBJECT_DTYPE(  // NOLINT
     drake::symbolic::Expression)
-DRAKE_NANOBIND_NUMPY_OBJECT_DTYPE(  // NOLINT
+DRAKE_NB_NUMPY_OBJECT_DTYPE(  // NOLINT
     drake::symbolic::Formula)
 #if 0  // XXX porting
-DRAKE_NANOBIND_NUMPY_OBJECT_DTYPE(  // NOLINT
+DRAKE_NB_NUMPY_OBJECT_DTYPE(  // NOLINT
     drake::symbolic::Monomial)
-DRAKE_NANOBIND_NUMPY_OBJECT_DTYPE(  // NOLINT
+DRAKE_NB_NUMPY_OBJECT_DTYPE(  // NOLINT
     drake::symbolic::Polynomial)
-DRAKE_NANOBIND_NUMPY_OBJECT_DTYPE(  // NOLINT
+DRAKE_NB_NUMPY_OBJECT_DTYPE(  // NOLINT
     drake::symbolic::RationalFunction)
 #endif  // XXX porting
-DRAKE_NANOBIND_NUMPY_OBJECT_DTYPE(  // NOLINT
+DRAKE_NB_NUMPY_OBJECT_DTYPE(  // NOLINT
     drake::symbolic::Variable)

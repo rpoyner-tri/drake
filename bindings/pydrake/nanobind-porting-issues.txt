@@ -106,3 +106,6 @@ Compile time issues
 
 * nanobind can't easily tell if a type_erased_ptr (void*, type_info) is a
   registered instance. This causes python nice type name behavior to change.
+
+* nanobind does not implicitly convert python lists to numpy array types. See
+  https://github.com/wjakob/nanobind/discussions/327.

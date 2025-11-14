@@ -182,6 +182,15 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py::arg("position"), "Position vector multiplication")
         .def(
             "multiply",
+            [](const Class& self, const py::list position) {
+              DRAKE_THROW_UNLESS(position.size() == 3);
+              return self * Vector3<T>{py::cast<T>(position[0]),
+                                py::cast<T>(position[1]),
+                                py::cast<T>(position[2])};
+            },
+            py::arg("position"), "Position vector multiplication")
+        .def(
+            "multiply",
             [](const Class& self, const Matrix3X<T>& position) {
               return self * position;
             },
@@ -190,8 +199,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("__getstate__", [](const Class& self) { return self.matrix(); })
         .def("__setstate__", [](Class& self, const Matrix4<T>& matrix) {
           new (&self) Class(matrix);
-        })
-        ;
+        });
     cls.attr("multiply") = WrapToMatchInputShape(cls.attr("multiply"));
     cls.attr("__matmul__") = cls.attr("multiply");
     py::implicitly_convertible<Matrix4<T>, Class>();
@@ -217,6 +225,15 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             "__init__",
             [](Class* self, const Vector4<T>& wxyz) {
               new (self) Class(wxyz(0), wxyz(1), wxyz(2), wxyz(3));
+              CheckQuaternion(*self);
+            },
+            py::arg("wxyz"))
+        .def(
+            "__init__",
+            [](Class* self, py::list wxyz) {
+              DRAKE_THROW_UNLESS(wxyz.size() == 4);
+              new (self) Class(py::cast<T>(wxyz[0]), py::cast<T>(wxyz[1]),
+                  py::cast<T>(wxyz[2]), py::cast<T>(wxyz[3]));
               CheckQuaternion(*self);
             },
             py::arg("wxyz"))
@@ -258,6 +275,28 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               Class update;
               update.w() = wxyz(0);
               update.vec() = wxyz.tail(3);
+              CheckQuaternion(update);
+              *self = update;
+            },
+            py::arg("wxyz"))
+        .def(
+            "set_wxyz",
+            [](Class* self, const Vector4<T>& wxyz) {
+              Class update;
+              update.w() = wxyz(0);
+              update.vec() = wxyz.tail(3);
+              CheckQuaternion(update);
+              *self = update;
+            },
+            py::arg("wxyz"))
+        .def(
+            "set_wxyz",
+            [](Class* self, py::list wxyz) {
+              DRAKE_THROW_UNLESS(wxyz.size() == 4);
+              Class update;
+              update.w() = py::cast<T>(wxyz[0]);
+              update.vec() = Vector3<T>{py::cast<T>(wxyz[1]),
+                  py::cast<T>(wxyz[2]), py::cast<T>(wxyz[3])};
               CheckQuaternion(update);
               *self = update;
             },
@@ -365,7 +404,14 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             },
             py::arg("other"))
         .def("angle", [](const Class* self) { return self->angle(); })
-        .def("axis", [](const Class* self) { return self->axis(); })
+        // XXX porting -- need ndarray fixes for autodiff.
+        .def("axis", [](const Class* self) {
+          auto& got = self->axis();
+          using V3T = py::ndarray<T, py::numpy, py::shape<3>>;
+          auto v = V3T(const_cast<T*>(got.data()));
+          auto casted = v.cast(py_rvp::reference_internal);
+          return casted;
+        })
         .def(
             "set_angle",
             [](Class* self, const T& angle) {
@@ -378,6 +424,17 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             "set_axis",
             [](Class* self, const Vector3<T>& axis) {
               Class update(self->angle(), axis);
+              CheckAngleAxis(update);
+              *self = update;
+            },
+            py::arg("axis"))
+        .def(
+            "set_axis",
+            [](Class* self, py::list axis) {
+              DRAKE_THROW_UNLESS(axis.size() == 3);
+              Class update(self->angle(),
+                  Vector3<T>{py::cast<T>(axis[0]), py::cast<T>(axis[1]),
+                      py::cast<T>(axis[2])});
               CheckAngleAxis(update);
               *self = update;
             },
@@ -421,8 +478,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
         .def("__setstate__", [](Class& self, py::tuple t) {
           DRAKE_THROW_UNLESS(t.size() == 2);
           new (&self) Class(py::cast<T>(t[0]), py::cast<Vector3<T>>(t[1]));
-        })
-        ;
+        });
     // N.B. This class does not support multiplication with vectors, so we do
     // not use `WrapToMatchInputShape` here.
     cls.attr("__matmul__") = cls.attr("multiply");
