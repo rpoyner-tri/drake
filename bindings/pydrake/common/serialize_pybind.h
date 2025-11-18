@@ -23,6 +23,13 @@ namespace drake {
 namespace pydrake {
 namespace internal {
 
+
+template <typename T>
+struct is_optional : public std::false_type {};
+
+template <typename T>
+struct is_optional<std::optional<T>> : public std::true_type {};
+
 // Helper for DefAttributesUsingSerialize.
 template <typename PyClass, typename Docs>
 class DefAttributesArchive {
@@ -85,8 +92,14 @@ class DefAttributesArchive {
     }
 
     // Add the binding.
-    ppy_class_->def_prop_rw(
-        name, getter, setter, doc, py::rv_policy::reference_internal);
+    if constexpr (is_optional<T>::value) {
+      ppy_class_->def_prop_rw(name, getter, setter, doc,
+          py::rv_policy::reference_internal,
+          py::for_setter(py::arg("arg").none()));
+    } else {
+      ppy_class_->def_prop_rw(
+          name, getter, setter, doc, py::rv_policy::reference_internal);
+    }
 
     // Remember the field's name and type for later use by Finished().
     auto field = py::module_::import_("types").attr("SimpleNamespace")();
