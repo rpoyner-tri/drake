@@ -154,11 +154,17 @@ void DefClone(PyClass* ppy_class) {
 /// @tparam Class The C++ class. Must have a default constructor.
 template <typename CppClass>
 struct DRAKE_NO_EXPORT ParamInit : py::def_visitor<ParamInit<CppClass>> {
-  template <typename Class, typename... Extra>
-  void execute(Class& cl, const Extra&...) {
+  template <typename PyClass, typename... Extra>
+  void execute(PyClass& cl, const Extra&...) {
     cl.def("__init__", [](CppClass* self, py::kwargs kwargs) {
-      new (self) Class();
+      new (self) CppClass();
       py::object py_obj = py::cast(self, py_rvp::reference);
+
+      // Nanobind wouldn't have known the c++ instance is ready yet, but we
+      // have to mark it ready to allow all of the setattr machinery to work
+      // before init returns.
+      py::inst_mark_ready(py_obj);
+
       py::module_::import_("pydrake").attr("_setattr_kwargs")(py_obj, kwargs);
     });
   }
