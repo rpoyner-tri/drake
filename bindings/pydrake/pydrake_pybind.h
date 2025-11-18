@@ -233,13 +233,13 @@ std::shared_ptr<T> make_shared_ptr_from_py_object(py::object py_object) {
 #define DRAKE_NB_NUMPY_OBJECT_DTYPE(Type)       \
    NB_NUMPY_OBJECT_DTYPE(Type)
 */
-#define DRAKE_NB_NUMPY_OBJECT_DTYPE(Type)     \
+#define DRAKE_NB_NUMPY_OBJECT_DTYPE(Type)           \
   namespace nanobind::detail {                      \
   template <>                                       \
   struct dtype_traits<Type> {                       \
     static constexpr dlpack::dtype value{           \
-        0,                                          \
-        sizeof(Type) * 8,                           \
+        3, /* opaque handle */                      \
+        sizeof(object) * 8,                         \
         1,                                          \
     };                                              \
     static constexpr auto name = const_name(#Type); \
