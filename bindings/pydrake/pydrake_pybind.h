@@ -47,6 +47,40 @@ namespace detail {
 template <typename T>
 using is_pyobject = std::is_base_of<api_tag, std::remove_reference_t<T>>;
 
+/** Add list-to-array implicit casting. */
+template <typename... Args>
+NB_INLINE ndarray_handle* ndarray_extra_import(PyObject* o,
+    const ndarray_config* c, bool convert, cleanup_list* cleanup,
+    ndarray_config_t<int, Args...>*) noexcept {
+  using Ndarray = ndarray<Args...>;
+  using Config = ndarray_config_t<int, Args...>;
+  // static constexpr bool ReadOnly = std::is_const_v<typename Config::Scalar>;
+  using Scalar = std::remove_const<typename Config::Scalar>::type;
+  // static constexpr char Order = Config::Order::value;
+  // static constexpr int DeviceType = Config::DeviceType::value;
+  // using VoidPtr = std::conditional_t<ReadOnly, const void *, void *>;
+  if (!PyList_Check(o)) { return nullptr; }
+  // Build a data array for use with ndarray.
+  size_t size = PyList_Size(o);
+  std::array<size_t, 2> shape{size, 1};
+  if constexpr (std::is_floating_point_v<Scalar>) {
+    auto data = std::make_unique<Scalar[]>(size);
+    for (size_t k = 0; k < size; ++k) {
+      data.get()[k] = static_cast<double>(float_(PyList_GetItem(o, k)));
+    }
+    // XXX porting: double check memory management!
+    Ndarray helper(data.release(), 2, shape.data());
+    ndarray_handle* result = helper.handle();
+    ndarray_inc_ref(result);
+    return result;
+  // } else if constexpr (std::is_same_v<Scalar, drake::AutoDiffXd>) {
+  //   data.get()[k] = cast<Scalar>(handle(PyList_GetItem(o, k)));
+  } else {
+    return nullptr;  // punt.
+    // static_assert(false, "scalar trouble");
+  }
+}
+
 }  // namespace detail
 }  // namespace nanobind
 

@@ -78,6 +78,7 @@ namespace nanobind {
 namespace detail {
 
 /**
+   XXX porting
 Provides pybind11 `type_caster`s for drake::EigenPtr.
 
 Uses `type_caster<Eigen::Ref>` internally to avoid code duplication.
