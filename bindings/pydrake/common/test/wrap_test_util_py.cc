@@ -34,9 +34,9 @@ struct TypeConversionExample {
 };
 
 // Wrapper for TypeConversionExample.
-struct wrapper_type_conversion_exaple {
+struct wrapper_type_conversion_example {
   using Type = TypeConversionExample;
-#if 0   // XXX porting
+#if 0   // XXX porting -- unused
   static constexpr auto original_name =
       py::detail::const_name("TypeConversionExample");
 #endif  // XXX porting
@@ -51,7 +51,6 @@ struct wrapper_type_conversion_exaple {
   }
 };
 
-#if 0   // XXX porting
 TypeConversionExample MakeTypeConversionExample() {
   return TypeConversionExample{"hello"};
 }
@@ -59,7 +58,6 @@ TypeConversionExample MakeTypeConversionExample() {
 bool CheckTypeConversionExample(const TypeConversionExample& obj) {
   return obj.value == "hello";
 }
-#endif  // XXX porting
 
 class NotCopyable {
  public:
@@ -89,7 +87,7 @@ namespace detail {
 template <>
 struct type_caster<drake::pydrake::TypeConversionExample>
     : public drake::pydrake::internal::type_caster_wrapped<
-          drake::pydrake::wrapper_type_conversion_exaple> {};
+          drake::pydrake::wrapper_type_conversion_example> {};
 }  // namespace detail
 }  // namespace nanobind
 
@@ -109,20 +107,16 @@ NB_MODULE(wrap_test_util, m) {
   py::class_<MyContainerUniquePtr> my_unique(m, "MyContainerUniquePtr");
   my_unique.def(py::init<MyValue, MyValue>(), py::arg("member"),
       py::arg("copyable_member"));
-#if 0  // XXX porting
   DefReadUniquePtr(&my_unique, "member", &MyContainerUniquePtr::member,
       "MyContainerUniquePtr doc");
   DefReadUniquePtr(&my_unique, "copyable_member",
       &MyContainerUniquePtr::copyable_member, "MyContainerUniquePtr doc");
-#endif  // XXX porting
 
-#if 0   // XXX porting
   m.def("MakeTypeConversionExample", &MakeTypeConversionExample);
   m.def("MakeTypeConversionExampleBadRvp", &MakeTypeConversionExample,
       py_rvp::reference);
   m.def("CheckTypeConversionExample", &CheckTypeConversionExample,
       py::arg("obj"));
-#endif  // XXX porting
 
   py::class_<NotCopyable>(m, "NotCopyable")  // BR
       .def(py::init());

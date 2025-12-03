@@ -23,7 +23,6 @@ namespace drake {
 namespace pydrake {
 namespace internal {
 
-
 template <typename T>
 struct is_optional : public std::false_type {};
 

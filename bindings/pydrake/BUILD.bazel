@@ -441,11 +441,11 @@ PYI_FILES = [
 # all its outputs; see https://github.com/bazelbuild/bazel/issues/3359.
 # (Applies to both :pydrake_pyi and, below, :pydrake_typed.)
 # XXX porting
-# generate_python_stubs(
-#     name = "pydrake_pyi",
-#     outs = PYI_FILES,
-#     tool = ":stubgen",
-# )
+generate_python_stubs(
+    name = "pydrake_pyi",
+    outs = PYI_FILES,
+    tool = ":stubgen",
+)
 
 # PEP 561 marker file; tells tools that type information is available.
 genrule(
@@ -462,49 +462,48 @@ generate_file(
 )
 
 # XXX porting
-# drake_py_unittest(
-#     name = "stubgen_test",
-#     data = [
-#         ":_pyi_files",
-#         ":pydrake_pyi",
-#         ":pydrake_typed",
-#     ],
-#     deps = [
-#         "@mypy_internal//:mypy",
-#         "@rules_python//python/runfiles",
-#     ],
-# )
+drake_py_unittest(
+    name = "stubgen_test",
+    data = [
+        ":_pyi_files",
+        ":pydrake_pyi",
+        ":pydrake_typed",
+    ],
+    deps = [
+        "@mypy_internal//:mypy",
+        "@rules_python//python/runfiles",
+    ],
+)
 
 # XXX porting
-# install(
-#     name = "install",
-#     install_tests = [
-#         ":test/all_install_test.py",
-#         ":test/common_install_test.py",
-#     ],
-#     targets = PY_LIBRARIES + [":all_py"],
-#     py_dest = PACKAGE_INFO.py_dest,
-#     data = [
-#         ":pydrake_pyi",
-#         ":pydrake_typed",
-#     ],
-#     data_dest = "lib/python@PYTHON_VERSION@/site-packages",
-#     visibility = ["//visibility:public"],
-#     deps = get_drake_py_installs(PY_LIBRARIES_WITH_INSTALL) + [
-#         # These three modules are a special case.
-#         # Refer to bindings/pydrake/common/module_cycle.md for details.
-#         "//bindings/pydrake/autodiffutils:install",
-#         "//bindings/pydrake/math:install",
-#         "//bindings/pydrake/symbolic:install",
-#         # Install the pybind11 headers if and only if we're installing pydrake.
-#         "@pybind11//:install",
-#     ],
-# )
+install(
+    name = "install",
+    install_tests = [
+        ":test/all_install_test.py",
+        ":test/common_install_test.py",
+    ],
+    targets = PY_LIBRARIES + [":all_py"],
+    py_dest = PACKAGE_INFO.py_dest,
+    data = [
+        ":pydrake_pyi",
+        ":pydrake_typed",
+    ],
+    data_dest = "lib/python@PYTHON_VERSION@/site-packages",
+    visibility = ["//visibility:public"],
+    deps = get_drake_py_installs(PY_LIBRARIES_WITH_INSTALL) + [
+        # These three modules are a special case.
+        # Refer to bindings/pydrake/common/module_cycle.md for details.
+        "//bindings/pydrake/autodiffutils:install",
+        "//bindings/pydrake/math:install",
+        "//bindings/pydrake/symbolic:install",
+        # Install the pybind11 headers if and only if we're installing pydrake.
+        "@pybind11//:install",
+    ],
+)
 
-# XXX porting
-# add_lint_tests_pydrake(
-#     python_lint_extra_srcs = [
-#         ":test/all_install_test.py",
-#         ":test/common_install_test.py",
-#     ],
-# )
+add_lint_tests_pydrake(
+    python_lint_extra_srcs = [
+        ":test/all_install_test.py",
+        ":test/common_install_test.py",
+    ],
+)

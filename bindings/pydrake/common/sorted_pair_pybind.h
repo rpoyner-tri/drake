@@ -14,7 +14,8 @@ struct type_caster<drake::SortedPair<T>> {
   using Value = drake::SortedPair<T>;
   using InnerCaster = make_caster<T>;
 
-  template <typename U> using Cast = Value;
+  template <typename U>
+  using Cast = Value;
 
   static constexpr auto Name =
       const_name("Tuple[") + type_caster<T>::Name + const_name("]");

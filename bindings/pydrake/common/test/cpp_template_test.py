@@ -21,17 +21,6 @@ from pydrake.common.cpp_template_test_util import (
 from pydrake.common.test_utilities.deprecation import catch_drake_warnings
 from pydrake.common.test_utilities.pickle_compare import assert_pickle
 
-from pydrake.common.cpp_template_test_util import (
-    Callee,
-    DefaultInst,
-    SimpleFunction,
-    SimpleTemplate,
-    SimpleType,
-    simple_func,
-    TemplateWithDefault,
-    TemplateWithDefault_,
-)
-
 _TEST_MODULE = "cpp_template_test"
 
 

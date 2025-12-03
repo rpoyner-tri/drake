@@ -8,7 +8,7 @@ import unittest
 
 import numpy as np
 
-from pydrake.autodiffutils import AutoDiffXd
+# from pydrake.autodiffutils import AutoDiffXd  # XXX porting
 from pydrake.common.test_utilities.pickle_compare import assert_pickle
 from pydrake.common.yaml import yaml_dump_typed, yaml_load_typed
 

@@ -15,7 +15,6 @@ import unittest
 import numpy as np
 
 from pydrake.common import _MangledName
-import pydrake.common.cpp_param as mut
 import pydrake.common.cpp_param_test_util as cpp_test
 
 

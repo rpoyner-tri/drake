@@ -439,6 +439,7 @@ def _rename_callable(f, scope, name, cls=None):
         qualname = cls.__qualname__ + "." + name
     else:
         qualname = name
+
     # If Python2, we have to wrap instancemethods + built-in functions to spoof
     # the metadata.
     def needs_wrap(f):
@@ -447,9 +448,11 @@ def _rename_callable(f, scope, name, cls=None):
             types.BuiltinMethodType,
             types.BuiltinFunctionType,
         )
-        return (isinstance(f, type_requires_wrap) or
-                "nb_method" in f.__class__.__name__ or
-                "nb_func" in f.__class__.__name__)
+        return (
+            isinstance(f, type_requires_wrap)
+            or "nb_method" in f.__class__.__name__
+            or "nb_func" in f.__class__.__name__
+        )
 
     if needs_wrap(f):
         orig = f

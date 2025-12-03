@@ -243,21 +243,13 @@ struct Impl {
       return {};
     }
 
-    T do_start_time() const final {
-      NB_OVERRIDE_PURE(do_start_time);
-    }
+    T do_start_time() const final { NB_OVERRIDE_PURE(do_start_time); }
 
-    T do_end_time() const final {
-      NB_OVERRIDE_PURE(do_end_time);
-    }
+    T do_end_time() const final { NB_OVERRIDE_PURE(do_end_time); }
 
-    Eigen::Index do_rows() const final {
-      NB_OVERRIDE_PURE(do_rows);
-    }
+    Eigen::Index do_rows() const final { NB_OVERRIDE_PURE(do_rows); }
 
-    Eigen::Index do_cols() const final {
-      NB_OVERRIDE_PURE(do_cols);
-    }
+    Eigen::Index do_cols() const final { NB_OVERRIDE_PURE(do_cols); }
   };
 
   static void DoScalarDependentDefinitions(py::module_ m) {

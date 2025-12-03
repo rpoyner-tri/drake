@@ -81,9 +81,8 @@ void ref_cycle_impl(
     if (n <= nargs) {
       return args[n - 1];
     }
-    throw std::runtime_error(fmt::format(
-        "Could not activate ref_cycle: index {} is invalid",
-        n));
+    throw std::runtime_error(
+        fmt::format("Could not activate ref_cycle: index {} is invalid", n));
   };
   handle p0 = get_arg(peer0);
   handle p1 = get_arg(peer1);

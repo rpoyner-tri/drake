@@ -405,13 +405,14 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
             py::arg("other"))
         .def("angle", [](const Class* self) { return self->angle(); })
         // XXX porting -- need ndarray fixes for autodiff.
-        .def("axis", [](const Class* self) {
-          auto& got = self->axis();
-          using V3T = py::ndarray<T, py::numpy, py::shape<3>>;
-          auto v = V3T(const_cast<T*>(got.data()));
-          auto casted = v.cast(py_rvp::reference_internal);
-          return casted;
-        })
+        .def("axis",
+            [](const Class* self) {
+              auto& got = self->axis();
+              using V3T = py::ndarray<T, py::numpy, py::shape<3>>;
+              auto v = V3T(const_cast<T*>(got.data()));
+              auto casted = v.cast(py_rvp::reference_internal);
+              return casted;
+            })
         .def(
             "set_angle",
             [](Class* self, const T& angle) {

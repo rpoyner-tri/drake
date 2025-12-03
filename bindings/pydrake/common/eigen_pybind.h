@@ -78,53 +78,54 @@ namespace nanobind {
 namespace detail {
 
 /**
-   XXX porting
-Provides pybind11 `type_caster`s for drake::EigenPtr.
-
-Uses `type_caster<Eigen::Ref>` internally to avoid code duplication.
-See http://pybind11.readthedocs.io/en/stable/advanced/cast/custom.html for
-more details on custom type casters.
-
-TODO(eric.cousineau): Place all logic inside of `drake` namespace once our
-pybind11 fork includes NB_TYPE_CASTER macro w/ fully qualified symbols.
+Provides nanobind `type_caster`s for drake::EigenPtr.
 */
 template <typename T>
 struct type_caster<drake::EigenPtr<T>> {
   using PtrType = drake::EigenPtr<T>;
   using RefType = Eigen::Ref<T>;
   using InnerCaster = type_caster<RefType>;
+  using Value = PtrType;
 
- public:
-  NB_TYPE_CASTER(
-      PtrType, const_name("Optional[") + InnerCaster::Name + const_name("]"));
+  template <typename U>
+  using Cast = Value;
 
-  bool load(handle src, bool convert) {
-    value = PtrType(nullptr);
+  static constexpr auto Name =
+      const_name("Optional[") + InnerCaster::Name + const_name("]");
 
+  bool from_python(handle src, uint8_t flags, cleanup_list* cleanup) noexcept {
     if (src.ptr() == Py_None) {
+      value = Value(nullptr);
       return true;
     }
 
-    bool success = inner_caster.load(src, convert);
-
+    bool success = inner_caster.from_python(src, flags, cleanup);
     if (success) {
-      RefType& ref = inner_caster;
-      value = PtrType(&ref);
+      auto ref = inner_caster.operator cast_t<RefType>();
+      value = Value(&ref);
     }
-
     return success;
   }
 
-  static handle cast(PtrType src, rv_policy policy, handle parent) {
-    if (src == nullptr) {
+  template <typename U>
+  static handle from_cpp(
+      U&& value, rv_policy policy, cleanup_list* cleanup) noexcept {
+    if (value == nullptr) {
       return Py_None;
     } else {
-      RefType ref = *src;
-      return InnerCaster::cast(ref, policy, parent);
+      RefType ref = *value;
+      return InnerCaster::from_cpp(ref, policy, cleanup);
     }
   }
 
- private:
+  template <typename U>
+  bool can_cast() const noexcept {
+    return inner_caster.template can_cast<U>();
+  }
+
+  explicit operator Value() { return value; }
+
+  Value value;
   InnerCaster inner_caster;
 };
 

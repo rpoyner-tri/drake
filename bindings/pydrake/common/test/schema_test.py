@@ -176,8 +176,7 @@ class TestSchema(unittest.TestCase):
             mut.Rotation.Identity,
             mut.Rotation.Uniform,
             mut.Rotation.Rpy,
-            # XXX porting: variant member segfault in copy ctor
-            # mut.Rotation.AngleAxis,
+            mut.Rotation.AngleAxis,
         ]:
             dut = dut_cls()
             dut_cls(other=dut)

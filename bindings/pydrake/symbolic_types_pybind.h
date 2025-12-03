@@ -12,13 +12,13 @@ DRAKE_NB_NUMPY_OBJECT_DTYPE(  // NOLINT
     drake::symbolic::Expression)
 DRAKE_NB_NUMPY_OBJECT_DTYPE(  // NOLINT
     drake::symbolic::Formula)
-#if 0  // XXX porting
+#if 0                         // XXX porting
 DRAKE_NB_NUMPY_OBJECT_DTYPE(  // NOLINT
     drake::symbolic::Monomial)
 DRAKE_NB_NUMPY_OBJECT_DTYPE(  // NOLINT
     drake::symbolic::Polynomial)
 DRAKE_NB_NUMPY_OBJECT_DTYPE(  // NOLINT
     drake::symbolic::RationalFunction)
-#endif  // XXX porting
+#endif                        // XXX porting
 DRAKE_NB_NUMPY_OBJECT_DTYPE(  // NOLINT
     drake::symbolic::Variable)

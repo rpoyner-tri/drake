@@ -95,5 +95,4 @@ drake_py_library(
     ],
 )
 
-# XXX porting
-# add_lint_tests_pydrake()
+add_lint_tests_pydrake()

@@ -86,7 +86,7 @@ namespace internal {
 template <typename CppClass, typename... Args>
 struct DRAKE_NO_EXPORT PyInitDeprecatedCtorImpl
     : py::def_visitor<PyInitDeprecatedCtorImpl<CppClass, Args...>> {
-  PyInitDeprecatedCtorImpl(std::string message)
+  explicit PyInitDeprecatedCtorImpl(std::string message)
       : message_(std::move(message)) {}
   template <typename Class, typename... Extra>
   void execute(Class& cl, const Extra&...) {
@@ -138,7 +138,8 @@ auto py_init_deprecated(std::string message, Func&& func) {
 template <typename CppClass>
 struct DRAKE_NO_EXPORT DeprecatedParamInit
     : py::def_visitor<DeprecatedParamInit<CppClass>> {
-  DeprecatedParamInit(std::string message) : message_(std::move(message)) {}
+  explicit DeprecatedParamInit(std::string message)
+      : message_(std::move(message)) {}
   template <typename Class, typename... Extra>
   void execute(Class& cl, const Extra&...) {
     cl.def("__init__", WrapDeprecated(std::move(message_),

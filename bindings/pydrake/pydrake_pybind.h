@@ -59,7 +59,9 @@ NB_INLINE ndarray_handle* ndarray_extra_import(PyObject* o,
   // static constexpr char Order = Config::Order::value;
   // static constexpr int DeviceType = Config::DeviceType::value;
   // using VoidPtr = std::conditional_t<ReadOnly, const void *, void *>;
-  if (!PyList_Check(o)) { return nullptr; }
+  if (!PyList_Check(o)) {
+    return nullptr;
+  }
   // Build a data array for use with ndarray.
   size_t size = PyList_Size(o);
   std::array<size_t, 2> shape{size, 1};
@@ -73,8 +75,8 @@ NB_INLINE ndarray_handle* ndarray_extra_import(PyObject* o,
     ndarray_handle* result = helper.handle();
     ndarray_inc_ref(result);
     return result;
-  // } else if constexpr (std::is_same_v<Scalar, drake::AutoDiffXd>) {
-  //   data.get()[k] = cast<Scalar>(handle(PyList_GetItem(o, k)));
+    // } else if constexpr (std::is_same_v<Scalar, drake::AutoDiffXd>) {
+    //   data.get()[k] = cast<Scalar>(handle(PyList_GetItem(o, k)));
   } else {
     return nullptr;  // punt.
     // static_assert(false, "scalar trouble");

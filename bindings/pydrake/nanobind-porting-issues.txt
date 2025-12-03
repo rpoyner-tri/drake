@@ -47,9 +47,11 @@ Compile time issues
   - !! rewrote all of the embed tests on master.
 
 * issues with unique pointers as members/properties, etc.
+  - !! needed to add nanobind/stl/blah_ptr.h header files.
 
 * method for putting python objects in drake::Value<T> likely needs a rewrite
   * much dependence on internals
+  - !! provisional rewrite is in place.
 
 * cpp_function() can't be passed to def() and friends any more.
   - !! a chunk of this was to group annotations with functions in setter/getter
@@ -63,7 +65,6 @@ Compile time issues
     that doesn't work any more.
   * the new override macros don't allow change of signature. maybe there is a
     way to exploit new internals?
-
 
 * GeometryId has porting issues?
 
@@ -93,6 +94,7 @@ Compile time issues
 * SortedPair<GeometryId> is causing problems.
 
 * EigenPtr is causing problems.
+  - !! needed to rewrite the EigenPtr type_caster -- may still need more work.
 
 * kw_only() is more restrictive, or causing problems.
   - !! need to add an explicit py::arg("kwargs")
