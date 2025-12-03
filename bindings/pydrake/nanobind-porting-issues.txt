@@ -109,3 +109,5 @@ Compile time issues
 
 * nanobind does not implicitly convert python lists to numpy array types. See
   https://github.com/wjakob/nanobind/discussions/327.
+- !! added a nanobind patch with a new extension hook, and implemented the
+     extension in drake code.
