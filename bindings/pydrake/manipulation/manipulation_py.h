@@ -16,7 +16,7 @@ namespace internal {
 void DefineManipulationKukaIiwa(py::module_ m);
 
 /* Defines bindings per manipulation_py_franka_panda.cc. */
-void DefineManipulationFrankaPanda(py::module m);
+void DefineManipulationFrankaPanda(py::module_ m);
 
 /* Defines bindings per manipulation_py_schunk_wsg.cc. */
 void DefineManipulationSchunkWsg(py::module_ m);
