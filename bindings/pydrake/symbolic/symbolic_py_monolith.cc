@@ -349,7 +349,7 @@ void DefineSymbolicMonolith(py::module_ m) {
               RandomGenerator* generator) {
             return self.Evaluate(Environment{env}, generator);
           },
-          py::arg("env") = Environment::map{}, py::arg("generator") = nullptr,
+          py::arg("env") = Environment::map{}, py::arg("generator") = py::none(),
           doc_expression.Evaluate.doc_2args)
       .def(
           "Evaluate",

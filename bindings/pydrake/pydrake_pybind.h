@@ -36,6 +36,7 @@
 #include "nanobind/stl/string.h"
 #include "nanobind/stl/string_view.h"
 #include "nanobind/stl/unique_ptr.h"
+#include "nanobind/stl/unordered_map.h"
 #include "nanobind/stl/variant.h"
 #include "nanobind/stl/vector.h"
 #include "nanobind/trampoline.h"
