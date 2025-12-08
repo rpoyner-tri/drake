@@ -96,6 +96,13 @@ Compile time issues
 * EigenPtr is causing problems.
   - !! needed to rewrite the EigenPtr type_caster -- may still need more work.
 
+* Eigen::Block returns will likely need a new type caster?
+
+* nanobind is far more conservative about onverting arrays/matrices with
+  non-matching dimensions. See for example the pose=MatrixX<T> init binding for
+  RigidTransform. In Pybind11, this could match a point (vector3), or 4x3 or
+  4x4 matrix. In nanobind, it fails to match points that are dim=1, shape=3,
+
 * kw_only() is more restrictive, or causing problems.
   - !! need to add an explicit py::arg("kwargs")
 
@@ -113,3 +120,5 @@ Compile time issues
   https://github.com/wjakob/nanobind/discussions/327.
 - !! added a nanobind patch with a new extension hook, and implemented the
      extension in drake code.
+     * Still need to support list(list(Scalar))
+     * Still need to support AutoDiff, Expression

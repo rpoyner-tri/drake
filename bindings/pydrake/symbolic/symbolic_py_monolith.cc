@@ -343,14 +343,14 @@ void DefineSymbolicMonolith(py::module_ m) {
           internal::kUnapplyExpressionDoc)
       .def("Expand", &Expression::Expand, doc_expression.Expand.doc)
       // XXX porting -- raises exception and error info lost
-      // .def(
-      //     "Evaluate",
-      //     [](const Expression& self, const Environment::map& env,
-      //         RandomGenerator* generator) {
-      //       return self.Evaluate(Environment{env}, generator);
-      //     },
-      //     py::arg("env") = Environment::map{}, py::arg("generator") = nullptr,
-      //     doc_expression.Evaluate.doc_2args)
+      .def(
+          "Evaluate",
+          [](const Expression& self, const Environment::map& env,
+              RandomGenerator* generator) {
+            return self.Evaluate(Environment{env}, generator);
+          },
+          py::arg("env") = Environment::map{}, py::arg("generator") = nullptr,
+          doc_expression.Evaluate.doc_2args)
       .def(
           "Evaluate",
           [](const Expression& self, RandomGenerator* generator) {

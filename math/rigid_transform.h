@@ -174,6 +174,7 @@ class RigidTransform {
   /// `pose`.  As needed, use RotationMatrix::ProjectToRotationMatrix().
   /// @exclude_from_pydrake_mkdoc{This overload is not bound in pydrake.}
   explicit RigidTransform(const Eigen::Matrix<T, 3, 4>& pose) {
+    DRAKE_DEMAND(false);
     set_rotation(RotationMatrix<T>(pose.template block<3, 3>(0, 0)));
     set_translation(pose.template block<3, 1>(0, 3));
   }
@@ -196,6 +197,7 @@ class RigidTransform {
   /// `pose`.  As needed, use RotationMatrix::ProjectToRotationMatrix().
   /// @exclude_from_pydrake_mkdoc{This overload is not bound in pydrake.}
   explicit RigidTransform(const Matrix4<T>& pose) {
+    DRAKE_DEMAND(false);
     DRAKE_ASSERT_VOID(ThrowIfInvalidBottomRow(pose));
     set_rotation(RotationMatrix<T>(pose.template block<3, 3>(0, 0)));
     set_translation(pose.template block<3, 1>(0, 3));
