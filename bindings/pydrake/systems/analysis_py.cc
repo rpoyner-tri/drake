@@ -213,6 +213,8 @@ NB_MODULE(analysis, m) {
               cls_doc.get_largest_step_size_taken.doc)
           .def("get_num_steps_taken", &Class::get_num_steps_taken,
               cls_doc.get_num_steps_taken.doc)
+          .def("GetStatisticsSummary", &Class::GetStatisticsSummary,
+              cls_doc.GetStatisticsSummary.doc)
           // N.B. While `context` is not directly owned by this system, we
           // would still like our accessors to keep it alive (e.g. a user calls
           // `simulator.get_integrator().get_context()`.
@@ -294,7 +296,6 @@ NB_MODULE(analysis, m) {
         m, "Simulator", GetPyParam<T>(), doc.Simulator.doc);
     cls  // BR
 #if 0  // XXX porting
-        // Need c++ support for placement new with shared context.
         .def(py::init([](const System<T>& system, py::object py_context) {
           // Handle the two cases for context ownership explicitly:
           // 1. If py_context is None, create a new context and take ownership.
@@ -402,12 +403,6 @@ Parameter ``interruptible``:
                   make_shared_ptr_from_py_object<Context<T>>(py_context));
             },
             py::arg("context"), doc.Simulator.reset_context.doc)
-        .def("set_publish_every_time_step",
-            &Simulator<T>::set_publish_every_time_step, py::arg("publish"),
-            doc.Simulator.set_publish_every_time_step.doc)
-        .def("set_publish_at_initialization",
-            &Simulator<T>::set_publish_at_initialization, py::arg("publish"),
-            doc.Simulator.set_publish_at_initialization.doc)
         .def("set_target_realtime_rate",
             &Simulator<T>::set_target_realtime_rate, py::arg("realtime_rate"),
             doc.Simulator.set_target_realtime_rate.doc)
@@ -431,7 +426,23 @@ Parameter ``interruptible``:
             doc.Simulator.get_num_unrestricted_updates.doc)
         .def("get_system", &Simulator<T>::get_system, py_rvp::reference,
             doc.Simulator.get_system.doc);
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+    // delete with publish_every_time_step 2026-06-01
+    cls.def("set_publish_every_time_step",
+           WrapDeprecated(
+               doc.Simulator.set_publish_every_time_step.doc_deprecated,
+               &Simulator<T>::set_publish_every_time_step),
+           py::arg("publish"),
+           doc.Simulator.set_publish_every_time_step.doc_deprecated)
+        .def("set_publish_at_initialization",
+            WrapDeprecated(
+                doc.Simulator.set_publish_at_initialization.doc_deprecated,
+                &Simulator<T>::set_publish_at_initialization),
+            py::arg("publish"),
+            doc.Simulator.set_publish_at_initialization.doc_deprecated);
+    // delete till here
+#pragma GCC diagnostic pop
     m  // BR
         .def("ApplySimulatorConfig",
             py::overload_cast<const SimulatorConfig&,
