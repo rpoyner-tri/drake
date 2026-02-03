@@ -759,7 +759,7 @@ void def_testing_module(py::module_ m) {
 }  // namespace testing
 
 template <typename T>
-void DefinePlane(py::module m, T) {
+void DefinePlane(py::module_ m, T) {
   py::tuple param = GetPyParam<T>();
   {
     using Class = Plane<T>;
@@ -784,13 +784,16 @@ void DefinePlane(py::module m, T) {
         .def("BoxOverlaps", &Class::BoxOverlaps, py::arg("half_width"),
             py::arg("box_center_in_plane"), py::arg("box_orientation_in_plane"),
             cls_doc.BoxOverlaps.doc)
+#if 0  // XXX porting
         .def(py::pickle(
             [](const Plane<T>& self) {
               return std::make_pair(self.unit_normal(), self.reference_point());
             },
             [](std::pair<Vector3<T>, Vector3<T>> data) {
               return Plane<T>(data.first, data.second);
-            }));
+            }))
+#endif  // XXX porting
+        ;
     DefCopyAndDeepCopy(&cls);
   }
 }

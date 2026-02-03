@@ -45,6 +45,7 @@ void DefinePlanningIrisNp2(py::module_ m) {
   const auto& cls_doc = doc.IrisNp2Options;
   py::class_<IrisNp2Options> iris_np2_options(m, "IrisNp2Options", cls_doc.doc);
   iris_np2_options.def(py::init<>())
+#if 0  // XXX porting
       .def_prop_rw("solver_options",
           py::cpp_function(
               [](IrisNp2Options& self) { return &(self.solver_options); },
@@ -54,6 +55,7 @@ void DefinePlanningIrisNp2(py::module_ m) {
                 self.solver_options = std::move(solver_options);
               }),
           cls_doc.solver_options.doc)
+#endif  // XXX porting
       .def_rw("sampled_iris_options",
           &IrisNp2Options::sampled_iris_options,
           cls_doc.sampled_iris_options.doc)

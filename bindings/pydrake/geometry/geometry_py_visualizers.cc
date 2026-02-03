@@ -406,6 +406,7 @@ void DefineMeshcat(py::module_ m) {
             // This function costs a non-trivial amount of CPU time and blocks
             // on a worker thread; for both reasons, we must release the GIL.
             py::call_guard<py::gil_scoped_release>(), cls_doc.StaticHtml.doc)
+#if 0  // XXX porting
         .def(
             "StaticZip",
             [](const Class& self) {
@@ -420,6 +421,7 @@ void DefineMeshcat(py::module_ m) {
               return py::bytes(result);
             },
             cls_doc.StaticZip.doc)
+#endif  // XXX porting
         .def("StartRecording", &Class::StartRecording,
             py::arg("frames_per_second") = 64.0,
             py::arg("set_visualizations_while_recording") = true,
