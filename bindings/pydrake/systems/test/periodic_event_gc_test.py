@@ -14,6 +14,8 @@ class MinimalLeafSystem(LeafSystem):
     def __init__(self):
         super().__init__()
 
+        # XXX If I ever pass the same callback to two calls, I get (fairly wild
+        # and nondeterministic) UB. Could this be  pybind11 casting bug?
         self.DeclareInitializationPublishEvent(self._callbackstar)
         self.DeclareInitializationDiscreteUpdateEvent(self._callback2)
         self.DeclarePeriodicPublishEvent(1.0, 0.0, self._callback1)
