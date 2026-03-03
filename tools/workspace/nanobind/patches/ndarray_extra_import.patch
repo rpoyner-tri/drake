@@ -13,10 +13,10 @@ index 8fd35a1..732f513 100644
                                         cleanup_list *cleanup) noexcept;
  
 +// Hook for additional ndarray implicit conversion.
-+NB_INLINE ndarray_handle *ndarray_extra_import(PyObject *o,
-+                                               const ndarray_config *c,
-+                                               bool convert,
-+                                               cleanup_list *cleanup,
++NB_INLINE ndarray_handle *ndarray_extra_import(PyObject *,
++                                               const ndarray_config *,
++                                               bool,
++                                               cleanup_list *,
 +                                               void*) noexcept {
 +  return {};
 +}
