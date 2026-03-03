@@ -295,13 +295,6 @@ file(MAKE_DIRECTORY "${DRAKE_BAZEL_BUILD_DIR}")
 
 set(BAZEL_REPO_ENV)
 
-# Put this patch where `cmake/MODULE.bazel.in` expects it during its call to
-# `single_version_override`.
-file(CREATE_LINK
-  "${PROJECT_SOURCE_DIR}/tools/workspace/rules_cc/patches/upstream/cc-as-gcc.patch"
-  "${DRAKE_BAZEL_BUILD_DIR}/cc-as-gcc.patch"
-  SYMBOLIC
-)
 if(NOT APPLE)
   # N.B. Bazel does its own compiler-chasing with Xcode, which we shouldn't
   # interfere with here.
@@ -436,6 +429,11 @@ macro(override_module NAME)
     "${PROJECT_SOURCE_DIR}/cmake/external/workspace/conversion.bzl"
     "${local_path}/conversion.bzl"
     SYMBOLIC)
+  file(CREATE_LINK
+    "${PROJECT_SOURCE_DIR}/tools/skylark/cc.bzl"
+    "${local_path}/cc.bzl"
+    SYMBOLIC
+  )
   string(APPEND BAZEL_REPO_ENV
       " --override_module=${NAME}=${local_path}")
   string(APPEND BAZEL_REPO_ENV

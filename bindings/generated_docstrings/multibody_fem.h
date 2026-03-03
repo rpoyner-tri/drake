@@ -114,14 +114,14 @@ ForceDensityFieldBase.)""";
         struct /* kPerCurrentVolume */ {
           // Source: drake/multibody/fem/force_density_field_base.h
           const char* doc =
-R"""(ForceDensityFieldBase::EvaluateAt() returns the force per unit of
+R"""(ForceDensityFieldBase∷EvaluateAt() returns the force per unit of
 *current* (deformed) configuration volume.)""";
         } kPerCurrentVolume;
         // Symbol: drake::multibody::ForceDensityType::kPerReferenceVolume
         struct /* kPerReferenceVolume */ {
           // Source: drake/multibody/fem/force_density_field_base.h
           const char* doc =
-R"""(ForceDensityFieldBase::EvaluateAt() returns the force per unit of
+R"""(ForceDensityFieldBase∷EvaluateAt() returns the force per unit of
 *reference* configuration volume where the reference undeformed
 configuration is defined by the input mesh provided by the user.)""";
         } kPerReferenceVolume;
@@ -194,7 +194,7 @@ has unit s. Must be non-negative. Default to 0. See DampingModel.
 - Mass density: Has unit kg/m³. Must be positive. Default to 1.5e3.
 - Material model: The constitutive model that describes the stress-strain
 relationship of the body, see MaterialModel. Default to
-MaterialModel::kLinearCorotated.
+MaterialModel∷kLinearCorotated.
 - Element subdivision count: to integrate external volumetric forces, elements
 can be subdivided to resolve large non-linearities within the domain of the
 element. The number of resulting quadrature points is equal to 4^N where N is
@@ -802,7 +802,7 @@ Raises:
           struct /* EvalElementData */ {
             // Source: drake/multibody/fem/fem_state.h
             const char* doc =
-R"""(Returns an std::vector of per-element data in ``this`` FemState.
+R"""(Returns an std∷vector of per-element data in ``this`` FemState.
 
 Parameter ``cache_index``:
     The cache index of the per-element data.

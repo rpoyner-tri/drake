@@ -63,7 +63,8 @@ struct InputPortForces {
   /* Joint actuation, indexed by DOF. We split them into actuators with and
    without PD control. Both have size equal to the number of generalized
    velocities. Entries with no contribution are zero. In other words, the
-   total actuation equals actuation_w_pd + actuation_wo_pd. */
+   total actuation equals actuation_w_pd + actuation_wo_pd. The values reported
+   here have already been clamped by the actuator's effort_limit. */
   VectorX<T> actuation_w_pd;   // For actuated joints with PD control.
   VectorX<T> actuation_wo_pd;  // For actuated joints without PD control.
 };
@@ -313,9 +314,10 @@ class DiscreteUpdateManager : public ScalarConvertibleComponent<T> {
   const internal::JointLockingCacheData<T>& EvalJointLocking(
       const systems::Context<T>& context) const;
 
-  VectorX<T> AssembleActuationInput(const systems::Context<T>& context) const;
+  const VectorX<T>& EvalActuationInput(const systems::Context<T>& context,
+                                       bool apply_effort_limit) const;
 
-  DesiredStateInput<T> AssembleDesiredStateInput(
+  const DesiredStateInput<T>& EvalDesiredStateInput(
       const systems::Context<T>& context) const;
 
   const std::map<MultibodyConstraintId, internal::CouplerConstraintSpec>&

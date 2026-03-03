@@ -60,12 +60,12 @@ Clone the drake repository:
     git clone https://github.com/RobotLocomotion/drake.git
     cd drake
 
-## Run script for Docker / S3 / GitHub
+## Run script for GitHub / S3
 
-The next step is to push Docker images, mirror the .tar/.deb artifacts to S3,
-and push the official source code archive to GitHub.
+The next step is to push the official source code archive to GitHub and mirror
+the release artifacts to S3.
 
-Once your machine is set-up, run the `push_release` script as described below:
+Once your machine is set up, run the `push_release` script as described below:
 
     bazel run //tools/release_engineering/dev:push_release -- <version>
 
@@ -77,6 +77,13 @@ use `v` on the version string. For example:
 **Note:** If there is a timeout error uploading to GitHub, double-check
 the GitHub token created above, it is likely a permissions issue.
 
+## Run script for Docker
+
+The next step is to push Docker images. Run the `push_docker` script as
+described below:
+
+    bazel run //tools/release_engineering/dev:push_docker -- <version>
+
 ### Verification
 
 Verify that:
@@ -87,6 +94,10 @@ contains:
     * Binaries: A set of `drake-<version>-[...].tar.gz` files for each supported
     configuration (e.g. jammy, noble, and mac). In addition, there should be
     `.sha256` and `.sha512` files for each `.tar.gz` file.
+    * Wheels: A set of `drake-<version>-[...].whl` files for each supported
+    configuration (Python version and platform; e.g., cp3{10-14}-manylinux and
+    cp3{13-14}-macosx). In addition, there should be `.sha256` and `.sha512`
+    files for each `.whl` file.
     * Source: A `drake-<version>-src.tar.gz` file and corresponding `.sha256`
     and `.sha512` files.
 

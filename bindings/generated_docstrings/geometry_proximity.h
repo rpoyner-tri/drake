@@ -306,7 +306,7 @@ Returns ``aabb_M``:
         // Source: drake/geometry/proximity/calc_obb.h
         const char* doc =
 R"""(Calculates the oriented bounding box (OBB) for the Shape in its
-canonical frame. Returns ``std::nullopt`` if the Shape is HalfSpace
+canonical frame. Returns ``std∷nullopt`` if the Shape is HalfSpace
 which doesn't have a bounding box.
 
 Raises:
@@ -405,7 +405,7 @@ expressed in the field's frame.
 
 The field (along with its corresponding mesh) can be transformed into
 a new frame by invoking the TransformVertices() method on the mesh and
-Transform() on the field, passing the same math::RigidTransform to
+Transform() on the field, passing the same math∷RigidTransform to
 both.
 
 ** Gradient **
@@ -461,8 +461,7 @@ R"""(Evaluates the field value at a location on an element.
 
 The return type depends on both the field's scalar type ``T`` and the
 Barycentric coordinate type ``B``. See
-drake::geometry::promoted_numerical "promoted_numerical_t" for
-details.
+drake∷geometry∷promoted_numerical "promoted_numerical_t" for details.
 
 Warning:
     This can only be evaluated if the underlying MeshType itself
@@ -522,9 +521,8 @@ directly. Otherwise, it converts Cartesian coordinates to barycentric
 coordinates for barycentric interpolation.
 
 The return type depends on both the field's scalar type ``T`` and the
-Cartesian coordinate type ``C``. See
-drake::geometry::promoted_numerical "promoted_numerical_t" for
-details.
+Cartesian coordinate type ``C``. See drake∷geometry∷promoted_numerical
+"promoted_numerical_t" for details.
 
 Parameter ``e``:
     The index of the element.
@@ -679,7 +677,7 @@ Warning:
           const char* doc =
 R"""(Returns:
     true iff the gradient field could not be computed, and the mesh
-    was constructed with MeshGradientMode::kOkOrMarkDegenerate.)""";
+    was constructed with MeshGradientMode∷kOkOrMarkDegenerate.)""";
         } is_gradient_field_degenerate;
         // Symbol: drake::geometry::MeshFieldLinear::max_values
         struct /* max_values */ {
@@ -720,7 +718,7 @@ failures.)""";
           // Source: drake/geometry/proximity/mesh_field_linear.h
           const char* doc =
 R"""(If gradient computation fails, mark it degenerate. See
-MeshFieldLinear::is_gradient_field_degenerate().)""";
+MeshFieldLinear∷is_gradient_field_degenerate().)""";
         } kOkOrMarkDegenerate;
         // Symbol: drake::geometry::MeshGradientMode::kOkOrThrow
         struct /* kOkOrThrow */ {
@@ -975,8 +973,7 @@ same frame as the plane.
 
 The return type depends on both the plane's scalar type ``T`` and the
 given query point's scalar type ``U``. See
-drake::geometry::promoted_numerical "promoted_numerical_t" for
-details.
+drake∷geometry∷promoted_numerical "promoted_numerical_t" for details.
 
 Parameter ``point``:
     The quantity p_FQ (query point Q measured and expressed in the
@@ -1035,7 +1032,7 @@ elements (three or more sides).)""";
         struct /* CalcBarycentric */ {
           // Source: drake/geometry/proximity/polygon_surface_mesh.h
           const char* doc =
-R"""(See TriangleSurfaceMesh::CalcBaryCentric(). This implementation is
+R"""(See TriangleSurfaceMesh∷CalcBaryCentric(). This implementation is
 provided to maintain compatibility with MeshFieldLinear. However, it
 only throws. PolygonSurfaceMesh does not support barycentric
 coordinates.
@@ -1285,8 +1282,8 @@ Parameter ``scale3``:
 
 Parameter ``on_warning``:
     An optional callback that will receive warning message(s)
-    encountered while reading the mesh. When not provided,
-    drake::log() will be used.
+    encountered while reading the mesh. When not provided, drake∷log()
+    will be used.
 
 Raises:
     RuntimeError if there is an error reading the mesh data.
@@ -1299,7 +1296,7 @@ R"""(Variant that allows defining uniform scaling from a single scalar
 value.)""";
         // Source: drake/geometry/proximity/obj_to_surface_mesh.h
         const char* doc_3args_mesh_source_scale3_on_warning =
-R"""(Overload of ReadObjToTriangleSurfaceMesh(const std::filesystem::path&,
+R"""(Overload of ReadObjToTriangleSurfaceMesh(const std∷filesystem∷path&,
 double) with the Wavefront .obj in a Mesh shape specification.)""";
       } ReadObjToTriangleSurfaceMesh;
       // Symbol: drake::geometry::RefineVolumeMesh
@@ -1451,8 +1448,7 @@ Cartesian.
 
 The return type depends on both the mesh's vertex position scalar type
 ``T`` and the Cartesian coordinate type ``C`` of the query point. See
-drake::geometry::promoted_numerical "promoted_numerical_t" for
-details.
+drake∷geometry∷promoted_numerical "promoted_numerical_t" for details.
 
 Parameter ``p_MQ``:
     The position of point Q measured and expressed in the mesh's frame
@@ -1494,7 +1490,7 @@ R"""(Maps the barycentric coordinates ``Q_barycentric`` of a point Q in
 
 The return type depends on both the mesh's vertex position scalar type
 ``T`` and the Barycentric coordinate type ``B`` of the query point.
-See drake::geometry::promoted_numerical "promoted_numerical_t" for
+See drake∷geometry∷promoted_numerical "promoted_numerical_t" for
 details.
 
 Precondition:
@@ -1537,7 +1533,7 @@ coordinates frame of this mesh M.)""";
           // Source: drake/geometry/proximity/triangle_surface_mesh.h
           const char* doc =
 R"""((Internal use only) Reverses the ordering of all the triangles'
-indices -- see SurfaceTriangle::ReverseWinding().)""";
+indices -- see SurfaceTriangle∷ReverseWinding().)""";
         } ReverseFaceWinding;
         // Symbol: drake::geometry::TriangleSurfaceMesh::ScalarType
         struct /* ScalarType */ {
@@ -1696,7 +1692,7 @@ its vertices but not their coordinates.)""";
           const char* doc =
 R"""(Checks to see whether the given VolumeElement use the same four
 indices in the same order. We check for equality to the last bit
-consistently with VolumeMesh::Equal(). Two permutations of the four
+consistently with VolumeMesh∷Equal(). Two permutations of the four
 vertex indices of a tetrahedron are considered different tetrahedra
 even though they span the same space.)""";
         } Equal;
@@ -1777,8 +1773,7 @@ from barycentric to Cartesian.
 
 The return type depends on both the mesh's vertex position scalar type
 ``T`` and the Cartesian coordinate type ``C`` of the query point. See
-drake::geometry::promoted_numerical "promoted_numerical_t" for
-details.
+drake∷geometry∷promoted_numerical "promoted_numerical_t" for details.
 
 Parameter ``p_MQ``:
     A position expressed in the frame M of the mesh.
@@ -1851,13 +1846,12 @@ R"""(Calculates the gradient ∇u of a linear field u on the tetrahedron
 at the i-th vertex of the tetrahedron. The gradient ∇u is expressed in
 the coordinates frame of this mesh M.
 
-If the return value is std::nullopt, the tetrahedron is degenerate,
-and no reliable gradient could be computed.
+If the return value is std∷nullopt, the tetrahedron is degenerate, and
+no reliable gradient could be computed.
 
 The return type depends on both the mesh's vertex position scalar type
 ``T`` and the given field's scalar type ``FieldValue``. See
-drake::geometry::promoted_numerical "promoted_numerical_t" for
-details.)""";
+drake∷geometry∷promoted_numerical "promoted_numerical_t" for details.)""";
         } MaybeCalcGradientVectorOfLinearField;
         // Symbol: drake::geometry::VolumeMesh::ScalarType
         struct /* ScalarType */ {
@@ -2022,7 +2016,7 @@ This also includes the helper type:
 .. code-block:: c++
 
     template <typename T, typename U>
-    using promoted_numerical_t = typename promoted_numerical<T, U>::type;
+    using promoted_numerical_t = typename promoted_numerical<T, U>∷type;
 
 .. raw:: html
 

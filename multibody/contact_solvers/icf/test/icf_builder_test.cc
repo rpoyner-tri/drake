@@ -21,6 +21,7 @@ namespace internal {
 namespace {
 
 using drake::math::RigidTransformd;
+using Eigen::Vector2d;
 using Eigen::Vector3d;
 
 constexpr double kInf = std::numeric_limits<double>::infinity();
@@ -88,10 +89,7 @@ GTEST_TEST(IcfBuilder, Limits) {
 
 GTEST_TEST(IcfBuilder, Coupler) {
   systems::DiagramBuilder<double> diagram_builder;
-  // TODO(#23992): MultibodyPlant does not yet support coupler constraints on
-  // continuous plants. Internally, ICF doesn't much care about the plant's
-  // discrete/continuous configuration.
-  multibody::MultibodyPlantConfig plant_config{.time_step = 0.01};
+  multibody::MultibodyPlantConfig plant_config{.time_step = 0.0};
 
   MultibodyPlant<double>& plant =
       multibody::AddMultibodyPlant(plant_config, &diagram_builder);
@@ -122,15 +120,11 @@ GTEST_TEST(IcfBuilder, Coupler) {
   EXPECT_EQ(pool.gear_ratio()[0], 0.8);
 }
 
-// TODO(#23992): the limitation checked in this test is contested. Must all
-// coupler constraints live within a single topological tree? If so,
-// MultibodyPlant should to the checking.
+// TODO(#23992): the limitation checked in this test is a regression from SAP
+// coupler constraints.
 GTEST_TEST(IcfBuilder, CouplerBad) {
   systems::DiagramBuilder<double> diagram_builder;
-  // TODO(#23992): MultibodyPlant does not yet support coupler constraints on
-  // continuous plants. Internally, ICF doesn't much care about the plant's
-  // discrete/continuous configuration.
-  multibody::MultibodyPlantConfig plant_config{.time_step = 0.01};
+  multibody::MultibodyPlantConfig plant_config{.time_step = 0.0};
 
   MultibodyPlant<double>& plant =
       multibody::AddMultibodyPlant(plant_config, &diagram_builder);
@@ -184,44 +178,39 @@ GTEST_TEST(IcfBuilder, RetryStep) {
   v.setConstant(plant.num_velocities(), 0.03);
   const auto& pool = model.gain_constraints_pool();
 
-  auto check_gain_constraints =
-      [&](IcfLinearFeedbackGains<double>* actuation_feedback,
-          IcfLinearFeedbackGains<double>* external_feedback) {
-        // This test model has two pendulums, and so two cliques.  External
-        // forces generate one constraint per clique. For actuation, there is
-        // only one, since the second pendulum is unactuated.
-        ASSERT_EQ(model.num_cliques(), 2);
-        EXPECT_EQ(pool.num_constraints(), 2 * (external_feedback != nullptr) +
-                                              (actuation_feedback != nullptr));
-        // Make a vector of flags predicting which constraints are actuation.
-        std::vector<int> is_actuation(pool.num_constraints(), 0);
-        if (actuation_feedback != nullptr) {
-          is_actuation[pool.num_constraints() - 1] = 1;
-        }
-        for (int k = 0; k < pool.num_constraints(); ++k) {
-          SCOPED_TRACE(fmt::format("index {}", k));
-          if (is_actuation[k]) {
-            EXPECT_EQ(pool.clique()[k], 0);
-            EXPECT_TRUE(CompareMatrices(pool.K()[k], feedback.K.head(2)));
-            EXPECT_TRUE(CompareMatrices(pool.b()[k], feedback.b.head(2)));
-            EXPECT_TRUE(CompareMatrices(pool.le()[k],
-                                        -builder.effort_limits().head(2)));
-            EXPECT_TRUE(
-                CompareMatrices(pool.ue()[k], builder.effort_limits().head(2)));
-          } else {
-            EXPECT_EQ(pool.clique()[k], k);
-            EXPECT_TRUE(
-                CompareMatrices(pool.K()[k], feedback.K.segment(2 * k, 2)));
-            EXPECT_TRUE(
-                CompareMatrices(pool.b()[k], feedback.b.segment(2 * k, 2)));
-            EXPECT_TRUE(CompareMatrices(
-                pool.le()[k], -builder.effort_limits().segment(2 * k, 2)));
-            EXPECT_TRUE(CompareMatrices(
-                pool.ue()[k], builder.effort_limits().segment(2 * k, 2)));
-          }
-          EXPECT_EQ(pool.constraint_size()[k], 2);
-        }
-      };
+  auto check_gain_constraints = [&](IcfLinearFeedbackGains<double>*
+                                        actuation_feedback,
+                                    IcfLinearFeedbackGains<double>*
+                                        external_feedback) {
+    // This test model has two pendulums, and so two cliques.  External
+    // forces generate one constraint per clique. For actuation, there is
+    // only one, since the second pendulum is unactuated.
+    ASSERT_EQ(model.num_cliques(), 2);
+    EXPECT_EQ(pool.num_constraints(), 2 * (external_feedback != nullptr) +
+                                          (actuation_feedback != nullptr));
+    // Make a vector of flags predicting which constraints are actuation.
+    std::vector<int> is_actuation(pool.num_constraints(), 0);
+    if (actuation_feedback != nullptr) {
+      is_actuation[pool.num_constraints() - 1] = 1;
+    }
+    for (int k = 0; k < pool.num_constraints(); ++k) {
+      SCOPED_TRACE(fmt::format("index {}", k));
+      if (is_actuation[k]) {
+        EXPECT_EQ(pool.clique()[k], 0);
+        EXPECT_TRUE(CompareMatrices(pool.K()[k], feedback.K.head(2)));
+        EXPECT_TRUE(CompareMatrices(pool.b()[k], feedback.b.head(2)));
+        EXPECT_TRUE(CompareMatrices(pool.le()[k], Vector2d::Constant(-kInf)));
+        EXPECT_TRUE(CompareMatrices(pool.ue()[k], Vector2d::Constant(kInf)));
+      } else {
+        EXPECT_EQ(pool.clique()[k], k);
+        EXPECT_TRUE(CompareMatrices(pool.K()[k], feedback.K.segment(2 * k, 2)));
+        EXPECT_TRUE(CompareMatrices(pool.b()[k], feedback.b.segment(2 * k, 2)));
+        EXPECT_TRUE(CompareMatrices(pool.le()[k], Vector2d::Constant(-kInf)));
+        EXPECT_TRUE(CompareMatrices(pool.ue()[k], Vector2d::Constant(kInf)));
+      }
+      EXPECT_EQ(pool.constraint_size()[k], 2);
+    }
+  };
 
   // Run a long step (pretending it failed error bounds) and then a "retry
   // step", for all combinations of feedback parameters. The retry step should
@@ -288,10 +277,7 @@ GTEST_TEST(IcfBuilder, BallConstraintUnsupported) {
 
 GTEST_TEST(IcfBuilder, DistanceConstraintUnsupported) {
   systems::DiagramBuilder<double> diagram_builder;
-  // TODO(#23762): MultibodyPlant does not yet support distance constraints on
-  // continuous plants. Internally, ICF doesn't much care about the plant's
-  // discrete/continuous configuration.
-  multibody::MultibodyPlantConfig plant_config{.time_step = 0.1};
+  multibody::MultibodyPlantConfig plant_config{.time_step = 0.0};
   MultibodyPlant<double>& plant =
       multibody::AddMultibodyPlant(plant_config, &diagram_builder);
 
@@ -308,10 +294,7 @@ GTEST_TEST(IcfBuilder, DistanceConstraintUnsupported) {
 
 GTEST_TEST(IcfBuilder, TendonConstraintUnsupported) {
   systems::DiagramBuilder<double> diagram_builder;
-  // TODO(#23763): MultibodyPlant does not yet support tendon constraints on
-  // continuous plants. Internally, ICF doesn't much care about the plant's
-  // discrete/continuous configuration.
-  multibody::MultibodyPlantConfig plant_config{.time_step = 0.1};
+  multibody::MultibodyPlantConfig plant_config{.time_step = 0.0};
   MultibodyPlant<double>& plant =
       multibody::AddMultibodyPlant(plant_config, &diagram_builder);
 
@@ -327,10 +310,7 @@ GTEST_TEST(IcfBuilder, TendonConstraintUnsupported) {
 
 GTEST_TEST(IcfBuilder, WeldConstraintUnsupported) {
   systems::DiagramBuilder<double> diagram_builder;
-  // TODO(#23759): MultibodyPlant does not yet support weld constraints on
-  // continuous plants. Internally, ICF doesn't much care about the plant's
-  // discrete/continuous configuration.
-  multibody::MultibodyPlantConfig plant_config{.time_step = 0.1};
+  multibody::MultibodyPlantConfig plant_config{.time_step = 0.0};
   MultibodyPlant<double>& plant =
       multibody::AddMultibodyPlant(plant_config, &diagram_builder);
 
@@ -346,9 +326,9 @@ GTEST_TEST(IcfBuilder, WeldConstraintUnsupported) {
 
 GTEST_TEST(IcfBuilder, DeformableUnsupported) {
   systems::DiagramBuilder<double> diagram_builder;
-  // TODO(#23768): MultibodyPlant does not yet support deformable bodies on
-  // continuous plants. Internally, ICF doesn't much care about the plant's
-  // discrete/continuous configuration.
+  // TODO(#23768): MultibodyPlant (specifically, DeformableModel) does not yet
+  // support deformable bodies on continuous plants. Internally, ICF doesn't
+  // much care about the plant's discrete/continuous configuration.
   multibody::MultibodyPlantConfig plant_config{.time_step = 0.1};
   MultibodyPlant<double>& plant =
       multibody::AddMultibodyPlant(plant_config, &diagram_builder);
@@ -373,6 +353,8 @@ GTEST_TEST(IcfBuilder, JointLockingUnsupported) {
       multibody::AddMultibodyPlant(plant_config, &diagram_builder);
 
   Parser(&plant, "Pendulum").AddModelsFromString(kRobotXml, "xml");
+  // Remove a joint to exercise non-contiguous joint indexing.
+  plant.RemoveJoint(plant.get_joint(JointIndex(0)));
 
   plant.Finalize();
   IcfBuilder<double> dut(&plant);
@@ -382,12 +364,19 @@ GTEST_TEST(IcfBuilder, JointLockingUnsupported) {
   auto& plant_context =
       plant.GetMyMutableContextFromRoot(diagram_context.get());
 
-  plant.get_joint(JointIndex(0)).Lock(&plant_context);
-
   IcfModel<double> model;
+  // Bug regression check: don't accidentally throw by mistakenly iterating
+  // over stale joint indices.
+  EXPECT_NO_THROW(
+      dut.UpdateModel(plant_context, 0.01, nullptr, nullptr, &model));
+
+  plant.get_joint(JointIndex(1)).Lock(&plant_context);
+
+  // Actual joint locking check: now something is locked, refuse to give wrong
+  // answers, and explain that joint locking is the problem.
   DRAKE_EXPECT_THROWS_MESSAGE(
       dut.UpdateModel(plant_context, 0.01, nullptr, nullptr, &model),
-      ".*joint 0.*locked.*");
+      ".*joint 1.*locked.*");
 }
 
 }  // namespace

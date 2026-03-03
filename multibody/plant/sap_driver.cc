@@ -205,8 +205,11 @@ template <typename T>
 std::vector<RotationMatrix<T>> SapDriver<T>::AddContactConstraints(
     const systems::Context<T>& context, SapContactProblem<T>* problem) const {
   DRAKE_DEMAND(problem != nullptr);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   DRAKE_DEMAND(plant().get_discrete_contact_approximation() !=
                DiscreteContactApproximation::kTamsi);
+#pragma GCC diagnostic pop
 
   // Parameters used by SAP to estimate regularization, see [Castro et al.,
   // 2021].
@@ -725,12 +728,14 @@ void SapDriver<T>::AddPdControllerConstraints(
   // Do nothing if not PD controllers were specified.
   if (plant().num_actuators() == 0) return;
 
-  // TODO(amcastro-tri): makes these EvalFoo() instead to avoid heap
-  // allocations.
-  const DesiredStateInput<T> desired_states =
-      manager_->AssembleDesiredStateInput(context);
-  const VectorX<T> feed_forward_actuation =
-      manager_->AssembleActuationInput(context);
+  // Eval the input port values. Note that the effort limit is only applied to
+  // the full PD control expression `-Kp⋅(q − qd) - Kd⋅(v − vd) + u_ff`, not the
+  // individual `u_ff` term, so we set `effort_limit = false` here to obtain the
+  // unadulterated input port value.
+  const DesiredStateInput<T>& desired_states =
+      manager_->EvalDesiredStateInput(context);
+  const VectorX<T>& feed_forward_actuation =
+      manager_->EvalActuationInput(context, /* apply_effort_limit = */ false);
 
   const SpanningForest& forest = get_forest();
   for (ModelInstanceIndex model_instance_index(0);
@@ -1229,11 +1234,14 @@ void SapDriver<T>::CalcDiscreteUpdateMultibodyForces(
 template <typename T>
 void SapDriver<T>::CalcActuation(const systems::Context<T>& context,
                                  VectorX<T>* actuation) const {
-  // By default, models with no controllers feed through the output.
-  // PD controlled actuation values are overwritten below with values computed
-  // by the SAP solver, which includes these terms implicitly and enforces
-  // effort limits.
-  *actuation = manager().AssembleActuationInput(context);
+  // If there are no PD controllers, then the net actuation output is simply the
+  // (effort-limited) actuation input. We'll use that as our baseline here.
+  //
+  // Any PD controlled actuators are overwritten below with values computed by
+  // the SAP solver; those values already account for the PD actuation,
+  // feedforward actuation, and effort limits.
+  *actuation =
+      manager().EvalActuationInput(context, /* apply_effort_limit = */ true);
 
   // Add contribution from PD controllers.
   const ContactProblemCache<T>& contact_problem_cache =

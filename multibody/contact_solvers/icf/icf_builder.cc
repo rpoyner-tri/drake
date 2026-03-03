@@ -289,12 +289,12 @@ template <typename T>
 void IcfBuilder<T>::ValidateContext(const systems::Context<T>& context) {
   // Revisit this condition when joint locking support is implemented. See
   // #23764.
-  for (int k = 0; k < plant_.num_joints(); ++k) {
-    if (plant_.get_joint(JointIndex(k)).is_locked(context)) {
+  for (const JointIndex& j : plant_.GetJointIndices()) {
+    if (plant_.get_joint(j).is_locked(context)) {
       throw std::runtime_error(
           fmt::format("The CENIC integrator does not yet support joint "
                       "locking, but at least joint {} is locked",
-                      k));
+                      j));
     }
   }
 }
@@ -392,8 +392,8 @@ void IcfBuilder<T>::SetCouplerConstraints(const systems::Context<T>& context,
     const int clique1 = tree_to_clique(tree1);
 
     if (clique0 != clique1) {
-      // TODO(#23992): this limitation is contested. It should either be
-      // removed, or escalated to MultibodyPlant.
+      // TODO(#23992): this limitation is a regression from SAP coupler
+      // constraints. It should be removed.
       throw std::logic_error(
           "IcfBuilder: Couplers are only allowed within DoFs in the same "
           "tree.");
@@ -677,6 +677,17 @@ void IcfBuilder<T>::SetActuationGainConstraints(const VectorX<T>& Ku,
     constraint_index = model->num_cliques();
   }
 
+  // Collect joint effort limits, indexed by velocity.
+  VectorX<T>& effort_limits = scratch_.effort_limits;
+  effort_limits.setConstant(kInf);
+  for (JointActuatorIndex actuator_index : plant_.GetJointActuatorIndices()) {
+    const JointActuator<T>& actuator =
+        plant_.get_joint_actuator(actuator_index);
+    const Joint<T>& joint = actuator.joint();
+    effort_limits[joint.velocity_start()] = actuator.effort_limit();
+  }
+
+  // Add constraints for cliques with actuation.
   for (int c = 0; c < model->num_cliques(); ++c) {
     if (plant_facts_.clique_nu[c] == 0) {
       continue;
@@ -684,7 +695,7 @@ void IcfBuilder<T>::SetActuationGainConstraints(const VectorX<T>& Ku,
 
     const auto Ku_c = model->clique_segment(c, Ku);
     const auto bu_c = model->clique_segment(c, bu);
-    const auto e_c = model->clique_segment(c, plant_facts_.effort_limits);
+    const auto e_c = model->clique_segment(c, effort_limits);
 
     gain_constraints.Set(constraint_index, c, Ku_c, bu_c, e_c);
     ++constraint_index;
@@ -773,7 +784,9 @@ IcfBuilder<T>::BodiesSortedByAnchorage::BodiesSortedByAnchorage(
 
 template <typename T>
 IcfBuilder<T>::Scratch::Scratch(const MultibodyPlant<T>& plant)
-    : accelerations(VectorX<T>::Zero(plant.num_velocities())), forces(plant) {
+    : effort_limits(VectorX<T>::Zero(plant.num_velocities())),
+      accelerations(VectorX<T>::Zero(plant.num_velocities())),
+      forces(plant) {
   J_V_WB.resize(6, plant.num_velocities());
 }
 
@@ -823,12 +836,8 @@ IcfBuilder<T>::PlantFacts::PlantFacts(const MultibodyPlant<T>& plant) {
     body_is_floating[b] = is_free_floating ? 1 : 0;
   }
 
-  // Iterate over actuators to find number of actuators per clique, and effort
-  // limits for each velocity.
+  // Iterate over actuators to find number of actuators per clique.
   clique_nu.assign(clique_sizes.size(), 0);
-  const int nv = plant.num_velocities();
-  effort_limits.resize(nv);
-  effort_limits.setConstant(kInf);
   for (JointActuatorIndex actuator_index : plant.GetJointActuatorIndices()) {
     const JointActuator<T>& actuator = plant.get_joint_actuator(actuator_index);
     const Joint<T>& joint = actuator.joint();
@@ -837,7 +846,6 @@ IcfBuilder<T>::PlantFacts::PlantFacts(const MultibodyPlant<T>& plant) {
     const int c = tree_to_clique[t];
     DRAKE_ASSERT(c >= 0);
     ++clique_nu[c];
-    effort_limits[dof] = actuator.effort_limit();
   }
   num_actuation_constraints = std::ranges::count_if(clique_nu, [](int k) {
     return k > 0;

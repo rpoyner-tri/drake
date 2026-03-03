@@ -57,7 +57,7 @@ vector, we need to specify in what frame the time derivative is taken,
 see [Mitiguy 2022, §7.2] for an in-depth discussion. Time derivatives
 in different frames are related by the "Transport Theorem", which in
 Drake is implemented in
-drake::math::ConvertTimeDerivativeToOtherFrame(). In source code
+drake∷math∷ConvertTimeDerivativeToOtherFrame(). In source code
 (monogram) notation, we write A_MB = DtM(V_MB), where DtM() denotes
 the time derivative in frame M. Details on vector differentiation is
 in section Dt_multibody_quantities.
@@ -97,7 +97,7 @@ Returns ``A_MC_E``:
     frame E.
 
 See also:
-    SpatialVelocity::ComposeWithMovingFrameVelocity(). Use Shift() if
+    SpatialVelocity∷ComposeWithMovingFrameVelocity(). Use Shift() if
     frames B and C are both fixed to the same frame or body, i.e.,
     velocity_of_moving_frame = 0 and acceleration_of_moving_frame = 0.
 
@@ -186,7 +186,7 @@ as DtM(ω_BC) = DtB(ω_BC) + ω_MB x ω_BC, as
 * Translational acceleration component *
 
 v_MCo (frame C's translational velocity in frame M) is calculated in
-SpatialVelocity::ComposeWithMovingFrameVelocity) as
+SpatialVelocity∷ComposeWithMovingFrameVelocity) as
 
 
 .. raw:: html
@@ -440,7 +440,7 @@ Point Co's translational acceleration in frame M is:
     </details>
 
 The "Transport Theorem" converts the time-derivative of the last term
-from DtM() to DtB() -- see math::ConvertTimeDerivativeToOtherFrame(),
+from DtM() to DtB() -- see math∷ConvertTimeDerivativeToOtherFrame(),
 as
 
 
@@ -627,7 +627,7 @@ Parameter ``offset``:
 
 Note:
     There are related functions that shift spatial momentum and
-    spatial velocity (see SpatialMomentum::Shift() and
+    spatial velocity (see SpatialMomentum∷Shift() and
     SpatialVelocity:Shift()).
 
 See also:
@@ -891,8 +891,8 @@ Note:
     As shown below, K_MB can be calculated from any frame Bp fixed on
     B, including body B's center of mass frame Bcm. This is due to how
     spatial momentum and spatial velocity shift from Bcm to Bp. For
-    more information, see SpatialMomentum::Shift() and
-    SpatialVelocity::Shift().
+    more information, see SpatialMomentum∷Shift() and
+    SpatialVelocity∷Shift().
 
 
 .. raw:: html
@@ -949,8 +949,8 @@ Parameter ``other``:
     spatial vector to subtract from ``this`` spatial vector.
 
 Returns:
-    The following quantities in a tuple, in the order below.
-    std::tuple | Description
+    The following quantities in a tuple, in the order below. std∷tuple
+    | Description
     -----------------|-------------------------------------------------
     w_max_difference | Maximum absolute difference in rotation
     components v_max_difference | Maximum absolute difference in
@@ -1225,7 +1225,7 @@ produces a Shift() operation (albeit inefficiently). In other words,
 use Shift() if velocity_of_moving_frame = 0.
 
 See also:
-    SpatialAcceleration::ComposeWithMovingFrameAcceleration().)""";
+    SpatialAcceleration∷ComposeWithMovingFrameAcceleration().)""";
         } ComposeWithMovingFrameVelocity;
         // Symbol: drake::multibody::SpatialVelocity::Shift
         struct /* Shift */ {
@@ -1365,8 +1365,8 @@ Note:
     As shown below, K_MB can be calculated from any frame Bp fixed on
     B, including body B's center of mass frame Bcm. This is due to how
     spatial momentum and spatial velocity shift from Bcm to Bp. For
-    more information, see SpatialMomentum::Shift() and
-    SpatialVelocity::Shift().
+    more information, see SpatialMomentum∷Shift() and
+    SpatialVelocity∷Shift().
 
 
 .. raw:: html

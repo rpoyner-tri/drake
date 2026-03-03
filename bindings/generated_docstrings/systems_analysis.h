@@ -215,8 +215,8 @@ Template parameter ``Args``:
 
 Warning:
     This operation invalidates pointers returned by
-    AntiderivativeFunction::get_integrator() and
-    AntiderivativeFunction::get_mutable_integrator().)""";
+    AntiderivativeFunction∷get_integrator() and
+    AntiderivativeFunction∷get_mutable_integrator().)""";
         } reset_integrator;
       } AntiderivativeFunction;
       // Symbol: drake::systems::ApplySimulatorConfig
@@ -269,7 +269,7 @@ Parameter ``inputs``:
     A num_inputs x N matrix of inputs at which to evaluate the
     dynamics, where num_inputs must match the size of the input port
     selected. If input_port_index is set to
-    InputPortSelection::kNoInput, then the inputs argument will be
+    InputPortSelection∷kNoInput, then the inputs argument will be
     ignored.
 
 Parameter ``input_port_index``:
@@ -295,14 +295,14 @@ Raises:
         const char* doc =
 R"""(Evaluates the dynamics of a difference equation ``system`` at many
 times, states, and inputs. See
-System<T>::EvalUniquePeriodicDiscreteUpdate().
+System<T>∷EvalUniquePeriodicDiscreteUpdate().
 
 Each column of ``times``, `states`, and ``inputs`` will be associated
 with a single evaluation of the dynamics. The return value will be a
 matrix with each column corresponding to the next state of the system
 evaluated ``num_time_steps * time_step`` seconds after the provided
 time, using the ``time_step`` that is reported by
-System<T>::IsDifferenceEquationSystem().
+System<T>∷IsDifferenceEquationSystem().
 
 Template parameter ``T``:
     The scalar type of the system.
@@ -325,7 +325,7 @@ Parameter ``inputs``:
     A num_inputs x N matrix of inputs at which to evaluate the
     dynamics, where num_inputs must match the size of the input port
     selected. If input_port_index is set to
-    InputPortSelection::kNoInput, then the inputs argument will be
+    InputPortSelection∷kNoInput, then the inputs argument will be
     ignored.
 
 Parameter ``num_time_steps``:
@@ -764,7 +764,7 @@ gradients.)""";
         // Source: drake/systems/analysis/simulator_config_functions.h
         const char* doc =
 R"""(Returns the allowed string values for the ``scheme`` parameter in
-ResetIntegratorFromFlags() and SimulatorConfig::integration_scheme.)""";
+ResetIntegratorFromFlags() and SimulatorConfig∷integration_scheme.)""";
       } GetIntegrationSchemes;
       // Symbol: drake::systems::HermitianDenseOutput
       struct /* HermitianDenseOutput */ {
@@ -778,7 +778,7 @@ dense output that is continuous.
 Updates take the form of integration steps, for which state 𝐱 and
 state time derivative d𝐱/dt are known at least at both ends of the
 step. Hermite cubic polynomials are then constructed upon
-StepwiseDenseOutput::Consolidate "consolidation", yielding a C1
+StepwiseDenseOutput∷Consolidate "consolidation", yielding a C1
 extension of the solution 𝐱(t).
 
 Hermitian continuous extensions exhibit the same truncation error as
@@ -1115,7 +1115,7 @@ Note:
     the solution, the large full-sized step is the error estimator,
     and the error estimation statistics track the effort during the
     large full-sized step. If the integrator is not in full-Newton
-    mode (see ImplicitIntegrator::set_use_full_newton()), most of the
+    mode (see ImplicitIntegrator∷set_use_full_newton()), most of the
     work incurred by constructing and factorizing matrices and by
     failing Newton-Raphson iterations will be counted toward the error
     estimation statistics, because the large step is performed first.
@@ -1123,7 +1123,7 @@ Note:
 Note:
     This integrator uses the integrator accuracy setting, even when
     run in fixed-step mode, to limit the error in the underlying
-    Newton-Raphson process. See IntegratorBase::set_target_accuracy()
+    Newton-Raphson process. See IntegratorBase∷set_target_accuracy()
     for more info.
 
 See also:
@@ -1386,17 +1386,17 @@ Returns:
         // Symbol: drake::systems::ImplicitIntegrator::DoImplicitIntegratorClone
         struct /* DoImplicitIntegratorClone */ {
           // Source: drake/systems/analysis/implicit_integrator.h
-          const char* doc = R"""(@copydoc IntegratorBase::DoClone())""";
+          const char* doc = R"""(@copydoc IntegratorBase∷DoClone())""";
         } DoImplicitIntegratorClone;
         // Symbol: drake::systems::ImplicitIntegrator::DoImplicitIntegratorReset
         struct /* DoImplicitIntegratorReset */ {
           // Source: drake/systems/analysis/implicit_integrator.h
-          const char* doc = R"""(@copydoc IntegratorBase::DoReset())""";
+          const char* doc = R"""(@copydoc IntegratorBase∷DoReset())""";
         } DoImplicitIntegratorReset;
         // Symbol: drake::systems::ImplicitIntegrator::DoImplicitIntegratorStep
         struct /* DoImplicitIntegratorStep */ {
           // Source: drake/systems/analysis/implicit_integrator.h
-          const char* doc = R"""(@copydoc IntegratorBase::DoStep())""";
+          const char* doc = R"""(@copydoc IntegratorBase∷DoStep())""";
         } DoImplicitIntegratorStep;
         // Symbol: drake::systems::ImplicitIntegrator::DoReset
         struct /* DoReset */ {
@@ -2000,8 +2000,8 @@ Template parameter ``Args``:
 
 Warning:
     This operation invalidates pointers returned by
-    InitialValueProblem::get_integrator() and
-    InitialValueProblem::get_mutable_integrator().)""";
+    InitialValueProblem∷get_integrator() and
+    InitialValueProblem∷get_mutable_integrator().)""";
         } reset_integrator;
       } InitialValueProblem;
       // Symbol: drake::systems::InitializeParams
@@ -2011,7 +2011,7 @@ Warning:
 R"""(Parameters for fine control of simulator initialization.
 
 See also:
-    Simulator<T>::Initialize().)""";
+    Simulator<T>∷Initialize().)""";
         // Symbol: drake::systems::InitializeParams::Serialize
         struct /* Serialize */ {
           // Source: drake/systems/analysis/simulator.h
@@ -2239,7 +2239,7 @@ derivative function evaluations.)""";
           const char* doc =
 R"""(Returns all integrator statistics as a single collection. The data is
 organized as a list of (key, value) pairs. The types allowed by the
-``variant`` may grow over time; be sure to use ``std::visit`` for
+``variant`` may grow over time; be sure to use ``std∷visit`` for
 access.)""";
         } GetStatisticsSummary;
         // Symbol: drake::systems::IntegratorBase::Initialize
@@ -2304,9 +2304,9 @@ Postcondition:
 Warning:
     Users should generally not call this function directly; within
     simulation circumstances, users will typically call
-    ``Simulator::AdvanceTo()``. In other circumstances, users will
+    ``Simulator∷AdvanceTo()``. In other circumstances, users will
     typically call
-    ``IntegratorBase::IntegrateWithMultipleStepsToTime()``.
+    ``IntegratorBase∷IntegrateWithMultipleStepsToTime()``.
 
 This method at a glance: - For integrating ODEs/DAEs via Simulator -
 Supports fixed step and variable step integration schemes - Takes only
@@ -2324,7 +2324,7 @@ integrator multiple times, as necessary, to attain requested error
 tolerances and to ensure the integrator converges.
 
 Warning:
-    Users should simulate systems using ``Simulator::AdvanceTo()`` in
+    Users should simulate systems using ``Simulator∷AdvanceTo()`` in
     place of this function (which was created for off-simulation
     purposes), generally.
 
@@ -2367,7 +2367,7 @@ for integrators that support that feature), which is a minimal
 requirement for "consistency".
 
 Warning:
-    Users should simulate systems using ``Simulator::AdvanceTo()`` in
+    Users should simulate systems using ``Simulator∷AdvanceTo()`` in
     place of this function (which was created for off-simulation
     purposes), generally.
 
@@ -3367,7 +3367,7 @@ Raises:
       struct /* NamedStatistic */ {
         // Source: drake/systems/analysis/integrator_base.h
         const char* doc =
-R"""(Helper type for IntegratorBase<T>::GetStatisticsSummary.)""";
+R"""(Helper type for IntegratorBase<T>∷GetStatisticsSummary.)""";
       } NamedStatistic;
       // Symbol: drake::systems::PrintSimulatorStatistics
       struct /* PrintSimulatorStatistics */ {
@@ -3432,7 +3432,7 @@ See also:
 Note:
     This integrator uses the integrator accuracy setting, even when
     run in fixed-step mode, to limit the error in the underlying
-    Newton-Raphson process. See IntegratorBase::set_target_accuracy()
+    Newton-Raphson process. See IntegratorBase∷set_target_accuracy()
     for more info.)""";
         // Symbol: drake::systems::RadauIntegrator::RadauIntegrator<T, num_stages>
         struct /* ctor */ {
@@ -3473,7 +3473,7 @@ Parameter ``scheme``:
     GetIntegrationSchemes() for a the list of valid options.
 
 Parameter ``max_step_size``:
-    The IntegratorBase::set_maximum_step_size() value.
+    The IntegratorBase∷set_maximum_step_size() value.
 
 Returns:
     A reference to the newly created integrator owned by
@@ -3869,8 +3869,8 @@ Template parameter ``Args``:
 
 Warning:
     This operation invalidates pointers returned by
-    ScalarInitialValueProblem::get_integrator() and
-    ScalarInitialValueProblem::get_mutable_integrator().)""";
+    ScalarInitialValueProblem∷get_integrator() and
+    ScalarInitialValueProblem∷get_mutable_integrator().)""";
         } reset_integrator;
       } ScalarInitialValueProblem;
       // Symbol: drake::systems::ScalarViewDenseOutput
@@ -4363,7 +4363,7 @@ below:
 
 The isolation window length will never be smaller than the
 integrator's working minimum tolerance (see
-IntegratorBase::get_working_minimum_step_size());
+IntegratorBase∷get_working_minimum_step_size());
 
 Returns:
     the isolation window if the Simulator should be isolating
@@ -4375,7 +4375,7 @@ Returns:
 Raises:
     RuntimeError if the accuracy is not set in the Context and the
     integrator is not operating in fixed step mode (see
-    IntegratorBase::get_fixed_step_mode().)""";
+    IntegratorBase∷get_fixed_step_mode().)""";
         } GetCurrentWitnessTimeIsolation;
         // Symbol: drake::systems::Simulator::Initialize
         struct /* Initialize */ {
@@ -4754,10 +4754,10 @@ is advanced:
 .. code-block:: c++
 
     simulator.set_monitor([](const Context<T>& root_context) {
-      std::cout << root_context.get_time() << " "
+      std∷cout << root_context.get_time() << " "
                 << root_context.get_continuous_state_vector()
-                << std::endl;
-      return EventStatus::Succeeded();
+                << std∷endl;
+      return EventStatus∷Succeeded();
     });
 
 .. raw:: html
@@ -4778,10 +4778,10 @@ System diagram being simulated:
       const Context<T>& subcontext =
           my_subsystem.GetMyContextFromRoot(root_context);
       if (my_subsystem.GoalReached(subcontext)) {
-        return EventStatus::ReachedTermination(my_subsystem,
+        return EventStatus∷ReachedTermination(my_subsystem,
             "Simulation achieved the desired goal.");
       }
-      return EventStatus::Succeeded();
+      return EventStatus∷Succeeded();
     });
 
 .. raw:: html
@@ -4809,9 +4809,9 @@ Failure due to plant center of mass falling below a threshold:
       const Vector3<T> com =
           plant.CalcCenterOfMassPositionInWorld(plant_context);
       if (com[2] < 0.1) {  // Check z height of com.
-        return EventStatus::Failed(plant, "System fell over.");
+        return EventStatus∷Failed(plant, "System fell over.");
       }
-      return EventStatus::Succeeded();
+      return EventStatus∷Succeeded();
     });
 
 .. raw:: html
@@ -4922,8 +4922,8 @@ IntegratorBase.)""";
           const char* doc =
 R"""(DEPRECATED: removal date: 2026-06-01. See
 https://drake.mit.edu/troubleshooting.html#force-publishing for
-guidance. Sets Simulator::set_publish_at_initialization() in addition
-to Simulator::set_publish_every_time_step() when applied by
+guidance. Sets Simulator∷set_publish_at_initialization() in addition
+to Simulator∷set_publish_every_time_step() when applied by
 ApplySimulatorConfig().)""";
         } publish_every_time_step;
         // Symbol: drake::systems::SimulatorConfig::start_time
@@ -4959,9 +4959,9 @@ R"""(Starting time of the simulation. We will set the context time to
       struct /* SimulatorStatus */ {
         // Source: drake/systems/analysis/simulator_status.h
         const char* doc =
-R"""(Holds the status return value from a call to Simulator::AdvanceTo()
-and related methods. The argument t to AdvanceTo(t) is called the
-boundary time, and represents the maximum time to which the simulation
+R"""(Holds the status return value from a call to Simulator∷AdvanceTo() and
+related methods. The argument t to AdvanceTo(t) is called the boundary
+time, and represents the maximum time to which the simulation
 trajectory will be advanced by a call to AdvanceTo(). (For methods
 that don't advance time, the current time is considered to be the
 boundary time.) A normal, successful return means that simulated time
@@ -5237,7 +5237,7 @@ x̃ⁿ⁺¹ - xⁿ⁺¹``. VelocityImplicitEulerIntegrator uses ``ε* = x̅ⁿ�
 x̃ⁿ⁺¹``, the difference between the two solutions, as the second-order
 error estimate, because for a smooth system, ``‖ε*‖ = O(h²)``, and
 ``‖ε - ε*‖ = O(h³)``. See the notes in
-VelocityImplicitEulerIntegrator<T>::get_error_estimate_order() for a
+VelocityImplicitEulerIntegrator<T>∷get_error_estimate_order() for a
 detailed derivation of the error estimate's truncation error.
 
 In this implementation, VelocityImplicitEulerIntegrator<T> attempts
@@ -5267,7 +5267,7 @@ Note:
     the solution, the large full-sized step is the error estimator,
     and the error estimation statistics track the effort during the
     large full-sized step. If the integrator is not in full-Newton
-    mode (see ImplicitIntegrator<T>::set_use_full_newton()), most of
+    mode (see ImplicitIntegrator<T>∷set_use_full_newton()), most of
     the work incurred by constructing and factorizing matrices and by
     failing Newton-Raphson iterations will be counted toward the error
     estimation statistics, because the large step is performed first.
@@ -5275,7 +5275,7 @@ Note:
 Note:
     This integrator uses the integrator accuracy setting, even when
     run in fixed-step mode, to limit the error in the underlying
-    Newton-Raphson process. See IntegratorBase::set_target_accuracy()
+    Newton-Raphson process. See IntegratorBase∷set_target_accuracy()
     for more info.
 
 See also:
@@ -5457,7 +5457,7 @@ In pseudo-code, this algorithm implements:
     for i=1:num_samples
         const generator_snapshot = deepcopy(generator)
         output = RandomSimulation(..., generator)
-        data(i) = std::pair(generator_snapshot, output)
+        data(i) = std∷pair(generator_snapshot, output)
       return data
 
 .. raw:: html
@@ -5485,7 +5485,7 @@ Parameter ``parallelism``:
     ``num_samples`` simulations. The default value (false) specifies
     that simulations should be executed in serial. To use the
     concurrency available on your hardware, specify either
-    ``Parallellism::Max()`` or its terse abbreviation ``True``.
+    ``Parallellism∷Max()`` or its terse abbreviation ``True``.
 
 Returns:
     a list of RandomSimulationResult's.
@@ -5633,8 +5633,8 @@ obtained from solving the Lyapunov equation on the linearization).
 
 Parameter ``system``:
     a time-invariant continuous-time System that supports scalar-type
-    conversion to symbolic::Expression. The dynamics of the system
-    must be polynomial.
+    conversion to symbolic∷Expression. The dynamics of the system must
+    be polynomial.
 
 Parameter ``context``:
     a Context that defines the parameters of the system and the
@@ -5647,7 +5647,7 @@ See also:
     RegionOfAttractionOptions.
 
 Returns:
-    a symbolic::Expression representing a Lyapunov function using the
+    a symbolic∷Expression representing a Lyapunov function using the
     symbolic Variables named x0, x1..., where the order matches the
     continuous state vector in the ``context``, or the vector
     state_variables passed in through the options structure (if it is
@@ -5658,7 +5658,7 @@ Precondition:
     For the given ``system`` and ``context``, any required input ports
     on ``system`` must be "defined", i.e., connected to other systems
     in a larger diagram or holding fixed values; see
-    System::FixInputPortsFrom for possible caveats. Analyzing a
+    System∷FixInputPortsFrom for possible caveats. Analyzing a
     closed-loop system would typically be accomplished by having both
     the plant and the controller in a diagram (which then has no input
     ports), and passing the diagram into this method as ``system``.
@@ -5698,7 +5698,7 @@ system being evaluated (or the vector state_variables).)""";
           struct /* solver_id */ {
             // Source: drake/systems/analysis/region_of_attraction.h
             const char* doc =
-R"""(If not std::nullopt, then we will solve the optimization problem using
+R"""(If not std∷nullopt, then we will solve the optimization problem using
 the specified solver; otherwise Drake will choose a solver.)""";
           } solver_id;
           // Symbol: drake::systems::analysis::RegionOfAttractionOptions::solver_options

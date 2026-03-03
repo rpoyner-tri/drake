@@ -12,24 +12,17 @@ module(
 
 # Add starlark rules.
 
-bazel_dep(name = "apple_support", version = "2.2.0")  # Keep this in sync with cmake/MODULE.bazel.in.  # noqa
-bazel_dep(name = "bazel_features", version = "1.41.0")
+bazel_dep(name = "apple_support", version = "2.3.0")  # Keep this in sync with cmake/MODULE.bazel.in.  # noqa
+bazel_dep(name = "bazel_features", version = "1.42.0")
 bazel_dep(name = "bazel_skylib", version = "1.9.0")
 bazel_dep(name = "platforms", version = "1.0.0")
-bazel_dep(name = "rules_cc", version = "0.2.16")
-bazel_dep(name = "rules_java", version = "9.3.0")
+bazel_dep(name = "rules_cc", version = "0.2.17")
+bazel_dep(name = "rules_java", version = "9.6.1")
 bazel_dep(name = "rules_jvm_external", version = "6.9")
 bazel_dep(name = "rules_license", version = "1.0.0")
-bazel_dep(name = "rules_python", version = "1.8.3")  # Keep this in sync with cmake/MODULE.bazel.in.  # noqa
-bazel_dep(name = "rules_rust", version = "0.68.1")
+bazel_dep(name = "rules_python", version = "1.8.5")  # Keep this in sync with cmake/MODULE.bazel.in.  # noqa
+bazel_dep(name = "rules_rust", version = "0.69.0")
 bazel_dep(name = "rules_shell", version = "0.6.1")
-
-single_version_override(
-    module_name = "rules_cc",
-    patches = [
-        "@drake//tools/workspace/rules_cc:patches/upstream/cc-as-gcc.patch",
-    ],
-)
 
 # Configure the C++ toolchain.
 
@@ -57,7 +50,7 @@ use_repo(cc_configure, "local_config_cc")
 # For first-party Bazel builds (by Drake Developers), the pkgconfig flavor is
 # used by default but can be changed using the Bazel flags.
 
-bazel_dep(name = "eigen", version = "5.0.1", repo_name = "module_eigen")
+bazel_dep(name = "eigen", version = "5.0.1.bcr.1", repo_name = "module_eigen")
 bazel_dep(name = "fmt", version = "12.1.0", repo_name = "module_fmt")
 bazel_dep(name = "spdlog", version = "1.17.0", repo_name = "module_spdlog")  # noqa
 
@@ -76,11 +69,11 @@ bazel_dep(name = "spdlog", version = "1.17.0", repo_name = "module_spdlog")  # n
 # is used by default.
 
 bazel_dep(name = "glib", version = "2.82.2.bcr.7", repo_name = "module_glib")
-bazel_dep(name = "zlib", version = "1.3.1.bcr.8", repo_name = "module_zlib")
+bazel_dep(name = "zlib", version = "1.3.2", repo_name = "module_zlib")
 
 # Add additional modules we use at build-time (not runtime dependencies).
 
-bazel_dep(name = "libx11", version = "1.8.12.bcr.4")
+bazel_dep(name = "libx11", version = "1.8.12.bcr.5")
 bazel_dep(name = "nasm", version = "2.16.03.bcr.2")
 bazel_dep(name = "patchelf", version = "0.18.0.bcr.1")
 bazel_dep(name = "toolchains_llvm", version = "1.5.0")
@@ -129,29 +122,6 @@ pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
         requirements_lock = "//setup:python/mypy/requirements.txt",
     )
     for python_version in PYTHON_VERSIONS
-]
-
-[
-    pip.override(
-        file = "mypy-1.19.1-{abi}-{abi}-{platform}.whl".format(
-            abi = abi,
-            platform = platform,
-        ),
-        patch_strip = 0,
-        patches = [
-            "//tools/workspace/mypy_internal:patches/upstream/reject_double_colon.patch",  # noqa
-            "//tools/workspace/mypy_internal:patches/timeout.patch",
-        ],
-    )
-    for abi in [
-        "cp3{minor}".format(minor = x[2:])
-        for x in PYTHON_VERSIONS
-    ]
-    for platform in [
-        "macosx_11_0_arm64",
-        "manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64",
-        "manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64",
-    ]
 ]
 
 use_repo(pip, "drake_mypy")
@@ -276,7 +246,7 @@ single_version_override(
 
 bazel_dep(
     name = "ruff_prebuilt",
-    version = "0.14.10.1",
+    version = "0.15.0.1",
     dev_dependency = True,
     repo_name = "ruff",
 )
@@ -393,4 +363,16 @@ use_repo(
     "crate__clarabel-0.11.1",
     "crate__paste-1.0.15",
     "crate_licenses",
+)
+
+# Add CLion support repository used by `tools/clion/bazel_wrapper`.
+
+drake_clion_environment = use_repo_rule(
+    "//tools/clion:repository.bzl",
+    "drake_clion_environment",
+)
+
+drake_clion_environment(
+    name = "drake_clion_environment",
+    dev_dependency = True,
 )
