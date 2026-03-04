@@ -7,11 +7,12 @@ def nanobind_repository(
         name = name,
         # local_repository_override = "/home/rico/third/nanobind",
         repository = "wjakob/nanobind",
-        commit = "v2.10.2",
-        sha256 = "5bb7f866f6c9c64405308b69de7e7681d8f779323e345bd71a00199c1eaec073",  # noqa
+        commit = "v2.12.0",
+        sha256 = "01f1f0cd0398743c18f33d07ae36ad410bd7f4a1e90683b508504de897d6e629",  # noqa
         build_file = ":package.BUILD.bazel",
         patches = [
             ":patches/ndarray_extra_import.patch",
+            ":patches/ndarray_opaque_handle.patch",
         ],
         mirrors = mirrors,
     )

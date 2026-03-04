@@ -93,7 +93,7 @@ NB_INLINE ndarray_handle* ndarray_extra_import(PyObject* o,
   } else if constexpr (std::is_same_v<Scalar, drake::AutoDiffXd>) {
     auto data = std::make_unique<Scalar[]>(size);
     for (size_t k = 0; k < size; ++k) {
-    data.get()[k] = cast<Scalar>(handle(PySequence_GetItem(o, k)));
+      data.get()[k] = cast<Scalar>(handle(PySequence_GetItem(o, k)));
     }
     // XXX porting: double check memory management!
     Ndarray helper(data.release(), 2, shape.data());
@@ -297,7 +297,7 @@ std::shared_ptr<T> make_shared_ptr_from_py_object(py::object py_object) {
   template <>                                       \
   struct dtype_traits<Type> {                       \
     static constexpr dlpack::dtype value{           \
-        3, /* opaque handle */                      \
+        dlpack::dtype::OpaqueHandle,                \
         sizeof(object) * 8,                         \
         1,                                          \
     };                                              \
