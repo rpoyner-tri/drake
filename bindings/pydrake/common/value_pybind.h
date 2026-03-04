@@ -53,8 +53,8 @@ py::class_<Class, drake::AbstractValue> AddValueInstantiation(
         // that may cause the Python instance to be double-initialized.
         py::detail::type_caster<T> caster;
         DRAKE_THROW_UNLESS(caster.from_python(py_v, 0, nullptr));
-        const T& v = static_cast<const T&>(caster);
-        return new (self) Class(v);
+        const T& v = caster.operator nanobind::detail::cast_t<const T&>();
+        new (self) Class(v);
       });
   // If the type is registered via `py::class_`, or is of type `Object`
   // (`py::object`), then we can obtain a mutable view into the value.
