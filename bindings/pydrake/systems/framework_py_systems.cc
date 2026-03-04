@@ -73,7 +73,6 @@ constexpr auto& doc = pydrake_doc_systems_framework.drake.systems;
 // common/ref_cycle_pybind bookkeeping scheme.
 py::object UniquelyWrapCallback(py::object callback) {
   static std::atomic<uint64_t> uniquifier{0};
-  // py::tuple wrapped(2);
   py::list wrapped;
   wrapped.append(callback);
   wrapped.append(uniquifier.fetch_add(1));
