@@ -52,6 +52,7 @@
 #include "nanobind/trampoline.h"
 #pragma GCC diagnostic pop
 
+#include "drake/common/autodiff.h"
 #include "drake/common/drake_export.h"
 
 // XXX porting shim-fest
@@ -89,8 +90,16 @@ NB_INLINE ndarray_handle* ndarray_extra_import(PyObject* o,
     ndarray_handle* result = helper.handle();
     ndarray_inc_ref(result);
     return result;
-    // } else if constexpr (std::is_same_v<Scalar, drake::AutoDiffXd>) {
-    //   data.get()[k] = cast<Scalar>(handle(PySequence_GetItem(o, k)));
+  } else if constexpr (std::is_same_v<Scalar, drake::AutoDiffXd>) {
+    auto data = std::make_unique<Scalar[]>(size);
+    for (size_t k = 0; k < size; ++k) {
+    data.get()[k] = cast<Scalar>(handle(PySequence_GetItem(o, k)));
+    }
+    // XXX porting: double check memory management!
+    Ndarray helper(data.release(), 2, shape.data());
+    ndarray_handle* result = helper.handle();
+    ndarray_inc_ref(result);
+    return result;
   } else {
     return nullptr;  // punt.
     // static_assert(false, "scalar trouble");
