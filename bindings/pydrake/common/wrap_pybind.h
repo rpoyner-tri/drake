@@ -48,6 +48,7 @@ template <typename Signature>
 struct wrap_callback<std::function<Signature>>
     : public wrap_callback<const std::function<Signature>&> {};
 
+#pragma GCC visibility push(hidden)
 // Implements a `py::detail::type_caster<>` specialization used to convert
 // types using a specific wrapping policy.
 // @tparam Wrapper
@@ -92,6 +93,7 @@ struct type_caster_wrapped {
  private:
   WrappedTypeCaster caster_;
 };
+#pragma GCC visibility pop
 
 }  // namespace internal
 #endif  // DRAKE_DOXYGEN_CXX

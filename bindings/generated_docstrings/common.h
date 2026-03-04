@@ -1962,8 +1962,9 @@ invoked during stack unwinding.)""";
 R"""(Represents a SHA-256 cryptographic checksum. See also
 https://en.wikipedia.org/wiki/SHA-2.
 
-This class is not bound in pydrake, because Python programmers should
-prefer using https://docs.python.org/3/library/hashlib.html instead.)""";
+XXX porting -- this paragraph contains lies. This class is not bound
+in pydrake, because Python programmers should prefer using
+https://docs.python.org/3/library/hashlib.html instead.)""";
       // Symbol: drake::Sha256::Checksum
       struct /* Checksum */ {
         // Source: drake/common/sha256.h

@@ -117,9 +117,9 @@ void ref_cycle_impl(
   auto not_gc_error = [](size_t n) -> std::string {
     return fmt::format(
         "Could not activate ref_cycle: object type at index {} for binding at "
-        "'{}' is not tracked by garbage collection.  Was the object defined "
+        "'WTF' is not tracked by garbage collection.  Was the object defined "
         "`py::class_<...>(... py::dynamic_attr())`?",
-        n, call.func.name);
+        n);
   };
   check_and_make_ref_cycle(peer0, p0, peer1, p1, not_gc_error);
 }

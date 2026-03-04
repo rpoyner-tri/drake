@@ -73,10 +73,11 @@ constexpr auto& doc = pydrake_doc_systems_framework.drake.systems;
 // common/ref_cycle_pybind bookkeeping scheme.
 py::object UniquelyWrapCallback(py::object callback) {
   static std::atomic<uint64_t> uniquifier{0};
-  py::tuple wrapped(2);
-  wrapped[0] = callback;
-  wrapped[1] = uniquifier.fetch_add(1);
-  return wrapped;
+  // py::tuple wrapped(2);
+  py::list wrapped;
+  wrapped.append(callback);
+  wrapped.append(uniquifier.fetch_add(1));
+  return py::tuple(wrapped);
 }
 
 // This helper function causes the lifetime of `callback` to be at least as
@@ -103,7 +104,7 @@ using EventCallback = std::function<EventSignature<Args...>>;
 // Declare the handler signature as a python function object with compile-time
 // readable type signature.
 template <typename... Args>
-using PyEventCallback = py::typing::Callable<EventSignature<Args...>>;
+using PyEventCallback = py::typed<py::callable, EventSignature<Args...>>;
 
 // Declare the various callback types that will appear as parameters of
 // bindings, such that automatic documentation has correct type signatures.

@@ -20,6 +20,15 @@
 // #include "pybind11/stl/filesystem.h"
 // #include "pybind11/typing.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wattributes"
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wc++11-narrowing"
+#else
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#pragma GCC diagnostic ignored "-Wnarrowing"
+#endif  // __clang__
 #include "nanobind/eigen/dense.h"
 #include "nanobind/eval.h"
 #include "nanobind/make_iterator.h"
@@ -41,6 +50,7 @@
 #include "nanobind/stl/variant.h"
 #include "nanobind/stl/vector.h"
 #include "nanobind/trampoline.h"
+#pragma GCC diagnostic pop
 
 #include "drake/common/drake_export.h"
 
@@ -54,7 +64,7 @@ using is_pyobject = std::is_base_of<api_tag, std::remove_reference_t<T>>;
 /** Add list-to-array implicit casting. */
 template <typename... Args>
 NB_INLINE ndarray_handle* ndarray_extra_import(PyObject* o,
-    const ndarray_config* c, bool convert, cleanup_list* cleanup,
+    const ndarray_config*, bool, cleanup_list*,
     ndarray_config_t<int, Args...>*) noexcept {
   using Ndarray = ndarray<Args...>;
   using Config = ndarray_config_t<int, Args...>;
