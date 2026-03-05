@@ -101,6 +101,7 @@ class TestAutoDiffXd(unittest.TestCase):
         assert_pickle(self, a, lambda x: x)
 
     def test_array_api(self):
+        # import pdb; pdb.set_trace()
         a = AD(1, [1.0, 0])
         b = AD(2, [0, 1.0])
         x = np.array([a, b])
@@ -122,7 +123,6 @@ class TestAutoDiffXd(unittest.TestCase):
         x = np.eye(3).astype(AD)
         self.assertFalse(isinstance(x[0, 0], AD))
         # Test implicit conversion.
-        import pdb; pdb.set_trace()
         numpy_compare.assert_equal(
             autodiff_vector_pass_through([1, 2]),  # int
             [AD(1.0, []), AD(2.0, [])],
