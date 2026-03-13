@@ -430,6 +430,8 @@ void CenicIntegrator<T>::ComputeNextContinuousState(
   const T& h = model.time_step();
   const Context<T>& context = this->get_context();
 
+  // drake::log()->info("h = {}\n", h);
+
   // Set convergence tolerance based on integrator accuracy.
   // TODO(vincekurtz): consider exposing kappa as a user-settable parameter.
   const double kappa = 0.001;

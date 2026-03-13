@@ -235,35 +235,53 @@ class BallOnTable : public SimulationTestScenario {
 };
 
 class FrankaArm : public SimulationTestScenario {
-  protected:
-   void AddModels() override {
-    Parser(builder_.get()).AddModelsFromUrl(
-      "package://drake_models/franka_description/urdf/panda_arm.urdf"
-    );
-    plant_.Finalize();
-    
+ protected:
+  void SetUp() override {
+    if (!have_scene_graph_) {
+      GTEST_SKIP() << "Franka tests require a scene graph";
+    }
+  }
+  void AddModels() override {
+    Parser(builder_.get())
+        .AddModelsFromUrl(
+            "package://drake_models/franka_description/urdf/panda_arm.urdf");
+    plant_->WeldFrames(plant_->world_frame(),
+                       plant_->GetFrameByName("panda_link0"));
+    plant_->Finalize();
+
+    // Disconnecting the visualizer fixes the problem, allowing the test
+    // to pass.
     visualization::AddDefaultVisualization(builder_.get());
   }
-  
+
   void SetInitialConditions() override {
-    VectorXd q0 = plant_.GetPositions(*plant_context_);
-    // Add 0.1 to the last 7 elements of q0
-    q0.tail(7).array() += 0.1;
-    fmt::print("Initial positions: {}\n", fmt_eigen(q0.transpose()));
-    plant_.SetPositions(plant_context_, q0);
+    VectorXd q0(7);
+    q0 << 0, -0.4, 0.5, -M_PI_2, 0, M_PI_2, 0;
+    plant_->SetPositions(plant_context_, q0);
   }
 };
 
-TEST_F(FrankaArm, MultipleSteps) {
+TEST_P(FrankaArm, MultipleSteps) {
   Build();
 
   // Put in fixed-step mode
   integrator_->set_fixed_step_mode(true);
-  
+
+  // Print debug stats
+  IcfSolverParameters params = integrator_->get_solver_parameters();
+  params.print_solver_stats = false;
+  integrator_->SetSolverParameters(params);
+
   for (int i = 0; i < 50; ++i) {
     const double current_time = simulator_->get_context().get_time();
     fmt::print("Step {}: time = {}\n", i, current_time);
-    simulator_->AdvanceTo(current_time + 0.1);
+    double next_time = current_time + 0.1;
+
+    // Regularizing the next time to an exact multiple of 0.1 fixes the problem
+    // and allows the test to pass.
+    // next_time = std::round(next_time * 10) / 10.0;
+
+    simulator_->AdvanceTo(next_time);
   }
 }
 
@@ -775,6 +793,16 @@ TEST_P(BallOnTable, ExternalForces) {
   ball.Lock(plant_context_);
   EXPECT_NO_THROW(simulator_->AdvanceTo(simulation_time + 0.1));
 }
+
+INSTANTIATE_TEST_SUITE_P(
+    AllParamsFranka, FrankaArm,
+    testing::Combine(testing::Range(0, 3), testing::Range(0, 3),
+                     testing::Bool()),
+    [](const testing::TestParamInfo<DoublePendulum::ParamType>& x) {
+      return fmt::format("plant_depth_{}_external_depth_{}_scene_graph_{}",
+                         std::get<0>(x.param), std::get<1>(x.param),
+                         std::get<2>(x.param));
+    });
 
 INSTANTIATE_TEST_SUITE_P(
     AllParamsPendulum, DoublePendulum,
