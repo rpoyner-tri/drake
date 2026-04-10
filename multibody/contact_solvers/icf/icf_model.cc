@@ -11,6 +11,7 @@ namespace internal {
 using contact_solvers::internal::BlockSparseSymmetricMatrix;
 using contact_solvers::internal::BlockSparsityPattern;
 using Eigen::VectorBlock;
+using math::internal::PartialPermutation;
 
 template <typename T>
 IcfModel<T>::IcfModel()
@@ -340,6 +341,149 @@ void IcfModel<T>::UpdateTimeStep(const T& time_step) {
   // Recompute Hessian blocks whenever dt changes so
   // AccumulateHessian() uses up-to-date values.
   weld_constraints_pool_.PrecomputeHessianBlocks();
+}
+
+template <typename T>
+void IcfModel<T>::ReduceInto(IcfModel<T>* reduced_model,
+                             ReducedMapping* mapping) const {
+  DRAKE_DEMAND(mapping != nullptr);
+  const auto& full_params = this->params();
+  const auto& unlocked_dofs = full_params.r.unlocked_dofs;
+  const auto& per_clique_known_free_motion_dofs =
+      full_params.r.per_clique_known_free_motion_dofs;
+
+  // XXX Who knows if these will ever be used. Track them for now anyway.
+  mapping->velocity_permutation = PartialPermutation(num_velocities());
+  mapping->clique_permutation = PartialPermutation(num_cliques());
+  mapping->clique_dof_permutations.resize(num_cliques());
+
+  auto it = full_params.r.known_free_motion_dofs.begin();
+  for (int i = 0; i < num_velocities(); ++i) {
+    if (it != full_params.r.known_free_motion_dofs.end() && i == *it) {
+      ++it;
+    } else {
+      mapping->velocity_permutation.push(i);
+    }
+  }
+
+  auto reduced_params = reduced_model->ReleaseParameters();
+
+  // Reduce a bunch of easy params.
+  reduced_params->time_step = full_params.time_step;
+  reduced_params->v0 = full_params.v0(unlocked_dofs);
+  reduced_params->M0 = full_params.M0(unlocked_dofs, unlocked_dofs);
+  reduced_params->D0 = full_params.D0(unlocked_dofs);
+  reduced_params->k0 = full_params.k0(unlocked_dofs);
+  reduced_params->body_mass = full_params.body_mass;
+  reduced_params->body_is_floating = full_params.body_is_floating;
+
+  // Map all cliques possibly having known DoFs.
+  reduced_params->clique_sizes.clear();
+  for (int i = 0; i < ssize(per_clique_known_free_motion_dofs); ++i) {
+    // Clique participates if at least one of its dofs is not locked.
+    int clique_size = full_params.clique_sizes[i];
+    int clique_locked_count = ssize(per_clique_known_free_motion_dofs[i]);
+    if (clique_locked_count < clique_size) {
+      reduced_params->clique_sizes.push_back(clique_size - clique_locked_count);
+      mapping->clique_permutation.push(i);
+    }
+    mapping->clique_dof_permutations[i] =
+        PartialPermutation(full_params.clique_sizes[i]);
+    int cursor = 0;
+    for (int k = 0; k < full_params.clique_sizes[i]; ++k) {
+      if (k == per_clique_known_free_motion_dofs[i][cursor]) {
+        ++cursor;
+      } else {
+        mapping->clique_dof_permutations[i].push(k);
+      }
+    }
+  }
+  // Copy the rest of the cliques.
+  for (int i = ssize(per_clique_known_free_motion_dofs); i < num_cliques();
+       ++i) {
+    reduced_params->clique_sizes.push_back(full_params.clique_sizes[i]);
+    mapping->clique_permutation.push(i);
+    for (int k = 0; k < full_params.clique_sizes[i]; ++k) {
+      mapping->clique_dof_permutations[i].push(k);
+    }
+  }
+
+  // Reduce the clique size/start facts.
+  reduced_params->clique_start.resize(reduced_params->clique_sizes.size() + 1);
+  reduced_params->clique_start[0] = 0;
+  std::partial_sum(reduced_params->clique_sizes.begin(),
+                   reduced_params->clique_sizes.end(),
+                   reduced_params->clique_start.begin() + 1);
+  // Track per-clique reduced dofs.
+  for (int k = 0; k < num_cliques(); ++k) {
+    if (mapping->clique_permutation.participates(k)) {
+    } else {
+    }
+  }
+
+  reduced_params->body_to_clique.resize(num_bodies());
+  reduced_params->r.body_jacobian_cols.resize(num_bodies());
+  for (int k = 0; k < num_bodies(); ++k) {
+    if (is_anchored(k)) {
+      // XXX magic number fact?
+      reduced_params->body_to_clique[k] = -1;
+      reduced_params->r.body_jacobian_cols[k] = 1;
+    } else {
+      reduced_params->body_to_clique[k] =
+          mapping->clique_permutation.permuted_index(
+              full_params.body_to_clique[k]);
+
+      int J_WB_columns{0};
+      const int nt = full_params.r.body_jacobian_cols[k];
+      const int vt_start = full_params.r.body_velocity_starts[k];
+      for (int q = 0; q < ssize(unlocked_dofs); ++q) {
+        const int dof = unlocked_dofs[q];
+        if (dof >= vt_start && dof < vt_start + nt) {
+          ++J_WB_columns;
+        }
+      }
+      reduced_params->r.body_jacobian_cols[k] = J_WB_columns;
+    }
+  }
+  reduced_params->J_WB.Resize(num_bodies(), 6,
+                              reduced_params->r.body_jacobian_cols);
+  for (int k = 0; k < num_bodies(); ++k) {
+    if (is_anchored(k)) {
+      // XXX magic number fact?
+      reduced_params->body_to_clique[k] = -1;
+      reduced_params->J_WB[k] = full_params.J_WB[k];
+    } else {
+      reduced_params->body_to_clique[k] =
+          mapping->clique_permutation.permuted_index(
+              full_params.body_to_clique[k]);
+      // XXX don't allocate.
+      const int nt = full_params.r.body_jacobian_cols[k];
+      const int vt_start = full_params.r.body_velocity_starts[k];
+      std::vector<int> want_columns(nt);
+      want_columns.clear();
+      for (int q = 0; q < ssize(unlocked_dofs); ++q) {
+        const int dof = unlocked_dofs[q];
+        if (dof >= vt_start && dof < vt_start + nt) {
+          want_columns.push_back(dof - vt_start);
+        }
+      }
+      reduced_params->J_WB[k] = full_params.J_WB[k](Eigen::all, want_columns);
+    }
+  }
+
+  reduced_model->ResetParameters(std::move(reduced_params));
+  reduced_model->SetSparsityPattern();
+
+  coupler_constraints_pool().Reduce(*mapping,
+                                    &reduced_model->coupler_constraints_pool());
+  gain_constraints_pool().Reduce(*mapping,
+                                 &reduced_model->gain_constraints_pool());
+  limit_constraints_pool().Reduce(*mapping,
+                                  &reduced_model->limit_constraints_pool());
+  patch_constraints_pool().Reduce(*mapping,
+                                  &reduced_model->patch_constraints_pool());
+  weld_constraints_pool().Reduce(*mapping,
+                                 &reduced_model->weld_constraints_pool());
 }
 
 template <typename T>

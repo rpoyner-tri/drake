@@ -390,6 +390,7 @@ GTEST_TEST(IcfBuilder, DeformableUnsupported) {
                               ".*deformable.*bodies.* == 0.*fail.*");
 }
 
+// XXX Maybe this whole test goes away?
 GTEST_TEST(IcfBuilder, JointLockingUnsupported) {
   systems::DiagramBuilder<double> diagram_builder;
   // TODO(#23764): MultibodyPlant does not yet support joint locking on
@@ -419,11 +420,9 @@ GTEST_TEST(IcfBuilder, JointLockingUnsupported) {
 
   plant.get_joint(JointIndex(1)).Lock(&plant_context);
 
-  // Actual joint locking check: now something is locked, refuse to give wrong
-  // answers, and explain that joint locking is the problem.
-  DRAKE_EXPECT_THROWS_MESSAGE(
-      dut.UpdateModel(plant_context, 0.01, nullptr, nullptr, &model),
-      ".*joint 1.*locked.*");
+  // XXX in progress; joint locking is partially implemented.
+  EXPECT_NO_THROW(
+      dut.UpdateModel(plant_context, 0.01, nullptr, nullptr, &model));
 }
 
 }  // namespace

@@ -1,0 +1,46 @@
+===============================================
+ Joint Locking Design and Implementation Notes
+===============================================
+
+General idea: solve a reduced problem, where selected joint velocities are
+artificially fixed to 0.  Numerous consequences.
+
+Observation: client-side item locking adds both velocity locking and collision
+filters. So, just punting the implementation of velocity locking would lead to
+free bodies falling through tables, floors, etc.
+
+SAP already implements joint locking, constraints, etc., so it should be a
+source of design inspiration, even if the code and data are much differently
+organized.
+
+* Design idea: supply a reduced icf_model (and data!!) to the icf_solver; leave
+  the solver pretty much alone. This structure is at least somewhat parallel to
+  the SAP solution of joint locking.
+
+* Question: model and data comprise a ton of stuff, both fundamental (params)
+  and derived (internal data). Is it better to offer a facade-style model that
+  relies on the full model, or is it better to just build out a reduced model?
+
+* Answer: facade it too complicated for the first implementation. Better to
+  just make an entire reduced model/data, and tweak performance later.
+
+* Question: what effect does joint locking have on constraints? Maybe this can
+  be answered by looking carefully at SAP.
+
+  * SAP answers this by constructing a clique map, and then eliminating
+    constraints where all involved cliques have been removed. For CENIC, we
+    have more constraint-type-specific information. 
+
+* Question: it is pretty clear how to map velocities to/from the reduced
+  problem; how do bodies map?
+
+  * Answer: leave bodies as-is. Track permutations of velocities and cliques.
+
+* Question: it seems that cliques are somewhat arbitrary; can we exploit them
+  to make a reduced mapping more easily (sparsity hacking)?
+
+  * Answer: Too hard for a first implementation. Go big and fuss later.
+
+* Question: how do we handle locking that removes all of the velocities?
+
+  * Answer: write a test, and make sure SAP and CENIC do the same thing.

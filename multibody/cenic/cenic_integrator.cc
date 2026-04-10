@@ -1,6 +1,7 @@
 #include "drake/multibody/cenic/cenic_integrator.h"
 
 #include "drake/common/text_logging.h"
+#include "drake/multibody/plant/slicing_and_indexing.h"
 #include "drake/systems/framework/system_visitor.h"
 
 namespace drake {
@@ -12,6 +13,8 @@ using contact_solvers::icf::internal::IcfLinearFeedbackGains;
 using contact_solvers::icf::internal::IcfModel;
 using internal::CenicDiagramStructure;
 using internal::SubsystemPath;
+using multibody::internal::ExpandRows;
+using multibody::internal::SelectRows;
 using systems::Context;
 using systems::ContinuousState;
 using systems::Diagram;
@@ -424,6 +427,7 @@ void CenicIntegrator<T>::ComputeNextContinuousState(
   // of the states in `scratch_`, which is always created for the root system.
   // Just to underscore the point, do an explicit safety check.
   this->get_system().ValidateCreatedForThisSystem(*x_next);
+
   const T& h = model.time_step();
   const Context<T>& context = this->get_context();
 
@@ -436,12 +440,25 @@ void CenicIntegrator<T>::ComputeNextContinuousState(
 
   // Solve the optimization problem for next-step velocities,
   // v = min ℓ(v; q₀, v₀, h).
-  model.ResizeData(&data_);
-  data_.set_v(v_guess);
+  bool solved{};
   if constexpr (!std::is_same_v<T, double>) {
     throw std::runtime_error(
         "CenicIntegrator: ICF solver only supports T = double.");
-  } else if (!solver_.SolveWithGuess(model, tolerance, &data_)) {
+  } else if (model.is_reducible()) {
+    model.ReduceInto(&reduced_model_, &mapping_);
+    reduced_model_.ResizeData(&data_);
+    data_.set_v(SelectRows(v_guess, model.params().r.unlocked_dofs));
+    solved = solver_.SolveWithGuess(reduced_model_, tolerance, &data_);
+    if (solved) {
+      data_.set_v(ExpandRows(data_.v(), model.num_velocities(),
+                             model.params().r.unlocked_dofs));
+    }
+  } else {
+    model.ResizeData(&data_);
+    data_.set_v(v_guess);
+    solved = solver_.SolveWithGuess(model, tolerance, &data_);
+  }
+  if (!solved) {
     // Somehow, the "guaranteed convergence" promise has been violated. Either
     // the problem is not correctly formulated, or there is a bug.
     throw std::runtime_error("CenicIntegrator: optimization failed.");
