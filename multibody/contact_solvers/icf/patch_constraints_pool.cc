@@ -16,7 +16,6 @@ namespace icf {
 namespace internal {
 
 using contact_solvers::internal::BlockSparseSymmetricMatrix;
-using drake::internal::Here;
 using math::VectorToSkewSymmetric;
 
 // Computes the soft norm ‖x‖ₛ = sqrt(xᵀx + ε²) - ε.

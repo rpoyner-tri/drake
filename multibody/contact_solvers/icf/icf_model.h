@@ -75,10 +75,8 @@ struct IcfParameters {
     std::vector<int> unlocked_dofs;
     // Specifies known DOFs that can be eliminated, per clique.
     std::vector<std::vector<int>> per_clique_known_free_motion_dofs;
-    // cols of J_WB for each body.
-    std::vector<int> body_jacobian_cols;
-    // velocity starts of J_WB for each body.
-    std::vector<int> body_velocity_starts;
+    // Specifies known DOFs that cannot be eliminated, per clique.
+    std::vector<std::vector<int>> per_clique_unlocked_dofs;
   };
   ReducingOnly r;
 };

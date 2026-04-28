@@ -349,21 +349,14 @@ void IcfModel<T>::ReduceInto(IcfModel<T>* reduced_model,
   DRAKE_DEMAND(mapping != nullptr);
   const auto& full_params = this->params();
   const auto& unlocked_dofs = full_params.r.unlocked_dofs;
-  const auto& per_clique_known_free_motion_dofs =
-      full_params.r.per_clique_known_free_motion_dofs;
+  const auto& per_clique_unlocked_dofs = full_params.r.per_clique_unlocked_dofs;
 
-  // XXX Who knows if these will ever be used. Track them for now anyway.
   mapping->velocity_permutation = PartialPermutation(num_velocities());
   mapping->clique_permutation = PartialPermutation(num_cliques());
   mapping->clique_dof_permutations.resize(num_cliques());
 
-  auto it = full_params.r.known_free_motion_dofs.begin();
-  for (int i = 0; i < num_velocities(); ++i) {
-    if (it != full_params.r.known_free_motion_dofs.end() && i == *it) {
-      ++it;
-    } else {
-      mapping->velocity_permutation.push(i);
-    }
+  for (const int& unlocked : unlocked_dofs) {
+    mapping->velocity_permutation.push(unlocked);
   }
 
   auto reduced_params = reduced_model->ReleaseParameters();
@@ -377,35 +370,26 @@ void IcfModel<T>::ReduceInto(IcfModel<T>* reduced_model,
   reduced_params->body_mass = full_params.body_mass;
   reduced_params->body_is_floating = full_params.body_is_floating;
 
-  // Map all cliques possibly having known DoFs.
+  // Map all cliques possibly having unlocked DoFs.
   reduced_params->clique_sizes.clear();
-  for (int i = 0; i < ssize(per_clique_known_free_motion_dofs); ++i) {
+  for (int i = 0; i < ssize(per_clique_unlocked_dofs); ++i) {
     // Clique participates if at least one of its dofs is not locked.
-    int clique_size = full_params.clique_sizes[i];
-    int clique_locked_count = ssize(per_clique_known_free_motion_dofs[i]);
-    if (clique_locked_count < clique_size) {
-      reduced_params->clique_sizes.push_back(clique_size - clique_locked_count);
+    int clique_unlocked_count = ssize(per_clique_unlocked_dofs[i]);
+    if (clique_unlocked_count > 0) {
+      reduced_params->clique_sizes.push_back(clique_unlocked_count);
       mapping->clique_permutation.push(i);
     }
     mapping->clique_dof_permutations[i] =
         PartialPermutation(full_params.clique_sizes[i]);
-    int cursor = 0;
-    for (int k = 0; k < full_params.clique_sizes[i]; ++k) {
-      if (k == per_clique_known_free_motion_dofs[i][cursor]) {
-        ++cursor;
-      } else {
-        mapping->clique_dof_permutations[i].push(k);
-      }
+    for (const int& per_clique_unlocked : per_clique_unlocked_dofs[i]) {
+      mapping->clique_dof_permutations[i].push(per_clique_unlocked);
     }
   }
-  // Copy the rest of the cliques.
-  for (int i = ssize(per_clique_known_free_motion_dofs); i < num_cliques();
-       ++i) {
-    reduced_params->clique_sizes.push_back(full_params.clique_sizes[i]);
-    mapping->clique_permutation.push(i);
-    for (int k = 0; k < full_params.clique_sizes[i]; ++k) {
-      mapping->clique_dof_permutations[i].push(k);
-    }
+  // Map the rest of the cliques.
+  for (int i = ssize(per_clique_unlocked_dofs); i < num_cliques(); ++i) {
+    DRAKE_DEMAND(false);
+    mapping->clique_dof_permutations[i] =
+        PartialPermutation(full_params.clique_sizes[i]);
   }
 
   // Reduce the clique size/start facts.
@@ -414,60 +398,28 @@ void IcfModel<T>::ReduceInto(IcfModel<T>* reduced_model,
   std::partial_sum(reduced_params->clique_sizes.begin(),
                    reduced_params->clique_sizes.end(),
                    reduced_params->clique_start.begin() + 1);
-  // Track per-clique reduced dofs.
-  for (int k = 0; k < num_cliques(); ++k) {
-    if (mapping->clique_permutation.participates(k)) {
-    } else {
-    }
-  }
 
   reduced_params->body_to_clique.resize(num_bodies());
-  reduced_params->r.body_jacobian_cols.resize(num_bodies());
   for (int k = 0; k < num_bodies(); ++k) {
     if (is_anchored(k)) {
       // XXX magic number fact?
       reduced_params->body_to_clique[k] = -1;
-      reduced_params->r.body_jacobian_cols[k] = 1;
     } else {
-      reduced_params->body_to_clique[k] =
-          mapping->clique_permutation.permuted_index(
-              full_params.body_to_clique[k]);
-
-      int J_WB_columns{0};
-      const int nt = full_params.r.body_jacobian_cols[k];
-      const int vt_start = full_params.r.body_velocity_starts[k];
-      for (int q = 0; q < ssize(unlocked_dofs); ++q) {
-        const int dof = unlocked_dofs[q];
-        if (dof >= vt_start && dof < vt_start + nt) {
-          ++J_WB_columns;
-        }
-      }
-      reduced_params->r.body_jacobian_cols[k] = J_WB_columns;
+      const int clique = mapping->clique_permutation.permuted_index(
+          full_params.body_to_clique[k]);
+      reduced_params->body_to_clique[k] = clique;
     }
   }
-  reduced_params->J_WB.Resize(num_bodies(), 6,
-                              reduced_params->r.body_jacobian_cols);
+  reduced_params->J_WB.Clear();
   for (int k = 0; k < num_bodies(); ++k) {
     if (is_anchored(k)) {
-      // XXX magic number fact?
-      reduced_params->body_to_clique[k] = -1;
+      reduced_params->J_WB.Add(6, 1);  // XXX magic numbers
       reduced_params->J_WB[k] = full_params.J_WB[k];
     } else {
-      reduced_params->body_to_clique[k] =
-          mapping->clique_permutation.permuted_index(
-              full_params.body_to_clique[k]);
-      // XXX don't allocate.
-      const int nt = full_params.r.body_jacobian_cols[k];
-      const int vt_start = full_params.r.body_velocity_starts[k];
-      std::vector<int> want_columns(nt);
-      want_columns.clear();
-      for (int q = 0; q < ssize(unlocked_dofs); ++q) {
-        const int dof = unlocked_dofs[q];
-        if (dof >= vt_start && dof < vt_start + nt) {
-          want_columns.push_back(dof - vt_start);
-        }
-      }
-      reduced_params->J_WB[k] = full_params.J_WB[k](Eigen::all, want_columns);
+      const int clique = full_params.body_to_clique[k];
+      reduced_params->J_WB.Add(6, ssize(per_clique_unlocked_dofs[clique]));
+      reduced_params->J_WB[k] =
+          full_params.J_WB[k](Eigen::all, per_clique_unlocked_dofs[clique]);
     }
   }
 

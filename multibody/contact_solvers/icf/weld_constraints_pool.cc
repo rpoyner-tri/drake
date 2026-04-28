@@ -13,7 +13,6 @@ namespace icf {
 namespace internal {
 
 using contact_solvers::internal::BlockSparseSymmetricMatrix;
-using drake::internal::Here;
 using math::VectorToSkewSymmetric;
 
 namespace {

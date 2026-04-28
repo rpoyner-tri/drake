@@ -92,6 +92,7 @@ void IcfBuilder<T>::UpdateModel(
     DRAKE_DEMAND(params->r.known_free_motion_dofs.empty());
     DRAKE_DEMAND(params->r.unlocked_dofs.empty());
     DRAKE_DEMAND(params->r.per_clique_known_free_motion_dofs.empty());
+    DRAKE_DEMAND(params->r.per_clique_unlocked_dofs.empty());
 
     // Yes, Virginia, this is the first time we are setting the params.
 
@@ -100,8 +101,6 @@ void IcfBuilder<T>::UpdateModel(
     params->M0.resize(nv, nv);
     params->D0.resize(nv);
     params->k0.resize(nv);
-    params->r.body_jacobian_cols.resize(plant_.num_bodies());
-    params->r.body_velocity_starts.resize(plant_.num_bodies());
     params->body_mass.resize(plant_.num_bodies());
     params->J_WB.Resize(plant_.num_bodies(), 6,
                         plant_facts_.body_jacobian_cols);
@@ -139,6 +138,8 @@ void IcfBuilder<T>::UpdateModel(
     DRAKE_DEMAND(ssize(params->r.unlocked_dofs) == nv);
     DRAKE_DEMAND(params->r.per_clique_known_free_motion_dofs.size() ==
                  plant_facts_.clique_sizes.size());
+    DRAKE_DEMAND(params->r.per_clique_unlocked_dofs.size() <=
+                 plant_facts_.clique_sizes.size());
   }
 
   // Set the time step δt and initial velocities v₀
@@ -159,6 +160,8 @@ void IcfBuilder<T>::UpdateModel(
   params->r.unlocked_dofs = locking.unlocked_velocity_indices;
   params->r.per_clique_known_free_motion_dofs =
       locking.locked_velocity_indices_per_tree;
+  params->r.per_clique_unlocked_dofs =
+      locking.unlocked_velocity_indices_per_tree;
 
   // Compute nonlinear bias terms k₀.
   MultibodyForces<T>& forces = scratch_.forces;
@@ -183,9 +186,7 @@ void IcfBuilder<T>::UpdateModel(
       DRAKE_ASSERT(tree_has_dofs);
 
       const int vt_start = forest.trees(t).v_start();
-      params->r.body_velocity_starts[b] = vt_start;
       const int nt = forest.trees(t).nv();
-      params->r.body_jacobian_cols[b] = nt;
 
       typename EigenPool<Matrix6X<T>>::MatrixView Jv_WBc_W = J_WB[b];
       if (body.is_floating_base_body()) {

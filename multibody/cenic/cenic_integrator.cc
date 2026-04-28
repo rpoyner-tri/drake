@@ -14,7 +14,6 @@ using contact_solvers::icf::internal::IcfModel;
 using internal::CenicDiagramStructure;
 using internal::SubsystemPath;
 using multibody::internal::ExpandRows;
-using multibody::internal::SelectRows;
 using systems::Context;
 using systems::ContinuousState;
 using systems::Diagram;
@@ -447,11 +446,11 @@ void CenicIntegrator<T>::ComputeNextContinuousState(
   } else if (model.is_reducible()) {
     model.ReduceInto(&reduced_model_, &mapping_);
     reduced_model_.ResizeData(&data_);
-    data_.set_v(SelectRows(v_guess, model.params().r.unlocked_dofs));
+    const auto& indices = mapping_.velocity_permutation.inverse_permutation();
+    data_.set_v(v_guess(indices));
     solved = solver_.SolveWithGuess(reduced_model_, tolerance, &data_);
     if (solved) {
-      data_.set_v(ExpandRows(data_.v(), model.num_velocities(),
-                             model.params().r.unlocked_dofs));
+      data_.set_v(ExpandRows(data_.v(), model.num_velocities(), indices));
     }
   } else {
     model.ResizeData(&data_);

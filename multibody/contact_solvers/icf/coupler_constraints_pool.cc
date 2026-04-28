@@ -11,7 +11,6 @@ namespace icf {
 namespace internal {
 
 using contact_solvers::internal::BlockSparseSymmetricMatrix;
-using drake::internal::Here;
 
 template <typename T>
 CouplerConstraintsPool<T>::CouplerConstraintsPool(
