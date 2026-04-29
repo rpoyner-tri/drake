@@ -108,6 +108,7 @@ void IcfBuilder<T>::UpdateModel(
     params->r.unlocked_dofs.resize(nv);
     params->r.per_clique_known_free_motion_dofs.resize(
         plant_facts_.clique_sizes.size());
+    params->r.per_clique_unlocked_dofs.resize(plant_facts_.clique_sizes.size());
 
     // Clique membership, and body floating status are defined at builder
     // construction time, since they depend only on the plant and not on the
@@ -138,7 +139,7 @@ void IcfBuilder<T>::UpdateModel(
     DRAKE_DEMAND(ssize(params->r.unlocked_dofs) == nv);
     DRAKE_DEMAND(params->r.per_clique_known_free_motion_dofs.size() ==
                  plant_facts_.clique_sizes.size());
-    DRAKE_DEMAND(params->r.per_clique_unlocked_dofs.size() <=
+    DRAKE_DEMAND(params->r.per_clique_unlocked_dofs.size() ==
                  plant_facts_.clique_sizes.size());
   }
 
