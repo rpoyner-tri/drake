@@ -67,7 +67,7 @@ struct IcfParameters {
   std::vector<int> clique_start;
 
   // Parameters that are only used by ReduceInto().
-  struct ReducingOnly {
+  struct ReducingOnlyParameters {
     // XXX naming review please.
     // Specifies known DOFs that can be eliminated.
     std::vector<int> known_free_motion_dofs;
@@ -78,7 +78,7 @@ struct IcfParameters {
     // Specifies known DOFs that cannot be eliminated, per clique.
     std::vector<std::vector<int>> per_clique_unlocked_dofs;
   };
-  ReducingOnly r;
+  ReducingOnlyParameters r;
 };
 
 /* This class defines a convex ICF problem,

@@ -409,24 +409,43 @@ GTEST_TEST(IcfBuilder, JointLockingSupport) {
   IcfModel<double> model;
 
   {
-    // Update a model and check for *no* joint locking effects.
+    // Update a model and check for *no* joint locking effects. The only
+    // difference at this stage is the population of the ReducingOnlyParameters
+    // at params().r.
     dut.UpdateModel(plant_context, 0.01, nullptr, nullptr, &model);
     EXPECT_FALSE(model.is_reducible());
-    const std::vector<int> expected_locked_dofs = {};
-    EXPECT_EQ(model.params().r.known_free_motion_dofs, expected_locked_dofs);
+    const auto& r = model.params().r;
+    EXPECT_TRUE(r.known_free_motion_dofs.empty());
     const std::vector<int> expected_unlocked_dofs = {0, 1};
-    EXPECT_EQ(model.params().r.unlocked_dofs, expected_unlocked_dofs);
+    EXPECT_EQ(r.unlocked_dofs, expected_unlocked_dofs);
+
+    EXPECT_EQ(ssize(r.per_clique_known_free_motion_dofs), model.num_cliques());
+    EXPECT_EQ(ssize(r.per_clique_unlocked_dofs), model.num_cliques());
+
+    ASSERT_EQ(model.num_cliques(), 1);
+    EXPECT_TRUE(r.per_clique_known_free_motion_dofs[0].empty());
+    EXPECT_EQ(r.per_clique_unlocked_dofs[0], expected_unlocked_dofs);
   }
   plant.get_joint(JointIndex(1)).Lock(&plant_context);
 
   {
-    // Update a model and check for joint locking effects.
+    // Update a model and check for joint locking effects. The only
+    // difference at this stage is the population of the ReducingOnlyParameters
+    // at params().r.
     dut.UpdateModel(plant_context, 0.01, nullptr, nullptr, &model);
     EXPECT_TRUE(model.is_reducible());
+    const auto& r = model.params().r;
     const std::vector<int> expected_locked_dofs = {1};
-    EXPECT_EQ(model.params().r.known_free_motion_dofs, expected_locked_dofs);
+    EXPECT_EQ(r.known_free_motion_dofs, expected_locked_dofs);
     const std::vector<int> expected_unlocked_dofs = {0};
-    EXPECT_EQ(model.params().r.unlocked_dofs, expected_unlocked_dofs);
+    EXPECT_EQ(r.unlocked_dofs, expected_unlocked_dofs);
+
+    EXPECT_EQ(ssize(r.per_clique_known_free_motion_dofs), model.num_cliques());
+    EXPECT_EQ(ssize(r.per_clique_unlocked_dofs), model.num_cliques());
+
+    ASSERT_EQ(model.num_cliques(), 1);
+    EXPECT_EQ(r.per_clique_known_free_motion_dofs[0], expected_locked_dofs);
+    EXPECT_EQ(r.per_clique_unlocked_dofs[0], expected_unlocked_dofs);
   }
 }
 
