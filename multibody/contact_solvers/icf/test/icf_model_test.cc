@@ -111,6 +111,21 @@ void MakeUnconstrainedModel(IcfModel<T>* model, bool single_clique = false,
     params->body_to_clique = {-1, 0, 1, 2};
   }
 
+  // Set reduction parameters for no reduction.
+  params->r.known_free_motion_dofs.clear();
+  {
+    auto* v = &params->r.unlocked_dofs;
+    v->resize(nv);
+    std::iota(v->begin(), v->end(), 0);
+  }
+  params->r.per_clique_known_free_motion_dofs.resize(single_clique ? 1 : 3);
+  params->r.per_clique_unlocked_dofs.resize(single_clique ? 1 : 3);
+  for (auto& dofs : params->r.per_clique_unlocked_dofs) {
+    auto* v = &dofs;
+    v->resize(single_clique ? nv : 6);
+    std::iota(v->begin(), v->end(), 0);
+  }
+
   model->ResetParameters(std::move(params));
 }
 
@@ -378,6 +393,17 @@ GTEST_TEST(IcfModel, LimitMallocOnModelUpdate) {
   {
     drake::test::LimitMalloc guard;
     MakeUnconstrainedModel(&model);
+  }
+
+  IcfModel<double> reduced_model;
+  ReducedMapping mapping;
+  model.ReduceInto(&reduced_model, &mapping);
+
+  // Reducing into a same size model should cause no new allocations.
+  {
+    // XXX measured 6; all in SetSparsityPattern.
+    drake::test::LimitMalloc guard;
+    model.ReduceInto(&reduced_model, &mapping);
   }
 }
 

@@ -63,6 +63,14 @@ PartialPermutation::PartialPermutation(int domain_size) {
   permutation_.resize(domain_size, -1);
 }
 
+void PartialPermutation::ResetToSize(int domain_size) {
+  permutation_.reserve(domain_size);
+  permutation_.clear();
+  permutation_.resize(domain_size, -1);
+  inverse_permutation_.reserve(domain_size);
+  inverse_permutation_.clear();
+}
+
 int PartialPermutation::push(int i) {
   DRAKE_THROW_UNLESS(0 <= i && i < domain_size());
   if (!participates(i)) {

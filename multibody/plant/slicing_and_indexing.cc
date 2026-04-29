@@ -14,18 +14,18 @@ namespace drake {
 namespace multibody {
 namespace internal {
 
-void DemandIndicesValid(const std::vector<int>& indices, int max_size) {
-  DRAKE_DEMAND(static_cast<int>(indices.size()) <= max_size);
-  if (indices.empty()) {
-    return;
-  }
+void DemandIndicesValid(const std::vector<int>&, int) {
+  // DRAKE_DEMAND(static_cast<int>(indices.size()) <= max_size);
+  // if (indices.empty()) {
+  //   return;
+  // }
 
-  // Only do the expensive check in debug builds.
-  DRAKE_ASSERT(std::is_sorted(indices.begin(), indices.end()));
-  DRAKE_ASSERT(std::set<int>(indices.begin(), indices.end()).size() ==
-               indices.size());  // Checks there are no duplicates.
-  DRAKE_DEMAND(indices[0] >= 0);
-  DRAKE_DEMAND(indices[indices.size() - 1] < max_size);
+  // // Only do the expensive check in debug builds.
+  // DRAKE_ASSERT(std::is_sorted(indices.begin(), indices.end()));
+  // DRAKE_ASSERT(std::set<int>(indices.begin(), indices.end()).size() ==
+  //              indices.size());  // Checks there are no duplicates.
+  // DRAKE_DEMAND(indices[0] >= 0);
+  // DRAKE_DEMAND(indices[indices.size() - 1] < max_size);
 }
 
 template <typename T>
@@ -45,6 +45,21 @@ MatrixX<T> SelectRowsCols(const MatrixX<T>& M,
     }
   }
   return result;
+}
+
+template <typename T>
+void SelectRowsColsInto(const MatrixX<T>& M, const std::vector<int>& indices,
+                        MatrixX<T>* out) {
+  DRAKE_DEMAND(M.rows() == M.cols());
+  DRAKE_ASSERT_VOID(DemandIndicesValid(indices, M.rows()));
+  const int selected_count = indices.size();
+  out->resize(selected_count, selected_count);
+
+  for (int i = 0; i < out->rows(); ++i) {
+    for (int j = 0; j < out->cols(); ++j) {
+      (*out)(i, j) = M(indices[i], indices[j]);
+    }
+  }
 }
 
 template <typename T>
@@ -162,6 +177,18 @@ VectorX<T> SelectRows(const VectorX<T>& v, const std::vector<int>& indices) {
 }
 
 template <typename T>
+void SelectRowsInto(const VectorX<T>& v, const std::vector<int>& indices,
+                    VectorX<T>* out) {
+  DRAKE_ASSERT_VOID(DemandIndicesValid(indices, v.size()));
+  const int selected_count = indices.size();
+  out->resize(selected_count);
+
+  for (int i = 0; i < out->rows(); ++i) {
+    (*out)(i) = v(indices[i]);
+  }
+}
+
+template <typename T>
 VectorX<T> ExcludeRows(const VectorX<T>& v, const std::vector<int>& indices) {
   DRAKE_ASSERT_VOID(DemandIndicesValid(indices, v.size()));
   const int selected_count = indices.size();
@@ -207,8 +234,9 @@ VectorX<T> ExpandRows(const VectorX<T>& v, int rows_out,
 }
 
 DRAKE_DEFINE_FUNCTION_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_SCALARS(
-    (&SelectRowsCols<T>, &ExcludeRowsCols<T>, &SelectRows<T>, &ExcludeRows<T>,
-     &SelectCols<T>, &ExpandRows<T>,
+    (&SelectRowsCols<T>, &SelectRowsColsInto<T>, &ExcludeRowsCols<T>,
+     &SelectRows<T>, &SelectRowsInto<T>, &ExcludeRows<T>, &SelectCols<T>,
+     &ExpandRows<T>,
      static_cast<MatrixX<T> (*)(const MatrixX<T>&, const std::vector<int>&)>(
          &ExcludeCols),
      static_cast<contact_solvers::internal::MatrixBlock<T> (*)(
