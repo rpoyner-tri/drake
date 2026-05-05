@@ -14,8 +14,8 @@ using contact_solvers::internal::BlockSparseSymmetricMatrix;
 using contact_solvers::internal::BlockSparsityPattern;
 using Eigen::VectorBlock;
 using math::internal::PartialPermutation;
-using multibody::internal::SelectRowsColsInto;
-using multibody::internal::SelectRowsInto;
+using multibody::internal::SelectRows;
+using multibody::internal::SelectRowsCols;
 
 template <typename T>
 IcfModel<T>::IcfModel()
@@ -373,10 +373,10 @@ void IcfModel<T>::ReduceInto(IcfModel<T>* reduced_model,
 
   // Reduce a bunch of easy params.
   reduced_params->time_step = full_params.time_step;
-  SelectRowsInto(full_params.v0, unlocked_dofs, &reduced_params->v0);
-  SelectRowsColsInto(full_params.M0, unlocked_dofs, &reduced_params->M0);
-  SelectRowsInto(full_params.D0, unlocked_dofs, &reduced_params->D0);
-  SelectRowsInto(full_params.k0, unlocked_dofs, &reduced_params->k0);
+  reduced_params->v0 = SelectRows(full_params.v0, unlocked_dofs);
+  reduced_params->M0 = SelectRowsCols(full_params.M0, unlocked_dofs);
+  reduced_params->D0 = SelectRows(full_params.D0, unlocked_dofs);
+  reduced_params->k0 = SelectRows(full_params.k0, unlocked_dofs);
   reduced_params->body_mass = full_params.body_mass;
   reduced_params->body_is_floating = full_params.body_is_floating;
 

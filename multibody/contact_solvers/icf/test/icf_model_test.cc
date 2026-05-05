@@ -1,5 +1,6 @@
 #include "drake/multibody/contact_solvers/icf/icf_model.h"
 
+#include <algorithm>
 #include <limits>
 #include <memory>
 #include <utility>
@@ -401,8 +402,47 @@ GTEST_TEST(IcfModel, LimitMallocOnModelUpdate) {
 
   // Reducing into a same size model should cause no new allocations.
   {
-    // XXX measured 6; all in SetSparsityPattern.
-    drake::test::LimitMalloc guard({6});
+    // XXX measured 10:
+    // 4 in ReduceInto itself (selects on Eigen params).
+    // 6 in SetSparsityPattern.
+    drake::test::LimitMalloc guard({10});
+    model.ReduceInto(&reduced_model, &mapping);
+  }
+
+  // Reducing into a smaller model should have minimal allocations.
+  {
+    std::unique_ptr<IcfParameters<double>> params = model.ReleaseParameters();
+    // Set reduction parameters for some reduction.
+    auto* r = &params->r;
+
+    int nv = model.num_velocities();
+    r->known_free_motion_dofs = {2, 16};
+    r->unlocked_dofs = {0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17};
+    // Enforce invariants.
+    ASSERT_EQ(r->known_free_motion_dofs.size() + r->unlocked_dofs.size(), nv);
+    ASSERT_TRUE(std::ranges::max(r->known_free_motion_dofs) < nv);
+    ASSERT_TRUE(std::ranges::max(r->unlocked_dofs) < nv);
+    std::vector<int> intersection;
+    std::ranges::set_intersection(r->known_free_motion_dofs, r->unlocked_dofs,
+                                  std::back_inserter(intersection));
+    ASSERT_TRUE(intersection.empty());
+
+    r->per_clique_known_free_motion_dofs.resize(3);
+    r->per_clique_known_free_motion_dofs[0].push_back(2);
+    r->per_clique_known_free_motion_dofs[2].push_back(4);
+
+    r->per_clique_unlocked_dofs.resize(3);
+    r->per_clique_unlocked_dofs[0] = {0, 1, 3, 4, 5};
+    r->per_clique_unlocked_dofs[1] = {0, 1, 2, 3, 4, 5};
+    r->per_clique_unlocked_dofs[2] = {0, 1, 2, 3, 5};
+
+    model.ResetParameters(std::move(params));
+
+    // XXX measured 13:
+    // 4 in ReduceInto itself (selects on Eigen params).
+    // 3 in ResetParameters.
+    // 6 in SetSparsityPattern.
+    drake::test::LimitMalloc guard({13});
     model.ReduceInto(&reduced_model, &mapping);
   }
 }
@@ -676,8 +716,8 @@ GTEST_TEST(IcfModel, CalcDenseHessian) {
                               MatrixCompareType::relative));
 }
 
-/* Checks that we get the same result for the same problem, regardless of how we
-break out the cliques. */
+/* Checks that we get the same result for the same problem, regardless of how
+we break out the cliques. */
 GTEST_TEST(IcfModel, SingleVsMultipleCliques) {
   IcfModel<double> model_single;
   MakeUnconstrainedModel(&model_single, true);
@@ -804,8 +844,8 @@ GTEST_TEST(IcfModel, CalcCostAlongLine) {
   }
 }
 
-/* Checks that updating the time step produces the same result as creating a new
-model from scratch. */
+/* Checks that updating the time step produces the same result as creating a
+new model from scratch. */
 GTEST_TEST(IcfModel, UpdateTimeStep) {
   IcfModel<double> model_original;
   MakeUnconstrainedModel(&model_original, false, 0.02);
@@ -1137,7 +1177,8 @@ GTEST_TEST(IcfModel, LimitConstraint) {
   tau.segment<6>(0) = tau0;
   tau.segment<6>(12) = tau1;
 
-  // Verify that the impulses are non-zero, e.g., at least one limit is active.
+  // Verify that the impulses are non-zero, e.g., at least one limit is
+  // active.
   EXPECT_TRUE(tau.norm() > 1e-6);
 
   // Verify that the cost gradient matches the expected impulse.
@@ -1193,7 +1234,8 @@ GTEST_TEST(IcfModel, WeldConstraint) {
       data.weld_constraints_data();
   EXPECT_EQ(weld_data.num_constraints(), 2);
 
-  // The weld constraints should add positive cost (non-zero constraint error).
+  // The weld constraints should add positive cost (non-zero constraint
+  // error).
   EXPECT_GT(weld_data.cost().value(), 0.0);
 
   // Impulses should be finite and non-zero.
