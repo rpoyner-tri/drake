@@ -231,6 +231,41 @@ GTEST_TEST(PolynomialTest, CoefficientsConstructorNoMatrix) {
   EXPECT_THROW(Polynomial<double>{coefficients}, std::exception);
 }
 
+GTEST_TEST(PolynomialTest, MonomialIteratorConstructor) {
+  using Monomial = Polynomial<double>::Monomial;
+  Polynomiald x("x");
+
+  // Prepare a vector of Monomials. We include two terms with the same power
+  // (x²) to test canonicalization.
+  Monomial m1 = (2.0 * x * x).GetMonomials().at(0);  // 2*x²
+  Monomial m2 = (3.0 * x * x).GetMonomials().at(0);  // 3*x²
+  Monomial m3 = (4.0 * x).GetMonomials().at(0);      // 4*x
+
+  std::vector<Monomial> monomial_vec = {m1, m2, m3};
+
+  // Test with canonicalize = true. This should merge 2*x² and 3*x² into a
+  // single 5*x² term.
+  Polynomiald dut_canonical(monomial_vec.begin(), monomial_vec.end(),
+                            /* canonicalize= */ true);
+
+  // Expect 2 unique terms: 5*x² and 4*x.
+  EXPECT_EQ(dut_canonical.GetNumberOfCoefficients(), 2);
+
+  // Verify evaluation: at x = 2, 5*(2²) + 4*(2) = 20 + 8 = 28.
+  const std::map<Polynomiald::VarType, double> eval_point = {
+      {x.GetSimpleVariable(), 2.0}};
+  EXPECT_NEAR(dut_canonical.EvaluateMultivariate(eval_point), 28.0, 1e-14);
+
+  // 3. Test with canonicalize = false. This should keep the vector exactly as
+  // provided (3 terms).
+  Polynomiald dut_raw(monomial_vec.begin(), monomial_vec.end(),
+                      /* canonicalize= */ false);
+  EXPECT_EQ(dut_raw.GetMonomials().size(), 3);
+
+  // Evaluation should still yield 28.0 because the sum of terms is the same.
+  EXPECT_NEAR(dut_raw.EvaluateMultivariate(eval_point), 28.0, 1e-14);
+}
+
 GTEST_TEST(PolynomialTest, IntegralAndDerivative) {
   testIntegralAndDerivative<double>();
 }
@@ -364,10 +399,12 @@ GTEST_TEST(PolynomialTest, EigenMatrixPolynomialToStringFmtFormatter) {
   Eigen::Matrix<Polynomiald, 2, 2> poly_mat;
   poly_mat << Polynomiald("x"), Polynomiald("y"), Polynomiald("z"),
       Polynomiald("w");
-  EXPECT_EQ(fmt::to_string(fmt_eigen(poly_mat)), "x1 y1\nz1 w1");
+  EXPECT_EQ(fmt::to_string(fmt_eigen(poly_mat)),
+            "[[x1, y1],\n"
+            " [z1, w1]]");
 }
 
-// TODO(2026-06-01): delete test
+// TODO(2026-07-01): delete test
 // DeprecatedEigenMatrixPolynomialOutStreemOperator on removal date.
 GTEST_TEST(PolynomialTest, DeprecatedEigenMatrixPolynomialOutputOperator) {
   Eigen::Matrix<Polynomiald, 2, 2> poly_mat;
@@ -496,7 +533,9 @@ GTEST_TEST(PolynomialTest, FromExpression) {
   const Variable z{"z"};
   Environment env{{x, 1.0}, {y, 2.0}, {z, 3.0}};
   const map<Polynomiald::VarType, double> eval_point{
-      {x.get_id(), env[x]}, {y.get_id(), env[y]}, {z.get_id(), env[z]}};
+      {Polynomiald::VariableIdToVarType(x.get_id()), env[x]},
+      {Polynomiald::VariableIdToVarType(y.get_id()), env[y]},
+      {Polynomiald::VariableIdToVarType(z.get_id()), env[z]}};
 
   const Expression e0{42.0};
   const Expression e1{pow(x, 2)};

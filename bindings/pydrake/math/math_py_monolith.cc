@@ -15,7 +15,6 @@
 #include "drake/bindings/pydrake/math_operators_pybind.h"
 #include "drake/bindings/pydrake/pydrake_pybind.h"
 #include "drake/bindings/pydrake/symbolic_types_pybind.h"
-#include "drake/common/fmt_ostream.h"
 #include "drake/math/barycentric.h"
 #include "drake/math/bspline_basis.h"
 #include "drake/math/compute_numerical_gradient.h"
@@ -233,6 +232,12 @@ void DefineRotationMatrix(py::module_ m, py::class_<PyClass<T>>& cls) {
             py::arg("tolerance") =
                 Class::get_internal_tolerance_for_orthonormality(),
             cls_doc.IsNearlyIdentity.doc)
+        .def("IsNearlyEqualTo",
+            overload_cast_explicit<boolean<T>, const RotationMatrix<T>&,
+                double>(&Class::IsNearlyEqualTo),
+            py::arg("other"), py::arg("tolerance"), cls_doc.IsNearlyEqualTo.doc)
+        .def("IsExactlyEqualTo", &Class::IsExactlyEqualTo, py::arg("other"),
+            cls_doc.IsExactlyEqualTo.doc)
         // Does not return the quality_factor
         .def_static(
             "ProjectToRotationMatrix",
@@ -298,6 +303,8 @@ void DefineRollPitchYaw(py::class_<PyClass<T>>& cls) {
         .def("ToQuaternion", &Class::ToQuaternion, cls_doc.ToQuaternion.doc)
         .def("ToRotationMatrix", &Class::ToRotationMatrix,
             cls_doc.ToRotationMatrix.doc)
+        .def("IsNearlyEqualTo", &Class::IsNearlyEqualTo, py::arg("other"),
+            py::arg("tolerance"), cls_doc.IsNearlyEqualTo.doc)
         .def("CalcRotationMatrixDt", &Class::CalcRotationMatrixDt,
             py::arg("rpyDt"), cls_doc.CalcRotationMatrixDt.doc)
         .def("CalcAngularVelocityInParentFromRpyDt",
@@ -444,6 +451,7 @@ void DoMiscScalarDependentDefinitions(py::module_ m, T) {
             [](Class& self, std::pair<int, std::vector<T>> args) {
               new (&self) Class(std::get<0>(args), std::get<1>(args));
             });
+    .def(py::self == py::self).def(py::self != py::self);
   }
 
   m.def("wrap_to", &wrap_to<T, T>, py::arg("value"), py::arg("low"),
@@ -664,7 +672,7 @@ void DoScalarIndependentDefinitions(py::module_ m) {
               // In the future, we should enhance this to display all of the
               // information.
               return fmt::format("<NumericalGradientOption({})>",
-                                 fmt_streamed(py::repr(method).c_str()));
+                  std::string(py::repr(method).c_str()));
             });
   }
 

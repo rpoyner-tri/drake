@@ -12,6 +12,7 @@
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #endif
 
+// #include "drake/common/atomic_shared_ptr.h"
 // #include "drake/common/autodiff.h"
 // #include "drake/common/autodiff_config.h"
 // #include "drake/common/cond.h"
@@ -54,6 +55,7 @@
 // #include "drake/common/pointer_cast.h"
 // #include "drake/common/polynomial.h"
 // #include "drake/common/random.h"
+// #include "drake/common/ranges.h"
 // #include "drake/common/reset_after_move.h"
 // #include "drake/common/reset_on_copy.h"
 // #include "drake/common/scope_exit.h"
@@ -68,6 +70,8 @@
 // #include "drake/common/string_unordered_set.h"
 // #include "drake/common/temp_directory.h"
 // #include "drake/common/text_logging.h"
+// #include "drake/common/text_logging_impl_spdlog.h"
+// #include "drake/common/text_logging_level.h"
 // #include "drake/common/text_logging_spdlog.h"
 // #include "drake/common/timer.h"
 // #include "drake/common/type_safe_index.h"
@@ -1472,7 +1476,8 @@ Precondition:
         // Source: drake/common/polynomial.h
         const char* doc =
 R"""(Constructs a Polynomial representing the symbolic expression ``e``.
-Note that the ID of a variable is preserved in this translation.
+The mapping from symbolic∷Variable∷Id to Polynomial∷VarType is
+governed by VariableIdToVarType().
 
 Raises:
     RuntimeError if ``e`` is not polynomial-convertible.
@@ -1623,8 +1628,10 @@ R"""(Construct a Polynomial of a single constant. e.g. "5".)""";
         const char* doc_2args_coeff_terms =
 R"""(Construct a Polynomial consisting of a single Monomial, e.g. "5xy**3".)""";
         // Source: drake/common/polynomial.h
-        const char* doc_2args_start_finish =
-R"""(Construct a Polynomial from a sequence of Monomials.)""";
+        const char* doc_3args_start_finish_canonicalize =
+R"""(Construct a Polynomial from a sequence of Monomials. If
+``canonicalize`` is true, monomials with coefficient zero will be
+dropped, and monomials with common powers will be combined.)""";
         // Source: drake/common/polynomial.h
         const char* doc_1args_conststdenableift =
 R"""(Constructs a polynomial consisting of a single Monomial of the
@@ -1736,6 +1743,15 @@ not reflect any sort of mathematical total order.)""";
         // Source: drake/common/polynomial.h
         const char* doc = R"""()""";
       } VarType;
+      // Symbol: drake::Polynomial::VariableIdToVarType
+      struct /* VariableIdToVarType */ {
+        // Source: drake/common/polynomial.h
+        const char* doc =
+R"""(When FromExpression converts a symbolic∷Variable to a Polynomial∷Term,
+it uses this mapping function to project the symbolic∷Variable∷Id to a
+Polynomial∷VarType. Note that the mapping is non-injective (i.e.,
+degenerate) because an Id is 128 bits but a VarType is only 32 bits.)""";
+      } VariableIdToVarType;
       // Symbol: drake::Polynomial::VariableNameToId
       struct /* VariableNameToId */ {
         // Source: drake/common/polynomial.h
@@ -2990,7 +3006,88 @@ Note:
     enforces that nothing within Drake is allowed to use Eigen's
     ``operator<<``. Downstream code that calls into Drake is not
     required to use that option; it is only enforced by Drake's build
-    system, not by Drake's headers.)""";
+    system, not by Drake's headers.
+
+**** Format string syntax
+
+The format string specification syntax for fmt_eigen is based on
+fmtlib's [range
+format](https://fmt.dev/dev/syntax/#range-format-specifications)
+specification, recognizable by the distinctive double colon. We offer
+one additional option ``"#"`` that uses the "alternate form", which in
+this case means without any extra characters except whitespace (i.e.,
+no brackets, no commas, no transpose).
+
+
+.. code-block:: txt
+
+    eigen_format_spec ∷= ["s" | "?s" | [["n" | "#"][":" range_underlying_spec]]]
+
+- "s" is only available when the ``Scalar`` is ``char``; the Matrix contents are
+formatted as a quoted string, with the characters taken in row-major order.
+
+- "?s" is only available when the ``Scalar`` is ``char``; the Matrix contents are
+formatted as a debug string (i.e., quoted and escaped), with the characters
+taken in row-major order.
+
+- "n" turns off brackets (but leaves commas enabled);
+
+- "#" turns off both brackets and commas, similar to Eigen's default IOFormat.
+
+The "range_underlying_spec" format string depends on the particular
+Scalar type captured in the fmt_eigen instance.
+
+Examples:
+
+
+.. raw:: html
+
+    <details><summary>Click to expand C++ code...</summary>
+
+.. code-block:: c++
+
+    Eigen∷Vector3d x{M_PI, M_SQRT2, M_E};
+    fmt∷format("{}", fmt_eigen(x));
+    // [3.141592653589793, 1.4142135623730951, 2.718281828459045]ᵀ
+    // (By default, a column-vector is printed as a transposed row-vector.)
+    
+    fmt∷format("{∷.2f}", fmt_eigen(x));
+    // "[3.14, 1.41, 2.72]ᵀ"
+    
+    fmt∷format("{:n:.2f}", fmt_eigen(x.transpose()));
+    // "3.14, 1.41, 2.72"
+    // (We can use transpose() to avoid the column-vector newlines.)
+    
+    fmt∷format("{:#:.3f}", fmt_eigen(x));
+    // "3.142\n1.414\n2.718"
+    // (Eigen's default IOFormat uses newlines for a column-vector.)
+    
+    fmt∷format("{x∷e}", fmt∷arg("x", fmt_eigen(x)));
+    // "[3.141593e+00, 1.414214e+00, 2.718282e+00]ᵀ"
+
+.. raw:: html
+
+    </details>
+
+Refer to https://fmt.dev/ for syntax details, but in short:
+
+- The ``arg_id`` appears before the first colon, and specifies which argument
+should be formatted. This syntax is part of fmt, not specific to Drake.
+In the above examples we mostly leave it blank, but in the last one we give
+the argument the name ``"x"`` using ``fmt∷arg`` and then use that name in the
+format string.
+
+- The fmt_eigen format spec appears between the first and second colon. When
+empty, the normal presentation is used (with brackets and commas). When
+``'#'`` (like in the final two examples), the brackets and commas are omitted.
+
+- The floating-point format spec appears after the second colon. This syntax is
+part of fmt, not specific to Drake. As seen in the examples, it can be used to
+change the precision or use scientific notation, etc.
+
+Remark:
+    To format a 2-d Eigen∷Matrix as a 1-d Eigen∷Vector, use
+    ``fmt_eigen(M.reshaped(1, M.size()))``.)""";
     } fmt_eigen;
     // Symbol: drake::fmt_floating_point
     struct /* fmt_floating_point */ {
@@ -3007,24 +3104,12 @@ Template parameter ``T``:
     // Symbol: drake::fmt_runtime
     struct /* fmt_runtime */ {
       // Source: drake/common/fmt.h
-      const char* doc =
-R"""(When using fmt >= 8, this is an alias for <a
-href="https://fmt.dev/latest/api.html#compile-time-format-string-checks">fmt∷runtime</a>.
-When using fmt < 8, this is a no-op.)""";
+      const char* doc = R"""()""";
     } fmt_runtime;
     // Symbol: drake::fmt_streamed
     struct /* fmt_streamed */ {
       // Source: drake/common/fmt_ostream.h
-      const char* doc =
-R"""(When using fmt >= 9, this is an alias for <a
-href="https://fmt.dev/latest/api.html#ostream-api">fmt∷streamed</a>.
-When using fmt < 9, this uses a polyfill instead.
-
-Within Drake, the nominal use for ``fmt∷streamed`` is when formatting
-third-party types that provide ``operator<<`` support but not
-``fmt∷formatter<T>`` support. Once we stop using
-``FMT_DEPRECATED_OSTREAM=1``, compilation errors will help you
-understand where you are required to use this wrapper.)""";
+      const char* doc = R"""()""";
     } fmt_streamed;
     // Symbol: drake::hash_append
     struct /* hash_append */ {
@@ -3107,7 +3192,8 @@ certain absolute elementwise ``tolerance``. Special values
     struct /* log */ {
       // Source: drake/common/text_logging.h
       const char* doc =
-R"""(Retrieve an instance of a logger to use for logging; for example:
+R"""(Retrieve Drake's singleton instance of the ``class logger``; for
+example:
 
 
 .. raw:: html
@@ -3157,10 +3243,10 @@ For example:
 
     </details>)""";
         // Symbol: drake::logging::Warn::Warn
-        struct /* Warn */ {
+        struct /* ctor */ {
           // Source: drake/common/text_logging.h
           const char* doc = R"""()""";
-        } Warn;
+        } ctor;
       } Warn;
       // Symbol: drake::logging::get_dist_sink
       struct /* get_dist_sink */ {
@@ -3170,33 +3256,170 @@ R"""((Advanced) Retrieves the default sink for all Drake logs. This allows
 consumers of Drake to redirect Drake's text logs to locations other
 than the default of stderr.)""";
       } get_dist_sink;
+      // Symbol: drake::logging::level
+      struct /* level */ {
+      } level;
+      // Symbol: drake::logging::level_enum
+      struct /* level_enum */ {
+        // Source: drake/common/text_logging_level.h
+        const char* doc =
+R"""(The severity level associated with a log message. Specfic values are
+named like drake∷logging∷level∷info, etc.)""";
+        // Symbol: drake::logging::level_enum::critical
+        struct /* critical */ {
+          // Source: drake/common/text_logging_level.h
+          const char* doc = R"""()""";
+        } critical;
+        // Symbol: drake::logging::level_enum::debug
+        struct /* debug */ {
+          // Source: drake/common/text_logging_level.h
+          const char* doc = R"""()""";
+        } debug;
+        // Symbol: drake::logging::level_enum::err
+        struct /* err */ {
+          // Source: drake/common/text_logging_level.h
+          const char* doc = R"""()""";
+        } err;
+        // Symbol: drake::logging::level_enum::info
+        struct /* info */ {
+          // Source: drake/common/text_logging_level.h
+          const char* doc = R"""()""";
+        } info;
+        // Symbol: drake::logging::level_enum::off
+        struct /* off */ {
+          // Source: drake/common/text_logging_level.h
+          const char* doc = R"""()""";
+        } off;
+        // Symbol: drake::logging::level_enum::trace
+        struct /* trace */ {
+          // Source: drake/common/text_logging_level.h
+          const char* doc = R"""()""";
+        } trace;
+        // Symbol: drake::logging::level_enum::warn
+        struct /* warn */ {
+          // Source: drake/common/text_logging_level.h
+          const char* doc = R"""()""";
+        } warn;
+      } level_enum;
       // Symbol: drake::logging::logger
       struct /* logger */ {
         // Source: drake/common/text_logging.h
         const char* doc =
-R"""(The drake∷logging∷logger class provides text logging methods. See the
-text_logging.h documentation for a short tutorial.)""";
+R"""(The singleton class returned by Drake's drake∷log() function, offering
+functions to emit log messages. Refer to the file overview for
+details.)""";
+        // Symbol: drake::logging::logger::critical
+        struct /* critical */ {
+          // Source: drake/common/text_logging.h
+          const char* doc_2args =
+R"""(Logs a formatted message at ``critical`` severity.)""";
+          // Source: drake/common/text_logging.h
+          const char* doc_1args = R"""(Logs a string at ``critival`` severity.)""";
+        } critical;
+        // Symbol: drake::logging::logger::debug
+        struct /* debug */ {
+          // Source: drake/common/text_logging.h
+          const char* doc_2args =
+R"""(Logs a formatted message at ``debug`` severity.)""";
+          // Source: drake/common/text_logging.h
+          const char* doc_1args = R"""(Logs a string at ``debug`` severity.)""";
+        } debug;
+        // Symbol: drake::logging::logger::error
+        struct /* error */ {
+          // Source: drake/common/text_logging.h
+          const char* doc_2args =
+R"""(Logs a formatted message at ``error`` severity.)""";
+          // Source: drake/common/text_logging.h
+          const char* doc_1args = R"""(Logs a string at ``error`` severity.)""";
+        } error;
+        // Symbol: drake::logging::logger::info
+        struct /* info */ {
+          // Source: drake/common/text_logging.h
+          const char* doc_2args =
+R"""(Logs a formatted message at ``info`` severity.)""";
+          // Source: drake/common/text_logging.h
+          const char* doc_1args = R"""(Logs a string at ``info`` severity.)""";
+        } info;
+        // Symbol: drake::logging::logger::level
+        struct /* level */ {
+          // Source: drake/common/text_logging.h
+          const char* doc = R"""(Returns the current log level.)""";
+        } level;
+        // Symbol: drake::logging::logger::log
+        struct /* log */ {
+          // Source: drake/common/text_logging.h
+          const char* doc_3args =
+R"""(Logs a formatted message at the given ``severity``.)""";
+          // Source: drake/common/text_logging.h
+          const char* doc_2args =
+R"""(Logs a string at the given ``severity``.)""";
+        } log;
+        // Symbol: drake::logging::logger::logger
+        struct /* ctor */ {
+          // Source: drake/common/text_logging.h
+          const char* doc = R"""()""";
+        } ctor;
+        // Symbol: drake::logging::logger::set_level
+        struct /* set_level */ {
+          // Source: drake/common/text_logging.h
+          const char* doc = R"""(Sets the currently log level.)""";
+        } set_level;
+        // Symbol: drake::logging::logger::set_pattern
+        struct /* set_pattern */ {
+          // Source: drake/common/text_logging.h
+          const char* doc =
+R"""(Invokes ``spdlog∷logger∷set_pattern(pattern)``. This has no effect
+unless spdlog is enabled.
+
+Parameter ``pattern``:
+    Formatting for message. For more information, see:
+    https://github.com/gabime/spdlog/wiki/3.-Custom-formatting)""";
+        } set_pattern;
+        // Symbol: drake::logging::logger::should_log
+        struct /* should_log */ {
+          // Source: drake/common/text_logging.h
+          const char* doc =
+R"""(Returns true iff the current level() threshold meets the given
+``severity``.)""";
+        } should_log;
+        // Symbol: drake::logging::logger::trace
+        struct /* trace */ {
+          // Source: drake/common/text_logging.h
+          const char* doc_2args =
+R"""(Logs a formatted message at ``trace`` severity.)""";
+          // Source: drake/common/text_logging.h
+          const char* doc_1args = R"""(Logs a string at ``trace`` severity.)""";
+        } trace;
+        // Symbol: drake::logging::logger::warn
+        struct /* warn */ {
+          // Source: drake/common/text_logging.h
+          const char* doc_2args =
+R"""(Logs a formatted message at ``warn`` severity.)""";
+          // Source: drake/common/text_logging.h
+          const char* doc_1args = R"""(Logs a string at ``warn`` severity.)""";
+        } warn;
       } logger;
       // Symbol: drake::logging::set_log_level
       struct /* set_log_level */ {
         // Source: drake/common/text_logging.h
         const char* doc =
-R"""(Sets the log threshold used by Drake's C++ code.
+R"""(Sets the log threshold used by Drake's C++ code. This has no effect
+unless spdlog is enabled.
 
 Parameter ``level``:
-    Must be a string from spdlog enumerations: ``trace``, `debug`,
+    Must be a string from level enumeration: ``trace``, `debug`,
     ``info``, `warn`, ``err``, `critical`, ``off``, or ``unchanged``
     (not an enum, but useful for command-line).
 
 Returns:
-    The string value of the previous log level. If SPDLOG is disabled,
-    then this returns an empty string.)""";
+    The string value of the previous log level.)""";
       } set_log_level;
       // Symbol: drake::logging::set_log_pattern
       struct /* set_log_pattern */ {
         // Source: drake/common/text_logging.h
         const char* doc =
-R"""(Invokes ``drake∷log()->set_pattern(pattern)``.
+R"""(Invokes ``drake∷log()->set_pattern(pattern)``. This has no effect
+unless spdlog is enabled.
 
 Parameter ``pattern``:
     Formatting for message. For more information, see:
@@ -3274,6 +3497,11 @@ R"""(Determines whether ``x > y`` using ``operator<``.)""";
       const char* doc =
 R"""(Determines whether ``x >= y`` using ``operator<``.)""";
     } operator_ge;
+    // Symbol: drake::ostream_formatter
+    struct /* ostream_formatter */ {
+      // Source: drake/common/fmt_ostream.h
+      const char* doc = R"""()""";
+    } ostream_formatter;
     // Symbol: drake::pow
     struct /* pow */ {
       // Source: drake/common/polynomial.h
@@ -3570,9 +3798,14 @@ Raises:
     // Symbol: drake::to_string
     struct /* to_string */ {
       // Source: drake/common/file_source.h
-      const char* doc_1args_source = R"""(Returns a string representation.)""";
+      const char* doc_deprecated =
+R"""((Deprecated.)
+
+Deprecated:
+    Use fmt∷to_string instead, with ``#include <fmt/std.h>``. This
+    will be removed from Drake on or after 2026-07-01.)""";
       // Source: drake/common/identifier.h
-      const char* doc_1args_constdrakeIdentifier =
+      const char* doc =
 R"""(Enables use of identifiers with to_string. It requires ADL to work.
 So, it should be invoked as: ``to_string(id);`` and should be preceded
 by ``using std∷to_string``.)""";

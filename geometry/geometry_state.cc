@@ -715,10 +715,10 @@ GeometryState<T>::maybe_get_hydroelastic_mesh(GeometryId geometry_id) const {
       }
       break;
     }
-    case HydroelasticType::kSoft: {
-      const auto& soft = hydro_geometries.soft_geometry(geometry_id);
-      if (!soft.is_half_space()) {
-        return &soft.mesh();
+    case HydroelasticType::kCompliant: {
+      const auto& compliant = hydro_geometries.compliant_geometry(geometry_id);
+      if (!compliant.is_half_space()) {
+        return &compliant.mesh();
       }
       break;
     }
@@ -1604,7 +1604,8 @@ void GeometryState<T>::AddRenderer(
         } else {
           accepted |= render_engine->RegisterVisual(
               id, geometry.shape(), *properties,
-              RigidTransformd(geometry.X_FG()), geometry.is_dynamic());
+              RigidTransformd(geometry.X_FG()), geometry.is_dynamic(),
+              geometry.name());
         }
       }
     }
@@ -2148,7 +2149,7 @@ bool GeometryState<T>::AddRigidToCompatibleRenderersUnchecked(
   for (auto& engine : *candidate_renderers) {
     added_to_renderer =
         engine->RegisterVisual(geometry.id(), geometry.shape(), properties,
-                               X_WG, geometry.is_dynamic()) ||
+                               X_WG, geometry.is_dynamic(), geometry.name()) ||
         added_to_renderer;
   }
   return added_to_renderer;

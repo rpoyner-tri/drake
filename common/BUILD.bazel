@@ -28,6 +28,7 @@ drake_cc_package_library(
     name = "common",
     visibility = ["//visibility:public"],
     deps = [
+        ":atomic_shared_ptr",
         ":autodiff",
         ":cond",
         ":copyable_unique_ptr",
@@ -101,7 +102,14 @@ drake_cc_library(
         "drake_assert.cc",
         "drake_deprecated.cc",
         "text_logging.cc",
-    ],
+    ] + select({
+        "//tools/workspace/spdlog:flag_spdlog_repo_disabled": [
+            "text_logging_impl_none.cc",
+        ],
+        "//conditions:default": [
+            "text_logging_impl_spdlog.cc",
+        ],
+    }),
     hdrs = [
         "constants.h",
         "drake_assert.h",
@@ -111,7 +119,10 @@ drake_cc_library(
         "drake_throw.h",
         "eigen_types.h",
         "never_destroyed.h",
+        "ranges.h",
         "text_logging.h",
+        "text_logging_impl_spdlog.h",
+        "text_logging_level.h",
         # Remove with deprecation on 2026-09-01.
         "ssize.h",
     ],
@@ -125,8 +136,26 @@ drake_cc_library(
 
 drake_cc_library(
     name = "text_logging_spdlog",
-    srcs = ["text_logging_spdlog.cc"],
-    hdrs = ["text_logging_spdlog.h"],
+    srcs = select({
+        "//tools/workspace/spdlog:flag_spdlog_repo_disabled": [],
+        "//conditions:default": [
+            "text_logging_spdlog.cc",
+        ],
+    }),
+    hdrs = select({
+        "//tools/workspace/spdlog:flag_spdlog_repo_disabled": [],
+        "//conditions:default": [
+            "text_logging_spdlog.h",
+        ],
+    }),
+    deps = [
+        ":essential",
+    ],
+)
+
+drake_cc_library(
+    name = "atomic_shared_ptr",
+    hdrs = ["atomic_shared_ptr.h"],
     deps = [
         ":essential",
     ],
@@ -681,6 +710,13 @@ install(
 
 # === test/ ===
 
+drake_cc_googletest(
+    name = "atomic_shared_ptr_test",
+    deps = [
+        ":atomic_shared_ptr",
+    ],
+)
+
 # A config file that forces legacy mode (for legacy-specific tests).
 # TODO(jwnimmer-tri) On 2026-07-01 remove all of the deprecated legacy stuff.
 generate_file(
@@ -934,6 +970,7 @@ drake_cc_googletest(
     copts = ["-Wno-deprecated-declarations"],
     deps = [
         ":essential",
+        ":text_logging_spdlog",
         "//common/test_utilities:expect_throws_message",
     ],
 )
@@ -1126,6 +1163,7 @@ drake_cc_googletest(
     name = "fmt_eigen_test",
     deps = [
         ":essential",
+        "//common/test_utilities:limit_malloc",
     ],
 )
 
@@ -1278,6 +1316,8 @@ drake_cc_googletest(
         "test/text_logging_test.cc",
         "text_logging.cc",
         "text_logging.h",
+        "text_logging_impl_none.cc",
+        "text_logging_level.h",
     ],
     defines = [
         "TEXT_LOGGING_TEST_SPDLOG=0",
@@ -1298,6 +1338,8 @@ drake_cc_googletest(
         "test/text_logging_ostream_test.cc",
         "text_logging.cc",
         "text_logging.h",
+        "text_logging_impl_none.cc",
+        "text_logging_level.h",
     ],
     defines = [
         "TEXT_LOGGING_TEST_SPDLOG=0",
@@ -1391,5 +1433,10 @@ add_lint_tests(
         "nice_type_name.h",
         "nice_type_name_override.cc",
         "nice_type_name_override.h",
+        "text_logging_impl_none.cc",
+        "text_logging_impl_spdlog.cc",
+        "text_logging_impl_spdlog.h",
+        "text_logging_spdlog.cc",
+        "text_logging_spdlog.h",
     ],
 )

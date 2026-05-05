@@ -144,15 +144,12 @@ void DecomposeLinearExpressions(
   for (int i = 0; i < expressions.size(); ++i) {
     const Expression& e{expressions(i)};
     if (!e.is_polynomial()) {
-      ThrowError("non-polynomial", e.to_string(),
-                 "");  // e should be a polynomial.
+      ThrowError("non-polynomial", e.to_string(), "");
     }
     const Polynomial p{e, Variables{vars}};
     if (p.TotalDegree() > 1) {
-      ThrowError(
-          "non-linear", e.to_string(),
-          fmt::format(" of indeterminates {}",
-                      fmt_eigen(vars.transpose())));  // e should be linear.
+      ThrowError("non-linear", e.to_string(),
+                 fmt::format(" of indeterminates {}", fmt_eigen(vars)));
     }
     const Polynomial::MapType& map{p.monomial_to_coefficient_map()};
     if (map.contains(Monomial{})) {
@@ -162,7 +159,7 @@ void DecomposeLinearExpressions(
           fmt::format(" of indeterminates {}, with a constant term {}. "
                       "This is an affine expression; a linear should have no "
                       "constant terms.",
-                      fmt_eigen(vars.transpose()), map.at(Monomial{})));
+                      fmt_eigen(vars), map.at(Monomial{})));
     }
     // Fill M(i, j).
     for (int j = 0; j < vars.size(); ++j) {
@@ -186,10 +183,8 @@ void DecomposeAffineExpressions(
     }
     const Polynomial p{e, Variables{vars}};
     if (p.TotalDegree() > 1) {
-      ThrowError(
-          "non-linear", e.to_string(),
-          fmt::format(" of indeterminates {}",
-                      fmt_eigen(vars.transpose())));  // e should be linear.
+      ThrowError("non-linear", e.to_string(),
+                 fmt::format(" of indeterminates {}", fmt_eigen(vars)));
     }
     const Polynomial::MapType& map{p.monomial_to_coefficient_map()};
     // Fill M(i, j).
@@ -329,9 +324,8 @@ int DecomposeAffineExpression(
   coeffs->setZero();
   *constant_term = 0;
   if (!e.is_polynomial()) {
-    std::ostringstream oss;
-    oss << "Expression " << e << " is not a polynomial.\n";
-    throw std::runtime_error(oss.str());
+    throw std::runtime_error(
+        fmt::format("Expression {} is not a polynomial.\n", e));
   }
   const symbolic::Polynomial poly{e};
   int num_variable = 0;
@@ -340,9 +334,7 @@ int DecomposeAffineExpression(
     DRAKE_ASSERT(is_constant(p.second));
     const double p_coeff = symbolic::get_constant_value(p.second);
     if (p_monomial.total_degree() > 1) {
-      std::stringstream oss;
-      oss << "Expression " << e << " is non-linear.";
-      throw std::runtime_error(oss.str());
+      throw std::runtime_error(fmt::format("Expression {} is non-linear.", e));
     } else if (p_monomial.total_degree() == 1) {
       // Linear coefficient.
       const auto& p_monomial_powers = p_monomial.get_powers();

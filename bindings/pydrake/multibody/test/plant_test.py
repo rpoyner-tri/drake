@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import collections
 import copy
 import itertools
@@ -61,6 +59,7 @@ from pydrake.multibody.plant import (
     AddMultibodyPlant,
     AddMultibodyPlantSceneGraph,
     ApplyMultibodyPlantConfig,
+    BaseBodyJointType,
     CalcContactFrictionFromSurfaceProperties,
     ConnectContactResultsToDrakeVisualizer,
     ContactModel,
@@ -154,7 +153,7 @@ def get_index_class(cls, T):
     for key_cls, index_cls in class_to_index_class_map.items():
         if issubclass(cls, key_cls):
             return index_cls
-    raise RuntimeError("Unknown class: {}".format(cls))
+    raise RuntimeError(f"Unknown class: {cls}")
 
 
 # Permits parametric scalar type conversion.
@@ -1074,12 +1073,14 @@ class TestPlant(unittest.TestCase):
     def test_friction_api(self, T):
         CoulombFriction = CoulombFriction_[T]
         CoulombFriction()
-        CoulombFriction(static_friction=0.7, dynamic_friction=0.6)
+        dut = CoulombFriction(static_friction=0.7, dynamic_friction=0.6)
+        self.assertIsInstance(dut.static_friction(), T)
+        self.assertIsInstance(dut.dynamic_friction(), T)
         copy.copy(CoulombFriction())
         assert_pickle(
             self,
-            CoulombFriction,
-            lambda x: [x.static_friction, x.dynamic_friction],
+            dut,
+            lambda x: [x.static_friction(), x.dynamic_friction()],
             T=T,
         )
 
@@ -3502,6 +3503,21 @@ class TestPlant(unittest.TestCase):
         for model in models:
             plant.set_contact_model(model)
             self.assertEqual(plant.get_contact_model(), model)
+
+    def test_base_body_joint_type(self):
+        plant = MultibodyPlant_[float](0.1)
+        joint_types = [
+            BaseBodyJointType.kQuaternionFloatingJoint,
+            BaseBodyJointType.kRpyFloatingJoint,
+            BaseBodyJointType.kWeldJoint,
+        ]
+        for joint_type in joint_types:
+            plant.SetBaseBodyJointType(
+                joint_type=joint_type, model_instance=None
+            )
+            self.assertEqual(
+                plant.GetBaseBodyJointType(model_instance=None), joint_type
+            )
 
     def test_discrete_contact_approximation(self):
         plant = MultibodyPlant_[float](0.1)

@@ -570,7 +570,7 @@ std::string to_string(const SpatialInertia<T>& M) {
   } else {
     // Print symbolic results.
     result.append(fmt::format(" mass = {}\n Center of mass = {}\n", mass,
-                              fmt_eigen(p_PBcm.transpose())));
+                              fmt_eigen(p_PBcm)));
   }
 
   // Get G_BP (unit inertia about point P) and use it to calculate I_BP
@@ -585,7 +585,7 @@ std::string to_string(const SpatialInertia<T>& M) {
   return result;
 }
 
-// TODO(2026-06-01): delete `operator<<` instantiation and the `#pragma`s.
+// TODO(2026-07-01): delete `operator<<` instantiation and the `#pragma`s.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 // clang-format off

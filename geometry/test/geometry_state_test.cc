@@ -411,9 +411,9 @@ void ShapeMatcher<Mesh>::TestShapeParameters(const Mesh& test) {
   // Looking for *exact* match.
   if (test.scale3() != expected_.scale3()) {
     error() << "\nExpected mesh scale "
-            << fmt::to_string(fmt_eigen(expected_.scale3().transpose()))
+            << fmt::to_string(fmt_eigen(expected_.scale3()))
             << ", received mesh scale "
-            << fmt::to_string(fmt_eigen(test.scale3().transpose()));
+            << fmt::to_string(fmt_eigen(test.scale3()));
   }
 }
 
@@ -427,9 +427,9 @@ void ShapeMatcher<Convex>::TestShapeParameters(const Convex& test) {
   // Looking for *exact* match.
   if (test.scale3() != expected_.scale3()) {
     error() << "\nExpected convex scale "
-            << fmt::to_string(fmt_eigen(expected_.scale3().transpose()))
+            << fmt::to_string(fmt_eigen(expected_.scale3()))
             << ", received convex scale "
-            << fmt::to_string(fmt_eigen(test.scale3().transpose()));
+            << fmt::to_string(fmt_eigen(test.scale3()));
   }
 }
 
@@ -1939,9 +1939,10 @@ class ChangeShapeRenderEngine : public DummyRenderEngine {
   }
 
  protected:
-  bool DoRegisterVisual(GeometryId id, const Shape&,
-                        const PerceptionProperties&,
-                        const math::RigidTransformd&) override {
+  bool DoRegisterNamedVisual(GeometryId id, const Shape&,
+                             const PerceptionProperties&,
+                             const math::RigidTransformd&,
+                             std::string_view) override {
     registered_id_ = id;
     return true;
   }
@@ -4756,9 +4757,9 @@ GTEST_TEST(GeometryStateHydroTest, GetHydroMesh) {
 
   ProximityProperties rigid_hydro;
   AddRigidHydroelasticProperties(1.0, &rigid_hydro);
-  ProximityProperties soft_hydro;
-  AddContactMaterial(0.0, {}, {}, &soft_hydro);
-  AddCompliantHydroelasticProperties(1.0, 1e8, &soft_hydro);
+  ProximityProperties compliant_hydro;
+  AddContactMaterial(0.0, {}, {}, &compliant_hydro);
+  AddCompliantHydroelasticProperties(1.0, 1e8, &compliant_hydro);
 
   // We'll simply affix a number of geometries as anchored with the identity
   // pose. The other details don't really matter.
@@ -4811,8 +4812,8 @@ GTEST_TEST(GeometryStateHydroTest, GetHydroMesh) {
   {
     const GeometryId id = geometry_state.RegisterAnchoredGeometry(
         source_id, make_unique<GeometryInstance>(X_WG, make_unique<Sphere>(1),
-                                                 "soft_mesh"));
-    geometry_state.AssignRole(source_id, id, soft_hydro);
+                                                 "compliant_mesh"));
+    geometry_state.AssignRole(source_id, id, compliant_hydro);
 
     const auto maybe_mesh = geometry_state.maybe_get_hydroelastic_mesh(id);
     EXPECT_TRUE(std::holds_alternative<const VolumeMesh<double>*>(maybe_mesh));

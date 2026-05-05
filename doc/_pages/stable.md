@@ -25,7 +25,10 @@ highlight the change when possible (`[[deprecated]]` for C++; `warnings.warn`
 for Python). However, those mechanisms will not always trigger in every case,
 and some deprecations will reach beyond what those tools can denote.
 Therefore, we still recommend that you monitor the release notes as the final
-arbiter of deprecation announcements.
+arbiter of deprecation announcements. The severity of deprecation warnings can
+be controlled; see the
+[Deprecation Severity Controls](/doxygen_cxx/group__deprecation__severity.html)
+documentation for details.
 
 Due to our 3-month announcement window, we recommend upgrading your pinned
 version of Drake at least that frequently. If you wish to upgrade less
@@ -225,6 +228,9 @@ Drake intends to support the two most recent versions of Ubuntu LTS and macOS
 on an ongoing basis. That generally means that your OS must be no more than
 ~2-4 years old for Ubuntu, or ~2 years old for macOS.
 
+Drake intends to support the most recent version of Amazon Linux on an ongoing
+basis, but only for the `pip` installation method.
+
 Refer to [Installation and Quickstart](/installation.html) for the current
 details, and [End of support releases](/release_notes/end_of_support.html)
 for historical details.
@@ -235,9 +241,7 @@ On Ubuntu when installing from PyPI, Drake intends to support many versions of
 Python, up to and including the most recent version at the time of our release.
 The *oldest* version of Python we intend to support is the penultimate Ubuntu
 LTS's default Python version at the time of our release. This is consistent with
-[NEP-29](https://numpy.org/neps/nep-0029-deprecation_policy.html). We hope that
-our `manylinux` wheels are able to install and run on non-Ubuntu Linux, but it
-is not tested (and thus, unsupported).
+[NEP-29](https://numpy.org/neps/nep-0029-deprecation_policy.html).
 
 On Ubuntu when installing a binary package (`*.tar.gz`), Drake intends to
 support only Ubuntu's default version of Python (at ``/usr/bin/python3``).

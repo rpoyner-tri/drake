@@ -113,8 +113,6 @@ void InitLowLevelModules(py::module_ m) {
   // `pydrake.common.deprecation` (e.g. DeprecateAttribute, WrapDeprecated),
   // please ping @EricCousineau-TRI.
 
-  m.attr("_HAVE_SPDLOG") = logging::kHaveSpdlog;
-
   // Python users should not touch the C++ level; thus, we bind this privately.
   m.def("_set_log_level", &logging::set_log_level, py::arg("level"),
       doc.logging.set_log_level.doc);

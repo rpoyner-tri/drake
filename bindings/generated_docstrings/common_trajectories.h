@@ -2222,6 +2222,19 @@ R"""(Creates an empty trajectory.
 Parameter ``rowwise``:
     governs the stacking order)""";
         } ctor;
+        // Symbol: drake::trajectories::StackedTrajectory::children
+        struct /* children */ {
+          // Source: drake/common/trajectories/stacked_trajectory.h
+          const char* doc =
+R"""(Returns a view of the current children. Calling any non-const method
+on this trajectory will invalidate the view.)""";
+        } children;
+        // Symbol: drake::trajectories::StackedTrajectory::rowwise
+        struct /* rowwise */ {
+          // Source: drake/common/trajectories/stacked_trajectory.h
+          const char* doc =
+R"""(Returns true iff the stacking order is rowwise.)""";
+        } rowwise;
       } StackedTrajectory;
       // Symbol: drake::trajectories::Trajectory
       struct /* Trajectory */ {

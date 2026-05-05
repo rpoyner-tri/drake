@@ -11,6 +11,7 @@
 #include <fmt/format.h>
 
 #include "drake/common/drake_assert.h"
+#include "drake/common/fmt_eigen.h"
 #include "drake/common/nice_type_name.h"
 #include "drake/common/overloaded.h"
 #include "drake/geometry/proximity/make_convex_hull_mesh_impl.h"
@@ -36,35 +37,6 @@ namespace drake {
 namespace geometry {
 namespace {
 
-// Computes a convex hull and assigns it to the given shared pointer in a
-// thread-safe manner. Only does work if the shared_ptr is null (i.e., there is
-// no convex hull yet). Used by Mesh::GetConvexHull() and
-// Convex::GetConvexHull(). Note: the correctness of this function is tested in
-// shape_specification_thread_test.cc.
-void ComputeConvexHullAsNecessary(
-    std::shared_ptr<PolygonSurfaceMesh<double>>* hull_ptr,
-    const MeshSource& mesh_source, const Vector3<double>& scale) {
-  // TODO(jwnimmer-tri) Once we drop support for Jammy (i.e., once we can use
-  // GCC >= 12 as our minimum), then we should respell these atomics to use the
-  // C++20 syntax and remove the warning suppressions here and below. (We need
-  // the warning supression because newer Clang complains.)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  std::shared_ptr<PolygonSurfaceMesh<double>> check =
-      std::atomic_load(hull_ptr);
-#pragma GCC diagnostic pop
-  if (check == nullptr) {
-    // Note: This approach means that multiple threads *may* redundantly compute
-    // the convex hull; but only the first one will set the hull.
-    auto new_hull = std::make_shared<PolygonSurfaceMesh<double>>(
-        internal::MakeConvexHull(mesh_source, scale));
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-    std::atomic_compare_exchange_strong(hull_ptr, &check, new_hull);
-#pragma GCC diagnostic pop
-  }
-}
-
 // Support for Mesh and Convex do_to_string(). It does the hard work of
 // converting the MeshSource into the appropriate parameter name and value
 // representation and then packages it into the full Mesh string representation.
@@ -77,15 +49,15 @@ std::string MeshToString(std::string_view class_name, const MeshSource& source,
       return fmt::format("mesh_data={}", source.in_memory());
     }
   }();
-  return fmt::format("{}({}, scale=[{}])", class_name, mesh_parameter,
-                     fmt_eigen(scale.transpose()));
+  return fmt::format("{}({}, scale={})", class_name, mesh_parameter,
+                     fmt_eigen(scale));
 }
 
 void ThrowForBadScale(const Vector3<double>& scale, std::string_view source) {
   if ((scale.array().abs() >= 1e-8).all() && scale.allFinite()) return;
   throw std::logic_error(
-      fmt::format("{} |scale| cannot be < 1e-8 on any axis, given [{}].",
-                  source, fmt_eigen(scale.transpose())));
+      fmt::format("{} |scale| cannot be < 1e-8 on any axis, given {}.", source,
+                  fmt_eigen(scale)));
 }
 
 }  // namespace
@@ -174,15 +146,17 @@ double Convex::scale() const {
   if ((scale_.array() != scale_[0]).any()) {
     throw std::runtime_error(
         fmt::format("Convex::scale() can only be called for uniform scaling. "
-                    "This mesh has scale [{}]. Use Convex::scale3() instead.",
-                    fmt_eigen(scale_.transpose())));
+                    "This mesh has scale {}. Use Convex::scale3() instead.",
+                    fmt_eigen(scale_)));
   }
   return scale_[0];
 }
 
 const PolygonSurfaceMesh<double>& Convex::GetConvexHull() const {
-  ComputeConvexHullAsNecessary(&hull_, source_, scale_);
-  return *hull_;
+  return hull_.GetOrMake([this]() {
+    return std::make_shared<PolygonSurfaceMesh<double>>(
+        internal::MakeConvexHull(source_, scale_));
+  });
 }
 
 std::string Convex::do_to_string() const {
@@ -276,15 +250,17 @@ double Mesh::scale() const {
   if ((scale_.array() != scale_[0]).any()) {
     throw std::runtime_error(
         fmt::format("Mesh::scale() can only be called for uniform scaling. "
-                    "This mesh has scale [{}]. Use Mesh::scale3() instead.",
-                    fmt_eigen(scale_.transpose())));
+                    "This mesh has scale {}. Use Mesh::scale3() instead.",
+                    fmt_eigen(scale_)));
   }
   return scale_[0];
 }
 
 const PolygonSurfaceMesh<double>& Mesh::GetConvexHull() const {
-  ComputeConvexHullAsNecessary(&hull_, source_, scale_);
-  return *hull_;
+  return hull_.GetOrMake([this]() {
+    return std::make_shared<PolygonSurfaceMesh<double>>(
+        internal::MakeConvexHull(source_, scale_));
+  });
 }
 
 std::string Mesh::do_to_string() const {

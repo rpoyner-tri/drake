@@ -45,14 +45,14 @@ cc_library(
     ],
     includes = ["include"],
     isystem = True,
+    linkopts = [
+        "-pthread",
+    ],
     linkstatic = True,
     deps = [
         "@common_robotics_utilities_internal//:common_robotics_utilities",
         "@eigen",
         "@zlib",
-    ],
-    linkopts = [
-        "-pthread",
     ],
 )
 
@@ -115,29 +115,34 @@ cc_library(
     isystem = True,
     linkstatic = True,
     deps = [
-        ":voxelized_geometry_tools",
         ":cuda_voxelization_helpers",
         ":opencl_voxelization_helpers",
+        ":voxelized_geometry_tools",
         "@common_robotics_utilities_internal//:common_robotics_utilities",
         "@eigen",
         "@zlib",
     ],
 )
 
+# We'll skip all tests if kcov is enabled, because this is third-party code.
+# We can't improve its test coverage with changes to Drake.
+TEST_TARGET_COMPATIBLE_WITH = select({
+    "@drake//tools/kcov:enabled": ["@platforms//:incompatible"],
+    "//conditions:default": [],
+})
+
 # N.B. This test uses two threads even when OpenMP is not available.
 cc_test(
     name = "pointcloud_voxelization_test",
     srcs = ["test/pointcloud_voxelization_test.cpp"],
     env = {"OMP_NUM_THREADS": "2"},
-    tags = [
-        "cpu:2",
-        "no_kcov",
-    ],
+    tags = ["cpu:2"],
+    target_compatible_with = TEST_TARGET_COMPATIBLE_WITH,
     deps = [
-        ":voxelized_geometry_tools",
         ":cuda_voxelization_helpers",
         ":opencl_voxelization_helpers",
         ":pointcloud_voxelization",
+        ":voxelized_geometry_tools",
         "@common_robotics_utilities_internal//:common_robotics_utilities",
         "@googletest//:gtest",
     ],
@@ -148,10 +153,8 @@ cc_test(
     name = "mesh_rasterization_test",
     srcs = ["test/mesh_rasterization_test.cpp"],
     env = {"OMP_NUM_THREADS": "2"},
-    tags = [
-        "cpu:2",
-        "no_kcov",
-    ],
+    tags = ["cpu:2"],
+    target_compatible_with = TEST_TARGET_COMPATIBLE_WITH,
     deps = [
         ":voxelized_geometry_tools",
         "@common_robotics_utilities_internal//:common_robotics_utilities",
@@ -162,7 +165,7 @@ cc_test(
 cc_test(
     name = "occupancy_map_conversions_test",
     srcs = ["test/occupancy_map_conversions_test.cpp"],
-    tags = ["no_kcov"],
+    target_compatible_with = TEST_TARGET_COMPATIBLE_WITH,
     deps = [
         ":voxelized_geometry_tools",
         "@common_robotics_utilities_internal//:common_robotics_utilities",
@@ -175,11 +178,23 @@ cc_test(
     name = "sdf_generation_test",
     srcs = ["test/sdf_generation_test.cpp"],
     env = {"OMP_NUM_THREADS": "2"},
-    tags = [
-        "cpu:2",
-        "no_kcov",
-    ],
+    tags = ["cpu:2"],
+    target_compatible_with = TEST_TARGET_COMPATIBLE_WITH,
     deps = [
+        ":voxelized_geometry_tools",
+        "@common_robotics_utilities_internal//:common_robotics_utilities",
+        "@googletest//:gtest",
+    ],
+)
+
+cc_test(
+    name = "voxel_raycasting_test",
+    srcs = ["test/voxel_raycasting_test.cpp"],
+    target_compatible_with = TEST_TARGET_COMPATIBLE_WITH,
+    deps = [
+        ":cuda_voxelization_helpers",
+        ":opencl_voxelization_helpers",
+        ":pointcloud_voxelization",
         ":voxelized_geometry_tools",
         "@common_robotics_utilities_internal//:common_robotics_utilities",
         "@googletest//:gtest",
@@ -190,8 +205,10 @@ test_suite(
     name = "test_suite",
     tests = [
         ":mesh_rasterization_test",
+        ":occupancy_map_conversions_test",
         ":pointcloud_voxelization_test",
         ":sdf_generation_test",
+        ":voxel_raycasting_test",
     ],
 )
 

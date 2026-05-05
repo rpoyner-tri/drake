@@ -252,7 +252,7 @@ GTEST_TEST(ReadObjTest, InverseScaleWinding) {
         const Eigen::Vector3d n_G = p_AB_G.cross(p_AC_G);
         // The vector OA should point in basically the same direction as the
         // normal.
-        SCOPED_TRACE(fmt::format("Scale [{}]", fmt_eigen(scale.transpose())));
+        SCOPED_TRACE(fmt::format("Scale {}", fmt_eigen(scale)));
         EXPECT_GT(n_G.dot(p_GoA_G), 0);
       }
     }
@@ -280,10 +280,10 @@ TEST_F(ReadObjDiagnosticsTest, ErrorModes) {
         ReadObj(source, scale, /* triangulate= */ false,
                 /* vertices_only= */ true, diagnostic_policy_);
     EXPECT_EQ(verts, nullptr);
-    EXPECT_THAT(TakeError(), testing::HasSubstr("zero value for vertex"));
+    EXPECT_THAT(TakeError(), testing::HasSubstr("bad indices"));
     DRAKE_EXPECT_THROWS_MESSAGE(ReadObj(source, scale, /* triangulate= */ false,
                                         /* vertices_only= */ true),
-                                "[^]*zero value for vertex[^]*");
+                                "[^]*bad indices[^]*");
   }
 
   // tinyobj warnings broadcast as diagnostic warnings. Without providing a

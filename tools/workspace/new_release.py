@@ -42,7 +42,6 @@ import shlex
 import subprocess
 from tempfile import TemporaryDirectory
 import time
-from typing import Optional, Set
 import urllib
 
 import git
@@ -122,8 +121,8 @@ _COHORTS = (
 class UpgradeResult:
     was_upgraded: bool
     can_be_committed: bool = False
-    modified_paths: Optional[Set[str]] = None
-    commit_message: Optional[str] = None
+    modified_paths: set[str] | None = None
+    commit_message: str | None = None
 
 
 def _str_replace_forced(original, old, new):
@@ -545,7 +544,7 @@ def _do_upgrade(temp_dir, gh, local_drake_checkout, workspace_name, metadata):
         if _smells_like_a_git_commit(new_commit):
             message = f"Update dependency {workspace_name} to latest commit"
         else:
-            release = new_commit.lstrip("v")
+            release = new_commit.lstrip("releases/").lstrip("v")
             message = f"Update dependency {workspace_name} to {release}"
     else:
         # This is a scripted upgrade of multiple packages, so we'll omit

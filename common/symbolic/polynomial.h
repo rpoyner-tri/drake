@@ -17,7 +17,7 @@
 #include "drake/common/symbolic/monomial.h"
 #undef DRAKE_COMMON_SYMBOLIC_POLYNOMIAL_H
 
-// Remove with deprecation 2026-05-01.
+// Remove with deprecation 2026-07-01.
 #include <ostream>
 
 namespace drake {
@@ -461,7 +461,7 @@ class Polynomial {
 std::string to_string(const Polynomial& p);
 
 DRAKE_DEPRECATED(
-    "2026-05-01",
+    "2026-07-01",
     "Use fmt functions instead (e.g., fmt::format(), fmt::to_string(), "
     "fmt::print()). Refer to GitHub issue #17742 for more information.")
 std::ostream& operator<<(std::ostream& os, const Polynomial& p);
@@ -487,8 +487,8 @@ for more information. */
 #if defined(DRAKE_DOXYGEN_CXX)
 template <typename MatrixL, typename MatrixR>
 Eigen::Matrix<Polynomial, MatrixL::RowsAtCompileTime,
-              MatrixR::ColsAtCompileTime>
-operator*(const MatrixL& lhs, const MatrixR& rhs);
+              MatrixR::ColsAtCompileTime> operator*(const MatrixL& lhs,
+                                                    const MatrixR& rhs);
 #else
 // clang-format off
 template <typename MatrixL, typename MatrixR>
@@ -532,8 +532,8 @@ for more information. */
 #if defined(DRAKE_DOXYGEN_CXX)
 template <typename MatrixL, typename MatrixR>
 Eigen::Matrix<Polynomial, MatrixL::RowsAtCompileTime,
-              MatrixR::ColsAtCompileTime>
-operator*(const MatrixL& lhs, const MatrixR& rhs);
+              MatrixR::ColsAtCompileTime> operator*(const MatrixL& lhs,
+                                                    const MatrixR& rhs);
 #else
 // clang-format off
 template <typename MatrixL, typename MatrixR>

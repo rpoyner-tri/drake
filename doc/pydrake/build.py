@@ -59,7 +59,7 @@ def _has_cc_imported_symbols(name):
     pieces = name.split(".")
     if len(pieces) > 1:
         sub = pieces[-1]
-        test = ".".join(pieces[:-1] + ["_{}_py".format(sub)])
+        test = ".".join(pieces[:-1] + [f"_{sub}_py"])
         if test in sys.modules:
             raise RuntimeError(
                 f"The module `{test}` should not exist; "
@@ -71,12 +71,12 @@ def _has_cc_imported_symbols(name):
 def _write_module(name, f_name):
     """Writes an rst file for module `name` into `f_name`."""
     if verbose():
-        print("Write: {}".format(name))
+        print(f"Write: {name}")
     subs = _get_submodules(name)
     with open(f_name, "w") as f:
         f.write("\n")
         rst_name = name.replace("_", "\\_")
-        f.write("{}\n".format(rst_name))
+        f.write(f"{rst_name}\n")
         f.write("=" * len(rst_name) + "\n")
         f.write("\n")
         if len(subs) > 0:
@@ -84,9 +84,9 @@ def _write_module(name, f_name):
             f.write("    :maxdepth: 1\n")
             f.write("\n")
             for sub in subs:
-                f.write("    {}\n".format(sub))
+                f.write(f"    {sub}\n")
             f.write("\n\n")
-        f.write(".. automodule:: {}\n".format(name))
+        f.write(f".. automodule:: {name}\n")
         f.write("    :members:\n")
         # See if there's a corresponding private CcPybind library.
         if _has_cc_imported_symbols(name):
@@ -118,8 +118,7 @@ def _build(*, out_dir, temp_dir, modules):
     sphinx_build = "/usr/share/sphinx/scripts/python3/sphinx-build"
     if not os.path.isfile(sphinx_build):
         print(
-            "Please re-run 'setup/install_prereqs' with the "
-            "'--with-doc-only' flag"
+            "Please re-run 'setup/install_prereqs' with the '--developer' flag"
         )
         sys.exit(1)
 

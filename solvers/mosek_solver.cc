@@ -9,6 +9,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
+#include <fmt/ostream.h>
 #include <mosek.h>
 
 #include "drake/common/scoped_singleton.h"
@@ -54,7 +55,7 @@ class MosekSolver::License {
           fmt::format("Could not acquire MOSEK license: {}. See "
                       "https://docs.mosek.com/11.1/capi/"
                       "response-codes.html#mosek.rescode for details.",
-                      fmt_streamed(rescode)));
+                      fmt::streamed(rescode)));
     }
   }
 

@@ -2,6 +2,7 @@
 
 import copy
 import itertools
+import pickle
 import unittest
 import warnings
 
@@ -15,6 +16,7 @@ from pydrake.common.test_utilities.algebra_test_util import (
     ScalarAlgebra,
     VectorizedAlgebra,
 )
+from pydrake.common.test_utilities.pickle_compare import assert_pickle
 import pydrake.math as drake_math
 import pydrake.symbolic as sym
 
@@ -22,6 +24,7 @@ import pydrake.symbolic as sym
 # overloads from `pydrake.math`.
 
 # Define global variables to make the tests less verbose.
+dummy = sym.Variable()
 x = sym.Variable("x")
 y = sym.Variable("y")
 z = sym.Variable("z")
@@ -38,7 +41,12 @@ boolean = sym.Variable(name="boolean", type=sym.Variable.Type.BOOLEAN)
 
 class TestSymbolicVariable(unittest.TestCase):
     def test_is_dummy(self):
+        self.assertTrue(dummy.is_dummy())
         self.assertFalse(a.is_dummy())
+
+    def test_id(self):
+        self.assertEqual(dummy.get_id(), 0)
+        self.assertNotEqual(a.get_id(), 0)
 
     def test_get_name(self):
         self.assertEqual(a.get_name(), "a")
@@ -200,6 +208,18 @@ class TestSymbolicVariable(unittest.TestCase):
         value = str(np.array([x, y]))
         self.assertIn("Variable('x', Continuous)", value)
         self.assertIn("Variable('y', Continuous)", value)
+
+    def test_pickle(self):
+        def fully_describe(v: sym.Variable):
+            return f"{v.get_name()!r} {v.get_type()!r} {v.get_id()!r}"
+
+        # Saving and re-loading a variable comes back exactly the same.
+        assert_pickle(self, x, fully_describe)
+        assert_pickle(self, boolean, fully_describe)
+
+        # Saving a copy is the same as saving the original.
+        original = pickle.dumps(x)
+        self.assertEqual(pickle.dumps(copy.copy(x)), original)
 
 
 class TestMakeMatrixVariable(unittest.TestCase):
@@ -775,28 +795,16 @@ class TestSymbolicExpression(unittest.TestCase):
         e_xv = np.array([e_x, e_x])
         e_yv = np.array([e_y, e_y])
         # N.B. In some versions of NumPy, `!=` for dtype=object implies ID
-        # comparison (e.g. `is`). Depending on the verison of numpy, we might
-        # see either a DeprecationWarning from numpy or the __nonzero__ error
-        # from our code. Once we're at numpy >= 1.25 as our minimum version
-        # (approximately 2026-05-01) we can probably simplify these checks.
+        # comparison (e.g. `is`).
         # - All false.
-        with self.assertRaisesRegex(
-            (DeprecationWarning, RuntimeError),
-            "(elementwise comparison|__nonzero__)",
-        ):
+        with self.assertRaisesRegex(RuntimeError, "__nonzero__"):
             (e_xv == e_yv)
         # - True + False.
-        with self.assertRaisesRegex(
-            (DeprecationWarning, RuntimeError),
-            "(elementwise comparison|__nonzero__)",
-        ):
+        with self.assertRaisesRegex(RuntimeError, "__nonzero__"):
             e_xyv = np.array([e_x, e_y])
             (e_xv == e_xyv)
         # - All true.
-        with self.assertRaisesRegex(
-            (DeprecationWarning, RuntimeError),
-            "(elementwise comparison|__nonzero__)",
-        ):
+        with self.assertRaisesRegex(RuntimeError, "__nonzero__"):
             (e_xv == e_xv)
 
     def test_functions_with_float(self):
@@ -950,6 +958,91 @@ class TestSymbolicExpression(unittest.TestCase):
 
     # See `math_overloads_test` for more comprehensive checks on math
     # functions.
+
+    def test_pickle_expression_with_evaluation(self):
+        test_expr = [
+            e_x,
+            sym.Expression(5.5),
+            sym.Expression(np.nan),
+            x + y,
+            x + 5,
+            5 * x,
+            x * x,
+            sym.pow(a * (x + y), w + z),
+            x / y,
+            x - y / z,
+            sym.min(y, x + z),
+            sym.max(y, x),
+            sym.atan2(x, y),
+            sym.abs(x),
+            sym.acos(x),
+            sym.asin(x),
+            sym.atan(x / z),
+            sym.ceil(x),
+            sym.cos(x),
+            sym.cosh(x),
+            sym.exp(x + y),
+            sym.floor(x),
+            sym.log(x),
+            sym.sin(x),
+            sym.sinh(x),
+            sym.sqrt(x + y),
+            sym.tan((x + y) * a),
+            sym.tanh(x + y),
+            sym.if_then_else(
+                sym.Formula.True_(), x + sym.pow(y, 3), sym.exp(z)
+            ),  # evaluates to Expression
+            sym.if_then_else(
+                sym.Formula.False_(), x + sym.pow(y, 3), sym.exp(z)
+            ),  # evaluates to Expression
+            sym.if_then_else(x == y, x + sym.pow(y, 3), sym.sqrt(z)),
+            sym.if_then_else(x != y, x + sym.pow(y, 3), sym.exp(z)),
+            sym.if_then_else(x > y, x + sym.pow(y, 3), sym.sin(z)),
+            sym.if_then_else(y > x, x + sym.pow(y, 3), sym.exp(z)),
+            sym.if_then_else(x >= y, x + sym.pow(y, 3), sym.cos(z)),
+            sym.if_then_else(x < y, x + sym.pow(y, 3), sym.exp(z)),
+            sym.if_then_else(x <= y, x + sym.pow(y, 3), sym.tan(z)),
+            sym.if_then_else(
+                sym.Formula(boolean), x + sym.pow(y, 3), sym.exp(z)
+            ),
+            sym.if_then_else(
+                sym.logical_and(y > x, z > x, z > y), x + y * 3, sym.exp(z)
+            ),
+            sym.if_then_else(
+                sym.logical_or(y > x, z > x, y > z), sym.pow(y, 3), x + y * 3
+            ),
+            sym.if_then_else(sym.logical_not(boolean), x, y),
+            sym.if_then_else(
+                sym.logical_not(x < y), x + sym.pow(y, 3), sym.exp(z)
+            ),
+            sym.if_then_else(sym.isnan(e_x), x, y),
+            sym.if_then_else(sym.isnan(e_x), x + sym.pow(y, 3), sym.exp(z)),
+            sym.if_then_else(
+                sym.forall(
+                    sym.Variables(np.array([x, z], dtype=object)), x < z
+                ),
+                x,
+                y,
+            ),
+            sym.if_then_else(
+                sym.forall(
+                    sym.Variables(np.array([x, z], dtype=object)), x < z
+                ),
+                x + sym.pow(y, 3),
+                sym.exp(z),
+            ),
+            sym.if_then_else(
+                sym.positive_semidefinite(np.array([[x, y], [y, z]])), x, y
+            ),
+            sym.uninterpreted_function(
+                name="func_name", arguments=[x + sym.pow(y, 3), sym.exp(z)]
+            ),
+        ]
+        for expr in test_expr:
+            with self.subTest(expr=expr):
+                assert_pickle(
+                    test=self, obj=expr, value_to_compare=lambda x: repr(x)
+                )
 
 
 class TestSymbolicFormula(unittest.TestCase):
@@ -2037,9 +2130,7 @@ class TestExtractVariablesFromExpression(unittest.TestCase):
 
 
 class TestDecomposeAffineExpression(unittest.TestCase):
-    def test(self):
-        x = sym.Variable("x")
-        y = sym.Variable("y")
+    def test_basic(self):
         e = 2 * x + 3 * y + 4
         variables, map_var_to_index = sym.ExtractVariablesFromExpression(e)
         coeffs, constant_term = sym.DecomposeAffineExpression(
@@ -2049,6 +2140,22 @@ class TestDecomposeAffineExpression(unittest.TestCase):
         self.assertEqual(coeffs.shape, (2,))
         self.assertEqual(coeffs[map_var_to_index[x.get_id()]], 2)
         self.assertEqual(coeffs[map_var_to_index[y.get_id()]], 3)
+
+    def test_invalid_variable_id(self):
+        # For reference, first check a valid call with just a single variable.
+        e = sym.Expression(x)
+        _, var_to_index = sym.ExtractVariablesFromExpression(e)
+        self.assertEqual(len(var_to_index), 1)
+        (variable_id,) = var_to_index.keys()
+        sym.DecomposeAffineExpression(e, {variable_id: 0})
+
+        # Now corrupt the variable ID to check that it's detected during type-
+        # casting. The ID's `type` is stored in bits 64..71 of the 128-bit
+        # value, and must be a valid enum in the range [0..7]; adding 8 makes it
+        # invalid.
+        variable_id += 8 << 64
+        with self.assertRaisesRegex(ValueError, "Ill-formed Variable::Id"):
+            sym.DecomposeAffineExpression(e, {variable_id: 0})
 
 
 class TestDecomposeAffineExpressions(unittest.TestCase):

@@ -354,7 +354,19 @@ struct Impl {
           .def("GetExpression", &Class::GetExpression,
               py::arg("time") = symbolic::Variable("t"),
               cls_doc.GetExpression.doc)
-          .def("ElevateOrder", &Class::ElevateOrder, cls_doc.ElevateOrder.doc);
+          .def("ElevateOrder", &Class::ElevateOrder, cls_doc.ElevateOrder.doc)
+          .def(py::pickle(
+              [](const Class& self) {
+                return std::make_tuple(ExtractDoubleOrThrow(self.start_time()),
+                    ExtractDoubleOrThrow(self.end_time()),
+                    self.control_points());
+              },
+              [](std::tuple<double, double, MatrixX<T>> args) {
+                return Class(
+                    /* start_time = */ std::get<0>(args),
+                    /* end_time = */ std::get<1>(args),
+                    /* control_points = */ std::get<2>(args));
+              }));
       if constexpr (std::is_same_v<T, double>) {  // #19712
         cls.def("AsLinearInControlPoints", &Class::AsLinearInControlPoints,
             py::arg("derivative_order") = 1,
@@ -458,7 +470,30 @@ struct Impl {
           .def("path", &Class::path, py_rvp::reference_internal,
               cls_doc.path.doc)
           .def("time_scaling", &Class::time_scaling, py_rvp::reference_internal,
-              cls_doc.time_scaling.doc);
+              cls_doc.time_scaling.doc)
+          .def(py::pickle(
+              [](const Class& self) {
+                // Explicitly use reference_internal to avoid copying the
+                // abstract Trajectory class. We tie the reference to 'self' to
+                // ensure validity during the pickle operation.
+                return py::make_tuple(
+                    py::cast(self.path(),
+                        py::return_value_policy::reference_internal,
+                        py::cast(&self)),
+                    py::cast(self.time_scaling(),
+                        py::return_value_policy::reference_internal,
+                        py::cast(&self)));
+              },
+              [](py::tuple t) {
+                // t[0] and t[1] are Python objects. We can cast them back to
+                // C++ references, and the constructor will then clone them
+                // internally.
+                DRAKE_THROW_UNLESS(t.size() == 2);
+                const Trajectory<T>& path = t[0].cast<const Trajectory<T>&>();
+                const Trajectory<T>& time_scaling =
+                    t[1].cast<const Trajectory<T>&>();
+                return Class(path, time_scaling);
+              }));
       DefCopyAndDeepCopy(&cls);
     }
 
@@ -669,7 +704,30 @@ struct Impl {
           .def("setPolynomialMatrixBlock", &Class::setPolynomialMatrixBlock,
               py::arg("replacement"), py::arg("segment_index"),
               py::arg("row_start") = 0, py::arg("col_start") = 0,
-              cls_doc.setPolynomialMatrixBlock.doc);
+              cls_doc.setPolynomialMatrixBlock.doc)
+          .def(py::pickle(
+              [](const Class& self) {
+                std::vector<typename Class::PolynomialMatrix>
+                    pickled_polynomials_matrix;
+                std::vector<T> pickled_breaks;
+                pickled_polynomials_matrix.reserve(
+                    self.get_number_of_segments());
+                pickled_breaks.reserve(self.get_number_of_segments() + 1);
+                pickled_breaks.push_back(self.start_time(0));
+                for (int i = 0; i < self.get_number_of_segments(); ++i) {
+                  pickled_polynomials_matrix.push_back(
+                      self.getPolynomialMatrix(i));
+                  pickled_breaks.push_back(self.end_time(i));
+                }
+                return std::make_pair(
+                    pickled_polynomials_matrix, pickled_breaks);
+              },
+              [](std::pair<std::vector<typename Class::PolynomialMatrix>,
+                  std::vector<T>>
+                      args) {
+                return Class(/* polynomials_matrix = */ std::get<0>(args),
+                    /* breaks = */ std::get<1>(args));
+              }));
       DefCopyAndDeepCopy(&cls);
       if constexpr (std::is_same_v<T, double>) {
         BindPiecewisePolynomialSerialize(&cls);
@@ -707,7 +765,25 @@ struct Impl {
                 }
                 return CompositeTrajectory<T>::AlignAndConcatenate(segments);
               },
-              py::arg("segments"), cls_doc.AlignAndConcatenate.doc);
+              py::arg("segments"), cls_doc.AlignAndConcatenate.doc)
+          .def(py::pickle(
+              [](const Class& self) {
+                py::list segments_pickle;
+                for (int i = 0; i < self.get_number_of_segments(); ++i) {
+                  segments_pickle.append(self.segment(i).Clone());
+                }
+                return segments_pickle;
+              },
+              [](py::list segments_pickle) {
+                std::vector<copyable_unique_ptr<Trajectory<T>>> segments;
+                segments.reserve(segments_pickle.size());
+                for (py::handle segment_pickle : segments_pickle) {
+                  const Trajectory<T>& segment =
+                      segment_pickle.cast<const Trajectory<T>&>();
+                  segments.emplace_back(segment.Clone());
+                }
+                return std::make_unique<Class>(std::move(segments));
+              }));
       DefCopyAndDeepCopy(&cls);
     }
 
@@ -727,7 +803,23 @@ struct Impl {
           .def("time_comparison_tolerance", &Class::time_comparison_tolerance,
               cls_doc.time_comparison_tolerance.doc)
           .def("num_times", &Class::num_times, cls_doc.num_times.doc)
-          .def("get_times", &Class::get_times, cls_doc.get_times.doc);
+          .def("get_times", &Class::get_times, cls_doc.get_times.doc)
+          .def(py::pickle(
+              [](const Class& self) {
+                std::vector<MatrixX<T>> values_pickle;
+                for (const auto& time : self.get_times()) {
+                  values_pickle.push_back(self.value(time));
+                }
+                return std::make_tuple(self.get_times(), values_pickle,
+                    self.time_comparison_tolerance());
+              },
+              [](std::tuple<std::vector<T>, std::vector<MatrixX<T>>, double>
+                      args) {
+                const std::vector<T>& times = std::get<0>(args);
+                const std::vector<MatrixX<T>>& values = std::get<1>(args);
+                const double time_comparison_tolerance = std::get<2>(args);
+                return Class(times, values, time_comparison_tolerance);
+              }));
       DefCopyAndDeepCopy(&cls);
     }
 
@@ -792,7 +884,18 @@ struct Impl {
           .def("angular_velocity", &Class::angular_velocity, py::arg("time"),
               cls_doc.angular_velocity.doc)
           .def("angular_acceleration", &Class::angular_acceleration,
-              py::arg("time"), cls_doc.angular_acceleration.doc);
+              py::arg("time"), cls_doc.angular_acceleration.doc)
+          .def("get_quaternion_samples", &Class::get_quaternion_samples,
+              cls_doc.get_quaternion_samples.doc)
+          .def(py::pickle(
+              [](const Class& self) {
+                return std::make_pair(
+                    self.get_segment_times(), self.get_quaternion_samples());
+              },
+              [](std::pair<std::vector<T>, std::vector<Quaternion<T>>> args) {
+                return Class(/* breaks = */ std::get<0>(args),
+                    /* quaternions = */ std::get<1>(args));
+              }));
       DefCopyAndDeepCopy(&cls);
     }
 
@@ -825,7 +928,17 @@ struct Impl {
           .def("get_position_trajectory", &Class::get_position_trajectory,
               cls_doc.get_position_trajectory.doc)
           .def("get_orientation_trajectory", &Class::get_orientation_trajectory,
-              cls_doc.get_orientation_trajectory.doc);
+              cls_doc.get_orientation_trajectory.doc)
+          .def(py::pickle(
+              [](const Class& self) {
+                return std::make_pair(self.get_position_trajectory(),
+                    self.get_orientation_trajectory());
+              },
+              [](std::pair<PiecewisePolynomial<T>, PiecewiseQuaternionSlerp<T>>
+                      args) {
+                return Class(/* position_trajectory = */ std::get<0>(args),
+                    /* orientation_trajectory = */ std::get<1>(args));
+              }));
       DefCopyAndDeepCopy(&cls);
     }
 
@@ -839,7 +952,31 @@ struct Impl {
           .def("Append",
               py::overload_cast<const Trajectory<T>&>(&Class::Append),
               /* N.B. We choose to omit any py::arg name here. */
-              cls_doc.Append.doc);
+              cls_doc.Append.doc)
+          .def("rowwise", &Class::rowwise, cls_doc.rowwise.doc)
+          .def(
+              "children",
+              [](const Class& self) {
+                auto range = self.children();
+                // pybind11 doesn't understand ranges, so copy into a vector.
+                return std::vector<const Trajectory<T>*>(
+                    range.begin(), range.end());
+              },
+              py_rvp::reference_internal, cls_doc.children.doc)
+          .def(py::pickle(
+              [](const Class& self) {
+                auto range = self.children();
+                std::vector<const Trajectory<T>*> children_pickle(
+                    range.begin(), range.end());
+                return std::make_pair(self.rowwise(), children_pickle);
+              },
+              [](std::pair<bool, std::vector<const Trajectory<T>*>> args) {
+                Class stacked_trajectory(/* rowwise = */ std::get<0>(args));
+                for (const auto* trajectory_pickle : std::get<1>(args)) {
+                  stacked_trajectory.Append(*trajectory_pickle);
+                }
+                return stacked_trajectory;
+              }));
       DefCopyAndDeepCopy(&cls);
     }
 

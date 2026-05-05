@@ -6,7 +6,7 @@
 #include "drake/common/fmt.h"
 #include "drake/common/symbolic/polynomial.h"
 
-// Remove with deprecation 2026-06-01.
+// Remove with deprecation 2026-07-01.
 #include <ostream>
 
 namespace drake {
@@ -208,7 +208,7 @@ RationalFunction operator/(const Monomial& m, RationalFunction f);
 RationalFunction operator/(RationalFunction f, const Monomial& m);
 
 DRAKE_DEPRECATED(
-    "2026-06-01",
+    "2026-07-01",
     "Use fmt functions instead (e.g., fmt::format(), fmt::to_string(), "
     "fmt::print()). Refer to GitHub issue #17742 for more information.")
 std::ostream& operator<<(std::ostream&, const RationalFunction& f);
@@ -240,8 +240,8 @@ RationalFunction pow(const RationalFunction& f, int n);
 #if defined(DRAKE_DOXYGEN_CXX)
 template <typename MatrixL, typename MatrixR>
 Eigen::Matrix<RationalFunction, MatrixL::RowsAtCompileTime,
-              MatrixR::ColsAtCompileTime>
-operator*(const MatrixL& lhs, const MatrixR& rhs);
+              MatrixR::ColsAtCompileTime> operator*(const MatrixL& lhs,
+                                                    const MatrixR& rhs);
 #else
 template <typename MatrixL, typename MatrixR>
 typename std::enable_if_t<
@@ -254,8 +254,8 @@ typename std::enable_if_t<
           (std::is_same_v<typename MatrixL::Scalar, Polynomial> ||
            std::is_same_v<typename MatrixL::Scalar, double>))),
     Eigen::Matrix<RationalFunction, MatrixL::RowsAtCompileTime,
-                  MatrixR::ColsAtCompileTime>>
-operator*(const MatrixL& lhs, const MatrixR& rhs) {
+                  MatrixR::ColsAtCompileTime>> operator*(const MatrixL& lhs,
+                                                         const MatrixR& rhs) {
   return lhs.template cast<RationalFunction>() *
          rhs.template cast<RationalFunction>();
 }

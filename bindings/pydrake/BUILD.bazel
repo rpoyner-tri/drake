@@ -259,8 +259,8 @@ drake_py_binary(
     name = "print_symbol_collisions",
     testonly = 1,
     srcs = ["test/print_symbol_collisions.py"],
-    add_test_rule = 1,
     deps = [":all_py"],
+    add_test_rule = True,
 )
 
 drake_py_unittest(
@@ -344,6 +344,7 @@ drake_py_unittest(
     deps = [
         ":polynomial_py",
         "//bindings/pydrake/common/test_utilities:numpy_compare_py",
+        "//bindings/pydrake/common/test_utilities:pickle_compare_py",
     ],
 )
 
@@ -485,8 +486,8 @@ drake_py_unittest(
 install(
     name = "install",
     install_tests = [
-        ":test/all_install_test.py",
-        ":test/common_install_test.py",
+        "test/all_install_test.py",
+        "test/common_install_test.py",
     ],
     targets = PY_LIBRARIES + [":all_py"],
     py_dest = PACKAGE_INFO.py_dest,
@@ -507,9 +508,4 @@ install(
     ],
 )
 
-add_lint_tests_pydrake(
-    python_lint_extra_srcs = [
-        ":test/all_install_test.py",
-        ":test/common_install_test.py",
-    ],
-)
+add_lint_tests_pydrake()

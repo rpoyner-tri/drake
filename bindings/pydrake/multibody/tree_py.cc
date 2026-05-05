@@ -949,7 +949,7 @@ void DoScalarDependentDefinitions(py::module_ m, T) {
               return self.get_actuation_vector(u);
             },
             py::arg("u"), cls_doc.get_actuation_vector.doc)
-#if 0  // XXX porting
+#if 0   // XXX porting
         .def("set_actuation_vector", &Class::set_actuation_vector,
             py::arg("u_actuator"), py::arg("u"),
             cls_doc.set_actuation_vector.doc)
@@ -1336,11 +1336,11 @@ void DefineForceDensityField(py::module_ m, T) {
         /*, std::shared_ptr<ForceDensityField<T>> XXX porting */>(
         m, "ForceDensityField", param, cls_doc.doc);
     cls  // BR
-#if 0  // XXX porting
+#if 0    // XXX porting
         .def(py::init<ForceDensityType>(),
             py::arg("density_type") = ForceDensityType::kPerCurrentVolume,
             cls_doc.ctor.doc)
-#endif  // XXX porting
+#endif   // XXX porting
         .def("has_parent_system", &ForceDensityField<T>::has_parent_system,
             cls_doc.has_parent_system.doc)
         .def("parent_system_or_throw",

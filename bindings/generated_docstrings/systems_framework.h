@@ -3766,6 +3766,15 @@ R"""(Returns a reference to the map of connections between Systems.)""";
 R"""(Returns the "locator" for the subsystem output port that was exported
 as the ``port_index`` output port for the Diagram.)""";
         } get_output_port_locator;
+        // Symbol: drake::systems::Diagram::get_system
+        struct /* get_system */ {
+          // Source: drake/systems/framework/diagram.h
+          const char* doc =
+R"""(Returns a System by index.
+
+Precondition:
+    index is valid for this Diagram.)""";
+        } get_system;
       } Diagram;
       // Symbol: drake::systems::DiagramBuilder
       struct /* DiagramBuilder */ {
@@ -6802,6 +6811,13 @@ Precondition:
 Precondition:
     ``update`` must not be null.
 
+Raises:
+    RuntimeError if either ``period_sec`` or ``offset_sec`` are
+    non-finite.
+
+Raises:
+    RuntimeError if ``period_sec`` <= 0.0.
+
 See also:
     DeclarePeriodicPublishEvent()
 
@@ -6846,8 +6862,15 @@ stored internally so you do not need to keep the object around after
 this call.
 
 Precondition:
-    `event`'s associated trigger type must be TriggerType∷kUnknown or
-    already set to TriggerType∷kPeriodic.)""";
+    ``event`'s associated trigger type must be TriggerType∷kUnknown or
+    already set to TriggerType∷kPeriodic.
+
+Raises:
+    RuntimeError if either `period_sec`` or ``offset_sec`` are
+    non-finite.
+
+Raises:
+    RuntimeError if ``period_sec`` <= 0.0.)""";
         } DeclarePeriodicEvent;
         // Symbol: drake::systems::LeafSystem::DeclarePeriodicPublishEvent
         struct /* DeclarePeriodicPublishEvent */ {
@@ -6881,6 +6904,13 @@ Precondition:
 
 Precondition:
     ``publish`` must not be null.
+
+Raises:
+    RuntimeError if either ``period_sec`` or ``offset_sec`` are
+    non-finite.
+
+Raises:
+    RuntimeError if ``period_sec`` <= 0.0.
 
 See also:
     DeclarePeriodicDiscreteUpdateEvent()
@@ -6923,6 +6953,13 @@ Precondition:
 
 Precondition:
     ``update`` must not be null.
+
+Raises:
+    RuntimeError if either ``period_sec`` or ``offset_sec`` are
+    non-finite.
+
+Raises:
+    RuntimeError if ``period_sec`` <= 0.0.
 
 See also:
     DeclarePeriodicPublishEvent()
@@ -12363,6 +12400,13 @@ R"""(Returns the number of elements in the vector.
 Implementations should ensure this operation is O(1) and allocates no
 memory.)""";
         } size;
+        // Symbol: drake::systems::VectorBase::to_string
+        struct /* to_string */ {
+          // Source: drake/systems/framework/vector_base.h
+          const char* doc =
+R"""(Returns the string representation of a VectorBase<T> as a row vector
+RowVectorX<T> e.g., "1, 2, 3". This is useful for debugging purposes.)""";
+        } to_string;
       } VectorBase;
       // Symbol: drake::systems::VectorSystem
       struct /* VectorSystem */ {
@@ -12893,6 +12937,14 @@ derivatives) might be discarded.)""";
           const char* doc = R"""()""";
         } ThrowConversionMismatch;
       } system_scalar_converter_internal;
+      // Symbol: drake::systems::to_string
+      struct /* to_string */ {
+        // Source: drake/systems/framework/vector_base.h
+        const char* doc =
+R"""(Returns the string representation of a VectorBase<T> as a row vector
+RowVectorX<T> e.g., "[1, 2, 3]". This is useful for debugging
+purposes.)""";
+      } to_string;
     } systems;
   } drake;
 } pydrake_doc_systems_framework;

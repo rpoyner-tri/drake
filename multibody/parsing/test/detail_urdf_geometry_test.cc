@@ -30,7 +30,7 @@ namespace internal {
 
 std::ostream& operator<<(std::ostream& out, const UrdfMaterial& m) {
   if (m.rgba.has_value()) {
-    fmt::print(out, "RGBA: {}", fmt_eigen(m.rgba->transpose()));
+    fmt::print(out, "RGBA: {}", fmt_eigen(*m.rgba));
   } else {
     out << "RGBA: None";
   }
@@ -1056,7 +1056,7 @@ TEST_F(UrdfGeometryTest, CompliantHydroelastic) {
   EXPECT_EQ(
       properties.GetProperty<geometry::internal::HydroelasticType>(
           geometry::internal::kHydroGroup, geometry::internal::kComplianceType),
-      geometry::internal::HydroelasticType::kSoft);
+      geometry::internal::HydroelasticType::kCompliant);
 }
 
 TEST_F(UrdfGeometryTest, LegacySoftHydroelastic) {
