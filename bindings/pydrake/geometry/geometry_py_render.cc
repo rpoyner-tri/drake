@@ -64,8 +64,7 @@ class PyRenderEngine : public RenderEngine {
   bool DoRegisterNamedVisual(GeometryId id, Shape const& shape,
       PerceptionProperties const& properties, RigidTransformd const& X_WG,
       std::string_view name) override {
-    PYBIND11_OVERLOAD(
-        bool, Base, DoRegisterNamedVisual, id, shape, properties, X_WG, name);
+    NB_OVERRIDE(DoRegisterNamedVisual, id, shape, properties, X_WG, name);
   }
 
   void DoUpdateVisualPose(GeometryId id, RigidTransformd const& X_WG) override {

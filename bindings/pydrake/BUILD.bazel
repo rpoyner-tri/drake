@@ -61,8 +61,8 @@ drake_cc_library(
     declare_installed_headers = 0,
     visibility = ["//visibility:public"],
     deps = [
-         "//common:autodiff",
-         "//common:drake_export",
+        "//common:autodiff",
+        "//common:drake_export",
     ],
 )
 

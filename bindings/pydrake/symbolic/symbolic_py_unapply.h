@@ -39,13 +39,13 @@ py::object Unapply(py::module_ m, const symbolic::Formula& f);
 // the callable object (i.e., factory function or constructor) that would be
 // able to re-construct the same expression, given appropriate arguments. This
 // is the "ctor" returned by Unapply() for the "e.get_kind()".
-py::object MakeUnapplyConstructor(py::module m, symbolic::ExpressionKind kind);
+py::object MakeUnapplyConstructor(py::module_ m, symbolic::ExpressionKind kind);
 
 // Given the pydrake.symbolic module as "m" and a formula "kind", returns the
 // callable object (i.e., factory function or constructor) that would be able to
 // re-construct the same formula, given appropriate arguments. This is the
 // "ctor" returned by Unapply() for the "f.get_kind()".
-py::object MakeUnapplyConstructor(py::module m, symbolic::FormulaKind kind);
+py::object MakeUnapplyConstructor(py::module_ m, symbolic::FormulaKind kind);
 
 }  // namespace internal
 }  // namespace pydrake

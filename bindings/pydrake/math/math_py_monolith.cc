@@ -450,8 +450,9 @@ void DoMiscScalarDependentDefinitions(py::module_ m, T) {
         .def("__setstate__",
             [](Class& self, std::pair<int, std::vector<T>> args) {
               new (&self) Class(std::get<0>(args), std::get<1>(args));
-            });
-    .def(py::self == py::self).def(py::self != py::self);
+            })
+        .def(py::self == py::self)
+        .def(py::self != py::self);
   }
 
   m.def("wrap_to", &wrap_to<T, T>, py::arg("value"), py::arg("low"),

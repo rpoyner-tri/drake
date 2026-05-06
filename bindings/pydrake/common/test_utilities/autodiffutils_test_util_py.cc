@@ -12,18 +12,15 @@ NB_MODULE(autodiffutils_test_util, m) {
   py::module_::import_("pydrake.autodiffutils");
 
   // For testing implicit argument conversion.
-  m.def("autodiff_scalar_pass_through",
-      [](const AutoDiffXd& value) {
-        return value; // BR
-      });
-  m.def("autodiff_vector_pass_through",
-      [](const VectorX<AutoDiffXd>& value) {
-        return value;  // BR
-      });
-  m.def("autodiff_vector3_pass_through",
-      [](const Vector3<AutoDiffXd>& value) {
-        return value;  // BR
-      });
+  m.def("autodiff_scalar_pass_through", [](const AutoDiffXd& value) {
+    return value;  // BR
+  });
+  m.def("autodiff_vector_pass_through", [](const VectorX<AutoDiffXd>& value) {
+    return value;  // BR
+  });
+  m.def("autodiff_vector3_pass_through", [](const Vector3<AutoDiffXd>& value) {
+    return value;  // BR
+  });
 }
 
 }  // namespace pydrake

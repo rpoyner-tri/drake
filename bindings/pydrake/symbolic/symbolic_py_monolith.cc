@@ -156,16 +156,19 @@ void DefineSymbolicMonolith(py::module_ m) {
       .def(py::self != double());
   internal::BindMathOperators<Variable>(&var_cls);
   DefCopyAndDeepCopy(&var_cls);
-  var_cls.def(py::pickle(
-      [m](const Variable& self) -> std::pair<Variable::Id, std::string> {
-        return std::pair<Variable::Id, std::string>(
-            self.get_id(), self.get_name());
-      },
-      [m](std::pair<Variable::Id, std::string> args) -> Variable {
-        return symbolic::VariablePythonAttorney::Construct(
-            /* id = */ std::get<0>(args),
-            /* name = */ std::move(std::get<1>(args)));
-      }));
+  var_cls
+      .def("__getstate__",
+          [m](const Variable& self) -> std::pair<Variable::Id, std::string> {
+            return std::pair<Variable::Id, std::string>(
+                self.get_id(), self.get_name());
+          })
+      .def(
+          "__setstate__", [m](Variable&, std::pair<Variable::Id, std::string>) {
+            // XXX porting rewrite for placement-new style.
+            // return symbolic::VariablePythonAttorney::Construct(
+            //     /* id = */ std::get<0>(args),
+            //     /* name = */ std::move(std::get<1>(args)));
+          });
 
   // Bind the free function TaylorExpand.
   m.def(
@@ -301,15 +304,15 @@ void DefineSymbolicMonolith(py::module_ m) {
       .def(Variable() + py::self)
       .def(py::self - py::self)
       .def(py::self - Variable())
-      .def(py::pickle(
+      .def("__getstate__",
           [m](const Variables& self) -> std::vector<Variable> {
             return std::vector<Variable>(self.begin(), self.end());
-          },
-          [m](const std::vector<Variable>& args) -> Variables {
-            Variables result;
-            result.insert(args.begin(), args.end());
-            return result;
-          }));
+          })
+      .def("__setstate__",
+          [m](Variables& self, const std::vector<Variable>& args) {
+            new (&self) Variables;
+            self.insert(args.begin(), args.end());
+          });
 
   m.def(
       "intersect",
@@ -382,8 +385,8 @@ void DefineSymbolicMonolith(py::module_ m) {
               RandomGenerator* generator) {
             return self.Evaluate(Environment{env}, generator);
           },
-          py::arg("env") = Environment::map{}, py::arg("generator") = py::none(),
-          doc_expression.Evaluate.doc_2args)
+          py::arg("env") = Environment::map{},
+          py::arg("generator") = py::none(), doc_expression.Evaluate.doc_2args)
       .def(
           "Evaluate",
           [](const Expression& self, RandomGenerator* generator) {
@@ -646,7 +649,8 @@ void DefineSymbolicMonolith(py::module_ m) {
       //     [](const Formula& self, const Environment::map& env) {
       //       return self.Evaluate(Environment{env});
       //     },
-      //     py::arg("env") = Environment::map{}, doc_formula.Evaluate.doc_2args)
+      //     py::arg("env") = Environment::map{},
+      //     doc_formula.Evaluate.doc_2args)
       .def(
           "Substitute",
           [](const Formula& self, const Variable& var, const Expression& e) {
@@ -855,7 +859,8 @@ void DefineSymbolicMonolith(py::module_ m) {
       .def(py::init<const Expression&, const Variables&>(), py::arg("e"),
           py::arg("indeterminates"),
           doc.Polynomial.ctor.doc_2args_e_indeterminates)
-      .def("__init__",
+      .def(
+          "__init__",
           [](Polynomial* self, const Expression& e,
               const Eigen::Ref<const VectorX<Variable>>& vars) {
             new (self) Polynomial{e, Variables{vars}};

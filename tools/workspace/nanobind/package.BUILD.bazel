@@ -9,6 +9,13 @@ package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "nanobind",
+    srcs = glob(
+        [
+            "src/*.cpp",
+            "src/*.h",
+        ],
+        exclude = ["src/nb_combined.cpp"],
+    ),
     hdrs = glob([
         "include/nanobind/*.h",
         "include/nanobind/eigen/*.h",
@@ -16,7 +23,6 @@ cc_library(
         "include/nanobind/stl/*.h",
         "include/nanobind/stl/detail/*.h",
     ]),
-    srcs = glob(["src/*.cpp", "src/*.h"], exclude = ["src/nb_combined.cpp"]),
     includes = [
         "include",
     ],

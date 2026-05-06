@@ -45,31 +45,31 @@ class VariableIdPythonAttorney {
 }  // namespace symbolic
 }  // namespace drake
 
-namespace pybind11 {
+namespace nanobind {
 namespace detail {
 template <>
 struct type_caster<drake::symbolic::Variable::Id> {
  public:
   using Attorney = drake::symbolic::VariableIdPythonAttorney;
 
-  PYBIND11_TYPE_CASTER(drake::symbolic::Variable::Id, _("int"));
+  NB_TYPE_CASTER(drake::symbolic::Variable::Id, const_name("int"));
 
-  bool load(handle src, bool /* convert */) {
+  bool from_python(handle src, uint8_t, cleanup_list*) {
     if (!src) {
       return false;
     }
 
-    pybind11::int_ concat;
+    nanobind::int_ concat;
     try {
-      concat = pybind11::cast<pybind11::int_>(src);
+      concat = nanobind::cast<nanobind::int_>(src);
     } catch (...) {
       return false;
     }
 
-    const pybind11::object hi_py = concat >> pybind11::int_(64);
-    const pybind11::object lo_py = concat & pybind11::int_(~uint64_t{});
-    const uint64_t hi = hi_py.cast<uint64_t>();
-    const uint64_t lo = lo_py.cast<uint64_t>();
+    const nanobind::object hi_py = concat >> nanobind::int_(64);
+    const nanobind::object lo_py = concat & nanobind::int_(~uint64_t{});
+    const uint64_t hi = cast<uint64_t>(hi_py);
+    const uint64_t lo = cast<uint64_t>(lo_py);
     // N.B. "value" is a magic variable declared by pybind11 where we're
     // supposed to put the loaded result.
     value = Attorney::Construct(hi, lo);
@@ -77,13 +77,13 @@ struct type_caster<drake::symbolic::Variable::Id> {
     return true;
   }
 
-  static handle cast(drake::symbolic::Variable::Id src,
-      return_value_policy /* policy */, handle /* parent */) {
-    const pybind11::int_ hi_py{Attorney::hi(src)};
-    const pybind11::int_ lo_py{Attorney::lo(src)};
-    pybind11::object concat = (hi_py << pybind11::int_(64)) + lo_py;
+  static handle from_cpp(
+      const drake::symbolic::Variable::Id& src, rv_policy, cleanup_list*) {
+    const nanobind::int_ hi_py{Attorney::hi(src)};
+    const nanobind::int_ lo_py{Attorney::lo(src)};
+    nanobind::object concat = (hi_py << nanobind::int_(64)) + lo_py;
     return concat.release();
   }
 };
 }  // namespace detail
-}  // namespace pybind11
+}  // namespace nanobind

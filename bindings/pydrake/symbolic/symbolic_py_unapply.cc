@@ -11,7 +11,7 @@ using drake::symbolic::ExpressionKind;
 using drake::symbolic::Formula;
 using drake::symbolic::FormulaKind;
 
-py::object MakeUnapplyConstructor(py::module m, ExpressionKind kind) {
+py::object MakeUnapplyConstructor(py::module_ m, ExpressionKind kind) {
   // This list of cases is in alphabetical order.
   switch (kind) {
     case ExpressionKind::Abs:
@@ -161,7 +161,7 @@ py::list MakeArgs(const Expression& e) {
 
 }  // namespace
 
-py::object MakeUnapplyConstructor(py::module m, FormulaKind kind) {
+py::object MakeUnapplyConstructor(py::module_ m, FormulaKind kind) {
   switch (kind) {
     case FormulaKind::False:
       return m.attr("Formula").attr("False_");
@@ -253,28 +253,12 @@ py::list MakeArgs(const Formula& f) {
 
 }  // namespace
 
-<<<<<<< HEAD
 py::object Unapply(py::module_ m, const Expression& e) {
-  return py::make_tuple(MakeConstructor(m, e), MakeArgs(e));
-||||||| 21a209ba8d
-py::object Unapply(py::module m, const Expression& e) {
-  return py::make_tuple(MakeConstructor(m, e), MakeArgs(e));
-=======
-py::object Unapply(py::module m, const Expression& e) {
   return py::make_tuple(MakeUnapplyConstructor(m, e.get_kind()), MakeArgs(e));
->>>>>>> master
 }
 
-<<<<<<< HEAD
-py::object Unapply(py::module_ m, const symbolic::Formula& f) {
-  return py::make_tuple(MakeConstructor(m, f), MakeArgs(f));
-||||||| 21a209ba8d
-py::object Unapply(py::module m, const symbolic::Formula& f) {
-  return py::make_tuple(MakeConstructor(m, f), MakeArgs(f));
-=======
-py::object Unapply(py::module m, const Formula& f) {
+py::object Unapply(py::module_ m, const Formula& f) {
   return py::make_tuple(MakeUnapplyConstructor(m, f.get_kind()), MakeArgs(f));
->>>>>>> master
 }
 
 }  // namespace internal
