@@ -10,6 +10,7 @@ load(
     "//tools/skylark:drake_py.bzl",
     "drake_py_binary",
     "drake_py_library",
+    "drake_py_test",
     "drake_py_unittest",
 )
 load(
@@ -397,10 +398,22 @@ drake_py_unittest(
 drake_py_unittest(
     name = "memory_leak_test",
     data = [
+        "//examples/acrobot:models",
         "@drake_models//:iiwa_description",
         "@drake_models//:manipulation_station",
         "@drake_models//:veggies",
         "@drake_models//:wsg_50_description",
+    ],
+    deps = [
+        ":all_py",
+        "//bindings/pydrake/common/test_utilities",
+    ],
+)
+
+drake_py_test(
+    name = "bug24529_test",
+    data = [
+        "//examples/acrobot:models",
     ],
     deps = [
         ":all_py",
