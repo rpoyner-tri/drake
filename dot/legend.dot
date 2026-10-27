@@ -28,6 +28,11 @@ digraph G {
   }
 
   {
+    edge [color="#E377C2", style=bold, label="ensure_callback_lifetime (pydrake)", constraint=false];
+    ecl1 -> ecl2;
+  }
+
+  {
     edge [color="#8C564B", style=bold, label="life support (pydrake)", constraint=false];
     ls1 -> ls2;
   }
@@ -37,11 +42,13 @@ digraph G {
   ka1 -> o1;
   o1 -> a1;
   a1 -> rc1;
-  rc1 -> ls1;
+  rc1 -> ecl1;
+  ecl1 -> ls1;
   
   r2 -> ka2;
   ka2 -> o2;
   o2 -> a2;
   a2 -> rc2;
-  rc2 -> ls2;
+  rc2 -> ecl2;
+  ecl2 -> ls2;
 }

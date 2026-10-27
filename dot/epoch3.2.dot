@@ -1,0 +1,46 @@
+digraph G {
+  label="Before #25093: witness function with calc and event callbacks (leaks)";
+  edge [minlen=2];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    system;
+  }
+  
+  pysys [label="MySystem"];
+  pywit [label="WitnessFunction"];
+  pycalc [label="bound method\nself._calc"];
+  pycb [label="bound method\nself._on_publish"];
+  csys [label="LeafSystem"];
+  cwit [label="WitnessFunction"];
+  cfncalc [label="std::function"];
+  cevclone [label="PublishEvent\n(clone)"];
+  cfncb [label="std::function"];
+  
+  { rank = same; variables; system; }
+  { rank = same; Python; pysys; pywit; pycalc; pycb; }
+  { rank = same; "C++"; csys; cwit; cfncalc; cevclone; cfncb; }
+  
+  {
+    edge [color="#1F77B4", style=bold];
+    system -> pysys;
+    pysys -> pywit [constraint=false, label="_witness"];
+    pycalc -> pysys [constraint=false];
+    pycb -> pysys [constraint=false];
+  }
+  
+  {
+    edge [color="#FF7F0E", style=bold];
+    pysys -> csys;
+    pywit -> cwit;
+    cwit -> cfncalc [constraint=false];
+    cwit -> cevclone [constraint=false];
+    cevclone -> cfncb [constraint=false];
+    cfncalc -> pycalc;
+    cfncb -> pycb;
+  }
+}

@@ -1,0 +1,37 @@
+digraph G {
+  label="Before #25093: periodic event with a bound-method callback (leaks)";
+  edge [minlen=2];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    system;
+  }
+  
+  pysys [label="MySystem"];
+  pycb [label="bound method\nself._on_publish"];
+  csys [label="LeafSystem"];
+  cev [label="PublishEvent\n(stored copy)"];
+  cfn [label="std::function"];
+  
+  { rank = same; variables; system; }
+  { rank = same; Python; pysys; pycb; }
+  { rank = same; "C++"; csys; cev; cfn; }
+  
+  {
+    edge [color="#1F77B4", style=bold];
+    system -> pysys;
+    pycb -> pysys [constraint=false];
+  }
+  
+  {
+    edge [color="#FF7F0E", style=bold];
+    pysys -> csys;
+    csys -> cev [constraint=false];
+    cev -> cfn [constraint=false];
+    cfn -> pycb;
+  }
+}

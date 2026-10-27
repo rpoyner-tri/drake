@@ -1,0 +1,53 @@
+digraph G {
+  label="After #25093: periodic event with a bound-method callback";
+  edge [minlen=2];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    system;
+  }
+  
+  pysys [label="MySystem"];
+  pyev [label="PublishEvent"];
+  pycb [label="bound method\nself._on_publish"];
+  csys [label="LeafSystem"];
+  cevcopy [label="PublishEvent\n(stored copy)"];
+  cev [label="PublishEvent"];
+  
+  { rank = same; variables; system; }
+  { rank = same; Python; pysys; pyev; pycb; }
+  { rank = same; "C++"; csys; cevcopy; cev; }
+  
+  {
+    edge [color="#1F77B4", style=bold];
+    system -> pysys;
+    pycb -> pysys [constraint=false];
+  }
+  
+  {
+    edge [color="#FF7F0E", style=bold];
+    pysys -> csys;
+    csys -> cevcopy [constraint=false];
+    pyev -> cev;
+  }
+  
+  {
+    edge [color="#D62728", style=dotted];
+    cev -> pycb;
+    cevcopy -> pycb;
+  }
+  
+  {
+    edge [color="#9467BD", style=bold, constraint=false, dir=both];
+    pysys -> pyev;
+  }
+  
+  {
+    edge [color="#E377C2", style=bold, constraint=false];
+    pyev -> pycb;
+  }
+}
