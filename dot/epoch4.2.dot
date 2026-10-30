@@ -1,0 +1,43 @@
+digraph G {
+  label="Current master: a copyable value type leaks, and cannot simply borrow its callback";
+  edge [minlen=2];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    owner;
+  }
+
+  pyowner [label="Owner"];
+  pytraj [label="FunctionHandleTrajectory"];
+  pycb [label="closure\n(refers to Owner)"];
+  ctraj [label="FunctionHandleTrajectory"];
+  cfn1 [label="std::function"];
+  csrc [label="TrajectorySource"];
+  ccopy [label="FunctionHandleTrajectory\n(copy)"];
+  cfn2 [label="std::function"];
+
+  { rank = same; variables; owner; }
+  { rank = same; Python; pyowner; pytraj; pycb; }
+  { rank = same; "C++"; ctraj; cfn1; csrc; ccopy; cfn2; }
+
+  {
+    edge [color="#1F77B4", style=bold];
+    owner -> pyowner;
+    pyowner -> pytraj [constraint=false, label="traj"];
+    pycb -> pyowner [constraint=false];
+  }
+
+  {
+    edge [color="#FF7F0E", style=bold];
+    pytraj -> ctraj;
+    ctraj -> cfn1 [constraint=false];
+    cfn1 -> pycb;
+    csrc -> ccopy [constraint=false];
+    ccopy -> cfn2 [constraint=false];
+    cfn2 -> pycb;
+  }
+}

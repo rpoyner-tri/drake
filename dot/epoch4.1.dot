@@ -1,0 +1,36 @@
+digraph G {
+  label="Current master: a callback that refers to nothing is collected (no cycle)";
+  edge [minlen=2];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    owner;
+  }
+
+  pyowner [label="Owner"];
+  pysim [label="Simulator"];
+  pycb [label="function\n(refers to nothing)"];
+  csim [label="Simulator"];
+  cfn [label="std::function"];
+
+  { rank = same; variables; owner; }
+  { rank = same; Python; pyowner; pysim; pycb; }
+  { rank = same; "C++"; csim; cfn; }
+
+  {
+    edge [color="#1F77B4", style=bold];
+    owner -> pyowner;
+    pyowner -> pysim [constraint=false, label="sim"];
+  }
+
+  {
+    edge [color="#FF7F0E", style=bold];
+    pysim -> csim;
+    csim -> cfn [constraint=false];
+    cfn -> pycb;
+  }
+}
