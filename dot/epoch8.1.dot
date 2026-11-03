@@ -1,0 +1,50 @@
+digraph G {
+  label="This PR: the DiffIK collision constraint borrows its select-data function; the closure cycle is all Python references, so it is freed once the system lets go of its recipe";
+  edge [minlen=2];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    dut;
+  }
+
+  pysys [label="DifferentialInverse\nKinematicsSystem"];
+  pyrecipe [label="Recipe"];
+  pying [label="CollisionConstraint\n(ingredient)"];
+  pysel [label="selector\n(closure over ingredient)"];
+  csys [label="DifferentialInverse\nKinematicsSystem"];
+  cing [label="CollisionConstraint\n(C++)"];
+  cfn [label="std::function"];
+
+  { rank = same; variables; dut; }
+  { rank = same; Python; pysys; pyrecipe; pying; pysel; }
+  { rank = same; "C++"; csys; cing; cfn; }
+
+  {
+    edge [color="#1F77B4", style=bold];
+    dut -> pysys;
+    pyrecipe -> pying [constraint=false];
+    pysel -> pying [constraint=false];
+  }
+
+  {
+    edge [color="#E377C2", style=bold];
+    pying -> pysel [constraint=false];
+  }
+
+  {
+    edge [color="#FF7F0E", style=bold];
+    pysys -> csys;
+    csys -> pyrecipe [label="captured\nreference"];
+    pying -> cing;
+    cing -> cfn [constraint=false];
+  }
+
+  {
+    edge [color="#D62728", style=dotted];
+    cfn -> pysel;
+  }
+}

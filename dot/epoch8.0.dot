@@ -1,0 +1,46 @@
+digraph G {
+  label="This PR: DrakeLcm.Subscribe borrows the handler; the Python DrakeLcm keeps it alive where the garbage collector can see";
+  edge [minlen=2];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    owner;
+  }
+
+  pyowner [label="Owner"];
+  pylcm [label="DrakeLcm"];
+  pycb [label="bound method\nself._on_message"];
+  clcm [label="DrakeLcm"];
+  cfn [label="std::function\n(subscription)"];
+
+  { rank = same; variables; owner; }
+  { rank = same; Python; pyowner; pylcm; pycb; }
+  { rank = same; "C++"; clcm; cfn; }
+
+  {
+    edge [color="#1F77B4", style=bold];
+    owner -> pyowner;
+    pyowner -> pylcm [constraint=false, label="lcm"];
+    pycb -> pyowner [constraint=false];
+  }
+
+  {
+    edge [color="#E377C2", style=bold];
+    pylcm -> pycb [constraint=false];
+  }
+
+  {
+    edge [color="#FF7F0E", style=bold];
+    pylcm -> clcm;
+    clcm -> cfn [constraint=false];
+  }
+
+  {
+    edge [color="#D62728", style=dotted];
+    cfn -> pycb;
+  }
+}
