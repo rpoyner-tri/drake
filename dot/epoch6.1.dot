@@ -1,0 +1,51 @@
+digraph G {
+  label="This PR: an evaluator added to a second program is kept alive by that program too, because the C++ evaluator is shared and borrows its function";
+  edge [minlen=2];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    prog_b;
+  }
+
+  pyprogb [label="MathematicalProgram\n(second)"];
+  pyproga [label="MathematicalProgram\n(first)"];
+  pyeval [label="PyFunctionCost"];
+  pycb [label="bound method\nself._cost"];
+  cproga [label="MathematicalProgram\n(first)"];
+  cprogb [label="MathematicalProgram\n(second)"];
+  ccost [label="PyFunctionCost\n(shared_ptr)"];
+
+  { rank = same; variables; prog_b; }
+  { rank = same; Python; pyprogb; pyproga; pyeval; pycb; }
+  { rank = same; "C++"; cproga; cprogb; ccost; }
+
+  {
+    edge [color="#1F77B4", style=bold];
+    prog_b -> pyprogb;
+    pyeval -> pycb [constraint=false, label="owns function"];
+    pyprogb -> pyeval [constraint=false, label="AddCost(binding)"];
+  }
+
+  {
+    edge [color="#9467BD", style=bold, dir=both];
+    pyproga -> pyeval [constraint=false];
+  }
+
+  {
+    edge [color="#FF7F0E", style=bold];
+    pyproga -> cproga;
+    pyprogb -> cprogb;
+    pyeval -> ccost;
+    cproga -> ccost [constraint=false];
+    cprogb -> ccost [constraint=false];
+  }
+
+  {
+    edge [color="#D62728", style=dotted];
+    ccost -> pycb;
+  }
+}

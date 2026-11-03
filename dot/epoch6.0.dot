@@ -1,0 +1,49 @@
+digraph G {
+  label="This PR: AddCost(func) borrows the function; the program and its cost evaluator keep each other alive, and the evaluator owns the function";
+  edge [minlen=2];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    owner;
+  }
+
+  pyowner [label="Owner"];
+  pyprog [label="MathematicalProgram"];
+  pyeval [label="PyFunctionCost"];
+  pycb [label="bound method\nself._cost"];
+  cprog [label="MathematicalProgram"];
+  ccost [label="PyFunctionCost\n(shared_ptr)"];
+
+  { rank = same; variables; owner; }
+  { rank = same; Python; pyowner; pyprog; pyeval; pycb; }
+  { rank = same; "C++"; cprog; ccost; }
+
+  {
+    edge [color="#1F77B4", style=bold];
+    owner -> pyowner;
+    pyowner -> pyprog [constraint=false, label="prog"];
+    pyeval -> pycb [constraint=false, label="owns function"];
+    pycb -> pyowner [constraint=false];
+  }
+
+  {
+    edge [color="#9467BD", style=bold, dir=both];
+    pyprog -> pyeval [constraint=false];
+  }
+
+  {
+    edge [color="#FF7F0E", style=bold];
+    pyprog -> cprog;
+    pyeval -> ccost;
+    cprog -> ccost [constraint=false];
+  }
+
+  {
+    edge [color="#D62728", style=dotted];
+    ccost -> pycb;
+  }
+}
