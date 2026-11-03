@@ -1,0 +1,31 @@
+digraph G {
+  label="Defect 1 (before): set_monitor() adds every callable to an append-only set on the simulator, so replaced and cleared monitors are never released";
+  edge [minlen=2];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    simulator;
+  }
+
+  pysim [label="Simulator"];
+  set [label="set of callbacks\n(append-only)"];
+  m1 [label="monitor 1\n(replaced)", style=filled, fillcolor="#FFD6D6"];
+  m2 [label="monitor 2\n(replaced)", style=filled, fillcolor="#FFD6D6"];
+  m3 [label="monitor 3\n(current)"];
+  csim [label="Simulator"];
+  cfn [label="std::function\n(current monitor)"];
+
+  { rank = same; variables; simulator; }
+  { rank = same; Python; pysim; set; m1; m2; m3; }
+  { rank = same; "C++"; csim; cfn; }
+
+  { edge [color="#1F77B4", style=bold]; simulator -> pysim; }
+  { edge [color="#E377C2", style=bold]; pysim -> set [constraint=false];
+    set -> m1 [constraint=false]; set -> m2 [constraint=false]; set -> m3 [constraint=false]; }
+  { edge [color="#FF7F0E", style=bold]; pysim -> csim; csim -> cfn [constraint=false]; }
+  { edge [color="#D62728", style=dotted]; cfn -> m3; }
+}

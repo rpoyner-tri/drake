@@ -1,0 +1,28 @@
+digraph G {
+  label="Defect 2 (before): the function returned by get_monitor() captures the simulator in C++; installing it back on the simulator makes a cycle that GC cannot see";
+  edge [minlen=2];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    simulator;
+  }
+
+  pysim [label="Simulator"];
+  set [label="set of callbacks"];
+  pyfn [label="function object\nfrom get_monitor()"];
+  csim [label="Simulator"];
+  cfn [label="std::function\n(captures Simulator\nPython object)"];
+
+  { rank = same; variables; simulator; }
+  { rank = same; Python; pysim; set; pyfn; }
+  { rank = same; "C++"; csim; cfn; }
+
+  { edge [color="#1F77B4", style=bold]; simulator -> pysim; }
+  { edge [color="#E377C2", style=bold]; pysim -> set [constraint=false]; set -> pyfn [constraint=false]; }
+  { edge [color="#FF7F0E", style=bold]; pysim -> csim; pyfn -> cfn;
+    cfn -> pysim [label="strong ref,\ninvisible to GC", fontsize=10, color="#FF7F0E", constraint=false]; }
+}

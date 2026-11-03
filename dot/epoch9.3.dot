@@ -1,0 +1,29 @@
+digraph G {
+  label="Defect 2 (after): get_monitor() returns a Python wrapper that refers only to the user's callable; there is no reference back to the simulator";
+  edge [minlen=2];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    simulator; result;
+  }
+
+  pysim [label="Simulator"];
+  wrap [label="_SimulatorMonitor\n(returned wrapper)"];
+  cb [label="user's callable"];
+  csim [label="Simulator"];
+  cfn [label="std::function\n(current monitor)"];
+
+  { rank = same; variables; simulator; result; }
+  { rank = same; Python; pysim; wrap; cb; }
+  { rank = same; "C++"; csim; cfn; }
+
+  { edge [color="#1F77B4", style=bold]; simulator -> pysim; result -> wrap;
+    pysim -> cb [label="_monitor", fontsize=10, constraint=false];
+    wrap -> cb [label="monitor", fontsize=10, constraint=false]; }
+  { edge [color="#FF7F0E", style=bold]; pysim -> csim; csim -> cfn [constraint=false]; }
+  { edge [color="#D62728", style=dotted]; cfn -> cb; }
+}
