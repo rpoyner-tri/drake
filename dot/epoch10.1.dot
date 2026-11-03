@@ -1,0 +1,34 @@
+digraph G {
+  label="After: peers are kept in a dict keyed by address, so they are tracked by identity and never hashed or compared";
+  edge [minlen=2];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    nurse;
+  }
+
+  pynurse [label="nurse"];
+  d [label="peers: dict\nkey = address of peer"];
+  a [label="callback A"];
+  b [label="callback B\n(equal to C)"];
+  c [label="callback C\n(equal to B)"];
+  u [label="callback U\n(unhashable)"];
+  cnurse [label="C++ object"];
+  fa [label="std::function A"];
+  fc [label="std::function C"];
+
+  { rank = same; variables; nurse; }
+  { rank = same; Python; pynurse; d; a; b; c; u; }
+  { rank = same; "C++"; cnurse; fa; fc; }
+
+  { edge [color="#1F77B4", style=bold]; nurse -> pynurse; }
+  { edge [color="#E377C2", style=bold]; pynurse -> d [constraint=false];
+    d -> a [constraint=false, label="id(A)", fontsize=10]; d -> b [constraint=false, label="id(B)", fontsize=10];
+    d -> c [constraint=false, label="id(C)", fontsize=10]; d -> u [constraint=false, label="id(U)", fontsize=10]; }
+  { edge [color="#FF7F0E", style=bold]; pynurse -> cnurse; cnurse -> fa [constraint=false]; cnurse -> fc [constraint=false]; }
+  { edge [color="#D62728", style=dotted]; fa -> a; fc -> c; }
+}

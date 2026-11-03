@@ -1,0 +1,33 @@
+digraph G {
+  label="Before: peers are kept in a set, so they must be hashable and equal peers collapse into one entry";
+  edge [minlen=2];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    nurse;
+  }
+
+  pynurse [label="nurse"];
+  set [label="peers: set\n(hashes and compares\nits members)"];
+  a [label="callback A"];
+  b [label="callback B\n(equal to C)"];
+  c [label="callback C\n(equal to B)\nnot stored: collapsed\ninto B", style="dashed,filled", fillcolor="#FFD6D6"];
+  u [label="callback U\n(unhashable)\nnot stored: TypeError,\nthen SystemError", style="dashed,filled", fillcolor="#FFD6D6"];
+  cnurse [label="C++ object"];
+  fa [label="std::function A"];
+  fc [label="std::function C"];
+
+  { rank = same; variables; nurse; }
+  { rank = same; Python; pynurse; set; a; b; c; u; }
+  { rank = same; "C++"; cnurse; fa; fc; }
+
+  { edge [color="#1F77B4", style=bold]; nurse -> pynurse; }
+  { edge [color="#E377C2", style=bold]; pynurse -> set [constraint=false];
+    set -> a [constraint=false]; set -> b [constraint=false]; }
+  { edge [color="#FF7F0E", style=bold]; pynurse -> cnurse; cnurse -> fa [constraint=false]; cnurse -> fc [constraint=false]; }
+  { edge [color="#D62728", style=dotted]; fa -> a; fc -> c [label="may dangle", fontsize=10]; }
+}
