@@ -1,0 +1,52 @@
+digraph G {
+  label="This PR: a CollisionChecker and its clone share one borrowed function, so each keeps the other alive";
+  edge [minlen=2];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    clone;
+  }
+
+  pyclone [label="CollisionChecker\n(clone)"];
+  pychecker [label="CollisionChecker\n(original)"];
+  pycb [label="function\nor bound method"];
+  cchecker [label="CollisionChecker\n(original)"];
+  cclone [label="CollisionChecker\n(clone)"];
+  cfn [label="std::function\n(shared provider)"];
+
+  { rank = same; variables; clone; }
+  { rank = same; Python; pyclone; pychecker; pycb; }
+  { rank = same; "C++"; cclone; cchecker; cfn; }
+
+  {
+    edge [color="#1F77B4", style=bold];
+    clone -> pyclone;
+  }
+
+  {
+    edge [color="#9467BD", style=bold, dir=both];
+    pyclone -> pychecker [constraint=false];
+  }
+
+  {
+    edge [color="#E377C2", style=bold];
+    pychecker -> pycb [constraint=false];
+  }
+
+  {
+    edge [color="#FF7F0E", style=bold];
+    pyclone -> cclone;
+    pychecker -> cchecker;
+    cclone -> cfn [constraint=false];
+    cchecker -> cfn [constraint=false];
+  }
+
+  {
+    edge [color="#D62728", style=dotted];
+    cfn -> pycb;
+  }
+}
