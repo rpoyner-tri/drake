@@ -1,0 +1,50 @@
+digraph G {
+  label="This PR: cache entries and output ports borrow their callables; the system and its ValueProducer keep each other, and the callables, alive";
+  edge [minlen=2];
+  {
+    node [shape=plaintext];
+    edge [style=invis];
+    variables -> Python -> "C++";
+  }
+  {
+    node [shape=plaintext, fontname="Courier"];
+    system;
+  }
+
+  pysys [label="MySystem"];
+  pyvp [label="ValueProducer"];
+  pycb [label="bound method\nself._calc"];
+  csys [label="MySystem"];
+  cfn [label="std::function\n(cache entry)"];
+
+  { rank = same; variables; system; }
+  { rank = same; Python; pysys; pyvp; pycb; }
+  { rank = same; "C++"; csys; cfn; }
+
+  {
+    edge [color="#1F77B4", style=bold];
+    system -> pysys;
+    pycb -> pysys [constraint=false];
+  }
+
+  {
+    edge [color="#9467BD", style=bold, dir=both];
+    pysys -> pyvp [constraint=false];
+  }
+
+  {
+    edge [color="#E377C2", style=bold];
+    pyvp -> pycb [constraint=false];
+  }
+
+  {
+    edge [color="#FF7F0E", style=bold];
+    pysys -> csys;
+    csys -> cfn [constraint=false];
+  }
+
+  {
+    edge [color="#D62728", style=dotted];
+    cfn -> pycb;
+  }
+}
