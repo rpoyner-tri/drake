@@ -6,6 +6,7 @@
 #include "drake/bindings/pydrake/autodiff_types_pybind.h"
 #include "drake/bindings/pydrake/autodiffutils/autodiffutils_py.h"
 #include "drake/bindings/pydrake/common/cpp_template_pybind.h"
+#include "drake/bindings/pydrake/common/serialize_pybind.h"
 #include "drake/bindings/pydrake/common/submodules_py.h"
 #include "drake/bindings/pydrake/common/text_logging_pybind.h"
 #include "drake/bindings/pydrake/math/math_py.h"
@@ -24,6 +25,7 @@
 #include "drake/common/sha256.h"
 #include "drake/common/temp_directory.h"
 #include "drake/common/text_logging.h"
+#include "drake/common/unchanged.h"
 
 namespace drake {
 namespace pydrake {
@@ -206,6 +208,16 @@ void InitLowLevelModules(py::module_ m) {
           DRAKE_THROW_UNLESS(sha_maybe.has_value());
           new (self) Class(*sha_maybe);
         });
+    DefCopyAndDeepCopy(&cls);
+  }
+
+  {
+    using Class = Unchanged;
+    constexpr auto& cls_doc = doc.Unchanged;
+    class_<Class> cls(m, "Unchanged", cls_doc.doc);
+    cls  // BR
+        .def(py::init<>());
+    DefAttributesUsingSerialize(&cls, cls_doc);
     DefCopyAndDeepCopy(&cls);
   }
 

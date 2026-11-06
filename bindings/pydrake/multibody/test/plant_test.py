@@ -10,13 +10,14 @@ import weakref
 import numpy as np
 
 from pydrake.autodiffutils import AutoDiffXd
-from pydrake.common import FindResourceOrThrow, Parallelism
+from pydrake.common import FindResourceOrThrow, Parallelism, Unchanged
 from pydrake.common.cpp_param import List
 from pydrake.common.deprecation import install_numpy_warning_filters
 from pydrake.common.eigen_geometry import Quaternion_
 from pydrake.common.test_utilities import numpy_compare
 from pydrake.common.test_utilities.pickle_compare import assert_pickle
 from pydrake.common.value import AbstractValue, Value
+from pydrake.common.yaml import yaml_dump_typed, yaml_load_typed
 from pydrake.geometry import (
     Box,
     GeometryId,
@@ -369,6 +370,31 @@ class TestPlant(unittest.TestCase):
         self.assertEqual(
             plant.get_contact_model(), ContactModel.kHydroelasticsOnly
         )
+
+    def test_multibody_plant_config_sampled_output_ports(self):
+        # The default is Unchanged, which leaves the plant's own default.
+        config = MultibodyPlantConfig(time_step=0.01)
+        self.assertIsInstance(config.use_sampled_output_ports, Unchanged)
+        builder = DiagramBuilder_[float]()
+        plant, _ = AddMultibodyPlant(config=config, builder=builder)
+        self.assertTrue(plant.has_sampled_output_ports())
+
+        # A bool is applied.
+        config.use_sampled_output_ports = False
+        builder = DiagramBuilder_[float]()
+        plant, _ = AddMultibodyPlant(config=config, builder=builder)
+        self.assertFalse(plant.has_sampled_output_ports())
+
+        # Round trip through YAML.
+        yaml = yaml_dump_typed(config)
+        self.assertIn("use_sampled_output_ports: false", yaml)
+        loaded = yaml_load_typed(schema=MultibodyPlantConfig, data=yaml)
+        self.assertEqual(loaded.use_sampled_output_ports, False)
+        config.use_sampled_output_ports = Unchanged()
+        loaded = yaml_load_typed(
+            schema=MultibodyPlantConfig, data=yaml_dump_typed(config)
+        )
+        self.assertIsInstance(loaded.use_sampled_output_ports, Unchanged)
 
     def test_add_multibody_plant_config_3args(self):
         plant_config = MultibodyPlantConfig(time_step=0.01)
